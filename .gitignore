@@ -1,0 +1,7 @@
+# User-specific stuff
+.idea/
+target/
+*.iml
+application.conf
+*.log
+.DS_Store
