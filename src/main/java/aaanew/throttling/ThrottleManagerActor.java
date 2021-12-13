@@ -22,23 +22,17 @@ import akka.actor.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ret.appcore.model.enums.WebsiteEnum;
-import ret.webscrapers.actors.ActorClass;
-import ret.webscrapers.data.send.DataSending;
 import ret.webscrapers.messages.ThrottleScrapersMsg;
-import ret.webscrapers.scraping.data.images.ImageScrapersManagerActor;
-import ret.webscrapers.scraping.data.inzeraty.InzeratQueryManagerActor;
 
 import java.time.Duration;
 import java.util.Optional;
 
 @Deprecated // TODO throttling should be implemented differently ...
-public class ThrottleManagerActor extends AbstractActor implements DataSending {
+public class ThrottleManagerActor extends AbstractActor {
 
     private static final Logger log = LogManager.getLogger(ThrottleManagerActor.class);
     private final ThrottlingCalculator throttler;
-    @ActorClass(InzeratQueryManagerActor.class)
     private final ActorRef inzeratScrapersManagerActor;
-    @ActorClass(ImageScrapersManagerActor.class)
     private final ActorRef imageScrapersManagerActor;
     private Cancellable nextAnalysisCancellable;
     private final Duration responsivenessCheckInterval;
@@ -104,10 +98,7 @@ public class ThrottleManagerActor extends AbstractActor implements DataSending {
         log.error("ThrottleManagerActor received UNKNOWN MESSAGE: {}", msg);
     }
 
-    @Override
     public void sendToDataSenderActor(Object dataMsg) {
-        // do nothing
-        log.error("This is not implemented - should not be used");
     }
 
 

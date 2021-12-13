@@ -20,6 +20,7 @@ package ret.webscrapers.messages;
 import aaanew.throttling.model.ThrottleCommand;
 import ret.appcore.model.enums.WebsiteEnum;
 
+@Deprecated
 public class ThrottleScrapersMsg {
 
     private final WebsiteEnum website;
