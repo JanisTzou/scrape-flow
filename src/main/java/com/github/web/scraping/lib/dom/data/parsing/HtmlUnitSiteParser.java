@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("OptionalIsPresent")
 public class HtmlUnitSiteParser extends SiteParser<WebClient> {
 
+    // TODO should the strategies contain info about how to group the parsed output?
     private final List<HtmlUnitParsingStrategy> parsingStrategies;
 
     public HtmlUnitSiteParser(DriverManager<WebClient> driverManager,
@@ -39,13 +39,15 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
     }
 
     @Override
-    public List<ParsingResult> parse(String url) {
+    public List<ParsedElement> parse(String url) {
         final WebClient webClient = driverManager.getDriver();
         final Optional<HtmlPage> page = getHtmlPage(url, webClient);
-        if (page.isPresent()) {
-            return parsingStrategies.stream().flatMap(s -> s.parse(page.get()).stream()).collect(Collectors.toList());
-        }
-        return Collections.emptyList();
+//        System.out.println(page.get().asXml());
+        return page.map(this::parsePage).orElse(Collections.emptyList());
+    }
+
+    private List<ParsedElement> parsePage(HtmlPage page) {
+        return parsingStrategies.stream().flatMap(s -> s.parse(page).stream()).collect(Collectors.toList());
     }
 
     private Optional<HtmlPage> getHtmlPage(String inzeratUrl, WebClient webClient) {

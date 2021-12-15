@@ -14,20 +14,8 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing;
+package com.github.web.scraping.lib.scraping.utils;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-
-@RequiredArgsConstructor
-@Getter
-@ToString
-public class ParsingResult {
-
-    private final Enum<?> identifier;
-    private final String href;
-    private final String text;
-    // can contain image also ...
-
+public interface ConsumerOperation {
+    void execute() throws ProcessingException;
 }

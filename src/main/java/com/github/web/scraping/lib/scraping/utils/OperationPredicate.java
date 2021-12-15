@@ -14,22 +14,8 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.utils;
+package com.github.web.scraping.lib.scraping.utils;
 
-
-public class ProcessingException extends Exception {
-    public ProcessingException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ProcessingException(String message) {
-        super(message);
-    }
-
-    public ProcessingException() {}
-
-    public ProcessingException(Throwable cause) {
-        super(cause);
-    }
+public interface OperationPredicate<T> {
+    public boolean test(T t) throws ProcessingException;
 }
-

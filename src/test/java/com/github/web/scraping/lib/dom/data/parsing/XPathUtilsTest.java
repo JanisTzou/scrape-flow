@@ -16,8 +16,14 @@
 
 package com.github.web.scraping.lib.dom.data.parsing;
 
-public abstract class ByFullXPath  {
+import junit.framework.TestCase;
 
-    // TODO similar static methods to ByDataExample ...
+public class XPathUtilsTest extends TestCase {
 
+    public void testGetXPathSubstr() {
+
+        String substr = XPathUtils.getXPathSubstrHead("/html/body/div[1]/div[2]/div[1]", 1);
+        assertEquals(substr, "/html/body/div[1]/div[2]");
+
+    }
 }

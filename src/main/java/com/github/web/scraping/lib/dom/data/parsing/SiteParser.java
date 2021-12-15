@@ -29,7 +29,10 @@ public abstract class SiteParser<T> {
 
     protected final DriverManager<T> driverManager;
 
-    public abstract List<ParsingResult> parse(String url);
+    // TODO how to organize the results? we might have tabular data and need to distinguish between different rows ...
+    //  also there might be some shared data ...
+    //  we should be able to assign group numbers
+    public abstract List<ParsedElement> parse(String url);
 
     // TODO create specific implementations for HtmlUnit and Selenium ...
 

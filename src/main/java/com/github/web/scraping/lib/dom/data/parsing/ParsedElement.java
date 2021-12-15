@@ -14,21 +14,27 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib;
+package com.github.web.scraping.lib.dom.data.parsing;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @Getter
 @ToString
-public class EntryPoint {
+public class ParsedElement { // TODO rename to parsed element? parsed field ? ...
 
-    private final String url;
+    private final Enum<?> identifier;
+    private final String href;  // TODO somehow from this href we might need to make another full URLs ...
+    // TODO sometimes the NEXT stage might not have a href but a JS triggered button ...
 
-    private final ScrapingStage scrapingStage;
+    // TODO include element for debugging ?
+
+    //    private final boolean shouldScrapeNext; // TODO should this be here ?
+    private final String text;
+
+    private final Object element;
+    // can contain image also ...
 
 }

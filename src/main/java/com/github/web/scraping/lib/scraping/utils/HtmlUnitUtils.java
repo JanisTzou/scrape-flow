@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.utils;
+package com.github.web.scraping.lib.scraping.utils;
 
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.DomNodeList;

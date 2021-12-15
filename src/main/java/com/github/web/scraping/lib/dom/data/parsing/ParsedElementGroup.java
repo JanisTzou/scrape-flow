@@ -16,21 +16,17 @@
 
 package com.github.web.scraping.lib.dom.data.parsing;
 
-public class ByDataExample {
+import lombok.RequiredArgsConstructor;
 
-    // TODO
+import java.util.Map;
 
-    public static ByDataExample forSingleItem(DataExample dataExample) {
-        return null;
-    }
+@RequiredArgsConstructor
+public class ParsedElementGroup {
 
-    /**
-     * Two data examples needed to be able to find all the list items
-     * @param dataExample1
-     * @param dataExample2
-     */
-    public static ByDataExample forMultipleItems(DataExample dataExample1, DataExample dataExample2) {
-        return null;
-    }
+    final Enum<?> groupIdentifier;
+
+    final Map<Enum<?>, ParsedElement> parsedElements;
+
+    // TODO should contain other groups as well?
 
 }

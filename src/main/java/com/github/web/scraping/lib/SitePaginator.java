@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.utils;
+package com.github.web.scraping.lib;
 
-public interface OperationPredicate<T> {
-    public boolean test(T t) throws ProcessingException;
+public interface SitePaginator<T> {
+
+    // encapsulates logic to go to the next page when everything is scraped from current site ...
+
+    // this is driver specific ... something like parser ....
+
+
 }

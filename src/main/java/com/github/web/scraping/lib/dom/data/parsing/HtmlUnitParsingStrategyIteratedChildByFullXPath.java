@@ -16,23 +16,55 @@
 
 package com.github.web.scraping.lib.dom.data.parsing;
 
-import com.gargoylesoftware.htmlunit.html.*;
+import com.gargoylesoftware.htmlunit.html.DomElement;
+import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-public class HtmlUnitParsingStrategyByFullXPath implements HtmlUnitParsingStrategy {
+public class HtmlUnitParsingStrategyIteratedChildByFullXPath implements HtmlUnitParsingStrategy {
 
     private final Enum<?> dataType;
-    private final String xpath;
+
+    // the xPath of the first child
+    private final String xPath;
+
+    // for each iterated element these strategies will be applied to parse data ...
+    private final List<HtmlUnitParsingStrategy> strategies;
+
+    /*
+    example:
+    // /html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]
+    // /html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[2]
+    // /html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[1]/div/div[1]/span[1]
+     */
+
 
     @Override
-    public List<ParsedElement> parse(DomNode loadedPage) {
-        return loadedPage.getByXPath(xpath).stream()
+    public List<ParsedElement> parse(DomNode parentElement) {
+
+        // figure out the diff between this.xPath and the parent element xPath ... then use that
+
+        String parentXPath = parentElement.getCanonicalXPath();
+        String parentBaseXPath = XPathUtils.getXPathSubstrHead(parentXPath, 1);
+        // the part of the child's xpath that will be the same through all the parents
+        Optional<String> xPathDiff = XPathUtils.getXPathDiff(parentBaseXPath, xPath);
+        if (xPathDiff.isEmpty()) {
+            return Collections.emptyList();
+        }
+        String childStaticPartXPath = XPathUtils.getXPathSubstrTailFromStart(xPathDiff.get(), 1);
+
+        String childXPath = XPathUtils.concat(parentXPath, childStaticPartXPath);
+
+        List<ParsedElement> parsedElements = parentElement.getByXPath(childXPath).stream()
                 .map(el -> {
                     String href = null;
                     String tc = null;
@@ -53,7 +85,16 @@ public class HtmlUnitParsingStrategyByFullXPath implements HtmlUnitParsingStrate
                     return null;
                 })
                 .filter(Objects::nonNull)
+                .flatMap(parsedEl -> {
+                    // TODO are these really children? Might not be at all ... hamdle different levels here ...
+                    Stream<ParsedElement> childParsedEls = strategies.stream()
+                            .flatMap(s -> s.parse((DomNode) parsedEl.getElement()).stream());
+                    return Stream.concat(Stream.of(parsedEl) , childParsedEls);
+                })
                 .collect(Collectors.toList());
+
+
+        return parsedElements;
     }
 
     private String removeNestedElementsTextContent(String textContent, HtmlElement el) {

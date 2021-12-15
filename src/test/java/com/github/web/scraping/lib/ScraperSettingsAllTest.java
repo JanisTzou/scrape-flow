@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.throttling.model;
+package com.github.web.scraping.lib;
 
+import com.github.web.scraping.lib.throttling.model.ScrapedDataType;
+import com.github.web.scraping.lib.throttling.model.ScraperSettings;
+import com.github.web.scraping.lib.throttling.model.ScraperSettingsAll;
 import org.junit.Test;
 import com.github.web.scraping.lib.AppConfig;
 

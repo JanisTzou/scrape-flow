@@ -14,8 +14,22 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.utils;
+package com.github.web.scraping.lib.scraping.utils;
 
-public interface SupplierOperation<T> {
-    T executeAndGet() throws ProcessingException;
+
+public class ProcessingException extends Exception {
+    public ProcessingException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ProcessingException(String message) {
+        super(message);
+    }
+
+    public ProcessingException() {}
+
+    public ProcessingException(Throwable cause) {
+        super(cause);
+    }
 }
+

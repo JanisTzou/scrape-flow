@@ -18,7 +18,6 @@ package com.github.web.scraping.lib.throttling;
 
 
 import com.github.web.scraping.lib.throttling.model.*;
-import lib.throttling.model.*;
 import org.junit.Test;
 import ret.appcore.model.enums.WebsiteEnum;
 

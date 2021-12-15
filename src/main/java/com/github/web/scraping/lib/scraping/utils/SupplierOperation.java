@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.utils;
+package com.github.web.scraping.lib.scraping.utils;
 
-public interface ConsumerOperation {
-    void execute() throws ProcessingException;
+public interface SupplierOperation<T> {
+    T executeAndGet() throws ProcessingException;
 }

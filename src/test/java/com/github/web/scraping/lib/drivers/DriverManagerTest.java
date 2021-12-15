@@ -19,6 +19,7 @@ package com.github.web.scraping.lib.drivers;
 import com.github.web.scraping.lib.drivers.lifecycle.QuitAfterIdleInterval;
 import com.github.web.scraping.lib.drivers.lifecycle.RestartDriverAfterInterval;
 import com.github.web.scraping.lib.throttling.model.ScrapedDataType;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;

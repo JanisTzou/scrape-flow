@@ -16,13 +16,19 @@
 
 package com.github.web.scraping.lib.dom.data.parsing;
 
+import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface HtmlUnitParsingStrategy {
 
+    // TODO perhaps provide documentation that the DomNode can be either loadedPage or an HtmlElement?
     // predicates, sanitizers atc ...?
-    Optional<ParsingResult> parse(HtmlPage loadedPage);   // TODO the input for this will be different for different drivers ...
+    List<ParsedElement> parse(DomNode loadedPage);   // TODO the input for this will be different for different drivers ...
+
+
 
 }
