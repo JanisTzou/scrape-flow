@@ -18,7 +18,6 @@ package com.github.web.scraping.lib.drivers;
 
 import com.github.web.scraping.lib.drivers.lifecycle.QuitAfterIdleInterval;
 import com.github.web.scraping.lib.drivers.lifecycle.RestartDriverAfterInterval;
-import com.github.web.scraping.lib.throttling.model.ScrapedDataType;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -27,8 +26,6 @@ import com.github.web.scraping.lib.AppConfig;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 @Ignore
 public class DriverManagerTest {
@@ -46,7 +43,6 @@ public class DriverManagerTest {
         int restartInMillis = 2_000;
 
         SeleniumDriverManager driverManager = new SeleniumDriverManager(
-                ScrapedDataType.URLS,
                 new RestartDriverAfterInterval(restartInMillis),
                 new QuitAfterIdleInterval(0),
                 driversFactory);
@@ -90,7 +86,6 @@ public class DriverManagerTest {
         int maxIdleIntervalMillis = 2_000;
 
         SeleniumDriverManager driverManager = new SeleniumDriverManager(
-                ScrapedDataType.URLS,
                 new RestartDriverAfterInterval(0),
                 new QuitAfterIdleInterval(maxIdleIntervalMillis),
                 driversFactory);

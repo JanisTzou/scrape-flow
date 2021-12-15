@@ -16,26 +16,18 @@
 
 package com.github.web.scraping.lib.drivers;
 
-import com.github.web.scraping.lib.throttling.model.ScrapedDataType;
 import com.gargoylesoftware.htmlunit.WebClient;
 
 public class HtmlUnitDriverManager implements DriverManager<WebClient> {
 
     private volatile WebClient webClient = null;
-    private final ScrapedDataType scrapedDataType;
     private final HtmlUnitDriversFactory driversFactory;
 
 
-    @Deprecated
-    public HtmlUnitDriverManager(ScrapedDataType scrapedDataType, HtmlUnitDriversFactory driversFactory) {
-        this.scrapedDataType = scrapedDataType;
+    public HtmlUnitDriverManager(HtmlUnitDriversFactory driversFactory) {
         this.driversFactory = driversFactory;
     }
 
-
-    public ScrapedDataType getScrapedDataType() {
-        return scrapedDataType;
-    }
 
     public WebClient getDriver() {
         if (webClient == null) {

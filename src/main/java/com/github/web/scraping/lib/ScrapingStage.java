@@ -21,7 +21,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -29,7 +31,6 @@ import java.util.stream.Collectors;
 /**
  * Encapsulates settings of the next level to scrape data from
  */
-@RequiredArgsConstructor
 public class ScrapingStage {
 
     // how do we determine what URLs will be scraped here?
@@ -50,10 +51,20 @@ public class ScrapingStage {
     @Getter
     private final List<ScrapingStage> nextStages;
 
-
-
     // create Paginator for pagination
     // create Scroller for scrolling ... JS sites ...
+
+
+    public ScrapingStage(SiteParser<?> siteParser, @Nullable Enum<?> hrefKey, @Nullable Function<String, String> hrefToURLMapper, List<ScrapingStage> nextStages) {
+        this.siteParser = siteParser;
+        this.hrefKey = hrefKey;
+        this.hrefToURLMapper = Objects.requireNonNullElse(hrefToURLMapper, s -> s);
+        this.nextStages = nextStages;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
 
 
     public Optional<Enum<?>> getHrefKey() {
@@ -64,6 +75,40 @@ public class ScrapingStage {
         return this.nextStages.stream()
                 .filter(ss -> ss.getHrefKey().isPresent() && ss.getHrefKey().get().equals(identifier))
                 .collect(Collectors.toList());
+    }
+
+    public static class Builder {
+
+        private SiteParser<?> siteParser;
+        @Nullable
+        private Enum<?> hrefKey;
+        private Function<String, String> hrefToURLMapper;
+        private final List<ScrapingStage> nextStages = new ArrayList<>();
+
+        public Builder setParser(SiteParser<?> siteParser) {
+            this.siteParser = siteParser;
+            return this;
+        }
+
+        public Builder setHrefKey(@Nullable Enum<?> hrefKey) {
+            this.hrefKey = hrefKey;
+            return this;
+        }
+
+        public Builder setHrefToURLMapper(Function<String, String> hrefToURLMapper) {
+            this.hrefToURLMapper = hrefToURLMapper;
+            return this;
+        }
+
+        public Builder addNextStage(ScrapingStage nextStage) {
+            this.nextStages.add(nextStage);
+            return this;
+        }
+
+        public ScrapingStage build() {
+            return new ScrapingStage(siteParser, hrefKey, hrefToURLMapper, nextStages);
+        }
+
     }
 
 }

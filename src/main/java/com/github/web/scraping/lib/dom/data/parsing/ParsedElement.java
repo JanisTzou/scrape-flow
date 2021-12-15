@@ -37,4 +37,11 @@ public class ParsedElement { // TODO rename to parsed element? parsed field ? ..
     private final Object element;
     // can contain image also ...
 
+    public String info() {
+        return "identifier=" + identifier +
+                ", text='" + text + "'";
+    }
+
+
+
 }

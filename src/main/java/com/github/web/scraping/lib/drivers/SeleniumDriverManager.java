@@ -18,7 +18,6 @@ package com.github.web.scraping.lib.drivers;
 
 import com.github.web.scraping.lib.drivers.lifecycle.DriverQuitStrategy;
 import com.github.web.scraping.lib.drivers.lifecycle.DriverRestartStrategy;
-import com.github.web.scraping.lib.throttling.model.ScrapedDataType;
 import org.jboss.logging.Logger;
 import org.openqa.selenium.WebDriver;
 
@@ -31,7 +30,6 @@ public class SeleniumDriverManager implements DriverManager<WebDriver> {
 
     private static final Logger log = Logger.getLogger(SeleniumDriverManager.class);
     public static final String DEFAULT_PAGE_URL = "data:,";
-    private final ScrapedDataType scrapedDataType;
     private volatile WebDriver driver;
     private final DriverRestartStrategy restartStrategy;
     private final DriverQuitStrategy quitStrategy;
@@ -41,12 +39,10 @@ public class SeleniumDriverManager implements DriverManager<WebDriver> {
     // no flag about the driver being curently active should be needed as it is owned
 
 
-    public SeleniumDriverManager(ScrapedDataType scrapedDataType,
-                                 DriverRestartStrategy restartStrategy,
+    public SeleniumDriverManager(DriverRestartStrategy restartStrategy,
                                  DriverQuitStrategy driverQuitStrategy,
                                  SeleniumDriversFactory driversFactory) {
 
-        this.scrapedDataType = scrapedDataType;
         this.restartStrategy = restartStrategy;
         this.quitStrategy = driverQuitStrategy;
         this.driversFactory = driversFactory;
@@ -54,9 +50,6 @@ public class SeleniumDriverManager implements DriverManager<WebDriver> {
         this.lastRestartTs = System.currentTimeMillis();
     }
 
-    public ScrapedDataType getScrapedDataType() {
-        return scrapedDataType;
-    }
 
     public WebDriver getDriver() {
         lastUsedTs = System.currentTimeMillis();

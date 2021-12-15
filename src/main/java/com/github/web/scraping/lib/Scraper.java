@@ -49,7 +49,8 @@ public class Scraper {
                 String nextUrl = nextStage.getHrefToURLMapper().apply(parsedElement.getHref());
                 doScrape(nextUrl, nextStage);
             }
-            System.out.println(parsedElement);
+//            System.out.println(parsedElement);
+            System.out.println(parsedElement.info());
         }
     }
 

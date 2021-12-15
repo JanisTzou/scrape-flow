@@ -23,12 +23,25 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import java.util.List;
 import java.util.Optional;
 
-public interface HtmlUnitParsingStrategy {
+// TODO maybe rename to static ...
+public abstract class HtmlUnitParsingStrategy {
 
     // TODO perhaps provide documentation that the DomNode can be either loadedPage or an HtmlElement?
     // predicates, sanitizers atc ...?
-    List<ParsedElement> parse(DomNode loadedPage);   // TODO the input for this will be different for different drivers ...
+    public abstract List<ParsedElement> parse(DomNode loadedPage);   // TODO the input for this will be different for different drivers ...
 
+
+    public static HtmlUnitParsingStrategyByFullXPath.Builder byXPath(String xPath) {
+        return HtmlUnitParsingStrategyByFullXPath.builder().setxPath(xPath);
+    }
+
+    public static HtmlUnitParsingStrategyIterableByFullXPath.Builder iterableByXPath(String xPath) {
+        return HtmlUnitParsingStrategyIterableByFullXPath.builder().setxPath(xPath);
+    }
+
+    public static HtmlUnitParsingStrategyIteratedChildByFullXPath.Builder iteratedChildByXPath(String xPath) {
+        return HtmlUnitParsingStrategyIteratedChildByFullXPath.builder().setxPath(xPath);
+    }
 
 
 }

@@ -19,16 +19,22 @@ package com.github.web.scraping.lib.dom.data.parsing;
 import com.gargoylesoftware.htmlunit.html.*;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class HtmlUnitParsingStrategyByFullXPath implements HtmlUnitParsingStrategy {
+public class HtmlUnitParsingStrategyByFullXPath extends HtmlUnitParsingStrategy {
 
     private final Enum<?> dataType;
     private final String xpath;
+    // TODO support next strategies ...
+
+    public static Builder builder() {
+        return new Builder();
+    }
 
     @Override
     public List<ParsedElement> parse(DomNode loadedPage) {
@@ -61,6 +67,36 @@ public class HtmlUnitParsingStrategyByFullXPath implements HtmlUnitParsingStrate
             textContent = textContent.replace(childElement.getTextContent(), "");
         }
         return textContent;
+    }
+
+
+
+    public static class Builder {
+
+        private Enum<?> identifier;
+        private String xPath;
+
+        // TODO use this one as well ...
+        private final List<HtmlUnitParsingStrategy> nextStrategies = new ArrayList<>();
+
+        public Builder setIdentifier(Enum<?> identifier) {
+            this.identifier = identifier;
+            return this;
+        }
+
+        public Builder setxPath(String xPath) {
+            this.xPath = xPath;
+            return this;
+        }
+
+        public Builder addNextStrategy(HtmlUnitParsingStrategy strategy) {
+            this.nextStrategies.add(strategy);
+            return this;
+        }
+
+        public HtmlUnitParsingStrategyByFullXPath build() {
+            return new HtmlUnitParsingStrategyByFullXPath(identifier, xPath);
+        }
     }
 
 }

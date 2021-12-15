@@ -25,8 +25,6 @@ import com.github.web.scraping.lib.throttling.model.ScrapedDataType;
  */
 public interface DriverManager<T> extends DriverOperator {
 
-    ScrapedDataType getScrapedDataType() ;
-
     T getDriver() ;
 
 }

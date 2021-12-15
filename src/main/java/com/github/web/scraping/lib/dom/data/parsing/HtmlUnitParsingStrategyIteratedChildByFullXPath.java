@@ -22,15 +22,12 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-public class HtmlUnitParsingStrategyIteratedChildByFullXPath implements HtmlUnitParsingStrategy {
+public class HtmlUnitParsingStrategyIteratedChildByFullXPath extends HtmlUnitParsingStrategy {
 
     private final Enum<?> dataType;
 
@@ -47,6 +44,9 @@ public class HtmlUnitParsingStrategyIteratedChildByFullXPath implements HtmlUnit
     // /html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[1]/div/div[1]/span[1]
      */
 
+    public static Builder builder() {
+        return new Builder();
+    }
 
     @Override
     public List<ParsedElement> parse(DomNode parentElement) {
@@ -102,6 +102,32 @@ public class HtmlUnitParsingStrategyIteratedChildByFullXPath implements HtmlUnit
             textContent = textContent.replace(childElement.getTextContent(), "");
         }
         return textContent;
+    }
+
+    public static class Builder {
+
+        private Enum<?> identifier;
+        private String xPath;
+        private final List<HtmlUnitParsingStrategy> nextStrategies = new ArrayList<>();
+
+        public Builder setIdentifier(Enum<?> identifier) {
+            this.identifier = identifier;
+            return this;
+        }
+
+        public Builder setxPath(String xPath) {
+            this.xPath = xPath;
+            return this;
+        }
+
+        public Builder addNextStrategy(HtmlUnitParsingStrategy strategy) {
+            this.nextStrategies.add(strategy);
+            return this;
+        }
+
+        public HtmlUnitParsingStrategyIteratedChildByFullXPath build() {
+            return new HtmlUnitParsingStrategyIteratedChildByFullXPath(identifier, xPath, nextStrategies);
+        }
     }
 
 }

@@ -22,9 +22,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class HtmlUnitSiteParser extends SiteParser<WebClient> {
@@ -32,10 +30,13 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
     // TODO should the strategies contain info about how to group the parsed output?
     private final List<HtmlUnitParsingStrategy> parsingStrategies;
 
-    public HtmlUnitSiteParser(DriverManager<WebClient> driverManager,
-                              List<HtmlUnitParsingStrategy> parsingStrategies) {
+    public HtmlUnitSiteParser(DriverManager<WebClient> driverManager, List<HtmlUnitParsingStrategy> parsingStrategies) {
         super(driverManager);
         this.parsingStrategies = parsingStrategies;
+    }
+
+    public static Builder builder(DriverManager<WebClient> driverManager) {
+        return new Builder(driverManager);
     }
 
     @Override
@@ -61,5 +62,32 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
             return Optional.empty();
         }
     }
+
+    public static class Builder {
+
+        // TODO somehow we wanna get the driverManager reference here from the outside ...
+        private DriverManager<WebClient> driverManager;
+        private final List<HtmlUnitParsingStrategy> parsingStrategies = new ArrayList<>();
+
+        public Builder(DriverManager<WebClient> driverManager) {
+            this.driverManager = driverManager;
+        }
+
+        public Builder addStrategy(HtmlUnitParsingStrategy strategy) {
+            this.parsingStrategies.add(strategy);
+            return this;
+        }
+
+        public Builder addStrategies(HtmlUnitParsingStrategy ... strategies) {
+            this.parsingStrategies.addAll(Arrays.asList(strategies));
+            return this;
+        }
+
+        public HtmlUnitSiteParser build() {
+            return new HtmlUnitSiteParser(this.driverManager, parsingStrategies);
+        }
+
+    }
+
 
 }

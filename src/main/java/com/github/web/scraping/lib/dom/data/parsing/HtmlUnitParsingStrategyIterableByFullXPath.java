@@ -19,12 +19,13 @@ package com.github.web.scraping.lib.dom.data.parsing;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class HtmlUnitParsingStrategyIterableByFullXPath implements HtmlUnitParsingStrategy {
+public class HtmlUnitParsingStrategyIterableByFullXPath extends HtmlUnitParsingStrategy {
 
     private final Enum<?> identifier;
 
@@ -32,16 +33,20 @@ public class HtmlUnitParsingStrategyIterableByFullXPath implements HtmlUnitParsi
     private final String xPath;
 
     // for each iterated element these strategies will be applied to parse data ...
-    private final List<HtmlUnitParsingStrategy> strategies;
+    private final List<HtmlUnitParsingStrategy> nextStrategies;
 
     // TODO optionally specify pagination strategy ? that will be called at the end ?
 
     public HtmlUnitParsingStrategyIterableByFullXPath(Enum<?> identifier,
                                                       String xPath,
-                                                      List<HtmlUnitParsingStrategy> strategies) {
+                                                      List<HtmlUnitParsingStrategy> nextStrategies) {
         this.identifier = identifier;
         this.xPath = xPath;
-        this.strategies = strategies;
+        this.nextStrategies = nextStrategies;
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     // TODO shoud this be returning this?
@@ -49,16 +54,15 @@ public class HtmlUnitParsingStrategyIterableByFullXPath implements HtmlUnitParsi
     public List<ParsedElement> parse(DomNode loadedPage) {
 
         String parentXPath = XPathUtils.getXPathSubstrHead(xPath, 1);
-        String xPathTail = XPathUtils.getXPathSubstrTail(xPath, 1).replaceAll("\\d+", "\\\\d");
-
+        // TODO this seems to not be matching numbers with more than one digit ...
+        String xPathTail = XPathUtils.getXPathSubstrTail(xPath, 1).replaceAll("\\d+", "\\\\d+");
 
         // hmm what cna the tail contain ? ... the tag name ...
         //  ... we want to transform it into patterns of sorts ... so we can use it below ...
 
 //        String pattern = XPathUtils.regexEscape(parentXPath) + "\\/div\\[\\d+\\]";// TODO hardcoded tempoarily ...
         String pattern = XPathUtils.regexEscape(XPathUtils.concat(parentXPath, xPathTail));
-
-        System.out.println(loadedPage.asXml());
+//        System.out.println("Pattern=" + pattern);
 
         // TODO hmm what if the parent is a nested XPath in itself ? ...
         return loadedPage.getByXPath(parentXPath)
@@ -74,16 +78,18 @@ public class HtmlUnitParsingStrategyIterableByFullXPath implements HtmlUnitParsi
                     if (el instanceof HtmlElement htmlEl) {
                         String xPath = htmlEl.getCanonicalXPath();
                         boolean matches = xPath.matches(pattern);
-                        if (matches) {
+//                        if (matches) {
 //                            System.out.println("Matched listing xPath = " + xPath);
-                        }
+//                        } else {
+//                            System.out.println("Unmatched listing xPath = " + xPath);
+//                        }
                         return matches;
                     }
                     return false;
                 })
                 .flatMap(el -> {
                     if (el instanceof HtmlElement htmlEl) {
-                        return strategies.stream().flatMap(s -> s.parse(htmlEl).stream());
+                        return nextStrategies.stream().flatMap(s -> s.parse(htmlEl).stream());
                     }
                     return Stream.empty();
                 })
@@ -94,6 +100,33 @@ public class HtmlUnitParsingStrategyIterableByFullXPath implements HtmlUnitParsi
         // here we want to identify all the elements that will then be processed by the strategies above?
         // ... so we can for example apply specific HtmlUnitParsingStrategyByFullXPath on each one of them ... BUT the expaths will need to be dynamic as the root will change for each listed item ....
 
+    }
+
+
+    public static class Builder {
+
+        private Enum<?> identifier;
+        private String xPath;
+        private final List<HtmlUnitParsingStrategy> nextStrategies = new ArrayList<>();
+
+        public Builder setIdentifier(Enum<?> identifier) {
+            this.identifier = identifier;
+            return this;
+        }
+
+        public Builder setxPath(String xPath) {
+            this.xPath = xPath;
+            return this;
+        }
+
+        public Builder addNextStrategy(HtmlUnitParsingStrategy strategy) {
+            this.nextStrategies.add(strategy);
+            return this;
+        }
+
+        public HtmlUnitParsingStrategyIterableByFullXPath build() {
+            return new HtmlUnitParsingStrategyIterableByFullXPath(identifier, xPath, nextStrategies);
+        }
     }
 
 }
