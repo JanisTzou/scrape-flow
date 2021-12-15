@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing;
+package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingStepResult;
+import com.github.web.scraping.lib.dom.data.parsing.XPathUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,47 +28,41 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class HtmlUnitParsingStepIterableByFullXPath extends HtmlUnitParsingStep {
+public class GetListedElementsByFirstElementXPath extends HtmlUnitParsingStep {
 
     private final Enum<?> identifier;
-
-    // TODO convert these into patterns so we can generate a range of xpaths ...
     private final String xPath;
 
-    // for each iterated element these strategies will be applied to parse data ...
+    // for each iterated element these strategies will be applied to execute data ...
     private final List<HtmlUnitParsingStep> nextSteps;
 
     // TODO optionally specify pagination strategy ? that will be called at the end ?
 
-    public HtmlUnitParsingStepIterableByFullXPath(Enum<?> identifier,
-                                                  String xPath,
-                                                  List<HtmlUnitParsingStep> nextSteps) {
+    public GetListedElementsByFirstElementXPath(Enum<?> identifier,
+                                                String xPath,
+                                                List<HtmlUnitParsingStep> nextSteps) {
         this.identifier = identifier;
         this.xPath = xPath;
         this.nextSteps = nextSteps;
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static Builder builder(Enum<?> identifier, String xPath) {
+        return new Builder().setIdentifier(identifier).setxPath(xPath);
     }
 
-    // TODO shoud this be returning this?
+    public static Builder builder(String xPath) {
+        return new Builder().setxPath(xPath);
+    }
+
     @Override
-    public List<ParsedElement> parse(DomNode loadedPage) {
+    public List<ParsingStepResult> execute(DomNode domNode) {
 
+        // TODO improve working with XPath ...
         String parentXPath = XPathUtils.getXPathSubstrHead(xPath, 1);
-        // TODO this seems to not be matching numbers with more than one digit ...
         String xPathTail = XPathUtils.getXPathSubstrTail(xPath, 1).replaceAll("\\d+", "\\\\d+");
-
-        // hmm what cna the tail contain ? ... the tag name ...
-        //  ... we want to transform it into patterns of sorts ... so we can use it below ...
-
-//        String pattern = XPathUtils.regexEscape(parentXPath) + "\\/div\\[\\d+\\]";// TODO hardcoded tempoarily ...
         String pattern = XPathUtils.regexEscape(XPathUtils.concat(parentXPath, xPathTail));
-//        System.out.println("Pattern=" + pattern);
 
-        // TODO hmm what if the parent is a nested XPath in itself ? ...
-        return loadedPage.getByXPath(parentXPath)
+        return domNode.getByXPath(parentXPath)
                 .stream()
                 .flatMap(el -> {
                     // child elements ...
@@ -89,12 +86,11 @@ public class HtmlUnitParsingStepIterableByFullXPath extends HtmlUnitParsingStep 
                 })
                 .flatMap(el -> {
                     if (el instanceof HtmlElement htmlEl) {
-                        return nextSteps.stream().flatMap(s -> s.parse(htmlEl).stream());
+                        return nextSteps.stream().flatMap(s -> s.execute(htmlEl).stream());
                     }
                     return Stream.empty();
                 })
                 .collect(Collectors.toList());
-
 
 
         // here we want to identify all the elements that will then be processed by the strategies above?
@@ -119,13 +115,14 @@ public class HtmlUnitParsingStepIterableByFullXPath extends HtmlUnitParsingStep 
             return this;
         }
 
-        public Builder addNextStep(HtmlUnitParsingStep nextStep) {
+        // TODO only allow steps that operate on element collections ...
+        public Builder then(HtmlUnitParsingStep nextStep) {
             this.nextSteps.add(nextStep);
             return this;
         }
 
-        public HtmlUnitParsingStepIterableByFullXPath build() {
-            return new HtmlUnitParsingStepIterableByFullXPath(identifier, xPath, nextSteps);
+        public GetListedElementsByFirstElementXPath build() {
+            return new GetListedElementsByFirstElementXPath(identifier, xPath, nextSteps);
         }
     }
 

@@ -71,7 +71,7 @@ public class CrawlingStage {
         return Optional.ofNullable(parsedHRefIdentifier);
     }
 
-    public List<CrawlingStage> findNextStagesByIdentifier(Enum<?> identifier) {
+    public List<CrawlingStage> findNextStagesByReference(Enum<?> identifier) {
         return this.nextStages.stream()
                 .filter(ss -> ss.getParsedHRefIdentifier().isPresent() && ss.getParsedHRefIdentifier().get().equals(identifier))
                 .collect(Collectors.toList());
@@ -104,7 +104,7 @@ public class CrawlingStage {
          * @param parsedHRefIdentifier identifier of the scraped HRef value
          * @param fullURLCreator useful when it is necessary to provide a base URL for the scraped HRef to work
          */
-        public Builder setupReferenceForParsedHrefToScrape(@Nullable Enum<?> parsedHRefIdentifier, FullUrlCreator fullURLCreator) {
+        public Builder setReferenceForParsedHrefToCrawl(@Nullable Enum<?> parsedHRefIdentifier, FullUrlCreator fullURLCreator) {
             this.parsedHRefIdentifier = parsedHRefIdentifier;
             this.fullURLCreator = fullURLCreator;
             return this;

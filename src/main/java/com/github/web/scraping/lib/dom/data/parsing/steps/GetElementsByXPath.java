@@ -14,50 +14,36 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing;
+package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.gargoylesoftware.htmlunit.html.*;
+import com.gargoylesoftware.htmlunit.html.DomElement;
+import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingStepResult;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class HtmlUnitParsingStepByFullXPath extends HtmlUnitParsingStep {
+public class GetElementsByXPath extends HtmlUnitParsingStep {
 
     private final Enum<?> dataType;
-    private final String xpath;
-    // TODO support next strategies ...
+    private final String xPath;
+    private final List<HtmlUnitParsingStep> nextSteps;
 
-    public static Builder builder() {
-        return new Builder();
+    public static Builder builder(String xPath) {
+        return new Builder().setxPath(xPath);
     }
 
     @Override
-    public List<ParsedElement> parse(DomNode loadedPage) {
-        return loadedPage.getByXPath(xpath).stream()
-                .map(el -> {
-                    String href = null;
-                    String tc = null;
-                    if (el instanceof HtmlAnchor anch) {
-                        href = anch.getHrefAttribute();
-                    }
-                    if (el instanceof HtmlElement htmlEl) {
-                        tc = htmlEl.getTextContent();
-                        if (tc != null) {
-                            // this should be optional ... used in cases when child elements' content filthies the parent element's content ...
-                            tc = removeNestedElementsTextContent(tc, htmlEl);
-                            tc = tc.trim();
-                        }
-                    }
-                    if (href != null || tc != null) {
-                        return new ParsedElement(dataType, href, tc, el);
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
+    public List<ParsingStepResult> execute(DomNode domNode) {
+        return domNode.getByXPath(xPath).stream()
+                .filter(o -> o instanceof DomNode)
+                .flatMap(node ->
+                        nextSteps.stream().flatMap(s -> s.execute((DomNode) node).stream())
+                )
                 .collect(Collectors.toList());
     }
 
@@ -69,13 +55,10 @@ public class HtmlUnitParsingStepByFullXPath extends HtmlUnitParsingStep {
     }
 
 
-
     public static class Builder {
 
         private Enum<?> identifier;
         private String xPath;
-
-        // TODO use this one as well ...
         private final List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
 
         public Builder setIdentifier(Enum<?> identifier) {
@@ -88,13 +71,13 @@ public class HtmlUnitParsingStepByFullXPath extends HtmlUnitParsingStep {
             return this;
         }
 
-        public Builder addNextStep(HtmlUnitParsingStep nextStep) {
+        public Builder then(HtmlUnitParsingStep nextStep) {
             this.nextSteps.add(nextStep);
             return this;
         }
 
-        public HtmlUnitParsingStepByFullXPath build() {
-            return new HtmlUnitParsingStepByFullXPath(identifier, xPath);
+        public GetElementsByXPath build() {
+            return new GetElementsByXPath(identifier, xPath, nextSteps);
         }
     }
 

@@ -23,7 +23,15 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @Getter
 @ToString
-public class ParsedElement { // TODO rename to parsed element? parsed field ? ...
+public class ParsedElement implements ParsingStepResult { // TODO rename to parsed element? parsed field ? ...
+
+
+    /*
+    TODO think about all the stuff that we might want here ...
+        ... href, text content ... what else ? How could we get this in a concatenated fashion so we have very isolated well defined operations as building blocks ...?
+     */
+
+
 
     private final Enum<?> identifier;
     private final String href;  // TODO somehow from this href we might need to make another full URLs ...

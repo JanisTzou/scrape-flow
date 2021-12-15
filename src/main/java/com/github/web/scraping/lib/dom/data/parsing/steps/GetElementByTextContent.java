@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib;
+package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitParsingStep;
-import lombok.RequiredArgsConstructor;
+public class GetElementByTextContent {
 
-import java.util.List;
-
-@RequiredArgsConstructor
-public class StaticSettings {
-
-    // TODO strategies ...
-    private final List<HtmlUnitParsingStep> strategies;
-
-
-
+    // TODO it should also be possible to provide a "dynamic" component to the name creation ... so that the searched name can be created based on previously parsed data ...
 
 }

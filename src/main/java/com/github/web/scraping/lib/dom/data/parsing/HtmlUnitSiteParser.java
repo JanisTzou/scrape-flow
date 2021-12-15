@@ -16,6 +16,7 @@
 
 package com.github.web.scraping.lib.dom.data.parsing;
 
+import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitParsingStep;
 import com.github.web.scraping.lib.drivers.DriverManager;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class HtmlUnitSiteParser extends SiteParser<WebClient> {
 
     // TODO should the strategies contain info about how to group the parsed output?
+    // TODO parsing sequence vs parsing step(s)
     private final List<HtmlUnitParsingStep> parsingSteps;
 
     public HtmlUnitSiteParser(DriverManager<WebClient> driverManager, List<HtmlUnitParsingStep> parsingSteps) {
@@ -45,11 +47,21 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
         final WebClient webClient = driverManager.getDriver();
         final Optional<HtmlPage> page = getHtmlPage(url, webClient);
 //        System.out.println(page.get().asXml());
-        return page.map(this::parsePage).orElse(Collections.emptyList());
+        return page.map(this::parsePage)
+                .orElse(Collections.emptyList());
     }
 
     private List<ParsedElement> parsePage(HtmlPage page) {
-        return parsingSteps.stream().flatMap(s -> s.parse(page).stream()).collect(Collectors.toList());
+        return parsingSteps.stream()
+                .flatMap(s -> s.execute(page).stream())
+                .map(psr -> {
+                    if (psr instanceof ParsedElement parsedElement) {
+                        return parsedElement;
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     private Optional<HtmlPage> getHtmlPage(String inzeratUrl, WebClient webClient) {
@@ -74,7 +86,7 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
             this.driverManager = driverManager;
         }
 
-        public Builder addParsingStep(HtmlUnitParsingStep parsingStep) {
+        public Builder addParsingSequence(HtmlUnitParsingStep parsingStep) {
             this.parsingSteps.add(parsingStep);
             return this;
         }

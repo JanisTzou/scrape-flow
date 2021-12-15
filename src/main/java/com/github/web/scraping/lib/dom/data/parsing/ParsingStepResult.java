@@ -14,20 +14,8 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib;
+package com.github.web.scraping.lib.dom.data.parsing;
 
-import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitParsingStep;
-import lombok.RequiredArgsConstructor;
-
-import java.util.List;
-
-@RequiredArgsConstructor
-public class StaticSettings {
-
-    // TODO strategies ...
-    private final List<HtmlUnitParsingStep> strategies;
-
-
-
-
+// marker for different types of step results
+public interface ParsingStepResult {
 }

@@ -17,6 +17,7 @@
 package com.github.web.scraping.lib;
 
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingStepResult;
 import com.github.web.scraping.lib.dom.data.parsing.SiteParser;
 
 import java.util.List;
@@ -43,8 +44,10 @@ public class Crawler {
         //  ... at the beginning we might need to scroll all the way down ...
         //  ... at the end we might need to paginate ...
 
+        // TODO think of good ways to parallelize this ... also taking into account throttling ...
+
         for (ParsedElement parsedElement : parsedElements) {
-            List<CrawlingStage> nextStages = crawlingStage.findNextStagesByIdentifier(parsedElement.getIdentifier());
+            List<CrawlingStage> nextStages = crawlingStage.findNextStagesByReference(parsedElement.getIdentifier());
             for (CrawlingStage nextStage : nextStages) {
                 String nextUrl = nextStage.getFullURLCreator().apply(parsedElement.getHref());
                 doScrape(nextUrl, nextStage);

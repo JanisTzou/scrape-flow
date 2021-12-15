@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing;
+package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingStepResult;
+import com.github.web.scraping.lib.dom.data.parsing.XPathUtils;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;
@@ -27,14 +30,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-public class HtmlUnitParsingStepIteratedChildByFullXPath extends HtmlUnitParsingStep {
+public class GetListedElementByFirstElementXPath extends HtmlUnitParsingStep {
 
     private final Enum<?> dataType;
 
     // the xPath of the first child
     private final String xPath;
 
-    // for each iterated element these strategies will be applied to parse data ...
+    // for each iterated element these strategies will be applied to execute data ...
     private final List<HtmlUnitParsingStep> nextSteps;
 
     /*
@@ -44,16 +47,21 @@ public class HtmlUnitParsingStepIteratedChildByFullXPath extends HtmlUnitParsing
     // /html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[1]/div/div[1]/span[1]
      */
 
-    public static Builder builder() {
-        return new Builder();
+    public static GetListedElementByFirstElementXPath.Builder builder(Enum<?> identifier, String xPath) {
+        return new GetListedElementByFirstElementXPath.Builder().setIdentifier(identifier).setxPath(xPath);
     }
 
+    public static GetListedElementByFirstElementXPath.Builder builder(String xPath) {
+        return new GetListedElementByFirstElementXPath.Builder().setxPath(xPath);
+    }
+
+
     @Override
-    public List<ParsedElement> parse(DomNode parentElement) {
+    public List<ParsingStepResult> execute(DomNode domNode) {
 
         // figure out the diff between this.xPath and the parent element xPath ... then use that
 
-        String parentXPath = parentElement.getCanonicalXPath();
+        String parentXPath = domNode.getCanonicalXPath();
         String parentBaseXPath = XPathUtils.getXPathSubstrHead(parentXPath, 1);
         // the part of the child's xpath that will be the same through all the parents
         Optional<String> xPathDiff = XPathUtils.getXPathDiff(parentBaseXPath, xPath);
@@ -64,32 +72,12 @@ public class HtmlUnitParsingStepIteratedChildByFullXPath extends HtmlUnitParsing
 
         String childXPath = XPathUtils.concat(parentXPath, childStaticPartXPath);
 
-        List<ParsedElement> parsedElements = parentElement.getByXPath(childXPath).stream()
-                .map(el -> {
-                    String href = null;
-                    String tc = null;
-                    if (el instanceof HtmlAnchor anch) {
-                        href = anch.getHrefAttribute();
-                    }
-                    if (el instanceof HtmlElement htmlEl) {
-                        tc = htmlEl.getTextContent();
-                        if (tc != null) {
-                            // this should be optional ... used in cases when child elements' content filthies the parent element's content ...
-                            tc = removeNestedElementsTextContent(tc, htmlEl);
-                            tc = tc.trim();
-                        }
-                    }
-                    if (href != null || tc != null) {
-                        return new ParsedElement(dataType, href, tc, el);
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
+        List<ParsingStepResult> parsedElements = domNode.getByXPath(childXPath).stream()
+                .filter(o -> o instanceof DomNode)
                 .flatMap(parsedEl -> {
                     // TODO are these really children? Might not be at all ... hamdle different levels here ...
-                    Stream<ParsedElement> childParsedEls = nextSteps.stream()
-                            .flatMap(s -> s.parse((DomNode) parsedEl.getElement()).stream());
-                    return Stream.concat(Stream.of(parsedEl) , childParsedEls);
+                    return nextSteps.stream()
+                            .flatMap(s -> s.execute((DomNode) parsedEl).stream());
                 })
                 .collect(Collectors.toList());
 
@@ -120,13 +108,13 @@ public class HtmlUnitParsingStepIteratedChildByFullXPath extends HtmlUnitParsing
             return this;
         }
 
-        public Builder addNextStep(HtmlUnitParsingStep parsingStep) {
+        public Builder then(HtmlUnitParsingStep parsingStep) {
             this.nextSteps.add(parsingStep);
             return this;
         }
 
-        public HtmlUnitParsingStepIteratedChildByFullXPath build() {
-            return new HtmlUnitParsingStepIteratedChildByFullXPath(identifier, xPath, nextSteps);
+        public GetListedElementByFirstElementXPath build() {
+            return new GetListedElementByFirstElementXPath(identifier, xPath, nextSteps);
         }
     }
 

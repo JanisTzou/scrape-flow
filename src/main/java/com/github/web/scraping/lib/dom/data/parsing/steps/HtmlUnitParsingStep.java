@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib;
+package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitParsingStep;
-import lombok.RequiredArgsConstructor;
+import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingStepResult;
 
 import java.util.List;
 
-@RequiredArgsConstructor
-public class StaticSettings {
+// TODO maybe rename to static ... ??
+public abstract class HtmlUnitParsingStep {
 
-    // TODO strategies ...
-    private final List<HtmlUnitParsingStep> strategies;
-
-
-
+    public abstract List<ParsingStepResult> execute(DomNode domNode);
 
 }

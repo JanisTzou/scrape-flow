@@ -17,14 +17,17 @@
 package com.github.web.scraping.lib.scraping.utils;
 
 import com.gargoylesoftware.htmlunit.html.DomElement;
+import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.DomNodeList;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class HtmlUnitUtils {
@@ -97,6 +100,38 @@ public class HtmlUnitUtils {
             }
         }
         return result;
+    }
+
+    public static List<DomNode> getAllChildElementsByAttributeValue(DomNode parentElement, String attributeName, String attributeValue, boolean exactMatch) {
+        return getAllChildElementsRecursively(parentElement, el -> hasAttributeWithValue(el, attributeName, attributeValue, exactMatch));
+    }
+
+    public static List<DomNode> getAllChildElementsByAttribute(DomNode parentElement, String attributeName) {
+        return getAllChildElementsRecursively(parentElement, el -> el.hasAttribute(attributeName));
+    }
+
+    public static List<DomNode> getAllChildElementsByClass(DomNode parentElement, String cssClassName) {
+        return getAllChildElementsRecursively(parentElement, el -> {
+            if (el.hasAttribute("class")) {
+                return Arrays.stream(el.getAttribute("class").split(" ")).anyMatch(ccls -> ccls.equalsIgnoreCase(cssClassName));
+            }
+            return false;
+        });
+    }
+
+
+
+    public static List<DomNode> getAllChildElementsRecursively(DomNode parentElement, Predicate<DomElement> filter) {
+        List<DomNode> found = new ArrayList<>();
+        for (DomNode childElement : parentElement.getChildNodes()) {
+            if (childElement instanceof HtmlElement htmlEl) {
+                if (filter.test(htmlEl)) {
+                    found.add(childElement);
+                }
+                found.addAll(getAllChildElementsRecursively(childElement, filter));
+            }
+        }
+        return found;
     }
 
 
