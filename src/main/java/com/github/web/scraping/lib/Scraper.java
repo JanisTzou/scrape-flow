@@ -46,7 +46,7 @@ public class Scraper {
         for (ParsedElement parsedElement : parsedElements) {
             List<ScrapingStage> nextStages = scrapingStage.findNextStagesByIdentifier(parsedElement.getIdentifier());
             for (ScrapingStage nextStage : nextStages) {
-                String nextUrl = nextStage.getHrefToURLMapper().apply(parsedElement.getHref());
+                String nextUrl = nextStage.getParsedHRefToURLMapper().apply(parsedElement.getHref());
                 doScrape(nextUrl, nextStage);
             }
 //            System.out.println(parsedElement);

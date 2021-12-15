@@ -16,55 +16,28 @@
 
 package com.github.web.scraping.lib.dom.data.parsing;
 
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.gargoylesoftware.htmlunit.html.*;
 import lombok.RequiredArgsConstructor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-public class HtmlUnitParsingStrategyIteratedChildByFullXPath extends HtmlUnitParsingStrategy {
+public class HtmlUnitParsingStepByFullXPath extends HtmlUnitParsingStep {
 
     private final Enum<?> dataType;
-
-    // the xPath of the first child
-    private final String xPath;
-
-    // for each iterated element these strategies will be applied to parse data ...
-    private final List<HtmlUnitParsingStrategy> strategies;
-
-    /*
-    example:
-    // /html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]
-    // /html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[2]
-    // /html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[1]/div/div[1]/span[1]
-     */
+    private final String xpath;
+    // TODO support next strategies ...
 
     public static Builder builder() {
         return new Builder();
     }
 
     @Override
-    public List<ParsedElement> parse(DomNode parentElement) {
-
-        // figure out the diff between this.xPath and the parent element xPath ... then use that
-
-        String parentXPath = parentElement.getCanonicalXPath();
-        String parentBaseXPath = XPathUtils.getXPathSubstrHead(parentXPath, 1);
-        // the part of the child's xpath that will be the same through all the parents
-        Optional<String> xPathDiff = XPathUtils.getXPathDiff(parentBaseXPath, xPath);
-        if (xPathDiff.isEmpty()) {
-            return Collections.emptyList();
-        }
-        String childStaticPartXPath = XPathUtils.getXPathSubstrTailFromStart(xPathDiff.get(), 1);
-
-        String childXPath = XPathUtils.concat(parentXPath, childStaticPartXPath);
-
-        List<ParsedElement> parsedElements = parentElement.getByXPath(childXPath).stream()
+    public List<ParsedElement> parse(DomNode loadedPage) {
+        return loadedPage.getByXPath(xpath).stream()
                 .map(el -> {
                     String href = null;
                     String tc = null;
@@ -85,16 +58,7 @@ public class HtmlUnitParsingStrategyIteratedChildByFullXPath extends HtmlUnitPar
                     return null;
                 })
                 .filter(Objects::nonNull)
-                .flatMap(parsedEl -> {
-                    // TODO are these really children? Might not be at all ... hamdle different levels here ...
-                    Stream<ParsedElement> childParsedEls = strategies.stream()
-                            .flatMap(s -> s.parse((DomNode) parsedEl.getElement()).stream());
-                    return Stream.concat(Stream.of(parsedEl) , childParsedEls);
-                })
                 .collect(Collectors.toList());
-
-
-        return parsedElements;
     }
 
     private String removeNestedElementsTextContent(String textContent, HtmlElement el) {
@@ -104,11 +68,15 @@ public class HtmlUnitParsingStrategyIteratedChildByFullXPath extends HtmlUnitPar
         return textContent;
     }
 
+
+
     public static class Builder {
 
         private Enum<?> identifier;
         private String xPath;
-        private final List<HtmlUnitParsingStrategy> nextStrategies = new ArrayList<>();
+
+        // TODO use this one as well ...
+        private final List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
 
         public Builder setIdentifier(Enum<?> identifier) {
             this.identifier = identifier;
@@ -120,13 +88,13 @@ public class HtmlUnitParsingStrategyIteratedChildByFullXPath extends HtmlUnitPar
             return this;
         }
 
-        public Builder addNextStrategy(HtmlUnitParsingStrategy strategy) {
-            this.nextStrategies.add(strategy);
+        public Builder addNextStep(HtmlUnitParsingStep nextStep) {
+            this.nextSteps.add(nextStep);
             return this;
         }
 
-        public HtmlUnitParsingStrategyIteratedChildByFullXPath build() {
-            return new HtmlUnitParsingStrategyIteratedChildByFullXPath(identifier, xPath, nextStrategies);
+        public HtmlUnitParsingStepByFullXPath build() {
+            return new HtmlUnitParsingStepByFullXPath(identifier, xPath);
         }
     }
 

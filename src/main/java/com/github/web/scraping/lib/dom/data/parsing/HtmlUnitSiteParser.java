@@ -25,14 +25,15 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
 public class HtmlUnitSiteParser extends SiteParser<WebClient> {
 
     // TODO should the strategies contain info about how to group the parsed output?
-    private final List<HtmlUnitParsingStrategy> parsingStrategies;
+    private final List<HtmlUnitParsingStep> parsingSteps;
 
-    public HtmlUnitSiteParser(DriverManager<WebClient> driverManager, List<HtmlUnitParsingStrategy> parsingStrategies) {
+    public HtmlUnitSiteParser(DriverManager<WebClient> driverManager, List<HtmlUnitParsingStep> parsingSteps) {
         super(driverManager);
-        this.parsingStrategies = parsingStrategies;
+        this.parsingSteps = parsingSteps;
     }
 
     public static Builder builder(DriverManager<WebClient> driverManager) {
@@ -48,7 +49,7 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
     }
 
     private List<ParsedElement> parsePage(HtmlPage page) {
-        return parsingStrategies.stream().flatMap(s -> s.parse(page).stream()).collect(Collectors.toList());
+        return parsingSteps.stream().flatMap(s -> s.parse(page).stream()).collect(Collectors.toList());
     }
 
     private Optional<HtmlPage> getHtmlPage(String inzeratUrl, WebClient webClient) {
@@ -67,24 +68,24 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
 
         // TODO somehow we wanna get the driverManager reference here from the outside ...
         private DriverManager<WebClient> driverManager;
-        private final List<HtmlUnitParsingStrategy> parsingStrategies = new ArrayList<>();
+        private final List<HtmlUnitParsingStep> parsingSteps = new ArrayList<>();
 
         public Builder(DriverManager<WebClient> driverManager) {
             this.driverManager = driverManager;
         }
 
-        public Builder addStrategy(HtmlUnitParsingStrategy strategy) {
-            this.parsingStrategies.add(strategy);
+        public Builder addParsingStep(HtmlUnitParsingStep parsingStep) {
+            this.parsingSteps.add(parsingStep);
             return this;
         }
 
-        public Builder addStrategies(HtmlUnitParsingStrategy ... strategies) {
-            this.parsingStrategies.addAll(Arrays.asList(strategies));
+        public Builder addStrategies(HtmlUnitParsingStep... parsingSteps) {
+            this.parsingSteps.addAll(Arrays.asList(parsingSteps));
             return this;
         }
 
         public HtmlUnitSiteParser build() {
-            return new HtmlUnitSiteParser(this.driverManager, parsingStrategies);
+            return new HtmlUnitSiteParser(this.driverManager, parsingSteps);
         }
 
     }

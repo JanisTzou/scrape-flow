@@ -16,7 +16,7 @@
 
 package com.github.web.scraping.lib;
 
-import com.github.web.scraping.lib.dom.data.parsing.HtmlUnitParsingStrategy;
+import com.github.web.scraping.lib.dom.data.parsing.HtmlUnitParsingStep;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -25,7 +25,7 @@ import java.util.List;
 public class StaticSettings {
 
     // TODO strategies ...
-    private final List<HtmlUnitParsingStrategy> strategies;
+    private final List<HtmlUnitParsingStep> strategies;
 
 
 

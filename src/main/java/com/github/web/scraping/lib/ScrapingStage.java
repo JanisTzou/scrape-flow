@@ -18,7 +18,6 @@ package com.github.web.scraping.lib;
 
 import com.github.web.scraping.lib.dom.data.parsing.SiteParser;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -40,13 +39,14 @@ public class ScrapingStage {
     @Getter
     private final SiteParser<?> siteParser;
 
+    // TODO maybe encapsulate the identifier with the mapper bewlo so it is clear that they belong together ...
     // identifies which parsed href belongs to this scrapingStage
     @Nullable
-    private final Enum<?> hrefKey;
+    private final Enum<?> parsedHRefIdentifier;
 
     // creates a full url from from a parsed href
     @Getter
-    private final Function<String, String> hrefToURLMapper;
+    private final Function<String, String> parsedHRefToURLMapper;
 
     @Getter
     private final List<ScrapingStage> nextStages;
@@ -55,10 +55,10 @@ public class ScrapingStage {
     // create Scroller for scrolling ... JS sites ...
 
 
-    public ScrapingStage(SiteParser<?> siteParser, @Nullable Enum<?> hrefKey, @Nullable Function<String, String> hrefToURLMapper, List<ScrapingStage> nextStages) {
+    public ScrapingStage(SiteParser<?> siteParser, @Nullable Enum<?> parsedHRefIdentifier, @Nullable Function<String, String> parsedHRefToURLMapper, List<ScrapingStage> nextStages) {
         this.siteParser = siteParser;
-        this.hrefKey = hrefKey;
-        this.hrefToURLMapper = Objects.requireNonNullElse(hrefToURLMapper, s -> s);
+        this.parsedHRefIdentifier = parsedHRefIdentifier;
+        this.parsedHRefToURLMapper = Objects.requireNonNullElse(parsedHRefToURLMapper, s -> s);
         this.nextStages = nextStages;
     }
 
@@ -67,13 +67,13 @@ public class ScrapingStage {
     }
 
 
-    public Optional<Enum<?>> getHrefKey() {
-        return Optional.ofNullable(hrefKey);
+    public Optional<Enum<?>> getParsedHRefIdentifier() {
+        return Optional.ofNullable(parsedHRefIdentifier);
     }
 
     public List<ScrapingStage> findNextStagesByIdentifier(Enum<?> identifier) {
         return this.nextStages.stream()
-                .filter(ss -> ss.getHrefKey().isPresent() && ss.getHrefKey().get().equals(identifier))
+                .filter(ss -> ss.getParsedHRefIdentifier().isPresent() && ss.getParsedHRefIdentifier().get().equals(identifier))
                 .collect(Collectors.toList());
     }
 
@@ -81,7 +81,7 @@ public class ScrapingStage {
 
         private SiteParser<?> siteParser;
         @Nullable
-        private Enum<?> hrefKey;
+        private Enum<?> parsedHRefIdentifier;
         private Function<String, String> hrefToURLMapper;
         private final List<ScrapingStage> nextStages = new ArrayList<>();
 
@@ -90,8 +90,8 @@ public class ScrapingStage {
             return this;
         }
 
-        public Builder setHrefKey(@Nullable Enum<?> hrefKey) {
-            this.hrefKey = hrefKey;
+        public Builder setParsedHRefIdentifier(@Nullable Enum<?> parsedHRefIdentifier) {
+            this.parsedHRefIdentifier = parsedHRefIdentifier;
             return this;
         }
 
@@ -106,7 +106,7 @@ public class ScrapingStage {
         }
 
         public ScrapingStage build() {
-            return new ScrapingStage(siteParser, hrefKey, hrefToURLMapper, nextStages);
+            return new ScrapingStage(siteParser, parsedHRefIdentifier, hrefToURLMapper, nextStages);
         }
 
     }

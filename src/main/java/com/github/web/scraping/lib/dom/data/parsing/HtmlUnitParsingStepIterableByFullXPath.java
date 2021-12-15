@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class HtmlUnitParsingStrategyIterableByFullXPath extends HtmlUnitParsingStrategy {
+public class HtmlUnitParsingStepIterableByFullXPath extends HtmlUnitParsingStep {
 
     private final Enum<?> identifier;
 
@@ -33,16 +33,16 @@ public class HtmlUnitParsingStrategyIterableByFullXPath extends HtmlUnitParsingS
     private final String xPath;
 
     // for each iterated element these strategies will be applied to parse data ...
-    private final List<HtmlUnitParsingStrategy> nextStrategies;
+    private final List<HtmlUnitParsingStep> nextSteps;
 
     // TODO optionally specify pagination strategy ? that will be called at the end ?
 
-    public HtmlUnitParsingStrategyIterableByFullXPath(Enum<?> identifier,
-                                                      String xPath,
-                                                      List<HtmlUnitParsingStrategy> nextStrategies) {
+    public HtmlUnitParsingStepIterableByFullXPath(Enum<?> identifier,
+                                                  String xPath,
+                                                  List<HtmlUnitParsingStep> nextSteps) {
         this.identifier = identifier;
         this.xPath = xPath;
-        this.nextStrategies = nextStrategies;
+        this.nextSteps = nextSteps;
     }
 
     public static Builder builder() {
@@ -89,7 +89,7 @@ public class HtmlUnitParsingStrategyIterableByFullXPath extends HtmlUnitParsingS
                 })
                 .flatMap(el -> {
                     if (el instanceof HtmlElement htmlEl) {
-                        return nextStrategies.stream().flatMap(s -> s.parse(htmlEl).stream());
+                        return nextSteps.stream().flatMap(s -> s.parse(htmlEl).stream());
                     }
                     return Stream.empty();
                 })
@@ -107,7 +107,7 @@ public class HtmlUnitParsingStrategyIterableByFullXPath extends HtmlUnitParsingS
 
         private Enum<?> identifier;
         private String xPath;
-        private final List<HtmlUnitParsingStrategy> nextStrategies = new ArrayList<>();
+        private final List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
 
         public Builder setIdentifier(Enum<?> identifier) {
             this.identifier = identifier;
@@ -119,13 +119,13 @@ public class HtmlUnitParsingStrategyIterableByFullXPath extends HtmlUnitParsingS
             return this;
         }
 
-        public Builder addNextStrategy(HtmlUnitParsingStrategy strategy) {
-            this.nextStrategies.add(strategy);
+        public Builder addNextStep(HtmlUnitParsingStep nextStep) {
+            this.nextSteps.add(nextStep);
             return this;
         }
 
-        public HtmlUnitParsingStrategyIterableByFullXPath build() {
-            return new HtmlUnitParsingStrategyIterableByFullXPath(identifier, xPath, nextStrategies);
+        public HtmlUnitParsingStepIterableByFullXPath build() {
+            return new HtmlUnitParsingStepIterableByFullXPath(identifier, xPath, nextSteps);
         }
     }
 
