@@ -41,6 +41,10 @@ public class ParseElementHRef extends HtmlUnitParsingStep {
         return new Builder();
     }
 
+    public static Builder builder(Enum<?> identifier) {
+        return new Builder().setId(identifier);
+    }
+
     @Override
     public List<ParsingStepResult> execute(DomNode domNode) {
         if (domNode instanceof HtmlAnchor anch) {
@@ -77,7 +81,7 @@ public class ParseElementHRef extends HtmlUnitParsingStep {
             return this;
         }
 
-        public Builder addNextStep(HtmlUnitParsingStep nextStep) {
+        public Builder then(HtmlUnitParsingStep nextStep) {
             this.nextSteps.add(nextStep);
             return this;
         }

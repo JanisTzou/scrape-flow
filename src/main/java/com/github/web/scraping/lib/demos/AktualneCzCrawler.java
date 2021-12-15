@@ -45,15 +45,15 @@ public class AktualneCzCrawler {
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .addParsingSequence(getArticleElements
                                 .then(getArticleHeadlineElem
-                                        .then(ParseElementTextContent.builder().setId(ARTICLE_HEADLINE).build())
+                                        .then(ParseElementText.builder(ARTICLE_HEADLINE).build())
                                         .build()
                                 )
                                 .then(getArticleDescElem1
-                                        .then(ParseElementTextContent.builder().setId(ARTICLE_DESC).build())
+                                        .then(ParseElementText.builder(ARTICLE_DESC).build())
                                         .build()
                                 )
                                 .then(getArticleDescElem2
-                                        .then(ParseElementTextContent.builder().setId(ARTICLE_DESC).build())
+                                        .then(ParseElementText.builder(ARTICLE_DESC).build())
                                         .build()
                                 )
                                 .build()

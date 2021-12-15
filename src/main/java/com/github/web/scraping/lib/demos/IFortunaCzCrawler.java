@@ -53,15 +53,15 @@ public class IFortunaCzCrawler {
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .addParsingSequence(getEventsListElements
                                 .then(getEventDetailLinkElem  // TODO perhaps we can express it better that the next step is going for the children ?
-                                        .then(ParseElementHRef.builder().setId(EVENT_LINK).build())
+                                        .then(ParseElementHRef.builder(EVENT_LINK).build())
                                         .build()
                                 )
                                 .then(getEventTitleElem
-                                        .then(ParseElementTextContent.builder().setId(EVENT_TITLE).build())
+                                        .then(ParseElementText.builder(EVENT_TITLE).build())
                                         .build()
                                 )
                                 .then(getEventDateElem
-                                        .then(ParseElementTextContent.builder().setId(EVENT_DATE).build())
+                                        .then(ParseElementText.builder(EVENT_DATE).build())
                                         .build()
                                 )
                                 .build()
@@ -73,7 +73,7 @@ public class IFortunaCzCrawler {
         final CrawlingStage eventDetailOddsStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .addParsingSequence(getEventHomeOddsElem
-                                .then(ParseElementTextContent.builder().setId(HOME_ODDS).build())
+                                .then(ParseElementText.builder(HOME_ODDS).build())
                                 .build()
                         )
                         .build())

@@ -30,9 +30,9 @@ import java.util.List;
 // TODO ... in this version we only execute the content of the element ...
 
 @RequiredArgsConstructor
-public class ParseElementTextContent extends HtmlUnitParsingStep {
+public class ParseElementText extends HtmlUnitParsingStep {
 
-    private final Enum<?> dataType;
+    private final Enum<?> identifier;
 
     private final boolean removeChildElementsTextContent;
 
@@ -40,6 +40,10 @@ public class ParseElementTextContent extends HtmlUnitParsingStep {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    public static Builder builder(Enum<?> identifier) {
+        return new Builder().setId(identifier);
     }
 
     // TODO for text content extraction we could have a dedicated helper class ...
@@ -56,7 +60,7 @@ public class ParseElementTextContent extends HtmlUnitParsingStep {
                 tc = tc.trim();
             }
         }
-        return List.of(new ParsedElement(dataType, null, tc, el));
+        return List.of(new ParsedElement(identifier, null, tc, el));
     }
 
     private String removeChildElementsTextContent(String textContent, HtmlElement el) {
@@ -86,13 +90,13 @@ public class ParseElementTextContent extends HtmlUnitParsingStep {
         }
 
         // TODO should this support next operations? Maybe yes ... in case of dynamic searches (by previously scraped value...) ... but not sure how to utilize this ...
-        public Builder addNextStep(HtmlUnitParsingStep nextStep) {
+        public Builder then(HtmlUnitParsingStep nextStep) {
             this.nextSteps.add(nextStep);
             return this;
         }
 
-        public ParseElementTextContent build() {
-            return new ParseElementTextContent(identifier, removeChildElementsTextContent);
+        public ParseElementText build() {
+            return new ParseElementText(identifier, removeChildElementsTextContent);
         }
     }
 
