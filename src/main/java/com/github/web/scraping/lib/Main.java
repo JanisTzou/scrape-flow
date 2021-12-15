@@ -27,16 +27,18 @@ public class Main {
 
     public static void main(String[] args) {
 
+        // TODO any way for these to be accessible globally? So they do not need to be specified explicitly in every stage definition?
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
 
         // TODO the parsing/scraping steps should be better named so it is clear what action they perform ... it might not be parsing exacly but also actions like button clicks etc ...
+        //  maybe it is ok to have a "parsing ste" that is not exacly parsing enything but performing an action ... it's just something that needs to be performed to do the actual parsing ...
 
         final HtmlUnitParsingStepIterableByFullXPath.Builder eventsListStep = iterableByXPath("/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]");
         final HtmlUnitParsingStepIteratedChildByFullXPath eventDetailLinkStep = iteratedChildByXPath(EVENT_LINK, "/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[1]/a").build();
         final HtmlUnitParsingStepIteratedChildByFullXPath eventTitleStep = iteratedChildByXPath(EVENT_TITLE, "/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[1]/div/div[1]/span[1]").build();
         final HtmlUnitParsingStepIteratedChildByFullXPath eventDateLinkStep = iteratedChildByXPath(EVENT_DATE, "/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[9]/span").build();
 
-        final ScrapingStage.Builder eventsListStage = ScrapingStage.builder()
+        final CrawlingStage.Builder eventsListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .addParsingStep(eventsListStep
                                 .addNextStep(eventTitleStep)
@@ -48,26 +50,27 @@ public class Main {
 
         final HtmlUnitParsingStepByFullXPath eventHomeOddsStep = byXPath(HOME_ODDS, "/html/body/div[1]/div/div[2]/div[2]/div/section/div/div[2]/table/tbody/tr/td[2]/a/span").build();
 
-        final ScrapingStage eventDetailOddsStage = ScrapingStage.builder()
+        final CrawlingStage eventDetailOddsStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .addParsingStep(eventHomeOddsStep)
                         .build())
-                .setParsedHRefIdentifier(EVENT_LINK)
-                .setHrefToURLMapper(href -> "https://www.ifortuna.cz/" + href)
+                .setupReferenceForParsedHrefToScrape(EVENT_LINK, href -> "https://www.ifortuna.cz/" + href)
                 .build();
 
-        final ScrapingStage stage = eventsListStage
+        final CrawlingStage allCrawling = eventsListStage
                 .addNextStage(eventDetailOddsStage)
                 .build();
 
         // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?
-        final EntryPoint entryPoint = new EntryPoint("https://www.ifortuna.cz/", stage);
+        final EntryPoint entryPoint = new EntryPoint("https://www.ifortuna.cz/", allCrawling);
 
 
-        final Scraper scraper = new Scraper();
-        scraper.scrape(entryPoint);
+        final Crawler crawler = new Crawler();
+        crawler.scrape(entryPoint);
 
     }
+
+
 
     public enum Identifiers {
         EVENT_LINK,

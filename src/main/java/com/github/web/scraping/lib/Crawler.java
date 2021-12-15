@@ -21,7 +21,7 @@ import com.github.web.scraping.lib.dom.data.parsing.SiteParser;
 
 import java.util.List;
 
-public class Scraper {
+public class Crawler {
 
     // can the parsing here be from both selenium and htmlunit?
     // TODO make flux based ...
@@ -29,13 +29,13 @@ public class Scraper {
     public void scrape(List<EntryPoint> entryPoints) {
         for (EntryPoint entryPoint : entryPoints) {
             String url = entryPoint.getUrl();
-            ScrapingStage scrapingStage = entryPoint.getScrapingStage();
-            doScrape(url, scrapingStage);
+            CrawlingStage crawlingStage = entryPoint.getCrawlingStage();
+            doScrape(url, crawlingStage);
         }
     }
 
-    private void doScrape(String url, ScrapingStage scrapingStage) {
-        SiteParser<?> siteParser = scrapingStage.getSiteParser();
+    private void doScrape(String url, CrawlingStage crawlingStage) {
+        SiteParser<?> siteParser = crawlingStage.getSiteParser();
         List<ParsedElement> parsedElements = siteParser.parse(url);
 
         // TODO these results correspond to one "row" of data ...
@@ -44,9 +44,9 @@ public class Scraper {
         //  ... at the end we might need to paginate ...
 
         for (ParsedElement parsedElement : parsedElements) {
-            List<ScrapingStage> nextStages = scrapingStage.findNextStagesByIdentifier(parsedElement.getIdentifier());
-            for (ScrapingStage nextStage : nextStages) {
-                String nextUrl = nextStage.getParsedHRefToURLMapper().apply(parsedElement.getHref());
+            List<CrawlingStage> nextStages = crawlingStage.findNextStagesByIdentifier(parsedElement.getIdentifier());
+            for (CrawlingStage nextStage : nextStages) {
+                String nextUrl = nextStage.getFullURLCreator().apply(parsedElement.getHref());
                 doScrape(nextUrl, nextStage);
             }
 //            System.out.println(parsedElement);

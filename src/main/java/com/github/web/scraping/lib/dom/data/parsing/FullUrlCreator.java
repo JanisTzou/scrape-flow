@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib;
+package com.github.web.scraping.lib.dom.data.parsing;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import java.util.function.Function;
 
-@RequiredArgsConstructor
-@Getter
-@ToString
-public class EntryPoint {
+/**
+ * Useful when an HRef value is scraped but a base URL needs to be provided to get a full URL
+ */
+@FunctionalInterface
+public interface FullUrlCreator {
 
-    private final String url;
-
-    private final CrawlingStage crawlingStage;
+    /**
+     * @param baseURL
+     * @return a full URL
+     */
+    String apply(String baseURL);
 
 }

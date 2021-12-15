@@ -16,6 +16,7 @@
 
 package com.github.web.scraping.lib;
 
+import com.github.web.scraping.lib.dom.data.parsing.FullUrlCreator;
 import com.github.web.scraping.lib.dom.data.parsing.SiteParser;
 import lombok.Getter;
 
@@ -24,13 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * Encapsulates settings of the next level to scrape data from
  */
-public class ScrapingStage {
+public class CrawlingStage {
 
     // how do we determine what URLs will be scraped here?
     // they must be scraped from the previous level
@@ -46,19 +46,19 @@ public class ScrapingStage {
 
     // creates a full url from from a parsed href
     @Getter
-    private final Function<String, String> parsedHRefToURLMapper;
+    private final FullUrlCreator fullURLCreator;
 
     @Getter
-    private final List<ScrapingStage> nextStages;
+    private final List<CrawlingStage> nextStages;
 
     // create Paginator for pagination
     // create Scroller for scrolling ... JS sites ...
 
 
-    public ScrapingStage(SiteParser<?> siteParser, @Nullable Enum<?> parsedHRefIdentifier, @Nullable Function<String, String> parsedHRefToURLMapper, List<ScrapingStage> nextStages) {
+    public CrawlingStage(SiteParser<?> siteParser, @Nullable Enum<?> parsedHRefIdentifier, @Nullable FullUrlCreator fullURLCreator, List<CrawlingStage> nextStages) {
         this.siteParser = siteParser;
         this.parsedHRefIdentifier = parsedHRefIdentifier;
-        this.parsedHRefToURLMapper = Objects.requireNonNullElse(parsedHRefToURLMapper, s -> s);
+        this.fullURLCreator = Objects.requireNonNullElse(fullURLCreator, s -> s);
         this.nextStages = nextStages;
     }
 
@@ -71,7 +71,7 @@ public class ScrapingStage {
         return Optional.ofNullable(parsedHRefIdentifier);
     }
 
-    public List<ScrapingStage> findNextStagesByIdentifier(Enum<?> identifier) {
+    public List<CrawlingStage> findNextStagesByIdentifier(Enum<?> identifier) {
         return this.nextStages.stream()
                 .filter(ss -> ss.getParsedHRefIdentifier().isPresent() && ss.getParsedHRefIdentifier().get().equals(identifier))
                 .collect(Collectors.toList());
@@ -82,31 +82,41 @@ public class ScrapingStage {
         private SiteParser<?> siteParser;
         @Nullable
         private Enum<?> parsedHRefIdentifier;
-        private Function<String, String> hrefToURLMapper;
-        private final List<ScrapingStage> nextStages = new ArrayList<>();
+        private FullUrlCreator fullURLCreator;
+        private final List<CrawlingStage> nextStages = new ArrayList<>();
 
         public Builder setParser(SiteParser<?> siteParser) {
             this.siteParser = siteParser;
             return this;
         }
 
-        public Builder setParsedHRefIdentifier(@Nullable Enum<?> parsedHRefIdentifier) {
+//        public Builder setParsedHRefIdentifier(@Nullable Enum<?> parsedHRefIdentifier) {
+//            this.parsedHRefIdentifier = parsedHRefIdentifier;
+//            return this;
+//        }
+//
+//        public Builder setHrefToURLMapper(Function<String, String> hrefToURLMapper) {
+//            this.hrefToURLMapper = hrefToURLMapper;
+//            return this;
+//        }
+
+        /**
+         * @param parsedHRefIdentifier identifier of the scraped HRef value
+         * @param fullURLCreator useful when it is necessary to provide a base URL for the scraped HRef to work
+         */
+        public Builder setupReferenceForParsedHrefToScrape(@Nullable Enum<?> parsedHRefIdentifier, FullUrlCreator fullURLCreator) {
             this.parsedHRefIdentifier = parsedHRefIdentifier;
+            this.fullURLCreator = fullURLCreator;
             return this;
         }
 
-        public Builder setHrefToURLMapper(Function<String, String> hrefToURLMapper) {
-            this.hrefToURLMapper = hrefToURLMapper;
-            return this;
-        }
-
-        public Builder addNextStage(ScrapingStage nextStage) {
+        public Builder addNextStage(CrawlingStage nextStage) {
             this.nextStages.add(nextStage);
             return this;
         }
 
-        public ScrapingStage build() {
-            return new ScrapingStage(siteParser, parsedHRefIdentifier, hrefToURLMapper, nextStages);
+        public CrawlingStage build() {
+            return new CrawlingStage(siteParser, parsedHRefIdentifier, fullURLCreator, nextStages);
         }
 
     }

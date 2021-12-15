@@ -24,7 +24,7 @@ import com.github.web.scraping.lib.AppConfig;
 
 import java.util.List;
 
-public class ScraperSettingsAllTest {
+public class CrawlerSettingsAllTest {
 
     @Test
     public void getWebsiteToActorsToKeepAliveMap() {
