@@ -39,29 +39,54 @@ public class TeleskopExpressDeCrawler {
         GetElementByAttribute.Builder getNextBtnLinkElem = GetElementByAttribute.builder("title", " nächste Seite ");
         GetElementsByCssClass.Builder getProductTdElems = GetElementsByCssClass.builder("main"); // TODO add by tag ... filtering
         GetElementsByCssClass.Builder getProductTitleElem = GetElementsByCssClass.builder("PRODUCTS_NAME");
+        GetElementsByCssClass.Builder getProductTitleElem2 = GetElementsByCssClass.builder("PRODUCTS_NAME");
         GetElementsByCssClass.Builder getProductPriceElem = GetElementsByCssClass.builder("prod_preis");
+        GetElementByAttribute.Builder getProductDetailHRefElem = GetElementByAttribute.builder("href", "product_info.php/info").setMatchEntireValue(false);
         ClickElement clickNextPageBtnElem = ClickElement.builder().build();
 
-        final CrawlingStage.Builder articleListStage = CrawlingStage.builder()
+        final CrawlingStage.Builder productListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
-                        .addPaginatingSequence(getNextBtnLinkElem
+                        .setPaginatingSequence(getNextBtnLinkElem
                                 .then(clickNextPageBtnElem)
                                 .build())
                         .addParsingSequence(getProductTdElems
                                 .then(getProductTitleElem
-                                        .then(ParseElementText.builder(PRODUCT_TITLE).build())
+                                        .then(ParseElementText.builder(PRODUCT_CODE).build())
                                         .build()
                                 )
                                 .then(getProductPriceElem
                                         .then(ParseElementText.builder(PRODUCT_PRICE).build())
                                         .build()
                                 )
+                                .then(getProductTitleElem2   // TODO perhaps a better abstraction of what is "then" and what is "next to"
+                                        .then(ParseElementHRef.builder(PRODUCT_DETAIL_LINK).build())
+                                        .build())
                                 .build()
                         )
                         .build()
                 );
 
-        final CrawlingStage allCrawling = articleListStage.build();
+
+        GetElementByAttribute.Builder getProductDetailTitle = GetElementByAttribute.builder("itemprop", "name");
+
+
+        final CrawlingStage productDetailStage = CrawlingStage.builder()
+                .setReferenceForParsedHrefToCrawl(PRODUCT_DETAIL_LINK, hrefVal -> "https://www.teleskop-express.de/" + hrefVal)
+                .setParser(HtmlUnitSiteParser.builder(driverManager)
+                        .addParsingSequence(getProductDetailTitle
+                                .then(getProductTitleElem
+                                        .then(ParseElementText.builder(PRODUCT_TITLE).build())
+                                        .build()
+                                )
+                                .build()
+                        )
+                        .build()
+                )
+                .build();
+
+
+
+        final CrawlingStage allCrawling = productListStage.addNextStage(productDetailStage).build();
 
         // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?
         final EntryPoint entryPoint = new EntryPoint("https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html", allCrawling);
@@ -73,9 +98,11 @@ public class TeleskopExpressDeCrawler {
     }
 
     public enum Identifiers {
+        PRODUCT_CODE,
         PRODUCT_TITLE,
         PRODUCT_PRICE,
-        NEXT_BTN_LINK
+        NEXT_BTN_LINK,
+        PRODUCT_DETAIL_LINK
     }
 
 }

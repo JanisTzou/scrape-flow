@@ -51,8 +51,8 @@ public class Crawler {
                 String nextUrl = nextStage.getFullURLCreator().apply(parsedElement.getHref());
                 doScrape(nextUrl, nextStage);
             }
-//            System.out.println(parsedElement);
-            System.out.println(parsedElement.info());
+            System.out.println(parsedElement);
+//            System.out.println(parsedElement.info());
         }
     }
 

@@ -31,6 +31,7 @@ public class GetElementByAttribute extends HtmlUnitParsingStep {
 
     private final String attributeName;
     private final String attributeValue;
+    private final boolean matchEntireValue;
 
     // for each iterated element these strategies will be applied to execute data ...
     private final List<HtmlUnitParsingStep> nextSteps;
@@ -47,7 +48,7 @@ public class GetElementByAttribute extends HtmlUnitParsingStep {
     public List<StepResult> execute(DomNode domNode) {
         List<DomNode> nodes;
         if (attributeValue != null) {
-            nodes = HtmlUnitUtils.getAllChildElementsByAttributeValue(domNode, attributeName, attributeValue, true);
+            nodes = HtmlUnitUtils.getAllChildElementsByAttributeValue(domNode, attributeName, attributeValue, this.matchEntireValue);
         } else {
             nodes = HtmlUnitUtils.getAllChildElementsByAttribute(domNode, attributeName);
         }
@@ -63,6 +64,7 @@ public class GetElementByAttribute extends HtmlUnitParsingStep {
 
         private String attributeName;
         private String attributeValue;
+        private boolean matchEntireValue = true;
         private List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
 
         Builder(String attributeName, String attributeValue) {
@@ -70,7 +72,12 @@ public class GetElementByAttribute extends HtmlUnitParsingStep {
             this.attributeValue = attributeValue;
         }
 
-//        public Builder setAttributeName(String attributeName) {
+        public Builder setMatchEntireValue(boolean matchEntireValue) {
+            this.matchEntireValue = matchEntireValue;
+            return this;
+        }
+
+        //        public Builder setAttributeName(String attributeName) {
 //            this.attributeName = attributeName;
 //            return this;
 //        }
@@ -86,7 +93,7 @@ public class GetElementByAttribute extends HtmlUnitParsingStep {
         }
 
         public GetElementByAttribute build() {
-            return new GetElementByAttribute(attributeName, attributeValue, nextSteps);
+            return new GetElementByAttribute(attributeName, attributeValue, matchEntireValue, nextSteps);
         }
     }
 

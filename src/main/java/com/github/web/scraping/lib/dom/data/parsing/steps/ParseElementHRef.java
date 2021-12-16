@@ -31,8 +31,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ParseElementHRef extends HtmlUnitParsingStep {
 
-    private final Enum<?> dataType;
+    private final Enum<?> identifier;
     // TODO support next strategies ...
+    // TODO add some filtering logic for the hrefs parsed ...
 
     public static Builder builder() {
         return new Builder();
@@ -47,7 +48,7 @@ public class ParseElementHRef extends HtmlUnitParsingStep {
         if (domNode instanceof HtmlAnchor anch) {
             String href = anch.getHrefAttribute();
             if (href != null) {
-                return List.of(new ParsedElement(dataType, href, null, domNode));
+                return List.of(new ParsedElement(identifier, href, null, domNode));
             }
         }
         return Collections.emptyList();
