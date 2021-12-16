@@ -39,6 +39,10 @@ public class ParsingContext {
     @Nullable
     private Object container;
 
+    public ParsingContext(DomNode node) {
+        this(node, null, null);
+    }
+
     public ParsingContext(DomNode node, @Nullable Object model, @Nullable Object container) {
         this.node = node;
         this.model = model;

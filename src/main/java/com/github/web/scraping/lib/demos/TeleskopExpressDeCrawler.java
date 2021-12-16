@@ -38,6 +38,7 @@ public class TeleskopExpressDeCrawler {
         // TODO the parsing/scraping steps should be better named so it is clear what action they perform ... it might not be parsing exacly but also actions like button clicks etc ...
         //  maybe it is ok to have a "parsing ste" that is not exacly parsing enything but performing an action ... it's just something that needs to be performed to do the actual parsing ...
 
+        // TODO consider not using builders at all ...
         GetElementsByAttribute.Builder getNextBtnLinkElemStep = GetElementsByAttribute.builder("title", " nächste Seite ");
         GetElementsByCssClass.Builder getProductTdElemsStep = GetElementsByCssClass.builder("main"); // TODO add by tag ... filtering
         GetElementsByCssClass.Builder getProductTitleElemStep = GetElementsByCssClass.builder("PRODUCTS_NAME");
@@ -54,11 +55,11 @@ public class TeleskopExpressDeCrawler {
                                 .then(clickNextPageBtnElem)
                                 .build())
                         // TODO have top level collector here ? Or make it a list as a default and not worry about it ?
+                        //  it will probably be needed ... pagination produces multiople instances of containers that should only be one instance ...
                         .addParsingSequence(getProductTdElemsStep
                                 // TODO express somehow that the next operation involves collection of elemets? ... collectors would then make more sense ...
                                 .collector(Products::new, Product::new, Products::add)  // TODO how to add connection to existing container?
                                 .then(getProductTitleElemStep
-//                                        .collector(Product::new, Category::addProduct)  // TODO how to add connection to existing container?
                                         .then(ParseElementText.builder()
                                                 .collectToModel(Product::setCode)
                                                 .build())

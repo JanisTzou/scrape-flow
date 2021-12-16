@@ -16,32 +16,28 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
+import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElements;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class GetElementsByCssClass<R, T> extends HtmlUnitParsingStep {
 
     private final String cssClassName;
 
-    // for each iterated element these strategies will be applied to execute data ...
-    private final List<HtmlUnitParsingStep> nextSteps;
-    private final Collecting<R, T> collecting;
+    private final HtmlUnitParsingExecutionWrapper<R, T> executionWrapper;
 
     public GetElementsByCssClass(String cssClassName, List<HtmlUnitParsingStep> nextSteps, Collecting<R, T> collecting) {
         this.cssClassName = cssClassName;
-        this.nextSteps = nextSteps;
-        this.collecting = Objects.requireNonNullElse(collecting, new Collecting<>());
+        this.executionWrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting);
     }
 
     public static Builder builder(String cssClassName) {
@@ -50,38 +46,8 @@ public class GetElementsByCssClass<R, T> extends HtmlUnitParsingStep {
 
     @Override
     public List<StepResult> execute(ParsingContext ctx) {
-        final Optional<R> container = collecting.supplyContainer();
-
-        final List<StepResult> stepResults = HtmlUnitUtils.getAllChildElementsByClass(ctx.getNode(), cssClassName)
-                .stream()
-                .flatMap(node -> {
-                            T m = collecting.supplyModel().orElse((T) ctx.getModel());
-                            return nextSteps.stream().flatMap(s -> {
-                                ParsingContext nextCtx = new ParsingContext(node, m, container.orElse(null));
-                                return s.execute(nextCtx).stream();
-                            });
-                        }
-                )
-                .collect(Collectors.toList());
-
-        // TODO hmm what to return here ? if accumulator was set vs if not ...
-        if (container.isPresent()) {
-            final List<ParsedElement> hrefs = stepResults.stream().filter(sr -> sr instanceof ParsedElement pe && pe.isHasHRef()).map(sr -> (ParsedElement) sr).collect(Collectors.toList());
-            // TODO encapsulate this kind of logic somewhere ... maybe in Collecting class
-
-            // TODO somehow collect this into the container ... if given ...
-            stepResults.stream()
-                    .filter(sr -> sr instanceof ParsedElement)
-                    .map(sr -> (ParsedElement) sr)
-                    .map(ParsedElement::getModel)
-                    .forEach(model -> collecting.getAccumulator().accept(container.get(), (T) model));
-
-            return List.of(new ParsedElements(container, hrefs));
-        } else {
-            return stepResults;
-        }
+        return this.executionWrapper.execute(ctx, () -> HtmlUnitUtils.getAllChildElementsByClass(ctx.getNode(), cssClassName));
     }
-
 
     public static class Builder {
 

@@ -75,11 +75,7 @@ public class GetListedElementsByFirstElementXPath extends HtmlUnitParsingStep {
                     if (el instanceof HtmlElement htmlEl) {
                         String xPath = htmlEl.getCanonicalXPath();
                         boolean matches = xPath.matches(pattern);
-//                        if (matches) {
-//                            System.out.println("Matched listing xPath = " + xPath);
-//                        } else {
-//                            System.out.println("Unmatched listing xPath = " + xPath);
-//                        }
+//                        logMatching(xPath, matches);
                         return matches;
                     }
                     return false;
@@ -98,12 +94,20 @@ public class GetListedElementsByFirstElementXPath extends HtmlUnitParsingStep {
 
     }
 
+    private void logMatching(String xPath, boolean matches) {
+        if (matches) {
+            System.out.println("Matched listing xPath = " + xPath);
+        } else {
+            System.out.println("Unmatched listing xPath = " + xPath);
+        }
+    }
+
 
     public static class Builder {
 
+        private final List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
         private Enum<?> identifier;
         private String xPath;
-        private final List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
 
         public Builder setIdentifier(Enum<?> identifier) {
             this.identifier = identifier;

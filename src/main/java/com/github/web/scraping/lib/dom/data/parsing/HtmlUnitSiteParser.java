@@ -60,7 +60,7 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
 
     private List<ParsedData> parsePage(HtmlPage page) {
         Function<HtmlPage, List<ParsedData>> parsing = page1 -> parsingSequences.stream()
-                .flatMap(s -> s.execute(new ParsingContext(page1, null, null)).stream()) // TODO temporarily passing null in the conttxt ...
+                .flatMap(s -> s.execute(new ParsingContext(page1)).stream())
                 .map(sr -> {
                     if (sr instanceof ParsedElement parsedElement) {
                         // TODO handle parsed HRef .... references ...
@@ -80,9 +80,8 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
             List<ParsedData> result = new ArrayList<>();
             AtomicReference<HtmlPage> pageRef = new AtomicReference<>(page);
             while (true) {
-                // TODO hmm this page will probably always have next button ... the click operation has not destroyed this instance ...
                 result.addAll(parsing.apply(pageRef.get()));
-                List<StepResult> paginationResult = paginatingSequence.execute(new ParsingContext(pageRef.get(), null, null)); // TODO temporarily passing null ...
+                List<StepResult> paginationResult = paginatingSequence.execute(new ParsingContext(pageRef.get()));
 
                 Optional<HtmlPage> nextPage = paginationResult.stream().filter(sr -> sr instanceof ElementClicked).map(sr -> ((ElementClicked) sr).getPageAfterElementClicked()).findFirst();
                 if (nextPage.isPresent()) {

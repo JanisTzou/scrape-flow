@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+// TODO maybe we should express better that we expect the next page here ...
 @RequiredArgsConstructor
 public class ClickElement extends HtmlUnitParsingStep {
 
