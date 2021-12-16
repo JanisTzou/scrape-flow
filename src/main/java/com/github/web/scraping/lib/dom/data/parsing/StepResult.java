@@ -17,5 +17,5 @@
 package com.github.web.scraping.lib.dom.data.parsing;
 
 // marker for different types of step results
-public interface ParsingStepResult {
+public interface StepResult {
 }

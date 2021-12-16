@@ -23,7 +23,7 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @Getter
 @ToString
-public class ParsedElement implements ParsingStepResult { // TODO rename to parsed element? parsed field ? ...
+public class ParsedElement implements StepResult { // TODO rename to parsed element? parsed field ? ...
 
 
     /*

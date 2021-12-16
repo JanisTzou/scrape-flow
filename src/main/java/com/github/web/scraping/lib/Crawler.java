@@ -17,7 +17,6 @@
 package com.github.web.scraping.lib;
 
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingStepResult;
 import com.github.web.scraping.lib.dom.data.parsing.SiteParser;
 
 import java.util.List;

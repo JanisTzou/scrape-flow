@@ -24,9 +24,9 @@ import com.github.web.scraping.lib.dom.data.parsing.steps.*;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
 
-import static com.github.web.scraping.lib.demos.AktualneCzCrawler.Identifiers.*;
+import static com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler.Identifiers.*;
 
-public class AktualneCzCrawler {
+public class TeleskopExpressDeCrawler {
 
     public void start() {
 
@@ -36,24 +36,24 @@ public class AktualneCzCrawler {
         // TODO the parsing/scraping steps should be better named so it is clear what action they perform ... it might not be parsing exacly but also actions like button clicks etc ...
         //  maybe it is ok to have a "parsing ste" that is not exacly parsing enything but performing an action ... it's just something that needs to be performed to do the actual parsing ...
 
-        final GetElementByAttribute.Builder getArticleElements = GetElementByAttribute.builder("data-ga4-type", "article");
-        final GetElementByAttribute.Builder getArticleHeadlineElem = GetElementByAttribute.builder("data-vr-headline");
-        final GetElementsByCssClass.Builder getArticleDescElem1 = GetElementsByCssClass.builder("section-opener__desc");
-        final GetElementsByCssClass.Builder getArticleDescElem2 = GetElementsByCssClass.builder("small-box__desc");
+        GetElementByAttribute.Builder getNextBtnLinkElem = GetElementByAttribute.builder("title", " nächste Seite ");
+        GetElementsByCssClass.Builder getProductTdElems = GetElementsByCssClass.builder("main"); // TODO add by tag ... filtering
+        GetElementsByCssClass.Builder getProductTitleElem = GetElementsByCssClass.builder("PRODUCTS_NAME");
+        GetElementsByCssClass.Builder getProductPriceElem = GetElementsByCssClass.builder("prod_preis");
+        ClickElement clickNextPageBtnElem = ClickElement.builder().build();
 
         final CrawlingStage.Builder articleListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
-                        .addParsingSequence(getArticleElements
-                                .then(getArticleHeadlineElem
-                                        .then(ParseElementText.builder(ARTICLE_HEADLINE).build())
+                        .addPaginatingSequence(getNextBtnLinkElem
+                                .then(clickNextPageBtnElem)
+                                .build())
+                        .addParsingSequence(getProductTdElems
+                                .then(getProductTitleElem
+                                        .then(ParseElementText.builder(PRODUCT_TITLE).build())
                                         .build()
                                 )
-                                .then(getArticleDescElem1
-                                        .then(ParseElementText.builder(ARTICLE_DESC).build())
-                                        .build()
-                                )
-                                .then(getArticleDescElem2
-                                        .then(ParseElementText.builder(ARTICLE_DESC).build())
+                                .then(getProductPriceElem
+                                        .then(ParseElementText.builder(PRODUCT_PRICE).build())
                                         .build()
                                 )
                                 .build()
@@ -64,7 +64,7 @@ public class AktualneCzCrawler {
         final CrawlingStage allCrawling = articleListStage.build();
 
         // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?
-        final EntryPoint entryPoint = new EntryPoint("https://zpravy.aktualne.cz/zahranici/", allCrawling);
+        final EntryPoint entryPoint = new EntryPoint("https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html", allCrawling);
 
         final Crawler crawler = new Crawler();
 
@@ -73,8 +73,9 @@ public class AktualneCzCrawler {
     }
 
     public enum Identifiers {
-        ARTICLE_HEADLINE,
-        ARTICLE_DESC
+        PRODUCT_TITLE,
+        PRODUCT_PRICE,
+        NEXT_BTN_LINK
     }
 
 }

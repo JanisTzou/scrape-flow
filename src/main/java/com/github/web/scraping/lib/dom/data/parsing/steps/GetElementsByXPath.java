@@ -19,7 +19,7 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingStepResult;
+import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class GetElementsByXPath extends HtmlUnitParsingStep {
     }
 
     @Override
-    public List<ParsingStepResult> execute(DomNode domNode) {
+    public List<StepResult> execute(DomNode domNode) {
         return domNode.getByXPath(xPath).stream()
                 .filter(o -> o instanceof DomNode)
                 .flatMap(node ->

@@ -18,8 +18,7 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingStepResult;
+import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.dom.data.parsing.XPathUtils;
 
 import java.util.ArrayList;
@@ -55,7 +54,7 @@ public class GetListedElementsByFirstElementXPath extends HtmlUnitParsingStep {
     }
 
     @Override
-    public List<ParsingStepResult> execute(DomNode domNode) {
+    public List<StepResult> execute(DomNode domNode) {
 
         // TODO improve working with XPath ...
         String parentXPath = XPathUtils.getXPathSubstrHead(xPath, 1);

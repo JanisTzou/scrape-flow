@@ -24,6 +24,8 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -32,10 +34,15 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
     // TODO should the strategies contain info about how to group the parsed output?
     // TODO parsing sequence vs parsing step(s)
     private final List<HtmlUnitParsingStep> parsingSteps;
+    private final List<HtmlUnitParsingStep> paginatingSteps;
 
-    public HtmlUnitSiteParser(DriverManager<WebClient> driverManager, List<HtmlUnitParsingStep> parsingSteps) {
+
+    public HtmlUnitSiteParser(DriverManager<WebClient> driverManager,
+                              List<HtmlUnitParsingStep> parsingSteps,
+                              List<HtmlUnitParsingStep> paginatingSteps) {
         super(driverManager);
         this.parsingSteps = parsingSteps;
+        this.paginatingSteps = paginatingSteps;
     }
 
     public static Builder builder(DriverManager<WebClient> driverManager) {
@@ -52,8 +59,9 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
     }
 
     private List<ParsedElement> parsePage(HtmlPage page) {
-        return parsingSteps.stream()
-                .flatMap(s -> s.execute(page).stream())
+
+        Function<HtmlPage, List<ParsedElement>> parsing = page1 -> parsingSteps.stream()
+                .flatMap(s -> s.execute(page1).stream())
                 .map(psr -> {
                     if (psr instanceof ParsedElement parsedElement) {
                         return parsedElement;
@@ -62,6 +70,30 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+
+        if (paginatingSteps.isEmpty()) {
+            return parsing.apply(page);
+        } else {
+            // Hmm ... we need something like do ... while ...
+            List<ParsedElement> result = new ArrayList<>();
+            AtomicReference<HtmlPage> pageRef = new AtomicReference<>(page);
+            while (true) {
+                // TODO hmm this page will probably always have next button ... the click operation has not destroyed this instance ...
+                result.addAll(parsing.apply(pageRef.get()));
+                List<StepResult> paginationResult = paginatingSteps.stream()
+                        .flatMap(s -> s.execute(pageRef.get()).stream())
+                        .collect(Collectors.toList());
+
+                Optional<HtmlPage> nextPage = paginationResult.stream().filter(sr -> sr instanceof ElementClicked).map(sr -> ((ElementClicked) sr).getPageAfterElementClicked()).findFirst();
+                if (nextPage.isPresent()) {
+                    pageRef.set(nextPage.get());
+                } else {
+                    break;
+                }
+            }
+            return result;
+        }
+
     }
 
     private Optional<HtmlPage> getHtmlPage(String inzeratUrl, WebClient webClient) {
@@ -78,9 +110,10 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
 
     public static class Builder {
 
+        private final List<HtmlUnitParsingStep> parsingSteps = new ArrayList<>();
+        private final List<HtmlUnitParsingStep> paginatingSteps = new ArrayList<>();
         // TODO somehow we wanna get the driverManager reference here from the outside ...
         private DriverManager<WebClient> driverManager;
-        private final List<HtmlUnitParsingStep> parsingSteps = new ArrayList<>();
 
         public Builder(DriverManager<WebClient> driverManager) {
             this.driverManager = driverManager;
@@ -91,13 +124,13 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
             return this;
         }
 
-        public Builder addStrategies(HtmlUnitParsingStep... parsingSteps) {
-            this.parsingSteps.addAll(Arrays.asList(parsingSteps));
+        public Builder addPaginatingSequence(HtmlUnitParsingStep paginatingStep) {
+            this.paginatingSteps.add(paginatingStep);
             return this;
         }
 
         public HtmlUnitSiteParser build() {
-            return new HtmlUnitSiteParser(this.driverManager, parsingSteps);
+            return new HtmlUnitSiteParser(this.driverManager, parsingSteps, paginatingSteps);
         }
 
     }

@@ -17,7 +17,7 @@
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingStepResult;
+import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
 import lombok.RequiredArgsConstructor;
 
@@ -44,7 +44,7 @@ public class GetElementByAttribute extends HtmlUnitParsingStep {
     }
 
     @Override
-    public List<ParsingStepResult> execute(DomNode domNode) {
+    public List<StepResult> execute(DomNode domNode) {
         List<DomNode> nodes;
         if (attributeValue != null) {
             nodes = HtmlUnitUtils.getAllChildElementsByAttributeValue(domNode, attributeName, attributeValue, true);

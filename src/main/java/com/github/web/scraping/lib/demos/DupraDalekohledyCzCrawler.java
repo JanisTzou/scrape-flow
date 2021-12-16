@@ -24,9 +24,10 @@ import com.github.web.scraping.lib.dom.data.parsing.steps.*;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
 
-import static com.github.web.scraping.lib.demos.AktualneCzCrawler.Identifiers.*;
+import static com.github.web.scraping.lib.demos.AktualneCzCrawler.Identifiers.ARTICLE_DESC;
+import static com.github.web.scraping.lib.demos.AktualneCzCrawler.Identifiers.ARTICLE_HEADLINE;
 
-public class AktualneCzCrawler {
+public class DupraDalekohledyCzCrawler {
 
     public void start() {
 
@@ -36,26 +37,12 @@ public class AktualneCzCrawler {
         // TODO the parsing/scraping steps should be better named so it is clear what action they perform ... it might not be parsing exacly but also actions like button clicks etc ...
         //  maybe it is ok to have a "parsing ste" that is not exacly parsing enything but performing an action ... it's just something that needs to be performed to do the actual parsing ...
 
-        final GetElementByAttribute.Builder getArticleElements = GetElementByAttribute.builder("data-ga4-type", "article");
-        final GetElementByAttribute.Builder getArticleHeadlineElem = GetElementByAttribute.builder("data-vr-headline");
-        final GetElementsByCssClass.Builder getArticleDescElem1 = GetElementsByCssClass.builder("section-opener__desc");
-        final GetElementsByCssClass.Builder getArticleDescElem2 = GetElementsByCssClass.builder("small-box__desc");
+        GetElementsByXPath.Builder getNextBtnLink = GetElementsByXPath.builder("/html/body/div[2]/div[1]/div[4]/div/div/div[2]/div[3]/div[1]/ul/li[4]/a");
 
         final CrawlingStage.Builder articleListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
-                        .addParsingSequence(getArticleElements
-                                .then(getArticleHeadlineElem
-                                        .then(ParseElementText.builder(ARTICLE_HEADLINE).build())
-                                        .build()
-                                )
-                                .then(getArticleDescElem1
-                                        .then(ParseElementText.builder(ARTICLE_DESC).build())
-                                        .build()
-                                )
-                                .then(getArticleDescElem2
-                                        .then(ParseElementText.builder(ARTICLE_DESC).build())
-                                        .build()
-                                )
+                        .addParsingSequence(getNextBtnLink
+                                .then(ClickElement.builder().build())
                                 .build()
                         )
                         .build()
@@ -64,7 +51,7 @@ public class AktualneCzCrawler {
         final CrawlingStage allCrawling = articleListStage.build();
 
         // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?
-        final EntryPoint entryPoint = new EntryPoint("https://zpravy.aktualne.cz/zahranici/", allCrawling);
+        final EntryPoint entryPoint = new EntryPoint("http://www.supra-dalekohledy.cz/prislusenstvi4/okulary/tele-vue/", allCrawling);
 
         final Crawler crawler = new Crawler();
 
@@ -73,8 +60,7 @@ public class AktualneCzCrawler {
     }
 
     public enum Identifiers {
-        ARTICLE_HEADLINE,
-        ARTICLE_DESC
+        NEXT_BTN_LINK
     }
 
 }

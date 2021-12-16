@@ -16,20 +16,19 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
+import com.gargoylesoftware.htmlunit.WebWindow;
+import com.gargoylesoftware.htmlunit.html.*;
+import com.github.web.scraping.lib.dom.data.parsing.ElementClicked;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import lombok.RequiredArgsConstructor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class ParseElementHRef extends HtmlUnitParsingStep {
+public class ClickElement extends HtmlUnitParsingStep {
 
     private final Enum<?> dataType;
     // TODO support next strategies ...
@@ -44,10 +43,17 @@ public class ParseElementHRef extends HtmlUnitParsingStep {
 
     @Override
     public List<StepResult> execute(DomNode domNode) {
+        // TODO clean this mess ...
         if (domNode instanceof HtmlAnchor anch) {
-            String href = anch.getHrefAttribute();
-            if (href != null) {
-                return List.of(new ParsedElement(dataType, href, null, domNode));
+            try {
+                HtmlPage page = anch.getHtmlPageOrNull();
+                WebWindow enclosingWindow = page.getEnclosingWindow();
+                anch.click();
+                HtmlPage currPage = (HtmlPage) enclosingWindow.getEnclosedPage();
+//                System.out.println(currPage.asXml());
+                return List.of(new ElementClicked(anch, currPage));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         return Collections.emptyList();
@@ -77,8 +83,8 @@ public class ParseElementHRef extends HtmlUnitParsingStep {
             return this;
         }
 
-        public ParseElementHRef build() {
-            return new ParseElementHRef(identifier);
+        public ClickElement build() {
+            return new ClickElement(identifier);
         }
     }
 

@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing.steps;
+package com.github.web.scraping.lib.dom.data.parsing;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-import java.util.List;
+@RequiredArgsConstructor
+@Getter
+public class ElementClicked implements StepResult {
 
-// TODO maybe rename to static ... ??
-public abstract class HtmlUnitParsingStep {
-
-    public abstract List<StepResult> execute(DomNode domNode);
+    private final DomNode clickedElement;
+    private final HtmlPage pageAfterElementClicked;
 
 }

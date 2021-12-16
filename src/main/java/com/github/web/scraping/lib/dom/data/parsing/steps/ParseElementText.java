@@ -20,7 +20,7 @@ import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingStepResult;
+import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class ParseElementText extends HtmlUnitParsingStep {
 
     // TODO for text content extraction we could have a dedicated helper class ...
     @Override
-    public List<ParsingStepResult> execute(DomNode el) {
+    public List<StepResult> execute(DomNode el) {
         String tc = null;
         if (el instanceof HtmlElement htmlEl) {
             tc = htmlEl.getTextContent();

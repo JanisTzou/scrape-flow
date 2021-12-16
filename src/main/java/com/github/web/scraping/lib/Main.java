@@ -17,15 +17,20 @@
 package com.github.web.scraping.lib;
 
 import com.github.web.scraping.lib.demos.AktualneCzCrawler;
+import com.github.web.scraping.lib.demos.DupraDalekohledyCzCrawler;
 import com.github.web.scraping.lib.demos.IFortunaCzCrawler;
+import com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        new IFortunaCzCrawler().start();
+//        new IFortunaCzCrawler().start();
+//        System.out.println("-".repeat(150));
 //        new AktualneCzCrawler().start();
-
+//        System.out.println("-".repeat(150));
+//        new DupraDalekohledyCzCrawler().start();
+        new TeleskopExpressDeCrawler().start();
 
     }
 

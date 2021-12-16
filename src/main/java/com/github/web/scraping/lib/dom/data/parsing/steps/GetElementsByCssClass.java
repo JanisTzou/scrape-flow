@@ -17,7 +17,7 @@
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingStepResult;
+import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class GetElementByCssClass extends HtmlUnitParsingStep {
+public class GetElementsByCssClass extends HtmlUnitParsingStep {
 
     private final String cssClassName;
 
@@ -38,7 +38,7 @@ public class GetElementByCssClass extends HtmlUnitParsingStep {
     }
 
     @Override
-    public List<ParsingStepResult> execute(DomNode domNode) {
+    public List<StepResult> execute(DomNode domNode) {
         return HtmlUnitUtils.getAllChildElementsByClass(domNode, cssClassName)
                 .stream()
                 .flatMap(node ->
@@ -63,8 +63,8 @@ public class GetElementByCssClass extends HtmlUnitParsingStep {
             return this;
         }
 
-        public GetElementByCssClass build() {
-            return new GetElementByCssClass(cssClassName, nextSteps);
+        public GetElementsByCssClass build() {
+            return new GetElementsByCssClass(cssClassName, nextSteps);
         }
     }
 
