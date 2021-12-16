@@ -34,6 +34,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class AppConfig {
 
     private final static Config conf = ConfigFactory.load();

@@ -19,6 +19,7 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 import com.gargoylesoftware.htmlunit.WebWindow;
 import com.gargoylesoftware.htmlunit.html.*;
 import com.github.web.scraping.lib.dom.data.parsing.ElementClicked;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import lombok.RequiredArgsConstructor;
 
@@ -42,9 +43,9 @@ public class ClickElement extends HtmlUnitParsingStep {
     }
 
     @Override
-    public List<StepResult> execute(DomNode domNode) {
+    public List<StepResult> execute(ParsingContext ctx) {
         // TODO clean this mess ...
-        if (domNode instanceof HtmlAnchor anch) {
+        if (ctx.getNode() instanceof HtmlAnchor anch) {
             try {
                 HtmlPage page = anch.getHtmlPageOrNull();
                 WebWindow enclosingWindow = page.getEnclosingWindow();

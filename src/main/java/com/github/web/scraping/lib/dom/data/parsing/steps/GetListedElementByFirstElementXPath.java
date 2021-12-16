@@ -19,6 +19,7 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.dom.data.parsing.XPathUtils;
 import lombok.RequiredArgsConstructor;
@@ -54,11 +55,11 @@ public class GetListedElementByFirstElementXPath extends HtmlUnitParsingStep {
 
 
     @Override
-    public List<StepResult> execute(DomNode domNode) {
+    public List<StepResult> execute(ParsingContext ctx) {
 
         // figure out the diff between this.xPath and the parent element xPath ... then use that
 
-        String parentXPath = domNode.getCanonicalXPath();
+        String parentXPath = ctx.getNode().getCanonicalXPath();
         String parentBaseXPath = XPathUtils.getXPathSubstrHead(parentXPath, 1);
         // the part of the child's xpath that will be the same through all the parents
         Optional<String> xPathDiff = XPathUtils.getXPathDiff(parentBaseXPath, xPath);
@@ -69,12 +70,12 @@ public class GetListedElementByFirstElementXPath extends HtmlUnitParsingStep {
 
         String childXPath = XPathUtils.concat(parentXPath, childStaticPartXPath);
 
-        List<StepResult> parsedElements = domNode.getByXPath(childXPath).stream()
+        List<StepResult> parsedElements = ctx.getNode().getByXPath(childXPath).stream()
                 .filter(o -> o instanceof DomNode)
                 .flatMap(parsedEl -> {
                     // TODO are these really children? Might not be at all ... hamdle different levels here ...
                     return nextSteps.stream()
-                            .flatMap(s -> s.execute((DomNode) parsedEl).stream());
+                            .flatMap(s -> s.execute(new ParsingContext ((DomNode) parsedEl, null, null)).stream());
                 })
                 .collect(Collectors.toList());
 

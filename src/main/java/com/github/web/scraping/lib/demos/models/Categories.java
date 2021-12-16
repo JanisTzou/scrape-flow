@@ -14,10 +14,24 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing.steps;
+package com.github.web.scraping.lib.demos.models;
 
-public class GetElementByTextContent {
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-    // TODO it should also be possible to provide a "dynamic" component to the name creation ... so that the searched name can be created based on previously parsed data ...
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+@NoArgsConstructor
+@ToString
+public class Categories {
+
+    private final List<Category> categories = new ArrayList<>();
+
+    public void add(Category category) {
+        this.categories.add(category);
+    }
 
 }

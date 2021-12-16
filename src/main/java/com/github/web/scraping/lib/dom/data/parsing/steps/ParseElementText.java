@@ -20,21 +20,26 @@ import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 
 // TODO ... in this version we only execute the content of the element ...
 
 @RequiredArgsConstructor
-public class ParseElementText extends HtmlUnitParsingStep {
+public class ParseElementText<T> extends HtmlUnitParsingStep {
 
+    @Deprecated // TODO remove ...
     private final Enum<?> identifier;
 
     private final boolean removeChildElementsTextContent;
+    private final BiConsumer<T, String> setter;
 
     // TODO support next strategies ...
 
@@ -46,11 +51,11 @@ public class ParseElementText extends HtmlUnitParsingStep {
         return new Builder().setId(identifier);
     }
 
-    // TODO for text content extraction we could have a dedicated helper class ...
+
     @Override
-    public List<StepResult> execute(DomNode el) {
+    public List<StepResult> execute(ParsingContext ctx) {
         String tc = null;
-        if (el instanceof HtmlElement htmlEl) {
+        if (ctx.getNode() instanceof HtmlElement htmlEl) {
             tc = htmlEl.getTextContent();
             if (tc != null) {
                 // this should be optional ... used in cases when child elements' content filthies the parent element's content ...
@@ -60,7 +65,13 @@ public class ParseElementText extends HtmlUnitParsingStep {
                 tc = tc.trim();
             }
         }
-        return List.of(new ParsedElement(identifier, null, tc, el));
+
+        if (setter != null && ctx.getModel() != null) {
+            setter.accept((T) ctx.getModel(), tc);
+        }
+        ParsedElement parsedElement = new ParsedElement(identifier, null, tc, false, ctx.getNode());
+        parsedElement.setModel(ctx.getModel());
+        return List.of(parsedElement);
     }
 
     private String removeChildElementsTextContent(String textContent, HtmlElement el) {
@@ -75,6 +86,7 @@ public class ParseElementText extends HtmlUnitParsingStep {
 
         private Enum<?> identifier;
         private boolean removeChildElementsTextContent = true;
+        private BiConsumer<?, String> collectionOp;
 
         // TODO use this one as well ...
         private final List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
@@ -95,8 +107,18 @@ public class ParseElementText extends HtmlUnitParsingStep {
             return this;
         }
 
+//        public Builder model(BiConsumer<Object, String> setter) {
+//            this.setter = setter;
+//            return this;
+//        }
+
+        public <T> Builder collectToModel(BiConsumer<T, String> collectionOp) {
+            this.collectionOp = collectionOp;
+            return this;
+        }
+
         public ParseElementText build() {
-            return new ParseElementText(identifier, removeChildElementsTextContent);
+            return new ParseElementText(identifier, removeChildElementsTextContent, collectionOp);
         }
     }
 

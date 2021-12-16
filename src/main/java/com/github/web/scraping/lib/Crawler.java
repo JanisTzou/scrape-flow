@@ -16,7 +16,9 @@
 
 package com.github.web.scraping.lib;
 
+import com.github.web.scraping.lib.dom.data.parsing.ParsedData;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
+import com.github.web.scraping.lib.dom.data.parsing.ParsedElements;
 import com.github.web.scraping.lib.dom.data.parsing.SiteParser;
 
 import java.util.List;
@@ -34,9 +36,10 @@ public class Crawler {
         }
     }
 
+    // TODO what do we want to return actually? And how ?
     private void doScrape(String url, CrawlingStage crawlingStage) {
         SiteParser<?> siteParser = crawlingStage.getSiteParser();
-        List<ParsedElement> parsedElements = siteParser.parse(url);
+        List<ParsedData> pdList = siteParser.parse(url);
 
         // TODO these results correspond to one "row" of data ...
         //  but we need to be able to iterate through multiple "rows" ...
@@ -45,14 +48,15 @@ public class Crawler {
 
         // TODO think of good ways to parallelize this ... also taking into account throttling ...
 
-        for (ParsedElement parsedElement : parsedElements) {
-            List<CrawlingStage> nextStages = crawlingStage.findNextStagesByReference(parsedElement.getIdentifier());
-            for (CrawlingStage nextStage : nextStages) {
-                String nextUrl = nextStage.getFullURLCreator().apply(parsedElement.getHref());
-                doScrape(nextUrl, nextStage);
+        for (ParsedData pd : pdList) {
+            for (ParsedElement parsedElement : pd.getParsedHRefs()) {
+                List<CrawlingStage> nextStages = crawlingStage.findNextStagesByReference(parsedElement.getIdentifier());
+                for (CrawlingStage nextStage : nextStages) {
+                    String nextUrl = nextStage.getFullURLCreator().apply(parsedElement.getHref());
+                    doScrape(nextUrl, nextStage);
+                }
             }
-            System.out.println(parsedElement);
-//            System.out.println(parsedElement.info());
+            System.out.println(pd);
         }
     }
 

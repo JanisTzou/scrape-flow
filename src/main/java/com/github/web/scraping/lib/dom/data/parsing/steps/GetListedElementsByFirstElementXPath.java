@@ -18,6 +18,7 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.dom.data.parsing.XPathUtils;
 
@@ -54,14 +55,14 @@ public class GetListedElementsByFirstElementXPath extends HtmlUnitParsingStep {
     }
 
     @Override
-    public List<StepResult> execute(DomNode domNode) {
+    public List<StepResult> execute(ParsingContext ctx) {
 
         // TODO improve working with XPath ...
         String parentXPath = XPathUtils.getXPathSubstrHead(xPath, 1);
         String xPathTail = XPathUtils.getXPathSubstrTail(xPath, 1).replaceAll("\\d+", "\\\\d+");
         String pattern = XPathUtils.regexEscape(XPathUtils.concat(parentXPath, xPathTail));
 
-        return domNode.getByXPath(parentXPath)
+        return ctx.getNode().getByXPath(parentXPath)
                 .stream()
                 .flatMap(el -> {
                     // child elements ...
@@ -85,7 +86,7 @@ public class GetListedElementsByFirstElementXPath extends HtmlUnitParsingStep {
                 })
                 .flatMap(el -> {
                     if (el instanceof HtmlElement htmlEl) {
-                        return nextSteps.stream().flatMap(s -> s.execute(htmlEl).stream());
+                        return nextSteps.stream().flatMap(s -> s.execute(new ParsingContext(htmlEl, null, null)).stream());
                     }
                     return Stream.empty();
                 })

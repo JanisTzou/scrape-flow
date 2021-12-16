@@ -18,7 +18,10 @@ package com.github.web.scraping.lib.dom.data.parsing;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
+
+import javax.annotation.Nullable;
 
 @RequiredArgsConstructor
 @Getter
@@ -41,6 +44,12 @@ public class ParsedElement implements StepResult { // TODO rename to parsed elem
 
     //    private final boolean shouldScrapeNext; // TODO should this be here ?
     private final String text;
+    private final boolean hasHRef;
+
+    // TODO make properly iomplementated later ...
+    @Nullable
+    @Setter
+    private Object model;
 
     private final Object element;
     // can contain image also ...

@@ -17,17 +17,25 @@
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-// TODO maybe rename to static ... ??
-public abstract class HtmlUnitParsingStep {
+// TODO does it make sense to have this asa separate super class?
+@RequiredArgsConstructor
+public class NextStepsForElementCollection {
 
-    public abstract List<StepResult> execute(ParsingContext ctx);
+    private final List<HtmlUnitParsingStep> nextSteps;
 
+    public List<StepResult> execute(DomNode domNode, StepResult prevStepResult) {
+        return null;
+    }
+
+    public List<StepResult> execute(DomNode domNode, @Nullable Object resultCollector) {
+        return Collections.emptyList();
+    }
 
 }

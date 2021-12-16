@@ -16,18 +16,14 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import java.util.function.Supplier;
 
-import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
+public abstract class HtmlUnitOutputCollecting {
 
-// TODO maybe rename to static ... ??
-public abstract class HtmlUnitParsingStep {
+    private Supplier<?> collectorGetter;
 
-    public abstract List<StepResult> execute(ParsingContext ctx);
-
+    public Supplier<?> getCollector() {
+        return collectorGetter;
+    }
 
 }

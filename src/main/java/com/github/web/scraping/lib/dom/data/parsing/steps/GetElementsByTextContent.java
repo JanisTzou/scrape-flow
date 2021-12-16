@@ -16,18 +16,8 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+public class GetElementsByTextContent {
 
-import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
-
-// TODO maybe rename to static ... ??
-public abstract class HtmlUnitParsingStep {
-
-    public abstract List<StepResult> execute(ParsingContext ctx);
-
+    // TODO it should also be possible to provide a "dynamic" component to the name creation ... so that the searched name can be created based on previously parsed data ...
 
 }

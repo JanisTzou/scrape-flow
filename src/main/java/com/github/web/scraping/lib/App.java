@@ -21,7 +21,7 @@ import com.github.web.scraping.lib.demos.DupraDalekohledyCzCrawler;
 import com.github.web.scraping.lib.demos.IFortunaCzCrawler;
 import com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler;
 
-public class Main {
+public class App {
 
     public static void main(String[] args) {
 

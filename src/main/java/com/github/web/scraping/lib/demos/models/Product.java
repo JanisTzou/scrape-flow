@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing;
+package com.github.web.scraping.lib.demos.models;
 
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-import java.util.Map;
+@Setter
+@Getter
+@NoArgsConstructor
+@ToString
+public class Product {
 
-@RequiredArgsConstructor
-public class ParsedElementGroup {
+    private String title;
+    private String code;
+    private String price;
 
-    final Enum<?> groupIdentifier;
-
-    final Map<Enum<?>, ParsedElement> parsedElements;
-
-    // TODO should contain other groups as well?
 
 }

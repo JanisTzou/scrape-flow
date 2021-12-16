@@ -50,7 +50,7 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
     }
 
     @Override
-    public List<ParsedElement> parse(String url) {
+    public List<ParsedData> parse(String url) {
         final WebClient webClient = driverManager.getDriver();
         final Optional<HtmlPage> page = getHtmlPage(url, webClient);
 //        System.out.println(page.get().asXml());
@@ -58,13 +58,15 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
                 .orElse(Collections.emptyList());
     }
 
-    private List<ParsedElement> parsePage(HtmlPage page) {
-
-        Function<HtmlPage, List<ParsedElement>> parsing = page1 -> parsingSequences.stream()
-                .flatMap(s -> s.execute(page1).stream())
-                .map(psr -> {
-                    if (psr instanceof ParsedElement parsedElement) {
-                        return parsedElement;
+    private List<ParsedData> parsePage(HtmlPage page) {
+        Function<HtmlPage, List<ParsedData>> parsing = page1 -> parsingSequences.stream()
+                .flatMap(s -> s.execute(new ParsingContext(page1, null, null)).stream()) // TODO temporarily passing null in the conttxt ...
+                .map(sr -> {
+                    if (sr instanceof ParsedElement parsedElement) {
+                        // TODO handle parsed HRef .... references ...
+                        return new ParsedData(parsedElement.getModel(), Collections.emptyList());
+                    } else if (sr instanceof ParsedElements parsedElements) {
+                        return new ParsedData(parsedElements.getContainer(), Collections.emptyList());
                     }
                     return null;
                 })
@@ -75,12 +77,12 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
             return parsing.apply(page);
         } else {
             // Hmm ... we need something like do ... while ...
-            List<ParsedElement> result = new ArrayList<>();
+            List<ParsedData> result = new ArrayList<>();
             AtomicReference<HtmlPage> pageRef = new AtomicReference<>(page);
             while (true) {
                 // TODO hmm this page will probably always have next button ... the click operation has not destroyed this instance ...
                 result.addAll(parsing.apply(pageRef.get()));
-                List<StepResult> paginationResult = paginatingSequence.execute(pageRef.get());
+                List<StepResult> paginationResult = paginatingSequence.execute(new ParsingContext(pageRef.get(), null, null)); // TODO temporarily passing null ...
 
                 Optional<HtmlPage> nextPage = paginationResult.stream().filter(sr -> sr instanceof ElementClicked).map(sr -> ((ElementClicked) sr).getPageAfterElementClicked()).findFirst();
                 if (nextPage.isPresent()) {

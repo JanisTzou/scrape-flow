@@ -21,6 +21,7 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import lombok.RequiredArgsConstructor;
 
@@ -44,21 +45,14 @@ public class ParseElementHRef extends HtmlUnitParsingStep {
     }
 
     @Override
-    public List<StepResult> execute(DomNode domNode) {
-        if (domNode instanceof HtmlAnchor anch) {
+    public List<StepResult> execute(ParsingContext ctx) {
+        if (ctx.getNode() instanceof HtmlAnchor anch) {
             String href = anch.getHrefAttribute();
             if (href != null) {
-                return List.of(new ParsedElement(identifier, href, null, domNode));
+                return List.of(new ParsedElement(identifier, href, null, true, ctx.getNode()));
             }
         }
         return Collections.emptyList();
-    }
-
-    private String removeNestedElementsTextContent(String textContent, HtmlElement el) {
-        for (DomElement childElement : el.getChildElements()) {
-            textContent = textContent.replace(childElement.getTextContent(), "");
-        }
-        return textContent;
     }
 
 

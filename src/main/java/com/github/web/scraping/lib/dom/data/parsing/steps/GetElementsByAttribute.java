@@ -17,6 +17,7 @@
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// TODO maybe we should only have the version "by attribute" which would also support value ?
 @RequiredArgsConstructor
-public class GetElementByAttribute extends HtmlUnitParsingStep {
+public class GetElementsByAttribute extends HtmlUnitParsingStep {
 
     private final String attributeName;
     private final String attributeValue;
@@ -45,16 +45,16 @@ public class GetElementByAttribute extends HtmlUnitParsingStep {
     }
 
     @Override
-    public List<StepResult> execute(DomNode domNode) {
+    public List<StepResult> execute(ParsingContext ctx) {
         List<DomNode> nodes;
         if (attributeValue != null) {
-            nodes = HtmlUnitUtils.getAllChildElementsByAttributeValue(domNode, attributeName, attributeValue, this.matchEntireValue);
+            nodes = HtmlUnitUtils.getAllChildElementsByAttributeValue(ctx.getNode(), attributeName, attributeValue, this.matchEntireValue);
         } else {
-            nodes = HtmlUnitUtils.getAllChildElementsByAttribute(domNode, attributeName);
+            nodes = HtmlUnitUtils.getAllChildElementsByAttribute(ctx.getNode(), attributeName);
         }
         return nodes.stream()
                 .flatMap(node ->
-                    nextSteps.stream().flatMap(s -> s.execute(node).stream())
+                    nextSteps.stream().flatMap(s -> s.execute(new ParsingContext(node, null, null)).stream())
                 )
                 .collect(Collectors.toList());
     }
@@ -92,8 +92,8 @@ public class GetElementByAttribute extends HtmlUnitParsingStep {
             return this;
         }
 
-        public GetElementByAttribute build() {
-            return new GetElementByAttribute(attributeName, attributeValue, matchEntireValue, nextSteps);
+        public GetElementsByAttribute build() {
+            return new GetElementsByAttribute(attributeName, attributeValue, matchEntireValue, nextSteps);
         }
     }
 

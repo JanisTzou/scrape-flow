@@ -14,20 +14,26 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing.steps;
+package com.github.web.scraping.lib.dom.data.parsing;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.List;
 
-// TODO maybe rename to static ... ??
-public abstract class HtmlUnitParsingStep {
+@RequiredArgsConstructor
+@Getter
+@ToString
+public class ParsedElements implements StepResult { // TODO rename to parsed element? parsed field ? ...
 
-    public abstract List<StepResult> execute(ParsingContext ctx);
+    // TODO should this not always be either container or model but in one field ?
+    @Nullable
+    @Setter
+    private final Object container;
 
+    private final List<ParsedElement> parsedHRefs;
 
 }

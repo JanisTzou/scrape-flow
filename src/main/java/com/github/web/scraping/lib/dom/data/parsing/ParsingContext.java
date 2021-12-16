@@ -16,5 +16,32 @@
 
 package com.github.web.scraping.lib.dom.data.parsing;
 
-public class DataExample {
+import com.gargoylesoftware.htmlunit.html.DomNode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import javax.annotation.Nullable;
+
+/**
+ * Allows sharing information between parsing steps
+ */
+@Getter
+@Setter
+@ToString
+public class ParsingContext {
+
+    private DomNode node;
+
+    @Nullable
+    private Object model;
+
+    @Nullable
+    private Object container;
+
+    public ParsingContext(DomNode node, @Nullable Object model, @Nullable Object container) {
+        this.node = node;
+        this.model = model;
+        this.container = container;
+    }
 }

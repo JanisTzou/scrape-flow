@@ -14,20 +14,27 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing.steps;
+package com.github.web.scraping.lib.demos.models;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-import javax.annotation.Nullable;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
-// TODO maybe rename to static ... ??
-public abstract class HtmlUnitParsingStep {
+@Setter
+@Getter
+@NoArgsConstructor
+@ToString
+public class Category {
 
-    public abstract List<StepResult> execute(ParsingContext ctx);
+    private String title;
+    private final List<Product> products = new ArrayList<>();
 
+    public void addProduct(Product product) {
+        this.products.add(product);
+    }
 
 }

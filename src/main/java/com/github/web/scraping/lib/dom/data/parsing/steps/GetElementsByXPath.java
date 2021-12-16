@@ -19,6 +19,7 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import lombok.RequiredArgsConstructor;
 
@@ -38,22 +39,14 @@ public class GetElementsByXPath extends HtmlUnitParsingStep {
     }
 
     @Override
-    public List<StepResult> execute(DomNode domNode) {
-        return domNode.getByXPath(xPath).stream()
+    public List<StepResult> execute(ParsingContext ctx) {
+        return ctx.getNode().getByXPath(xPath).stream()
                 .filter(o -> o instanceof DomNode)
                 .flatMap(node ->
-                        nextSteps.stream().flatMap(s -> s.execute((DomNode) node).stream())
+                        nextSteps.stream().flatMap(s -> s.execute(new ParsingContext ((DomNode) node, null, null)).stream())
                 )
                 .collect(Collectors.toList());
     }
-
-    private String removeNestedElementsTextContent(String textContent, HtmlElement el) {
-        for (DomElement childElement : el.getChildElements()) {
-            textContent = textContent.replace(childElement.getTextContent(), "");
-        }
-        return textContent;
-    }
-
 
     public static class Builder {
 
