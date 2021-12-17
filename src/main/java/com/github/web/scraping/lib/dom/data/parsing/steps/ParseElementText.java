@@ -30,7 +30,8 @@ import java.util.function.BiConsumer;
 // TODO ... in this version we only execute the content of the element ...
 
 //@RequiredArgsConstructor
-public class ParseElementText extends HtmlUnitChainableStep<ParseElementText> {
+public class ParseElementText extends HtmlUnitChainableStep<ParseElementText>
+    implements HtmlUnitCollectingToModelStep<ParseElementText> {
 
 
     private boolean removeChildElementsTextContent;
@@ -41,8 +42,8 @@ public class ParseElementText extends HtmlUnitChainableStep<ParseElementText> {
     }
 
     protected ParseElementText(@Nullable List<HtmlUnitParsingStep> nextSteps,
-                            boolean removeChildElementsTextContent,
-                            @Nullable BiConsumer<Object, String> modelMutation) {
+                               boolean removeChildElementsTextContent,
+                               @Nullable BiConsumer<Object, String> modelMutation) {
         super(nextSteps);
         this.removeChildElementsTextContent = removeChildElementsTextContent;
         this.modelMutation = modelMutation;
@@ -91,7 +92,8 @@ public class ParseElementText extends HtmlUnitChainableStep<ParseElementText> {
         return this;
     }
 
-    public <T> ParseElementText collectToModel(BiConsumer<T, String> modelMutation) {
+    @Override
+    public <T> ParseElementText thenCollectToModel(BiConsumer<T, String> modelMutation) {
         this.modelMutation = (BiConsumer<Object, String>) modelMutation;
         return this;
     }

@@ -26,7 +26,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public class GetElementsByXPath extends HtmlUnitChainableStep<GetElementsByXPath>
-        implements HtmlUnitCollectingStep<GetElementsByXPath> {
+        implements HtmlUnitCollectorSetupStep<GetElementsByXPath> {
 
     private final String xPath;
     private Collecting<?, ?> collecting;

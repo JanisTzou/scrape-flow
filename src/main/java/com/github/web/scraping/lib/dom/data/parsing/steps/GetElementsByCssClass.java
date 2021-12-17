@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-public class GetElementsByCssClass extends HtmlUnitChainableStep<GetElementsByCssClass> implements HtmlUnitCollectingStep<GetElementsByCssClass> {
+public class GetElementsByCssClass extends HtmlUnitChainableStep<GetElementsByCssClass> implements HtmlUnitCollectorSetupStep<GetElementsByCssClass> {
 
     private final String cssClassName;
     private Collecting<?, ?> collecting;

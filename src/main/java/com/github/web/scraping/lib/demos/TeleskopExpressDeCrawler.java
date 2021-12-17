@@ -19,19 +19,25 @@ package com.github.web.scraping.lib.demos;
 import com.github.web.scraping.lib.Crawler;
 import com.github.web.scraping.lib.CrawlingStage;
 import com.github.web.scraping.lib.EntryPoint;
-import com.github.web.scraping.lib.demos.models.Product;
-import com.github.web.scraping.lib.demos.models.ProductCode;
-import com.github.web.scraping.lib.demos.models.Products;
 import com.github.web.scraping.lib.dom.data.parsing.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.dom.data.parsing.steps.*;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler.Identifiers.PRODUCT_DETAIL_LINK;
 
 public class TeleskopExpressDeCrawler {
 
     public void start() {
+
+        // TODO suppot something like temporary models? e.g. for communication of multiple pieces of data downstream so that an action/step can be executed ...
 
         // TODO any way for these to be accessible globally? So they do not need to be specified explicitly in every stage definition?
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
@@ -65,14 +71,15 @@ public class TeleskopExpressDeCrawler {
                                         .then(getProductCodeElemStep
                                                 .then(new EmptyStep()
                                                         .collector(ProductCode::new, Product::setProductCode)
-                                                        .then(new ParseElementText().collectToModel(ProductCode::setValue))
+                                                        .then(new ParseElementText().thenCollectToModel(ProductCode::setValue)
+                                                                .then(null)) // TODO sanitise, tranform ... scrape something else based on this ...
                                                 )
                                         )
                                         .then(getProductCodeElemStep2 // this needs to be new instance ... throws exception otherwise ...
-                                                .then(new ParseElementText().collectToModel(Product::setCode))
+                                                .then(new ParseElementText().thenCollectToModel(Product::setCode))
                                         )
                                         .then(getProductPriceElemStep
-                                                .then(new ParseElementText().collectToModel(Product::setPrice))
+                                                .then(new ParseElementText().thenCollectToModel(Product::setPrice))
                                         )
                                         .then(getProductTitleElemStep2
                                                 .then(ParseElementHRef.instance(PRODUCT_DETAIL_LINK))
@@ -109,8 +116,39 @@ public class TeleskopExpressDeCrawler {
 
     }
 
+
     public enum Identifiers {
         PRODUCT_DETAIL_LINK
+    }
+
+
+    @Getter
+    @NoArgsConstructor
+    @ToString
+    public static class Products {
+        private final List<Product> products = new ArrayList<>();
+
+        public void add(Product product) {
+            this.products.add(product);
+        }
+    }
+
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    @ToString
+    public static class Product {
+        private String title;
+        private String code;
+        private String price;
+        private ProductCode productCode;
+    }
+
+    @Setter
+    @Getter
+    @ToString
+    public static class ProductCode {
+        private String value;
     }
 
 }

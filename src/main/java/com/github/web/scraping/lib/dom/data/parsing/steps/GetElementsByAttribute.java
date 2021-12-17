@@ -27,7 +27,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public class GetElementsByAttribute extends HtmlUnitChainableStep<GetElementsByAttribute>
-    implements HtmlUnitCollectingStep<GetElementsByAttribute> {
+    implements HtmlUnitCollectorSetupStep<GetElementsByAttribute> {
 
     private final String attributeName;
     private final String attributeValue;

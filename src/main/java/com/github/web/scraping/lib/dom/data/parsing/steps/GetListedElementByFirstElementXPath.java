@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class GetListedElementByFirstElementXPath extends HtmlUnitChainableStep<GetListedElementByFirstElementXPath>
-        implements HtmlUnitCollectingStep<GetListedElementByFirstElementXPath> {
+        implements HtmlUnitCollectorSetupStep<GetListedElementByFirstElementXPath> {
 
     // the xPath of the first child
     private final String xPath;

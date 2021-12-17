@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class GetListedElementsByFirstElementXPath extends HtmlUnitChainableStep<GetListedElementsByFirstElementXPath>
-    implements HtmlUnitCollectingStep<GetListedElementsByFirstElementXPath> {
+    implements HtmlUnitCollectorSetupStep<GetListedElementsByFirstElementXPath> {
 
     private final String xPath;
     private Collecting<?, ?> collecting;
@@ -41,7 +41,7 @@ public class GetListedElementsByFirstElementXPath extends HtmlUnitChainableStep<
         this.xPath = xPath;
     }
 
-    public static GetListedElementsByFirstElementXPath builder(String xPath) {
+    public static GetListedElementsByFirstElementXPath instance(String xPath) {
         return new GetListedElementsByFirstElementXPath(null, xPath);
     }
 

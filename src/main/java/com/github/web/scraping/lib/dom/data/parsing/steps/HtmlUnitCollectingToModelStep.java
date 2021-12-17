@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.demos.models;
+package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
-import java.util.ArrayList;
-import java.util.List;
+public interface HtmlUnitCollectingToModelStep<C> {
 
-@Getter
-@NoArgsConstructor
-@ToString
-public class Products {
-
-    private final List<Product> products = new ArrayList<>();
-
-    public void add(Product product) {
-        this.products.add(product);
-    }
+    /**
+     * Sets up the operation that will set the actual scraped data to model object
+     * @param modelMutation
+     */
+    <T> C thenCollectToModel(BiConsumer<T, String> modelMutation);
 
 }

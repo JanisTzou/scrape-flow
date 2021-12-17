@@ -19,7 +19,7 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-public interface HtmlUnitCollectingStep<C> {
+public interface HtmlUnitCollectorSetupStep<C> {
 
 
     /**

@@ -29,7 +29,7 @@ import java.util.function.Supplier;
  * Used just to test context propagation
  */
 @NoArgsConstructor
-public class EmptyStep extends HtmlUnitParsingStep implements HtmlUnitCollectingStep<EmptyStep> {
+public class EmptyStep extends HtmlUnitParsingStep implements HtmlUnitCollectorSetupStep<EmptyStep> {
 
     private final List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
     private Collecting<?, ?> collecting;
