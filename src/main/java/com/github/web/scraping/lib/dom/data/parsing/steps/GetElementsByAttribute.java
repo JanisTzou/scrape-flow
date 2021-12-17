@@ -71,7 +71,7 @@ public class GetElementsByAttribute extends HtmlUnitChainableStep<GetElementsByA
                 return HtmlUnitUtils.getAllChildElementsByAttribute(ctx.getNode(), attributeName);
             }
         };
-        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting).execute(ctx, nodesSearch);
+        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting, getName()).execute(ctx, nodesSearch);
     }
 
 

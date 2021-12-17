@@ -16,6 +16,7 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
+import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import lombok.NoArgsConstructor;
@@ -29,19 +30,19 @@ import java.util.function.Supplier;
  * Used just to test context propagation
  */
 @NoArgsConstructor
-public class EmptyStep extends HtmlUnitParsingStep implements HtmlUnitCollectorSetupStep<EmptyStep> {
+public class EmptyStep extends HtmlUnitParsingStep<EmptyStep> implements HtmlUnitCollectorSetupStep<EmptyStep> {
 
     private final List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
     private Collecting<?, ?> collecting;
 
-    public static EmptyStep instance(String cssClassName) {
+    public static EmptyStep instance() {
         return new EmptyStep();
     }
 
     @Override
     public List<StepResult> execute(ParsingContext ctx) {
-        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting)
-                .execute(ctx, () -> List.of(ctx.getNode()));
+        Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
+        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting, getName()).execute(ctx, nodesSearch);
     }
 
     public EmptyStep then(HtmlUnitParsingStep nextStep) {

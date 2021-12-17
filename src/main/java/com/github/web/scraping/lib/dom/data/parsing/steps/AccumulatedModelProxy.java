@@ -16,26 +16,20 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-import java.util.List;
+/**
+ * Wrapper around the model object that ensures that when the model returns populated with data
+ * it is collected only once (thus avoiding duplicates in resulting collections od data)
+ */
+@RequiredArgsConstructor
+@Getter
+@Setter
+public class AccumulatedModelProxy<M> {
 
-// TODO maybe rename to static ... ??
-// TODO make an interface?
-public abstract class HtmlUnitParsingStep<C> {
+    private final M model;
+    private boolean accumulated;
 
-    // just for debugging
-    private String name;
-
-    public abstract List<StepResult> execute(ParsingContext ctx);
-
-    public String getName() {
-        return name;
-    }
-
-    public C setName(String name) {
-        this.name = name;
-        return (C) this;
-    }
 }

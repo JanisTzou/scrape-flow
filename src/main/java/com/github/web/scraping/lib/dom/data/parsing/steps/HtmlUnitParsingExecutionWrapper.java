@@ -28,18 +28,31 @@ import lombok.ToString;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class HtmlUnitParsingExecutionWrapper<R, T> {
 
+    // just for debugging
+    @Getter
+    private String name;
+
     private final List<HtmlUnitParsingStep> nextSteps;
     private final Collecting<R, T> collecting;
 
-    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep> nextSteps, @Nullable Collecting<R, T> collecting) {
+    /**
+     * @param name for debugging purposes
+     */
+    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep> nextSteps, @Nullable Collecting<R, T> collecting, String name) {
         this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
         this.collecting = Objects.requireNonNullElse(collecting, new Collecting<>());
+        setName(name);
+    }
+
+    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep> nextSteps, @Nullable Collecting<R, T> collecting) {
+        this(nextSteps, collecting, null);
     }
 
     public HtmlUnitParsingExecutionWrapper(List<HtmlUnitParsingStep> nextSteps) {
@@ -48,25 +61,32 @@ public class HtmlUnitParsingExecutionWrapper<R, T> {
 
     public List<StepResult> execute(ParsingContext ctx, Supplier<List<DomNode>> nodesSearch) {
         try {
-//        final Set<Object> processed = new HashSet<>(); // temporary solution ... if class implements equals() & hashcode this is a problem ...
-
-            NextParsingContextBasis nextContextBasis = getNextContextBasis(ctx);
-
             final List<DomNode> foundNodes = nodesSearch.get();
 
             final List<StepResult> nextStepResults = foundNodes
                     .stream()
-                    .flatMap(node -> executeNextSteps(node, nextContextBasis))
+                    .flatMap(node -> {
+                        NextParsingContextBasis nextContextBasis = getNextContextBasis(ctx);
+                        return executeNextSteps(node, nextContextBasis);
+                    })
                     .collect(Collectors.toList());
 
-            // TODO hmm maybe we do not get the right container here ? The decision making logic below might need to determine this container ...
+            // TODO hmm maybe we do not get the right stepContainer here ? The decision making logic below might need to determine this stepContainer ...
             //  or maybe not?
-            return collectStepResults((R) nextContextBasis.container, nextStepResults);
+            // TODO maybe these two steps can go into collectStepResults() ?
+            final Optional<StepContainer<R>> stepContainer = getStepContainer(ctx);
+            final R container = stepContainer.map(sc -> sc.container).orElse(null);
+
+            // TODO for some reason it seems that we are not getting container where we should ...
+            return collectStepResults(container, nextStepResults);
+
         } catch (Exception e) {
             e.printStackTrace();
             return Collections.emptyList();
         }
     }
+
+
 
     private Stream<StepResult> executeNextSteps(DomNode node, NextParsingContextBasis nextContextBasis) {
         return nextSteps.stream().flatMap(s -> {
@@ -75,69 +95,122 @@ public class HtmlUnitParsingExecutionWrapper<R, T> {
         });
     }
 
-
-    private NextParsingContextBasis getNextContextBasis(ParsingContext ctx) {
-        // TODO should we ignore ctx.getContainer  at this point?
-        Optional<R> container = collecting.supplyContainer(); // TODO use cur container
-        Optional<T> model = collecting.supplyModel();
-        T nextModel;
-        R nextContainer;
-
-        if (container.isPresent()) {
-            nextContainer = container.get();
-            if (model.isPresent()) {
-                nextModel = model.get();
-                System.out.println("here ... 0");
+    // contained for this step
+    private Optional<StepContainer<R>> getStepContainer(ParsingContext ctx) {
+        if (collecting.getAccumulator() != null) { // we will be collecting stuff only if there is an accumulator as well ...
+            Optional<R> container = collecting.supplyContainer();
+            if (container.isPresent()) {
+                return Optional.of(new StepContainer<>(container.get(), true));
             } else {
-                nextModel = (T) ctx.getModel();
-                System.out.println("here ... 1");
-            }
-        } else {
-            if (model.isPresent()) {
-                nextModel = model.get();
-                nextContainer = (R) ctx.getModel(); // previous model must be the current container ...
-                System.out.println("here ... 2");
-            } else {
-                nextModel = (T) ctx.getModel(); // needs to be propagated
-                nextContainer = null; // must not be propagated ...
-                System.out.println("here ... 3");
+                R ctxContainer = (R) ctx.getContainer();
+                if (ctxContainer != null) {
+                    return Optional.of(new StepContainer<>(ctxContainer, false));
+                } else {
+                    System.out.println("Context container null ... in " + getName());
+                }
             }
         }
+        return Optional.empty();
+    }
 
-        return new NextParsingContextBasis(nextModel, nextContainer, false);
+    // TODO remove .... probably not needed ... this wrapping ...
+    private record StepContainer<R>(R container, boolean isNewInstance) {
+    }
+
+    private NextParsingContextBasis getNextContextBasis(ParsingContext ctx) {
+        Optional<AccumulatedModelProxy<T>> suppliedModelProxy = collecting.supplyModel().map(AccumulatedModelProxy::new);
+        AccumulatedModelProxy<T> nextModelProxy;
+        R nextContainer;
+//
+//        if (ctxContainer != null) {
+//            nextContainer = (R) ctxContainer;
+//            if (suppliedModelProxy.isPresent()) {
+//                nextModelProxy = suppliedModelProxy.get();
+//                System.out.println("here ... 0");
+//            } else {
+//                nextModelProxy = (AccumulatedModelProxy<T>) ctx.getModelProxy();
+//                System.out.println("here ... 1");
+//            }
+//        } else {
+//            if (suppliedModelProxy.isPresent()) {
+//                nextModelProxy = suppliedModelProxy.get();
+//                nextContainer = (R) ctx.getModelProxy().getModel(); // previous suppliedModelProxy must be the current container ...
+//                System.out.println("here ... 2");
+//            } else {
+//                nextModelProxy = (AccumulatedModelProxy<T>) ctx.getModelProxy(); // needs to be propagated
+//                nextContainer = null; // must not be propagated ...
+//                System.out.println("here ... 3");
+//            }
+//        }
+
+        if (suppliedModelProxy.isPresent()) {
+            nextModelProxy = suppliedModelProxy.get();
+            nextContainer = (R) suppliedModelProxy.get().getModel(); // previous suppliedModelProxy must be the current container ...
+            System.out.println("here ... 4");
+        } else {
+            AccumulatedModelProxy<T> ctxModelProxy = (AccumulatedModelProxy<T>) ctx.getModelProxy();
+            nextModelProxy = ctxModelProxy; // needs to be propagated
+            nextContainer = ctxModelProxy != null ? (R) ctxModelProxy.getModel() : null; // must not be propagated ...
+            System.out.println("here ... 5");
+        }
+
+        return new NextParsingContextBasis(nextModelProxy, nextContainer);
     }
 
     private List<StepResult> collectStepResults(R container, List<StepResult> stepResults) {
-        if (container != null) {
+        if (container != null) { // TODO maybe check for accumulator here ...
             final List<ParsedElement> hrefs = stepResults.stream().filter(sr -> sr instanceof ParsedElement pe && pe.isHasHRef()).map(sr -> (ParsedElement) sr).collect(Collectors.toList());
 
             // TODO handle duplicates ...
             stepResults.stream()
                     .filter(sr -> sr instanceof ParsedElement)
                     .map(sr -> (ParsedElement) sr)
-                    .map(ParsedElement::getModel)
-                    .forEach(model -> collecting.getAccumulator().accept(container, (T) model));
+                    .map(ParsedElement::getModelProxy)
+                    .filter(Objects::nonNull)
+                    .forEach(mp -> {
+                        // the proxy prevents duplicates to be accumulated as data is returning upstream
+                        AccumulatedModelProxy<T> modelProxy = (AccumulatedModelProxy<T>) mp;
+//                        System.out.println(modelProxy);
+                        if (!modelProxy.isAccumulated()) {
+                            BiConsumer<R, T> accumulator = collecting.getAccumulator();
+                            if (accumulator != null) {
+                                accumulator.accept(container, modelProxy.getModel());
+                                modelProxy.setAccumulated(true);
+                                System.out.println("Accumulator exists ...");
+                            } else {
+                                System.out.println("Accumulator is null ...");
+                            }
+                        } else {
+                            System.out.println("Skipping ... already accumulated");
+                        }
+                    });
 
             return List.of(new ParsedElements(container, hrefs));
         } else {
+            BiConsumer<R, T> accumulator = collecting.getAccumulator();
+            if (accumulator != null) {
+                System.out.println("Wrong existing accumulator ... in " + getName());
+            }
             return stepResults;
         }
+    }
+
+    private HtmlUnitParsingExecutionWrapper<R, T> setName(String name) {
+        this.name = name != null ? name + "-wrapper" : null;
+        return this;
     }
 
     @Getter
     @Setter
     @ToString
     @RequiredArgsConstructor
-    public class NextParsingContextBasis {
+    private static class NextParsingContextBasis<T> {
 
-        // Curr model?
         @Nullable
-        private final Object model;
+        private final AccumulatedModelProxy<T> model;
 
         @Nullable
         private final Object container;
-
-        private final boolean collectorToParentModel;
 
     }
 

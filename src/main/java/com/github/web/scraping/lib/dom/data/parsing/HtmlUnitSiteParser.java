@@ -33,13 +33,13 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
 
     // TODO should the strategies contain info about how to group the parsed output?
     // TODO parsing sequence vs parsing step(s)
-    private final List<HtmlUnitParsingStep> parsingSequences;
-    private final HtmlUnitParsingStep paginatingSequence;
+    private final List<HtmlUnitParsingStep<?>> parsingSequences;
+    private final HtmlUnitParsingStep<?> paginatingSequence;
 
 
     public HtmlUnitSiteParser(DriverManager<WebClient> driverManager,
-                              List<HtmlUnitParsingStep> parsingSequences,
-                              HtmlUnitParsingStep paginatingSequence) {
+                              List<HtmlUnitParsingStep<?>> parsingSequences,
+                              HtmlUnitParsingStep<?> paginatingSequence) {
         super(driverManager);
         this.parsingSequences = parsingSequences;
         this.paginatingSequence = paginatingSequence;
@@ -64,7 +64,7 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
                 .map(sr -> {
                     if (sr instanceof ParsedElement parsedElement) {
                         // TODO handle parsed HRef .... references ...
-                        return new ParsedData(parsedElement.getModel(), Collections.emptyList());
+                        return new ParsedData(parsedElement.getModelProxy(), Collections.emptyList());
                     } else if (sr instanceof ParsedElements parsedElements) {
                         return new ParsedData(parsedElements.getContainer(), Collections.emptyList());
                     }
@@ -109,8 +109,8 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
 
     public static class Builder {
 
-        private final List<HtmlUnitParsingStep> parsingSteps = new ArrayList<>();
-        private HtmlUnitParsingStep paginatingStep;
+        private final List<HtmlUnitParsingStep<?>> parsingSteps = new ArrayList<>();
+        private HtmlUnitParsingStep<?> paginatingStep;
         // TODO somehow we wanna get the driverManager reference here from the outside ...
         private DriverManager<WebClient> driverManager;
 

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class HtmlUnitChainableStep<C> extends HtmlUnitParsingStep {
+public abstract class HtmlUnitChainableStep<C> extends HtmlUnitParsingStep<C> {
 
     protected final List<HtmlUnitParsingStep> nextSteps;
 

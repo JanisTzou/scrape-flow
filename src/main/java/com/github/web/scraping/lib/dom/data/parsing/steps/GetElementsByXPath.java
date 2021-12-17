@@ -47,7 +47,7 @@ public class GetElementsByXPath extends HtmlUnitChainableStep<GetElementsByXPath
     @Override
     public List<StepResult> execute(ParsingContext ctx) {
         Supplier<List<DomNode>> nodesSearch = () -> ctx.getNode().getByXPath(xPath);
-        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting).execute(ctx, nodesSearch);
+        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting, getName()).execute(ctx, nodesSearch);
     }
 
     @Override

@@ -48,7 +48,7 @@ public class Collecting<R, T> {
 
     public Optional<T> supplyModel() {
         if (modelSupplier != null) {
-            return Optional.ofNullable(modelSupplier.get());
+            return Optional.of(modelSupplier.get());
         } else {
             return Optional.empty();
         }

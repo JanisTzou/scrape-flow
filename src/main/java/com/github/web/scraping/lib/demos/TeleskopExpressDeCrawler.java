@@ -49,11 +49,11 @@ public class TeleskopExpressDeCrawler {
         GetElementsByAttribute getNextBtnLinkElemStep = GetElementsByAttribute.instance("title", " nächste Seite ");
         // TODO here there are duplicates becase bellow the instances are mutated ... change this so that each call below in the sequence
         //  creates a new instance based on the previous one and only then it sets values ....
-        GetElementsByCssClass getProductTdElemsStep = GetElementsByCssClass.instance("main"); // TODO add by tag ... filtering
-        GetElementsByCssClass getProductCodeElemStep = GetElementsByCssClass.instance("PRODUCTS_NAME");
-        GetElementsByCssClass getProductCodeElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME");
-        GetElementsByCssClass getProductTitleElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME");
-        GetElementsByCssClass getProductPriceElemStep = GetElementsByCssClass.instance("prod_preis");
+        GetElementsByCssClass getProductTdElemsStep = GetElementsByCssClass.instance("main").setName("getProductTdElemsStep"); // TODO add by tag ... filtering
+        GetElementsByCssClass getProductCodeElemStep = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("getProductCodeElemStep");
+        GetElementsByCssClass getProductCodeElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("getProductCodeElemStep2");
+        GetElementsByCssClass getProductTitleElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("getProductTitleElemStep2");
+        GetElementsByCssClass getProductPriceElemStep = GetElementsByCssClass.instance("prod_preis").setName("getProductPriceElemStep");
         GetElementsByAttribute getProductDetailHRefElemStep = GetElementsByAttribute.instance("href", "product_info.php/info").setMatchEntireValue(false);
         ClickElement clickNextPageBtnElem = ClickElement.instance();
 
@@ -69,9 +69,9 @@ public class TeleskopExpressDeCrawler {
                                 getProductTdElemsStep           // TODO express somehow that the next operation involves collection of elements? ... collectors would then make more sense ...
                                         .collector(Product::new, Products::new, Products::add)
                                         .then(getProductCodeElemStep
-                                                .then(new EmptyStep()
+                                                .then(new EmptyStep().setName("EmptyStep")
                                                         .collector(ProductCode::new, Product::setProductCode)
-                                                        .then(new ParseElementText().thenCollectToModel(ProductCode::setValue)
+                                                        .then(new ParseElementText().setName("ParseElementText").thenCollectToModel(ProductCode::setValue)
                                                                 .then(null)) // TODO sanitise, tranform ... scrape something else based on this ...
                                                 )
                                         )

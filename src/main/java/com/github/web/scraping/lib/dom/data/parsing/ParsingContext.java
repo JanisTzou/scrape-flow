@@ -17,6 +17,7 @@
 package com.github.web.scraping.lib.dom.data.parsing;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.github.web.scraping.lib.dom.data.parsing.steps.AccumulatedModelProxy;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -35,7 +36,7 @@ public class ParsingContext {
 
     // Curr model?
     @Nullable
-    private Object model;
+    private AccumulatedModelProxy<Object> modelProxy;
 
     // TODO prevStepModel ?
 
@@ -48,9 +49,9 @@ public class ParsingContext {
         this(node, null, null, false);
     }
 
-    public ParsingContext(DomNode node, @Nullable Object model, @Nullable Object container, boolean collectorToParentModel) {
+    public ParsingContext(DomNode node, @Nullable AccumulatedModelProxy<Object> modelProxy, @Nullable Object container, boolean collectorToParentModel) {
         this.node = node;
-        this.model = model;
+        this.modelProxy = modelProxy;
         this.container = container;
         this.collectorToParentModel = collectorToParentModel;
     }

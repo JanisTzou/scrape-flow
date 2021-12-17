@@ -72,7 +72,7 @@ public class GetListedElementByFirstElementXPath extends HtmlUnitChainableStep<G
                     .collect(Collectors.toList());
         };
 
-        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting).execute(ctx, nodesSearch);
+        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting, getName()).execute(ctx, nodesSearch);
     }
 
     @Override

@@ -68,14 +68,14 @@ public class ParseElementText extends HtmlUnitChainableStep<ParseElementText>
             }
         }
 
-        if (modelMutation != null && ctx.getModel() != null) {
-            modelMutation.accept(ctx.getModel(), tc);
+        if (modelMutation != null && ctx.getModelProxy() != null) {
+            modelMutation.accept(ctx.getModelProxy().getModel(), tc);
         } else {
             // TODO log something about this ... that we cannot set anything ...
         }
 
         ParsedElement parsedElement = new ParsedElement(null, null, tc, false, ctx.getNode());
-        parsedElement.setModel(ctx.getModel());
+        parsedElement.setModelProxy(ctx.getModelProxy());
         return List.of(parsedElement);
     }
 

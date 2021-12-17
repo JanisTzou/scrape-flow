@@ -16,6 +16,7 @@
 
 package com.github.web.scraping.lib.dom.data.parsing;
 
+import com.github.web.scraping.lib.dom.data.parsing.steps.AccumulatedModelProxy;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -49,7 +50,7 @@ public class ParsedElement implements StepResult { // TODO rename to parsed elem
     // TODO make properly iomplementated later ...
     @Nullable
     @Setter
-    private Object model;
+    private AccumulatedModelProxy<Object> modelProxy;
 
     private final Object element;
     // can contain image also ...

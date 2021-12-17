@@ -29,6 +29,8 @@ import java.util.function.Supplier;
 public class GetElementsByCssClass extends HtmlUnitChainableStep<GetElementsByCssClass> implements HtmlUnitCollectorSetupStep<GetElementsByCssClass> {
 
     private final String cssClassName;
+
+    // TODO ensure that this can only be set once ...
     private Collecting<?, ?> collecting;
 
     public GetElementsByCssClass(@Nullable List<HtmlUnitParsingStep> nextSteps, String cssClassName) {
@@ -47,19 +49,27 @@ public class GetElementsByCssClass extends HtmlUnitChainableStep<GetElementsByCs
     @Override
     public List<StepResult> execute(ParsingContext ctx) {
         Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getAllChildElementsByClass(ctx.getNode(), cssClassName);
-        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting).execute(ctx, nodesSearch);
+        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting, getName()).execute(ctx, nodesSearch);
     }
 
     @Override
     public <R, T> GetElementsByCssClass collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
+        checkInvariants();
         this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
         return this;
     }
 
     @Override
     public <R, T> GetElementsByCssClass collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
+        checkInvariants();
         this.collecting = new Collecting<>(modelSupplier, null, accumulator);
         return this;
+    }
+
+    private void checkInvariants() {
+        if (this.collecting != null) {
+            throw new IllegalStateException("Collection has already been set");
+        }
     }
 
 
