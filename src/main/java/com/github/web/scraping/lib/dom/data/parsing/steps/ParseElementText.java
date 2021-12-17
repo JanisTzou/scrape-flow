@@ -93,7 +93,7 @@ public class ParseElementText extends HtmlUnitChainableStep<ParseElementText>
     }
 
     @Override
-    public <T> ParseElementText thenCollectToModel(BiConsumer<T, String> modelMutation) {
+    public <T> ParseElementText thenCollect(BiConsumer<T, String> modelMutation) {
         this.modelMutation = (BiConsumer<Object, String>) modelMutation;
         return this;
     }

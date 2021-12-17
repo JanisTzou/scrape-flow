@@ -38,4 +38,14 @@ public interface HtmlUnitCollectorSetupStep<C> {
      */
     <R, T> C collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator);
 
+    // TODO all implementors need to use this ...
+    /**
+     * checks invariants
+     */
+    default void mustBeNull(Collecting<?, ?> collecting) {
+        if (collecting != null) {
+            throw new IllegalStateException("Collection has already been set");
+        }
+    }
+
 }

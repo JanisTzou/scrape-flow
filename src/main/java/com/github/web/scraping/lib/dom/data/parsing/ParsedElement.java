@@ -29,22 +29,13 @@ import javax.annotation.Nullable;
 @ToString
 public class ParsedElement implements StepResult { // TODO rename to parsed element? parsed field ? ...
 
-
-    /*
-    TODO think about all the stuff that we might want here ...
-        ... href, text content ... what else ? How could we get this in a concatenated fashion so we have very isolated well defined operations as building blocks ...?
-     */
-
-
-
     private final Enum<?> identifier;
-    private final String href;  // TODO somehow from this href we might need to make another full URLs ...
+
     // TODO sometimes the NEXT stage might not have a href but a JS triggered button ...
+    private final String href;
 
-    // TODO include element for debugging ?
-
-    //    private final boolean shouldScrapeNext; // TODO should this be here ?
     private final String text;
+
     private final boolean hasHRef;
 
     // TODO make properly iomplementated later ...
@@ -53,13 +44,5 @@ public class ParsedElement implements StepResult { // TODO rename to parsed elem
     private AccumulatedModelProxy<Object> modelProxy;
 
     private final Object element;
-    // can contain image also ...
-
-    public String info() {
-        return "identifier=" + identifier +
-                ", text='" + text + "'";
-    }
-
-
 
 }

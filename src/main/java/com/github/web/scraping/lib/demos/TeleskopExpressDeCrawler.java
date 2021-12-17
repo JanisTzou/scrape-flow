@@ -27,6 +27,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,8 @@ public class TeleskopExpressDeCrawler {
 
         // TODO the next (then(...)) operations should be decoupled from the individual parsing steps... they should just decorate them !
 
+        Flux.just(1).map(i -> i).subscribe();
+
         final CrawlingStage.Builder productListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .setPaginatingSequence(getNextBtnLinkElemStep
@@ -71,15 +74,15 @@ public class TeleskopExpressDeCrawler {
                                         .then(getProductCodeElemStep
                                                 .then(new EmptyStep().setName("EmptyStep")
                                                         .collector(ProductCode::new, Product::setProductCode)
-                                                        .then(new ParseElementText().setName("ParseElementText").thenCollectToModel(ProductCode::setValue)
+                                                        .then(new ParseElementText().setName("ParseElementText").thenCollect(ProductCode::setValue)
                                                                 .then(null)) // TODO sanitise, tranform ... scrape something else based on this ...
                                                 )
                                         )
                                         .then(getProductCodeElemStep2 // this needs to be new instance ... throws exception otherwise ...
-                                                .then(new ParseElementText().thenCollectToModel(Product::setCode))
+                                                .then(new ParseElementText().thenCollect(Product::setCode))
                                         )
                                         .then(getProductPriceElemStep
-                                                .then(new ParseElementText().thenCollectToModel(Product::setPrice))
+                                                .then(new ParseElementText().thenCollect(Product::setPrice))
                                         )
                                         .then(getProductTitleElemStep2
                                                 .then(ParseElementHRef.instance(PRODUCT_DETAIL_LINK))

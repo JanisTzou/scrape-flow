@@ -29,8 +29,6 @@ import java.util.function.Supplier;
 public class GetElementsByCssClass extends HtmlUnitChainableStep<GetElementsByCssClass> implements HtmlUnitCollectorSetupStep<GetElementsByCssClass> {
 
     private final String cssClassName;
-
-    // TODO ensure that this can only be set once ...
     private Collecting<?, ?> collecting;
 
     public GetElementsByCssClass(@Nullable List<HtmlUnitParsingStep> nextSteps, String cssClassName) {
@@ -54,23 +52,19 @@ public class GetElementsByCssClass extends HtmlUnitChainableStep<GetElementsByCs
 
     @Override
     public <R, T> GetElementsByCssClass collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
-        checkInvariants();
+        mustBeNull(this.collecting);
         this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
         return this;
     }
 
     @Override
     public <R, T> GetElementsByCssClass collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
-        checkInvariants();
+        mustBeNull(this.collecting);
         this.collecting = new Collecting<>(modelSupplier, null, accumulator);
         return this;
     }
 
-    private void checkInvariants() {
-        if (this.collecting != null) {
-            throw new IllegalStateException("Collection has already been set");
-        }
-    }
+
 
 
 }
