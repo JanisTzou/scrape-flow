@@ -16,9 +16,6 @@
 
 package com.github.web.scraping.lib;
 
-import com.github.web.scraping.lib.demos.AktualneCzCrawler;
-import com.github.web.scraping.lib.demos.DupraDalekohledyCzCrawler;
-import com.github.web.scraping.lib.demos.IFortunaCzCrawler;
 import com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler;
 
 public class App {
@@ -29,7 +26,7 @@ public class App {
 //        System.out.println("-".repeat(150));
 //        new AktualneCzCrawler().start();
 //        System.out.println("-".repeat(150));
-//        new DupraDalekohledyCzCrawler().start();
+//        new SupraDalekohledyCzCrawler().start();
         new TeleskopExpressDeCrawler().start();
 
     }

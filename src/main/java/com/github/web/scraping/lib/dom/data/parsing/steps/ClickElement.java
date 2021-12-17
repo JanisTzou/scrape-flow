@@ -17,30 +17,23 @@
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.WebWindow;
-import com.gargoylesoftware.htmlunit.html.*;
+import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.web.scraping.lib.dom.data.parsing.ElementClicked;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
-import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 // TODO maybe we should express better that we expect the next page here ...
-@RequiredArgsConstructor
 public class ClickElement extends HtmlUnitParsingStep {
 
-    private final Enum<?> dataType;
     // TODO support next strategies ...
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static Builder builder(Enum<?> identifier) {
-        return new Builder().setId(identifier);
+    public static ClickElement instance() {
+        return new ClickElement();
     }
 
     @Override
@@ -61,33 +54,5 @@ public class ClickElement extends HtmlUnitParsingStep {
         return Collections.emptyList();
     }
 
-    private String removeNestedElementsTextContent(String textContent, HtmlElement el) {
-        for (DomElement childElement : el.getChildElements()) {
-            textContent = textContent.replace(childElement.getTextContent(), "");
-        }
-        return textContent;
-    }
-
-
-    public static class Builder {
-
-        // TODO use this one as well ...
-        private final List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
-        private Enum<?> identifier;
-
-        public Builder setId(Enum<?> identifier) {
-            this.identifier = identifier;
-            return this;
-        }
-
-        public Builder then(HtmlUnitParsingStep nextStep) {
-            this.nextSteps.add(nextStep);
-            return this;
-        }
-
-        public ClickElement build() {
-            return new ClickElement(identifier);
-        }
-    }
 
 }

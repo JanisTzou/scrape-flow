@@ -24,7 +24,7 @@ import com.github.web.scraping.lib.dom.data.parsing.steps.*;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
 
-import static com.github.web.scraping.lib.demos.IFortunaCzCrawler.Identifiers.*;
+import static com.github.web.scraping.lib.demos.IFortunaCzCrawler.Identifiers.EVENT_LINK;
 
 public class IFortunaCzCrawler {
 
@@ -36,10 +36,10 @@ public class IFortunaCzCrawler {
         // TODO the parsing/scraping steps should be better named so it is clear what action they perform ... it might not be parsing exacly but also actions like button clicks etc ...
         //  maybe it is ok to have a "parsing ste" that is not exacly parsing enything but performing an action ... it's just something that needs to be performed to do the actual parsing ...
 
-        final GetListedElementsByFirstElementXPath.Builder getEventsListElements = GetListedElementsByFirstElementXPath.builder("/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]");
-        final GetListedElementByFirstElementXPath.Builder getEventDetailLinkElem = GetListedElementByFirstElementXPath.builder("/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[1]/a");
-        final GetListedElementByFirstElementXPath.Builder getEventTitleElem = GetListedElementByFirstElementXPath.builder("/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[1]/div/div[1]/span[1]");
-        final GetListedElementByFirstElementXPath.Builder getEventDateElem = GetListedElementByFirstElementXPath.builder("/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[9]/span");
+        final GetListedElementsByFirstElementXPath getEventsListElements = GetListedElementsByFirstElementXPath.builder("/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]");
+        final GetListedElementByFirstElementXPath getEventDetailLinkElem = GetListedElementByFirstElementXPath.instance("/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[1]/a");
+        final GetListedElementByFirstElementXPath getEventTitleElem = GetListedElementByFirstElementXPath.instance("/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[1]/div/div[1]/span[1]");
+        final GetListedElementByFirstElementXPath getEventDateElem = GetListedElementByFirstElementXPath.instance("/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[9]/span");
 
         // get text -> search step 1, 2, 3 ...
         // search step 1, 2, 3 ... -> get text ...
@@ -53,28 +53,23 @@ public class IFortunaCzCrawler {
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .addParsingSequence(getEventsListElements
                                 .then(getEventDetailLinkElem  // TODO perhaps we can express it better that the next step is going for the children ?
-                                        .then(ParseElementHRef.builder(EVENT_LINK).build())
-                                        .build()
+                                        .then(ParseElementHRef.instance(EVENT_LINK))
                                 )
                                 .then(getEventTitleElem
-                                        .then(ParseElementText.instance(EVENT_TITLE).build())
-                                        .build()
+                                        .then(new ParseElementText())
                                 )
                                 .then(getEventDateElem
-                                        .then(ParseElementText.instance(EVENT_DATE).build())
-                                        .build()
+                                        .then(new ParseElementText())
                                 )
-                                .build()
                         )
                         .build());
 
-        final GetElementsByXPath.Builder getEventHomeOddsElem = GetElementsByXPath.builder("/html/body/div[1]/div/div[2]/div[2]/div/section/div/div[2]/table/tbody/tr/td[2]/a/span");
+        final GetElementsByXPath getEventHomeOddsElem = GetElementsByXPath.instance("/html/body/div[1]/div/div[2]/div[2]/div/section/div/div[2]/table/tbody/tr/td[2]/a/span");
 
         final CrawlingStage eventDetailOddsStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .addParsingSequence(getEventHomeOddsElem
-                                .then(ParseElementText.instance(HOME_ODDS).build())
-                                .build()
+                                .then(new ParseElementText())
                         )
                         .build())
                 .setReferenceForParsedHrefToCrawl(EVENT_LINK, href -> "https://www.ifortuna.cz/" + href)
@@ -95,8 +90,5 @@ public class IFortunaCzCrawler {
 
     public enum Identifiers {
         EVENT_LINK,
-        EVENT_DATE,
-        EVENT_TITLE,
-        HOME_ODDS
     }
 }

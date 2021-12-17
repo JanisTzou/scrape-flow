@@ -20,14 +20,12 @@ import com.github.web.scraping.lib.Crawler;
 import com.github.web.scraping.lib.CrawlingStage;
 import com.github.web.scraping.lib.EntryPoint;
 import com.github.web.scraping.lib.dom.data.parsing.HtmlUnitSiteParser;
-import com.github.web.scraping.lib.dom.data.parsing.steps.*;
+import com.github.web.scraping.lib.dom.data.parsing.steps.ClickElement;
+import com.github.web.scraping.lib.dom.data.parsing.steps.GetElementsByXPath;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
 
-import static com.github.web.scraping.lib.demos.AktualneCzCrawler.Identifiers.ARTICLE_DESC;
-import static com.github.web.scraping.lib.demos.AktualneCzCrawler.Identifiers.ARTICLE_HEADLINE;
-
-public class DupraDalekohledyCzCrawler {
+public class SupraDalekohledyCzCrawler {
 
     public void start() {
 
@@ -37,13 +35,12 @@ public class DupraDalekohledyCzCrawler {
         // TODO the parsing/scraping steps should be better named so it is clear what action they perform ... it might not be parsing exacly but also actions like button clicks etc ...
         //  maybe it is ok to have a "parsing ste" that is not exacly parsing enything but performing an action ... it's just something that needs to be performed to do the actual parsing ...
 
-        GetElementsByXPath.Builder getNextBtnLink = GetElementsByXPath.builder("/html/body/div[2]/div[1]/div[4]/div/div/div[2]/div[3]/div[1]/ul/li[4]/a");
+        GetElementsByXPath getNextBtnLink = GetElementsByXPath.instance("/html/body/div[2]/div[1]/div[4]/div/div/div[2]/div[3]/div[1]/ul/li[4]/a");
 
         final CrawlingStage.Builder articleListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .addParsingSequence(getNextBtnLink
-                                .then(ClickElement.builder().build())
-                                .build()
+                                .then(ClickElement.instance())
                         )
                         .build()
                 );

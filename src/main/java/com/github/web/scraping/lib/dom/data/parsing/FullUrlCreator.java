@@ -16,8 +16,6 @@
 
 package com.github.web.scraping.lib.dom.data.parsing;
 
-import java.util.function.Function;
-
 /**
  * Useful when an HRef value is scraped but a base URL needs to be provided to get a full URL
  */

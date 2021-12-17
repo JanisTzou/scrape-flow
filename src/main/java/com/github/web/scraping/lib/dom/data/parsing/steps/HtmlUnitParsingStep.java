@@ -16,15 +16,13 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 
-import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.List;
 
 // TODO maybe rename to static ... ??
+// TODO make an interface?
 public abstract class HtmlUnitParsingStep {
 
     public abstract List<StepResult> execute(ParsingContext ctx);

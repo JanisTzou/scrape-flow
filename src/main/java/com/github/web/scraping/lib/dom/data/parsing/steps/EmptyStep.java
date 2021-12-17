@@ -16,50 +16,51 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import lombok.NoArgsConstructor;
 
-import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-public class GetElementsByXPath extends HtmlUnitChainableStep<GetElementsByXPath>
-        implements HtmlUnitCollectingStep<GetElementsByXPath> {
+/**
+ * Used just to test context propagation
+ */
+@NoArgsConstructor
+public class EmptyStep extends HtmlUnitParsingStep implements HtmlUnitCollectingStep<EmptyStep> {
 
-    private final String xPath;
+    private final List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
     private Collecting<?, ?> collecting;
 
-    protected GetElementsByXPath(@Nullable List<HtmlUnitParsingStep> nextSteps, String xPath) {
-        super(nextSteps);
-        this.xPath = xPath;
-    }
-
-    public GetElementsByXPath(String xPath) {
-        this(null, xPath);
-    }
-
-    public static GetElementsByXPath instance(String xPath) {
-        return new GetElementsByXPath(xPath);
+    public static EmptyStep instance(String cssClassName) {
+        return new EmptyStep();
     }
 
     @Override
     public List<StepResult> execute(ParsingContext ctx) {
-        Supplier<List<DomNode>> nodesSearch = () -> ctx.getNode().getByXPath(xPath);
-        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting).execute(ctx, nodesSearch);
+        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting)
+                .execute(ctx, () -> List.of(ctx.getNode()));
     }
 
+    public EmptyStep then(HtmlUnitParsingStep nextStep) {
+        this.nextSteps.add(nextStep);
+        return this;
+    }
+
+
     @Override
-    public <R, T> GetElementsByXPath collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
+    public <R, T> EmptyStep collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
         this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
         return this;
     }
 
     @Override
-    public <R, T> GetElementsByXPath collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
+    public <R, T> EmptyStep collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
         this.collecting = new Collecting<>(modelSupplier, null, accumulator);
         return this;
     }
+
 
 }

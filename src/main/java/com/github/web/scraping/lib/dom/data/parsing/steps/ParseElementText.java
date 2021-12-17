@@ -21,9 +21,8 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
-import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -31,26 +30,26 @@ import java.util.function.BiConsumer;
 // TODO ... in this version we only execute the content of the element ...
 
 //@RequiredArgsConstructor
-public class ParseElementText extends HtmlUnitParsingStep {
+public class ParseElementText extends HtmlUnitChainableStep<ParseElementText> {
 
-    @Deprecated // TODO remove ...
-    private Enum<?> identifier;
 
     private boolean removeChildElementsTextContent;
-    private BiConsumer<Object, String> setter;
-    private final List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
+    private BiConsumer<Object, String> modelMutation;
 
     public ParseElementText() {
+        this(null, true, null);
     }
 
-    public ParseElementText(Enum<?> identifier, boolean removeChildElementsTextContent, BiConsumer<?, String> setter) {
-        this.identifier = identifier;
+    protected ParseElementText(@Nullable List<HtmlUnitParsingStep> nextSteps,
+                            boolean removeChildElementsTextContent,
+                            @Nullable BiConsumer<Object, String> modelMutation) {
+        super(nextSteps);
         this.removeChildElementsTextContent = removeChildElementsTextContent;
-        this.setter = (BiConsumer<Object, String>) setter;
+        this.modelMutation = modelMutation;
     }
 
-    public static Builder instance(Enum<?> identifier) {
-        return new Builder().setId(identifier);
+    public static ParseElementText instance() {
+        return new ParseElementText();
     }
 
 
@@ -68,10 +67,13 @@ public class ParseElementText extends HtmlUnitParsingStep {
             }
         }
 
-        if (setter != null && ctx.getModel() != null) {
-            setter.accept(ctx.getModel(), tc);
+        if (modelMutation != null && ctx.getModel() != null) {
+            modelMutation.accept(ctx.getModel(), tc);
+        } else {
+            // TODO log something about this ... that we cannot set anything ...
         }
-        ParsedElement parsedElement = new ParsedElement(identifier, null, tc, false, ctx.getNode());
+
+        ParsedElement parsedElement = new ParsedElement(null, null, tc, false, ctx.getNode());
         parsedElement.setModel(ctx.getModel());
         return List.of(parsedElement);
     }
@@ -84,62 +86,15 @@ public class ParseElementText extends HtmlUnitParsingStep {
     }
 
 
-    public ParseElementText setId(Enum<?> identifier) {
-        this.identifier = identifier;
-        return this;
-    }
-
     public ParseElementText setRemoveChildElementsTextContent(boolean removeChildElementsTextContent) {
         this.removeChildElementsTextContent = removeChildElementsTextContent;
         return this;
     }
 
-    // TODO should this support next operations? Maybe yes ... in case of dynamic searches (by previously scraped value...) ... but not sure how to utilize this ...
-    public ParseElementText then(HtmlUnitParsingStep nextStep) {
-        this.nextSteps.add(nextStep);
+    public <T> ParseElementText collectToModel(BiConsumer<T, String> modelMutation) {
+        this.modelMutation = (BiConsumer<Object, String>) modelMutation;
         return this;
     }
 
-    public <T> ParseElementText collectToModel(BiConsumer<T, String> setter) {
-        this.setter = (BiConsumer<Object, String>) setter;
-        return this;
-    }
-
-
-
-    public static class Builder {
-
-        private Enum<?> identifier;
-        private boolean removeChildElementsTextContent = true;
-        private BiConsumer<?, String> collectionOp;
-
-        // TODO use this one as well ...
-        private final List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
-
-        public Builder setId(Enum<?> identifier) {
-            this.identifier = identifier;
-            return this;
-        }
-
-        public Builder setRemoveChildElementsTextContent(boolean removeChildElementsTextContent) {
-            this.removeChildElementsTextContent = removeChildElementsTextContent;
-            return this;
-        }
-
-        // TODO should this support next operations? Maybe yes ... in case of dynamic searches (by previously scraped value...) ... but not sure how to utilize this ...
-        public Builder then(HtmlUnitParsingStep nextStep) {
-            this.nextSteps.add(nextStep);
-            return this;
-        }
-
-        public <T> Builder collectToModel(BiConsumer<T, String> collectionOp) {
-            this.collectionOp = collectionOp;
-            return this;
-        }
-
-        public ParseElementText build() {
-            return new ParseElementText(identifier, removeChildElementsTextContent, collectionOp);
-        }
-    }
 
 }

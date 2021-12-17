@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.demos.models;
+package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-@Getter
-@NoArgsConstructor
-@ToString
-public class Categories {
+public abstract class HtmlUnitChainableStep<C> extends HtmlUnitParsingStep {
 
-    private final List<Category> categories = new ArrayList<>();
+    protected final List<HtmlUnitParsingStep> nextSteps;
 
-    public void add(Category category) {
-        this.categories.add(category);
+    public HtmlUnitChainableStep(@Nullable List<HtmlUnitParsingStep> nextSteps) {
+        this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
+    }
+
+    public C then(HtmlUnitParsingStep nextStep) {
+        this.nextSteps.add(nextStep);
+        return (C) this;
     }
 
 }

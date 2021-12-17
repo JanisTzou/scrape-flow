@@ -27,7 +27,7 @@ import com.github.web.scraping.lib.dom.data.parsing.steps.*;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
 
-import static com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler.Identifiers.*;
+import static com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler.Identifiers.PRODUCT_DETAIL_LINK;
 
 public class TeleskopExpressDeCrawler {
 
@@ -40,7 +40,7 @@ public class TeleskopExpressDeCrawler {
         //  maybe it is ok to have a "parsing ste" that is not exacly parsing enything but performing an action ... it's just something that needs to be performed to do the actual parsing ...
 
         // TODO consider not using builders at all ...
-        GetElementsByAttribute.Builder getNextBtnLinkElemStep = GetElementsByAttribute.builder("title", " nächste Seite ");
+        GetElementsByAttribute getNextBtnLinkElemStep = GetElementsByAttribute.instance("title", " nächste Seite ");
         // TODO here there are duplicates becase bellow the instances are mutated ... change this so that each call below in the sequence
         //  creates a new instance based on the previous one and only then it sets values ....
         GetElementsByCssClass getProductTdElemsStep = GetElementsByCssClass.instance("main"); // TODO add by tag ... filtering
@@ -48,51 +48,48 @@ public class TeleskopExpressDeCrawler {
         GetElementsByCssClass getProductCodeElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME");
         GetElementsByCssClass getProductTitleElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME");
         GetElementsByCssClass getProductPriceElemStep = GetElementsByCssClass.instance("prod_preis");
-        GetElementsByAttribute.Builder getProductDetailHRefElemStep = GetElementsByAttribute.builder("href", "product_info.php/info").setMatchEntireValue(false);
-        ClickElement clickNextPageBtnElem = ClickElement.builder().build();
+        GetElementsByAttribute getProductDetailHRefElemStep = GetElementsByAttribute.instance("href", "product_info.php/info").setMatchEntireValue(false);
+        ClickElement clickNextPageBtnElem = ClickElement.instance();
 
         // TODO the next (then(...)) operations should be decoupled from the individual parsing steps... they should just decorate them !
 
         final CrawlingStage.Builder productListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .setPaginatingSequence(getNextBtnLinkElemStep
-                                .then(clickNextPageBtnElem)
-                                .build())
+                                .then(clickNextPageBtnElem))
                         // TODO have top level collector here ? Or make it a list as a default and not worry about it ?
                         //  it will probably be needed ... pagination produces multiple instances of containers that should only be one instance ...
-                        .addParsingSequence(getProductTdElemsStep           // TODO express somehow that the next operation involves collection of elements? ... collectors would then make more sense ...
-                                .collector(Product::new, Products::new, Products::add)
-                                .then(getProductCodeElemStep
-                                        .collector(ProductCode::new, Product::setProductCode)
-                                        .then(new ParseElementText().collectToModel(ProductCode::setValue))
-                                )
-                                .then(getProductCodeElemStep2 // this needs to be new instance ... throws exception otherwise ...
-                                        .then(new ParseElementText().collectToModel(Product::setCode))
-                                )
-                                .then(getProductPriceElemStep
-                                        // context collectors?
-                                        .then(new ParseElementText().collectToModel(Product::setPrice))
-                                )
-                                .then(getProductTitleElemStep2
-                                        .then(ParseElementHRef.builder(PRODUCT_DETAIL_LINK).build())
-                                )
+                        .addParsingSequence(
+                                getProductTdElemsStep           // TODO express somehow that the next operation involves collection of elements? ... collectors would then make more sense ...
+                                        .collector(Product::new, Products::new, Products::add)
+                                        .then(getProductCodeElemStep
+                                                .then(new EmptyStep()
+                                                        .collector(ProductCode::new, Product::setProductCode)
+                                                        .then(new ParseElementText().collectToModel(ProductCode::setValue))
+                                                )
+                                        )
+                                        .then(getProductCodeElemStep2 // this needs to be new instance ... throws exception otherwise ...
+                                                .then(new ParseElementText().collectToModel(Product::setCode))
+                                        )
+                                        .then(getProductPriceElemStep
+                                                .then(new ParseElementText().collectToModel(Product::setPrice))
+                                        )
+                                        .then(getProductTitleElemStep2
+                                                .then(ParseElementHRef.instance(PRODUCT_DETAIL_LINK))
+                                        )
                         )
                         .build()
                 );
 
-//        List.of().stream().collect(null, null, null);
-
-        GetElementsByAttribute.Builder getProductDetailTitle = GetElementsByAttribute.builder("itemprop", "name");
-
+        GetElementsByAttribute getProductDetailTitle = GetElementsByAttribute.instance("itemprop", "name");
 
         final CrawlingStage productDetailStage = CrawlingStage.builder()
                 .setReferenceForParsedHrefToCrawl(PRODUCT_DETAIL_LINK, hrefVal -> "https://www.teleskop-express.de/" + hrefVal)
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .addParsingSequence(getProductDetailTitle
                                 .then(getProductCodeElemStep
-                                        .then(ParseElementText.instance(PRODUCT_TITLE).build())
+                                        .then(new ParseElementText())
                                 )
-                                .build()
                         )
                         .build()
                 )
@@ -113,10 +110,6 @@ public class TeleskopExpressDeCrawler {
     }
 
     public enum Identifiers {
-        PRODUCT_CODE,
-        PRODUCT_TITLE,
-        PRODUCT_PRICE,
-        NEXT_BTN_LINK,
         PRODUCT_DETAIL_LINK
     }
 

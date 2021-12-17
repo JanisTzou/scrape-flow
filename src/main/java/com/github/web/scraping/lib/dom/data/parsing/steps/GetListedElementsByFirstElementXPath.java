@@ -22,76 +22,63 @@ import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.dom.data.parsing.XPathUtils;
 
-import java.util.ArrayList;
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class GetListedElementsByFirstElementXPath extends HtmlUnitParsingStep {
+public class GetListedElementsByFirstElementXPath extends HtmlUnitChainableStep<GetListedElementsByFirstElementXPath>
+    implements HtmlUnitCollectingStep<GetListedElementsByFirstElementXPath> {
 
-    private final Enum<?> identifier;
     private final String xPath;
+    private Collecting<?, ?> collecting;
 
-    // for each iterated element these strategies will be applied to execute data ...
-    private final List<HtmlUnitParsingStep> nextSteps;
-
-    // TODO optionally specify pagination strategy ? that will be called at the end ?
-
-    public GetListedElementsByFirstElementXPath(Enum<?> identifier,
-                                                String xPath,
-                                                List<HtmlUnitParsingStep> nextSteps) {
-        this.identifier = identifier;
+    protected GetListedElementsByFirstElementXPath(@Nullable List<HtmlUnitParsingStep> nextSteps, String xPath) {
+        super(nextSteps);
         this.xPath = xPath;
-        this.nextSteps = nextSteps;
     }
 
-    public static Builder builder(Enum<?> identifier, String xPath) {
-        return new Builder().setIdentifier(identifier).setxPath(xPath);
-    }
-
-    public static Builder builder(String xPath) {
-        return new Builder().setxPath(xPath);
+    public static GetListedElementsByFirstElementXPath builder(String xPath) {
+        return new GetListedElementsByFirstElementXPath(null, xPath);
     }
 
     @Override
     public List<StepResult> execute(ParsingContext ctx) {
 
-        // TODO improve working with XPath ...
-        String parentXPath = XPathUtils.getXPathSubstrHead(xPath, 1);
-        String xPathTail = XPathUtils.getXPathSubstrTail(xPath, 1).replaceAll("\\d+", "\\\\d+");
-        String pattern = XPathUtils.regexEscape(XPathUtils.concat(parentXPath, xPathTail));
-
-        return ctx.getNode().getByXPath(parentXPath)
-                .stream()
-                .flatMap(el -> {
-                    // child elements ...
-                    if (el instanceof HtmlElement htmlEl) {
-                        return StreamSupport.stream(htmlEl.getChildElements().spliterator(), false);
-                    }
-                    return Stream.empty();
-                })
-                .filter(el -> {
-                    if (el instanceof HtmlElement htmlEl) {
-                        String xPath = htmlEl.getCanonicalXPath();
-                        boolean matches = xPath.matches(pattern);
-//                        logMatching(xPath, matches);
-                        return matches;
-                    }
-                    return false;
-                })
-                .flatMap(el -> {
-                    if (el instanceof HtmlElement htmlEl) {
-                        return nextSteps.stream().flatMap(s -> s.execute(new ParsingContext(htmlEl, null, null, false)).stream());
-                    }
-                    return Stream.empty();
-                })
-                .collect(Collectors.toList());
-
-
-        // here we want to identify all the elements that will then be processed by the strategies above?
+        // here we want to identify all the elements that will then be processed by the next steps??
         // ... so we can for example apply specific HtmlUnitParsingStrategyByFullXPath on each one of them ... BUT the expaths will need to be dynamic as the root will change for each listed item ....
 
+        Supplier<List<DomNode>> nodesSearch = () -> {
+            // TODO improve working with XPath ...
+            String parentXPath = XPathUtils.getXPathSubstrHead(xPath, 1);
+            String xPathTail = XPathUtils.getXPathSubstrTail(xPath, 1).replaceAll("\\d+", "\\\\d+");
+            String pattern = XPathUtils.regexEscape(XPathUtils.concat(parentXPath, xPathTail));
+
+            return ctx.getNode().getByXPath(parentXPath)
+                    .stream()
+                    .flatMap(el -> {
+                        // child elements ...
+                        if (el instanceof HtmlElement htmlEl) {
+                            return StreamSupport.stream(htmlEl.getChildElements().spliterator(), false);
+                        }
+                        return Stream.empty();
+                    })
+                    .filter(el -> {
+                        if (el instanceof HtmlElement htmlEl) {
+                            String xPath = htmlEl.getCanonicalXPath();
+                            boolean matches = xPath.matches(pattern);
+//                        logMatching(xPath, matches);
+                            return matches;
+                        }
+                        return false;
+                    })
+                    .collect(Collectors.toList());
+        };
+
+        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting).execute(ctx, nodesSearch);
     }
 
     private void logMatching(String xPath, boolean matches) {
@@ -102,32 +89,17 @@ public class GetListedElementsByFirstElementXPath extends HtmlUnitParsingStep {
         }
     }
 
-
-    public static class Builder {
-
-        private final List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
-        private Enum<?> identifier;
-        private String xPath;
-
-        public Builder setIdentifier(Enum<?> identifier) {
-            this.identifier = identifier;
-            return this;
-        }
-
-        public Builder setxPath(String xPath) {
-            this.xPath = xPath;
-            return this;
-        }
-
-        // TODO only allow steps that operate on element collections ...
-        public Builder then(HtmlUnitParsingStep nextStep) {
-            this.nextSteps.add(nextStep);
-            return this;
-        }
-
-        public GetListedElementsByFirstElementXPath build() {
-            return new GetListedElementsByFirstElementXPath(identifier, xPath, nextSteps);
-        }
+    @Override
+    public <R, T> GetListedElementsByFirstElementXPath collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
+        this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
+        return this;
     }
+
+    @Override
+    public <R, T> GetListedElementsByFirstElementXPath collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
+        this.collecting = new Collecting<>(modelSupplier, null, accumulator);
+        return this;
+    }
+
 
 }

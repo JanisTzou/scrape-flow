@@ -16,10 +16,10 @@
 
 package com.github.web.scraping.lib.dom.data.parsing;
 
-import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitParsingStep;
-import com.github.web.scraping.lib.drivers.DriverManager;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitParsingStep;
+import com.github.web.scraping.lib.drivers.DriverManager;
 
 import java.net.MalformedURLException;
 import java.net.URL;

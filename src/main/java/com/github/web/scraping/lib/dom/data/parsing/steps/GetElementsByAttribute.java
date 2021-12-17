@@ -20,81 +20,77 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
-import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
+import javax.annotation.Nullable;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
-@RequiredArgsConstructor
-public class GetElementsByAttribute extends HtmlUnitParsingStep {
+public class GetElementsByAttribute extends HtmlUnitChainableStep<GetElementsByAttribute>
+    implements HtmlUnitCollectingStep<GetElementsByAttribute> {
 
     private final String attributeName;
     private final String attributeValue;
-    private final boolean matchEntireValue;
+    private boolean matchEntireValue;
+    private Collecting<?, ?> collecting;
+    private static final boolean MATCH_ENTIRE_VALUE_DEFAULT = true;
 
-    // for each iterated element these strategies will be applied to execute data ...
-    private final List<HtmlUnitParsingStep> nextSteps;
-
-    public static Builder builder(String attributeName, String attributeValue) {
-        return new Builder(attributeName, attributeValue);
+    protected GetElementsByAttribute(@Nullable List<HtmlUnitParsingStep> nextSteps,
+                                     String attributeName,
+                                     @Nullable String attributeValue,
+                                     boolean matchEntireValue) {
+        super(nextSteps);
+        this.attributeName = attributeName;
+        this.attributeValue = attributeValue;
+        this.matchEntireValue = matchEntireValue;
     }
 
-    public static Builder builder(String attributeName) {
-        return new Builder(attributeName, null);
+    protected GetElementsByAttribute(String attributeName,
+                                     @Nullable String attributeValue) {
+        this(null, attributeName, attributeValue, MATCH_ENTIRE_VALUE_DEFAULT);
+    }
+
+    protected GetElementsByAttribute(String attributeName) {
+        this(null, attributeName, null, MATCH_ENTIRE_VALUE_DEFAULT);
+    }
+
+    public static GetElementsByAttribute instance(String attributeName, String attributeValue) {
+        return new GetElementsByAttribute(attributeName, attributeValue);
+    }
+
+    public static GetElementsByAttribute instance(String attributeName) {
+        return new GetElementsByAttribute(attributeName);
     }
 
     @Override
     public List<StepResult> execute(ParsingContext ctx) {
-        List<DomNode> nodes;
-        if (attributeValue != null) {
-            nodes = HtmlUnitUtils.getAllChildElementsByAttributeValue(ctx.getNode(), attributeName, attributeValue, this.matchEntireValue);
-        } else {
-            nodes = HtmlUnitUtils.getAllChildElementsByAttribute(ctx.getNode(), attributeName);
-        }
-        return nodes.stream()
-                .flatMap(node ->
-                    nextSteps.stream().flatMap(s -> s.execute(new ParsingContext(node, null, null, false)).stream())
-                )
-                .collect(Collectors.toList());
+        Supplier<List<DomNode>> nodesSearch = () -> {
+            if (attributeValue != null) {
+                return HtmlUnitUtils.getAllChildElementsByAttributeValue(ctx.getNode(), attributeName, attributeValue, this.matchEntireValue);
+            } else {
+                return HtmlUnitUtils.getAllChildElementsByAttribute(ctx.getNode(), attributeName);
+            }
+        };
+        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting).execute(ctx, nodesSearch);
     }
 
 
-    public static class Builder {
-
-        private String attributeName;
-        private String attributeValue;
-        private boolean matchEntireValue = true;
-        private List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
-
-        Builder(String attributeName, String attributeValue) {
-            this.attributeName = attributeName;
-            this.attributeValue = attributeValue;
-        }
-
-        public Builder setMatchEntireValue(boolean matchEntireValue) {
-            this.matchEntireValue = matchEntireValue;
-            return this;
-        }
-
-        //        public Builder setAttributeName(String attributeName) {
-//            this.attributeName = attributeName;
-//            return this;
-//        }
-//
-//        public Builder setAttributeValue(String attributeValue) {
-//            this.attributeValue = attributeValue;
-//            return this;
-//        }
-
-        public Builder then(HtmlUnitParsingStep nextStep) {
-            this.nextSteps.add(nextStep);
-            return this;
-        }
-
-        public GetElementsByAttribute build() {
-            return new GetElementsByAttribute(attributeName, attributeValue, matchEntireValue, nextSteps);
-        }
+    public GetElementsByAttribute setMatchEntireValue(boolean matchEntireValue) {
+        this.matchEntireValue = matchEntireValue;
+        return this;
     }
+
+    @Override
+    public <R, T> GetElementsByAttribute collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
+        this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
+        return this;
+    }
+
+    @Override
+    public <R, T> GetElementsByAttribute collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
+        this.collecting = new Collecting<>(modelSupplier, null, accumulator);
+        return this;
+    }
+
 
 }

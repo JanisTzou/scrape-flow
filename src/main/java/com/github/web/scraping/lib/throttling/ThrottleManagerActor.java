@@ -16,9 +16,9 @@
 
 package com.github.web.scraping.lib.throttling;
 
+import akka.actor.*;
 import com.github.web.scraping.lib.throttling.model.ScrapedDataType;
 import com.github.web.scraping.lib.throttling.model.ThrottleCommand;
-import akka.actor.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ret.appcore.model.enums.WebsiteEnum;

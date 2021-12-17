@@ -16,9 +16,6 @@
 
 package com.github.web.scraping.lib.drivers;
 
-import com.github.web.scraping.lib.throttling.model.ScrapedDataType;
-
-
 /**
  * NOTE: An instance should only be owned by one actor at a time so it can not happen that
  * some other actor quits the driver when other is in the middle of scraping

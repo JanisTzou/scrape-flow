@@ -18,7 +18,6 @@ package com.github.web.scraping.lib.demos.models;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 import java.util.ArrayList;

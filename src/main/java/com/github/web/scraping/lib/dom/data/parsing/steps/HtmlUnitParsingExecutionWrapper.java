@@ -27,10 +27,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,9 +37,13 @@ public class HtmlUnitParsingExecutionWrapper<R, T> {
     private final List<HtmlUnitParsingStep> nextSteps;
     private final Collecting<R, T> collecting;
 
-    public HtmlUnitParsingExecutionWrapper(List<HtmlUnitParsingStep> nextSteps, Collecting<R, T> collecting) {
-        this.nextSteps = nextSteps;
+    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep> nextSteps, @Nullable Collecting<R, T> collecting) {
+        this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
         this.collecting = Objects.requireNonNullElse(collecting, new Collecting<>());
+    }
+
+    public HtmlUnitParsingExecutionWrapper(List<HtmlUnitParsingStep> nextSteps) {
+        this(nextSteps, null);
     }
 
     public List<StepResult> execute(ParsingContext ctx, Supplier<List<DomNode>> nodesSearch) {
@@ -97,8 +98,8 @@ public class HtmlUnitParsingExecutionWrapper<R, T> {
                 nextContainer = (R) ctx.getModel(); // previous model must be the current container ...
                 System.out.println("here ... 2");
             } else {
-                nextModel = (T) ctx.getModel();
-                nextContainer = null; // no need to propagate ???
+                nextModel = (T) ctx.getModel(); // needs to be propagated
+                nextContainer = null; // must not be propagated ...
                 System.out.println("here ... 3");
             }
         }

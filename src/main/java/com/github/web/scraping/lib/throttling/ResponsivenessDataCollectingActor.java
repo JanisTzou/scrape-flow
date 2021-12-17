@@ -16,9 +16,9 @@
 
 package com.github.web.scraping.lib.throttling;
 
-import com.github.web.scraping.lib.throttling.model.SingleScrapingResponsivenessData;
 import akka.actor.AbstractActor;
 import akka.actor.Props;
+import com.github.web.scraping.lib.throttling.model.SingleScrapingResponsivenessData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

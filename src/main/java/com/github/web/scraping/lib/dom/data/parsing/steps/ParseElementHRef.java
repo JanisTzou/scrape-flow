@@ -16,32 +16,32 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
-import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-@RequiredArgsConstructor
-public class ParseElementHRef extends HtmlUnitParsingStep {
+public class ParseElementHRef extends HtmlUnitChainableStep<ParseElementHRef> {
 
     private final Enum<?> identifier;
-    // TODO support next strategies ...
     // TODO add some filtering logic for the hrefs parsed ...
 
-    public static Builder builder() {
-        return new Builder();
+
+    protected ParseElementHRef(@Nullable List<HtmlUnitParsingStep> nextSteps, Enum<?> identifier) {
+        super(nextSteps);
+        this.identifier = identifier;
     }
 
-    public static Builder builder(Enum<?> identifier) {
-        return new Builder().setId(identifier);
+    public ParseElementHRef(Enum<?> identifier) {
+        this(null, identifier);
+    }
+
+    public static ParseElementHRef instance(Enum<?> identifier) {
+        return new ParseElementHRef(identifier);
     }
 
     @Override
@@ -55,26 +55,5 @@ public class ParseElementHRef extends HtmlUnitParsingStep {
         return Collections.emptyList();
     }
 
-
-    public static class Builder {
-
-        // TODO use this one as well ...
-        private final List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
-        private Enum<?> identifier;
-
-        public Builder setId(Enum<?> identifier) {
-            this.identifier = identifier;
-            return this;
-        }
-
-        public Builder then(HtmlUnitParsingStep nextStep) {
-            this.nextSteps.add(nextStep);
-            return this;
-        }
-
-        public ParseElementHRef build() {
-            return new ParseElementHRef(identifier);
-        }
-    }
 
 }

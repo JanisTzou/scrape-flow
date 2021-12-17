@@ -20,11 +20,11 @@ import com.github.web.scraping.lib.Crawler;
 import com.github.web.scraping.lib.CrawlingStage;
 import com.github.web.scraping.lib.EntryPoint;
 import com.github.web.scraping.lib.dom.data.parsing.HtmlUnitSiteParser;
-import com.github.web.scraping.lib.dom.data.parsing.steps.*;
+import com.github.web.scraping.lib.dom.data.parsing.steps.GetElementsByAttribute;
+import com.github.web.scraping.lib.dom.data.parsing.steps.GetElementsByCssClass;
+import com.github.web.scraping.lib.dom.data.parsing.steps.ParseElementText;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
-
-import static com.github.web.scraping.lib.demos.AktualneCzCrawler.Identifiers.*;
 
 public class AktualneCzCrawler {
 
@@ -36,8 +36,8 @@ public class AktualneCzCrawler {
         // TODO the parsing/scraping steps should be better named so it is clear what action they perform ... it might not be parsing exacly but also actions like button clicks etc ...
         //  maybe it is ok to have a "parsing ste" that is not exacly parsing enything but performing an action ... it's just something that needs to be performed to do the actual parsing ...
 
-        final GetElementsByAttribute.Builder getArticleElements = GetElementsByAttribute.builder("data-ga4-type", "article");
-        final GetElementsByAttribute.Builder getArticleHeadlineElem = GetElementsByAttribute.builder("data-vr-headline");
+        final GetElementsByAttribute getArticleElements = GetElementsByAttribute.instance("data-ga4-type", "article");
+        final GetElementsByAttribute getArticleHeadlineElem = GetElementsByAttribute.instance("data-vr-headline");
         final GetElementsByCssClass getArticleDescElem1 = GetElementsByCssClass.instance("section-opener__desc");
         final GetElementsByCssClass getArticleDescElem2 = GetElementsByCssClass.instance("small-box__desc");
 
@@ -45,17 +45,15 @@ public class AktualneCzCrawler {
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .addParsingSequence(getArticleElements
                                 .then(getArticleHeadlineElem
-                                        .then(ParseElementText.instance(ARTICLE_HEADLINE).build())
-                                        .build()
+                                        .then(new ParseElementText())
                                 )
                                 .then(getArticleDescElem1
-                                        .then(ParseElementText.instance(ARTICLE_DESC).build())
+                                        .then(new ParseElementText())
 
                                 )
                                 .then(getArticleDescElem2
-                                        .then(ParseElementText.instance(ARTICLE_DESC).build())
+                                        .then(new ParseElementText())
                                 )
-                                .build()
                         )
                         .build()
                 );
@@ -72,8 +70,6 @@ public class AktualneCzCrawler {
     }
 
     public enum Identifiers {
-        ARTICLE_HEADLINE,
-        ARTICLE_DESC
     }
 
 }
