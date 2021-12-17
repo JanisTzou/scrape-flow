@@ -57,11 +57,11 @@ public class IFortunaCzCrawler {
                                         .build()
                                 )
                                 .then(getEventTitleElem
-                                        .then(ParseElementText.builder(EVENT_TITLE).build())
+                                        .then(ParseElementText.instance(EVENT_TITLE).build())
                                         .build()
                                 )
                                 .then(getEventDateElem
-                                        .then(ParseElementText.builder(EVENT_DATE).build())
+                                        .then(ParseElementText.instance(EVENT_DATE).build())
                                         .build()
                                 )
                                 .build()
@@ -73,7 +73,7 @@ public class IFortunaCzCrawler {
         final CrawlingStage eventDetailOddsStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .addParsingSequence(getEventHomeOddsElem
-                                .then(ParseElementText.builder(HOME_ODDS).build())
+                                .then(ParseElementText.instance(HOME_ODDS).build())
                                 .build()
                         )
                         .build())

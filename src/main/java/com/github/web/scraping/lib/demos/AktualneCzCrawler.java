@@ -38,23 +38,22 @@ public class AktualneCzCrawler {
 
         final GetElementsByAttribute.Builder getArticleElements = GetElementsByAttribute.builder("data-ga4-type", "article");
         final GetElementsByAttribute.Builder getArticleHeadlineElem = GetElementsByAttribute.builder("data-vr-headline");
-        final GetElementsByCssClass.Builder getArticleDescElem1 = GetElementsByCssClass.builder("section-opener__desc");
-        final GetElementsByCssClass.Builder getArticleDescElem2 = GetElementsByCssClass.builder("small-box__desc");
+        final GetElementsByCssClass getArticleDescElem1 = GetElementsByCssClass.instance("section-opener__desc");
+        final GetElementsByCssClass getArticleDescElem2 = GetElementsByCssClass.instance("small-box__desc");
 
         final CrawlingStage.Builder articleListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .addParsingSequence(getArticleElements
                                 .then(getArticleHeadlineElem
-                                        .then(ParseElementText.builder(ARTICLE_HEADLINE).build())
+                                        .then(ParseElementText.instance(ARTICLE_HEADLINE).build())
                                         .build()
                                 )
                                 .then(getArticleDescElem1
-                                        .then(ParseElementText.builder(ARTICLE_DESC).build())
-                                        .build()
+                                        .then(ParseElementText.instance(ARTICLE_DESC).build())
+
                                 )
                                 .then(getArticleDescElem2
-                                        .then(ParseElementText.builder(ARTICLE_DESC).build())
-                                        .build()
+                                        .then(ParseElementText.instance(ARTICLE_DESC).build())
                                 )
                                 .build()
                         )

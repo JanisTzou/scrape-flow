@@ -33,19 +33,25 @@ public class ParsingContext {
 
     private DomNode node;
 
+    // Curr model?
     @Nullable
     private Object model;
+
+    // TODO prevStepModel ?
 
     @Nullable
     private Object container;
 
+    private boolean collectorToParentModel;
+
     public ParsingContext(DomNode node) {
-        this(node, null, null);
+        this(node, null, null, false);
     }
 
-    public ParsingContext(DomNode node, @Nullable Object model, @Nullable Object container) {
+    public ParsingContext(DomNode node, @Nullable Object model, @Nullable Object container, boolean collectorToParentModel) {
         this.node = node;
         this.model = model;
         this.container = container;
+        this.collectorToParentModel = collectorToParentModel;
     }
 }

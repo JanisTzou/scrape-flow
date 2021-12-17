@@ -54,7 +54,7 @@ public class GetElementsByAttribute extends HtmlUnitParsingStep {
         }
         return nodes.stream()
                 .flatMap(node ->
-                    nextSteps.stream().flatMap(s -> s.execute(new ParsingContext(node, null, null)).stream())
+                    nextSteps.stream().flatMap(s -> s.execute(new ParsingContext(node, null, null, false)).stream())
                 )
                 .collect(Collectors.toList());
     }

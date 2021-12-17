@@ -82,7 +82,7 @@ public class GetListedElementsByFirstElementXPath extends HtmlUnitParsingStep {
                 })
                 .flatMap(el -> {
                     if (el instanceof HtmlElement htmlEl) {
-                        return nextSteps.stream().flatMap(s -> s.execute(new ParsingContext(htmlEl, null, null)).stream());
+                        return nextSteps.stream().flatMap(s -> s.execute(new ParsingContext(htmlEl, null, null, false)).stream());
                     }
                     return Stream.empty();
                 })

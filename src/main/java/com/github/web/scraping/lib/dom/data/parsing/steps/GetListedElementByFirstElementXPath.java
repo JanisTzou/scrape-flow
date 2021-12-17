@@ -75,7 +75,7 @@ public class GetListedElementByFirstElementXPath extends HtmlUnitParsingStep {
                 .flatMap(parsedEl -> {
                     // TODO are these really children? Might not be at all ... hamdle different levels here ...
                     return nextSteps.stream()
-                            .flatMap(s -> s.execute(new ParsingContext ((DomNode) parsedEl, null, null)).stream());
+                            .flatMap(s -> s.execute(new ParsingContext ((DomNode) parsedEl, null, null, false)).stream());
                 })
                 .collect(Collectors.toList());
 

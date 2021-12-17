@@ -43,7 +43,7 @@ public class GetElementsByXPath extends HtmlUnitParsingStep {
         return ctx.getNode().getByXPath(xPath).stream()
                 .filter(o -> o instanceof DomNode)
                 .flatMap(node ->
-                        nextSteps.stream().flatMap(s -> s.execute(new ParsingContext ((DomNode) node, null, null)).stream())
+                        nextSteps.stream().flatMap(s -> s.execute(new ParsingContext ((DomNode) node, null, null, false)).stream())
                 )
                 .collect(Collectors.toList());
     }

@@ -21,9 +21,13 @@ import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElements;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
-import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
+import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -42,28 +46,67 @@ public class HtmlUnitParsingExecutionWrapper<R, T> {
     }
 
     public List<StepResult> execute(ParsingContext ctx, Supplier<List<DomNode>> nodesSearch) {
+        try {
 //        final Set<Object> processed = new HashSet<>(); // temporary solution ... if class implements equals() & hashcode this is a problem ...
-        final Optional<R> container = collecting.supplyContainer();
 
-        final List<DomNode> foundNodes = nodesSearch.get();
+            NextParsingContextBasis nextContextBasis = getNextContextBasis(ctx);
 
-        final List<StepResult> stepResults = foundNodes
-                .stream()
-                .flatMap(node -> executeNextSteps(ctx, node, container.orElse(null)))
-                .collect(Collectors.toList());
+            final List<DomNode> foundNodes = nodesSearch.get();
 
-        return getStepResults(container.orElse(null), stepResults);
+            final List<StepResult> nextStepResults = foundNodes
+                    .stream()
+                    .flatMap(node -> executeNextSteps(node, nextContextBasis))
+                    .collect(Collectors.toList());
+
+            // TODO hmm maybe we do not get the right container here ? The decision making logic below might need to determine this container ...
+            //  or maybe not?
+            return collectStepResults((R) nextContextBasis.container, nextStepResults);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
     }
 
-    private Stream<StepResult> executeNextSteps(ParsingContext ctx, DomNode node, R container) {
-        T m = collecting.supplyModel().orElse((T) ctx.getModel());
+    private Stream<StepResult> executeNextSteps(DomNode node, NextParsingContextBasis nextContextBasis) {
         return nextSteps.stream().flatMap(s -> {
-            ParsingContext nextCtx = new ParsingContext(node, m, container);
+            ParsingContext nextCtx = new ParsingContext(node, nextContextBasis.model, nextContextBasis.container, false);
             return s.execute(nextCtx).stream();
         });
     }
 
-    private List<StepResult> getStepResults(R container, List<StepResult> stepResults) {
+
+    private NextParsingContextBasis getNextContextBasis(ParsingContext ctx) {
+        // TODO should we ignore ctx.getContainer  at this point?
+        Optional<R> container = collecting.supplyContainer(); // TODO use cur container
+        Optional<T> model = collecting.supplyModel();
+        T nextModel;
+        R nextContainer;
+
+        if (container.isPresent()) {
+            nextContainer = container.get();
+            if (model.isPresent()) {
+                nextModel = model.get();
+                System.out.println("here ... 0");
+            } else {
+                nextModel = (T) ctx.getModel();
+                System.out.println("here ... 1");
+            }
+        } else {
+            if (model.isPresent()) {
+                nextModel = model.get();
+                nextContainer = (R) ctx.getModel(); // previous model must be the current container ...
+                System.out.println("here ... 2");
+            } else {
+                nextModel = (T) ctx.getModel();
+                nextContainer = null; // no need to propagate ???
+                System.out.println("here ... 3");
+            }
+        }
+
+        return new NextParsingContextBasis(nextModel, nextContainer, false);
+    }
+
+    private List<StepResult> collectStepResults(R container, List<StepResult> stepResults) {
         if (container != null) {
             final List<ParsedElement> hrefs = stepResults.stream().filter(sr -> sr instanceof ParsedElement pe && pe.isHasHRef()).map(sr -> (ParsedElement) sr).collect(Collectors.toList());
 
@@ -79,5 +122,23 @@ public class HtmlUnitParsingExecutionWrapper<R, T> {
             return stepResults;
         }
     }
+
+    @Getter
+    @Setter
+    @ToString
+    @RequiredArgsConstructor
+    public class NextParsingContextBasis {
+
+        // Curr model?
+        @Nullable
+        private final Object model;
+
+        @Nullable
+        private final Object container;
+
+        private final boolean collectorToParentModel;
+
+    }
+
 
 }

@@ -17,20 +17,14 @@
 package com.github.web.scraping.lib.demos.models;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Setter
 @Getter
-@NoArgsConstructor
 @ToString
-public class Product {
+public class ProductCode {
 
-    private String title;
-    private String code;
-    private String price;
-    private ProductCode productCode;
-
+    private String value;
 
 }

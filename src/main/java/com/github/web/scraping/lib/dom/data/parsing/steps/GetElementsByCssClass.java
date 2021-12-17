@@ -16,9 +16,6 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
-import com.github.web.scraping.lib.dom.data.parsing.ParsedElements;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
@@ -26,65 +23,49 @@ import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class GetElementsByCssClass<R, T> extends HtmlUnitParsingStep {
+public class GetElementsByCssClass extends HtmlUnitParsingStep {
 
     private final String cssClassName;
 
-    private final HtmlUnitParsingExecutionWrapper<R, T> executionWrapper;
+    private final List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
+    private Collecting<?, ?> collecting;
 
-    public GetElementsByCssClass(String cssClassName, List<HtmlUnitParsingStep> nextSteps, Collecting<R, T> collecting) {
+    public GetElementsByCssClass(String cssClassName) {
         this.cssClassName = cssClassName;
-        this.executionWrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting);
     }
 
-    public static Builder builder(String cssClassName) {
-        return new Builder(cssClassName);
+    public static GetElementsByCssClass instance(String cssClassName) {
+        return new GetElementsByCssClass(cssClassName);
     }
 
     @Override
     public List<StepResult> execute(ParsingContext ctx) {
-        return this.executionWrapper.execute(ctx, () -> HtmlUnitUtils.getAllChildElementsByClass(ctx.getNode(), cssClassName));
+        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting)
+                .execute(ctx, () -> HtmlUnitUtils.getAllChildElementsByClass(ctx.getNode(), cssClassName));
     }
 
-    public static class Builder {
-
-        private String cssClassName;
-        private List<HtmlUnitParsingStep> nextSteps = new ArrayList<>();
-        private Collecting<?, ?> collecting;
-
-        Builder(String cssClassName) {
-            this.cssClassName = cssClassName;
-        }
-
-        public Builder then(HtmlUnitParsingStep nextStep) {
-            this.nextSteps.add(nextStep);
-            return this;
-        }
-
-        public Builder collector(Supplier<?> modelSupplier) {
-            this.collecting = new Collecting<>(modelSupplier, null, null);
-            return this;
-        }
-
-        // TODO make an overloaded version that will create a list ? if used does not want to supply a container?
-        // here we need to generics ...
-        public <R, T> Builder collector(Supplier<R> containerSupplier, Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
-            this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
-            return this;
-        }
-
-        // if a collector exists ...and it is found in the scraping context ...
-        public <R, T> Builder collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
-            this.collecting = new Collecting<>(modelSupplier, null, accumulator);
-            return this;
-        }
-
-        public GetElementsByCssClass build() {
-            return new GetElementsByCssClass<>(cssClassName, nextSteps, collecting);
-        }
+    public GetElementsByCssClass then(HtmlUnitParsingStep nextStep) {
+        this.nextSteps.add(nextStep);
+        return this;
     }
+
+    public GetElementsByCssClass collector(Supplier<?> modelSupplier) {
+        this.collecting = new Collecting<>(modelSupplier, null, null);
+        return this;
+    }
+
+    public <R, T> GetElementsByCssClass collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
+        this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
+        return this;
+    }
+
+    // this effectively collects to prev. step model ...
+    // if a collector exists ...and it is found in the scraping context ...
+    public <R, T> GetElementsByCssClass collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
+        this.collecting = new Collecting<>(modelSupplier, null, accumulator);
+        return this;
+    }
+
 
 }

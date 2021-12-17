@@ -20,6 +20,7 @@ import com.github.web.scraping.lib.Crawler;
 import com.github.web.scraping.lib.CrawlingStage;
 import com.github.web.scraping.lib.EntryPoint;
 import com.github.web.scraping.lib.demos.models.Product;
+import com.github.web.scraping.lib.demos.models.ProductCode;
 import com.github.web.scraping.lib.demos.models.Products;
 import com.github.web.scraping.lib.dom.data.parsing.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.dom.data.parsing.steps.*;
@@ -40,10 +41,13 @@ public class TeleskopExpressDeCrawler {
 
         // TODO consider not using builders at all ...
         GetElementsByAttribute.Builder getNextBtnLinkElemStep = GetElementsByAttribute.builder("title", " nächste Seite ");
-        GetElementsByCssClass.Builder getProductTdElemsStep = GetElementsByCssClass.builder("main"); // TODO add by tag ... filtering
-        GetElementsByCssClass.Builder getProductTitleElemStep = GetElementsByCssClass.builder("PRODUCTS_NAME");
-        GetElementsByCssClass.Builder getProductTitleElemStep2 = GetElementsByCssClass.builder("PRODUCTS_NAME");
-        GetElementsByCssClass.Builder getProductPriceElemStep = GetElementsByCssClass.builder("prod_preis");
+        // TODO here there are duplicates becase bellow the instances are mutated ... change this so that each call below in the sequence
+        //  creates a new instance based on the previous one and only then it sets values ....
+        GetElementsByCssClass getProductTdElemsStep = GetElementsByCssClass.instance("main"); // TODO add by tag ... filtering
+        GetElementsByCssClass getProductCodeElemStep = GetElementsByCssClass.instance("PRODUCTS_NAME");
+        GetElementsByCssClass getProductCodeElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME");
+        GetElementsByCssClass getProductTitleElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME");
+        GetElementsByCssClass getProductPriceElemStep = GetElementsByCssClass.instance("prod_preis");
         GetElementsByAttribute.Builder getProductDetailHRefElemStep = GetElementsByAttribute.builder("href", "product_info.php/info").setMatchEntireValue(false);
         ClickElement clickNextPageBtnElem = ClickElement.builder().build();
 
@@ -55,27 +59,23 @@ public class TeleskopExpressDeCrawler {
                                 .then(clickNextPageBtnElem)
                                 .build())
                         // TODO have top level collector here ? Or make it a list as a default and not worry about it ?
-                        //  it will probably be needed ... pagination produces multiople instances of containers that should only be one instance ...
-                        .addParsingSequence(getProductTdElemsStep
-                                // TODO express somehow that the next operation involves collection of elemets? ... collectors would then make more sense ...
-                                .collector(Products::new, Product::new, Products::add)  // TODO how to add connection to existing container?
-                                .then(getProductTitleElemStep
-                                        .then(ParseElementText.builder()
-                                                .collectToModel(Product::setCode)
-                                                .build())
-                                        .build()
+                        //  it will probably be needed ... pagination produces multiple instances of containers that should only be one instance ...
+                        .addParsingSequence(getProductTdElemsStep           // TODO express somehow that the next operation involves collection of elements? ... collectors would then make more sense ...
+                                .collector(Product::new, Products::new, Products::add)
+                                .then(getProductCodeElemStep
+                                        .collector(ProductCode::new, Product::setProductCode)
+                                        .then(new ParseElementText().collectToModel(ProductCode::setValue))
+                                )
+                                .then(getProductCodeElemStep2 // this needs to be new instance ... throws exception otherwise ...
+                                        .then(new ParseElementText().collectToModel(Product::setCode))
                                 )
                                 .then(getProductPriceElemStep
-                                        .then(ParseElementText.builder()
-                                                .collectToModel(Product::setPrice)
-                                                .build())
-                                        .build()
+                                        // context collectors?
+                                        .then(new ParseElementText().collectToModel(Product::setPrice))
                                 )
-                                .then(getProductTitleElemStep2   // TODO perhaps a better abstraction of what is "then" and what is "next to"
+                                .then(getProductTitleElemStep2
                                         .then(ParseElementHRef.builder(PRODUCT_DETAIL_LINK).build())
-                                        .build()
                                 )
-                                .build()
                         )
                         .build()
                 );
@@ -89,9 +89,8 @@ public class TeleskopExpressDeCrawler {
                 .setReferenceForParsedHrefToCrawl(PRODUCT_DETAIL_LINK, hrefVal -> "https://www.teleskop-express.de/" + hrefVal)
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .addParsingSequence(getProductDetailTitle
-                                .then(getProductTitleElemStep
-                                        .then(ParseElementText.builder(PRODUCT_TITLE).build())
-                                        .build()
+                                .then(getProductCodeElemStep
+                                        .then(ParseElementText.instance(PRODUCT_TITLE).build())
                                 )
                                 .build()
                         )
