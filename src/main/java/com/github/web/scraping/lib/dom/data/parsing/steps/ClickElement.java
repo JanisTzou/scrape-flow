@@ -52,19 +52,21 @@ import java.util.List;
             try {
                 HtmlPage page = anch.getHtmlPageOrNull();
                 WebWindow enclosingWindow = page.getEnclosingWindow();
+                log.debug("{}: Clicking HtmlAnchor element at {}", getName(), anch.getHrefAttribute());
                 anch.click();
                 HtmlPage currPage = (HtmlPage) enclosingWindow.getEnclosedPage();
+                log.debug("{} Loaded page URL after anchor clicked: {}", getName(), currPage.getUrl().toString());
 //                System.out.println(currPage.asXml());
                 return List.of(new ElementClicked(anch, currPage));
             } catch (IOException e) {
-                log.error("Error while clicking element", e);
+                log.error("Error while clicking element {}", anch, e);
             }
         }
         return Collections.emptyList();
     }
 
     @Override
-    public ClickElement then(HtmlUnitParsingStep nextStep) {
+    public ClickElement then(HtmlUnitParsingStep<?> nextStep) {
         this.nextSteps.add(nextStep);
         return this;
     }
