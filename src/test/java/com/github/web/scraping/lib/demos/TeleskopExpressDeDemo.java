@@ -48,15 +48,15 @@ public class TeleskopExpressDeDemo {
         //  maybe it is ok to have a "parsing ste" that is not exacly parsing enything but performing an action ... it's just something that needs to be performed to do the actual parsing ...
 
         // TODO consider not using builders at all ...
-        GetElementsByAttribute getNextBtnLinkElemStep = GetElementsByAttribute.instance("title", " nächste Seite ");
+        GetElementsByAttribute getNextBtnLinkElemStep = GetElementsByAttribute.instance("title", " nächste Seite ").setName("get-next-page-elem");
         // TODO here there are duplicates becase bellow the instances are mutated ... change this so that each call below in the sequence
         //  creates a new instance based on the previous one and only then it sets values ....
-        GetElementsByCssClass getProductTdElemsStep = GetElementsByCssClass.instance("main").setName("getProductTdElemsStep"); // TODO add by tag ... filtering
-        GetElementsByCssClass getProductCodeElemStep = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("getProductCodeElemStep");
-        GetElementsByCssClass getProductCodeElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("getProductCodeElemStep2");
-        GetElementsByCssClass getProductTitleElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("getProductTitleElemStep2");
-        GetElementsByCssClass getProductPriceElemStep = GetElementsByCssClass.instance("prod_preis").setName("getProductPriceElemStep");
-        GetElementsByAttribute getProductDetailHRefElemStep = GetElementsByAttribute.instance("href", "product_info.php/info").setMatchEntireValue(false);
+        GetElementsByCssClass getProductTdElemsStep = GetElementsByCssClass.instance("main").setName("get-product-elems"); // TODO add by tag ... filtering
+        GetElementsByCssClass getProductCodeElemStep = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("get-product-code-elem-1");
+        GetElementsByCssClass getProductCodeElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("get-product-code-elem-2");
+        GetElementsByCssClass getProductTitleElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("get-product-title-elem");
+        GetElementsByCssClass getProductPriceElemStep = GetElementsByCssClass.instance("prod_preis").setName("get-product-price-elem");
+        GetElementsByAttribute getProductDetailHRefElemStep = GetElementsByAttribute.instance("href", "product_info.php/info").setMatchEntireValue(false).setName("get-product-detail-elem");
         ClickElement clickNextPageBtnElem = ClickElement.instance();
 
 
@@ -73,7 +73,7 @@ public class TeleskopExpressDeDemo {
                                 // step set root model ?
                                 GetElementsByAttribute.instance("id", "geruest")
                                         .collector(ProductsPage::new, ProductsPages::new, ProductsPages::add)
-                                        .then(GetElementsByCssClass.instance("headerlinks").setName("headerlinks-step")
+                                        .then(GetElementsByCssClass.instance("headerlinks").setName("headerlinks")
                                                 .then(new ParseElementText().setName("pet-1")
                                                         .excludeChildElements(false)
                                                         .thenCollect(ProductsPage::setPosition)
@@ -82,7 +82,7 @@ public class TeleskopExpressDeDemo {
                                         .then(getProductTdElemsStep
                                                 .collector(Product::new, ProductsPage::add)
                                                 .then(getProductCodeElemStep
-                                                        .then(new EmptyStep().setName("EmptyStep")
+                                                        .then(new EmptyStep()
                                                                 .collector(ProductCode::new, Product::setProductCode)
                                                                 .then(new ParseElementText().setName("pet-2").thenCollect(ProductCode::setValue))
                                                         )

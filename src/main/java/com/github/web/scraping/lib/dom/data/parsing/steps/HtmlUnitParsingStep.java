@@ -28,8 +28,8 @@ import java.util.function.Function;
 @Log4j2
 public abstract class HtmlUnitParsingStep<T> {
 
-    // just for debugging
-    private String name = "unnamed-step-" + getClass().getSimpleName();
+    // for logging and debugging
+    private String name = getClass().getSimpleName() + "-unnamed-step";
     protected final List<HtmlUnitParsingStep<?>> nextSteps;
     protected Collecting<?, ?> collecting;
 
@@ -49,7 +49,7 @@ public abstract class HtmlUnitParsingStep<T> {
 
     @SuppressWarnings("unchecked")
     public T setName(String name) {
-        this.name = name;
+        this.name = name != null && !name.toLowerCase().contains("step") ? name + "-step" : name;
         return (T) this;
     }
 
