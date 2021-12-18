@@ -27,14 +27,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler.Identifiers.PRODUCT_DETAIL_LINK;
+import static com.github.web.scraping.lib.demos.TeleskopExpressDeDemo.Identifiers.PRODUCT_DETAIL_LINK;
 
-public class TeleskopExpressDeCrawler {
+public class TeleskopExpressDeDemo {
 
+    @Test
     public void start() {
 
         // TODO suppot something like temporary models? e.g. for communication of multiple pieces of data downstream so that an action/step can be executed ...

@@ -24,9 +24,11 @@ import com.github.web.scraping.lib.dom.data.parsing.steps.ClickElement;
 import com.github.web.scraping.lib.dom.data.parsing.steps.GetElementsByXPath;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
+import org.junit.Test;
 
-public class SupraDalekohledyCzCrawler {
+public class SupraDalekohledyCzDemo {
 
+    @Test
     public void start() {
 
         // TODO any way for these to be accessible globally? So they do not need to be specified explicitly in every stage definition?

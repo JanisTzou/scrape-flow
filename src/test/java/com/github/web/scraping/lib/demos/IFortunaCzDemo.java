@@ -23,11 +23,13 @@ import com.github.web.scraping.lib.dom.data.parsing.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.dom.data.parsing.steps.*;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
+import org.junit.Test;
 
-import static com.github.web.scraping.lib.demos.IFortunaCzCrawler.Identifiers.EVENT_LINK;
+import static com.github.web.scraping.lib.demos.IFortunaCzDemo.Identifiers.EVENT_LINK;
 
-public class IFortunaCzCrawler {
+public class IFortunaCzDemo {
 
+    @Test
     public void start() {
 
         // TODO any way for these to be accessible globally? So they do not need to be specified explicitly in every stage definition?

@@ -16,10 +16,10 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps.pipe;
 
-import static com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler.Product;
-import static com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler.ProductCode;
+import static com.github.web.scraping.lib.demos.TeleskopExpressDeDemo.Product;
+import static com.github.web.scraping.lib.demos.TeleskopExpressDeDemo.ProductCode;
 
-public class Demo {
+public class PipeDemo {
 
     public static void main(String[] args) {
 
