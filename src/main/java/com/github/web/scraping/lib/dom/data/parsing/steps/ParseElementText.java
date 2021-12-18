@@ -50,8 +50,9 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
     }
 
 
+    @SuppressWarnings("unchecked")
     @Override
-    public List<StepResult> execute(ParsingContext ctx) {
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
         String tc = null;
         if (ctx.getNode() instanceof HtmlElement htmlEl) {
             tc = htmlEl.getTextContent();
@@ -67,7 +68,7 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
         setParsedStringToModel(modelMutation, ctx, tc);
 
         ParsedElement parsedElement = new ParsedElement(null, null, tc, false, ctx.getNode());
-        parsedElement.setModelProxy(ctx.getModelProxy());
+        parsedElement.setModelProxy((ModelProxy<Object>) ctx.getModelProxy());
         return List.of(parsedElement);
     }
 
@@ -86,6 +87,7 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> ParseElementText thenCollect(BiConsumer<T, String> modelMutation) {
         this.modelMutation = (BiConsumer<Object, String>) modelMutation;

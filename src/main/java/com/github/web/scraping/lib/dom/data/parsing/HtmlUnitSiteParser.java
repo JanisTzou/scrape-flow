@@ -60,7 +60,7 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
 
     private List<ParsedData> parsePage(HtmlPage page) {
         Function<HtmlPage, List<ParsedData>> parsing = page1 -> parsingSequences.stream()
-                .flatMap(s -> s.execute(new ParsingContext(page1)).stream())
+                .flatMap(s -> s.execute(new ParsingContext<>(page1)).stream())
                 .map(sr -> {
                     if (sr instanceof ParsedElement parsedElement) {
                         // TODO handle parsed HRef .... references ...
@@ -80,7 +80,7 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
             AtomicReference<HtmlPage> pageRef = new AtomicReference<>(page);
             while (true) {
                 result.addAll(parsing.apply(pageRef.get()));
-                List<StepResult> paginationResult = paginatingSequence.execute(new ParsingContext(pageRef.get()));
+                List<StepResult> paginationResult = paginatingSequence.execute(new ParsingContext<>(pageRef.get()));
 
                 Optional<HtmlPage> nextPage = paginationResult.stream().filter(sr -> sr instanceof ElementClicked).map(sr -> ((ElementClicked) sr).getPageAfterElementClicked()).findFirst();
                 if (nextPage.isPresent()) {

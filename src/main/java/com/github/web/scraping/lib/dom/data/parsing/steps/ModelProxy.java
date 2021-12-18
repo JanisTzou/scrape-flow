@@ -27,9 +27,9 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Getter
 @Setter
-public class ModelProxy<M> {
+public class ModelProxy<ModelT> {
 
-    private final M model;
+    private final ModelT model;
     private boolean accumulated;
 
 }

@@ -49,7 +49,7 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
     }
 
     @Override
-    public List<StepResult> execute(ParsingContext ctx) {
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
         if (ctx.getNode() instanceof HtmlAnchor anch) {
             String href = anch.getHrefAttribute();
             if (href != null) {
@@ -60,6 +60,7 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
         return Collections.emptyList();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> ParseElementHRef thenCollect(BiConsumer<T, String> modelMutation) {
         this.modelMutation = (BiConsumer<Object, String>) modelMutation;

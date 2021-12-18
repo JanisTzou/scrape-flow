@@ -51,7 +51,7 @@ public class GetListedElementByFirstElementXPath extends CommonOperationsStepBas
     }
 
     @Override
-    public List<StepResult> execute(ParsingContext ctx) {
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
         Supplier<List<DomNode>> nodesSearch = () -> {
             // figure out the diff between this.xPath and the parent element xPath ... then use that
             String parentXPath = ctx.getNode().getCanonicalXPath();
@@ -70,7 +70,9 @@ public class GetListedElementByFirstElementXPath extends CommonOperationsStepBas
                     .collect(Collectors.toList());
         };
 
-        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting, getName()).execute(ctx, nodesSearch);
+        @SuppressWarnings("unchecked")
+        HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());
+        return wrapper.execute(ctx, nodesSearch);
     }
 
 }

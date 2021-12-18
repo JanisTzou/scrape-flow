@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class HtmlUnitParsingStep<C> {
+public abstract class HtmlUnitParsingStep<T> {
 
     // just for debugging
     private String name;
@@ -35,16 +35,16 @@ public abstract class HtmlUnitParsingStep<C> {
         this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
     }
 
-    public abstract List<StepResult> execute(ParsingContext ctx);
+    public abstract <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx);
 
     public String getName() {
         return name;
     }
 
     @SuppressWarnings("unchecked")
-    public C setName(String name) {
+    public T setName(String name) {
         this.name = name;
-        return (C) this;
+        return (T) this;
     }
 
 }

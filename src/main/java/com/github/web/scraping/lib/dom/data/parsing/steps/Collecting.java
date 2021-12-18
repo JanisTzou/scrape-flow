@@ -24,20 +24,20 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 @RequiredArgsConstructor
-public class Collecting<R, T> {
+public class Collecting<ModelT, ContainerT> {
 
-    private final Supplier<T> modelSupplier;
-    private final Supplier<R> containerSupplier;
+    private final Supplier<ModelT> modelSupplier;
+    private final Supplier<ContainerT> containerSupplier;
 
     @Getter
-    private final BiConsumer<R, T> accumulator;
+    private final BiConsumer<ContainerT, ModelT> accumulator;
 
     public Collecting() {
         this(null, null, null);
     }
 
 
-    public Optional<R> supplyContainer() {
+    public Optional<ContainerT> supplyContainer() {
         if (containerSupplier != null && accumulator != null) {
             return Optional.ofNullable(containerSupplier.get());
         } else {
@@ -45,7 +45,7 @@ public class Collecting<R, T> {
         }
     }
 
-    public Optional<T> supplyModel() {
+    public Optional<ModelT> supplyModel() {
         if (modelSupplier != null) {
             return Optional.of(modelSupplier.get());
         } else {

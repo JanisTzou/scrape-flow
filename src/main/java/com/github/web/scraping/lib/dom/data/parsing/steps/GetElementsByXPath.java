@@ -43,9 +43,11 @@ public class GetElementsByXPath extends CommonOperationsStepBase<GetElementsByXP
     }
 
     @Override
-    public List<StepResult> execute(ParsingContext ctx) {
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
         Supplier<List<DomNode>> nodesSearch = () -> ctx.getNode().getByXPath(xPath);
-        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting, getName()).execute(ctx, nodesSearch);
+        @SuppressWarnings("unchecked")
+        HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());
+        return wrapper.execute(ctx, nodesSearch);
     }
 
 }

@@ -29,12 +29,11 @@ import java.util.function.Supplier;
  * Used just to test context propagation
  */
 public class EmptyStep extends HtmlUnitParsingStep<EmptyStep>
-        implements HtmlUnitChainingStep<EmptyStep>,
-        HtmlUnitCollectorSetupStep<EmptyStep> {
+        implements HtmlUnitChainingStep<EmptyStep>, HtmlUnitCollectorSetupStep<EmptyStep> {
 
     private Collecting<?, ?> collecting;
 
-    protected EmptyStep(@Nullable List<HtmlUnitParsingStep> nextSteps, Collecting<?, ?> collecting) {
+    protected EmptyStep(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, Collecting<?, ?> collecting) {
         super(nextSteps);
         this.collecting = collecting;
     }
@@ -48,9 +47,11 @@ public class EmptyStep extends HtmlUnitParsingStep<EmptyStep>
     }
 
     @Override
-    public List<StepResult> execute(ParsingContext ctx) {
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
         Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
-        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting, getName()).execute(ctx, nodesSearch);
+        @SuppressWarnings("unchecked")
+        HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());
+        return wrapper.execute(ctx, nodesSearch);
     }
 
     @Override
@@ -66,7 +67,7 @@ public class EmptyStep extends HtmlUnitParsingStep<EmptyStep>
     }
 
     @Override
-    public EmptyStep then(HtmlUnitParsingStep nextStep) {
+    public EmptyStep then(HtmlUnitParsingStep<?> nextStep) {
         this.nextSteps.add(nextStep);
         return this;
     }

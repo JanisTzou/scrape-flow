@@ -34,7 +34,7 @@ public class GetElementsByAttribute extends CommonOperationsStepBase<GetElements
 
     private static final boolean MATCH_ENTIRE_VALUE_DEFAULT = true;
 
-    protected GetElementsByAttribute(@Nullable List<HtmlUnitParsingStep> nextSteps,
+    protected GetElementsByAttribute(@Nullable List<HtmlUnitParsingStep<?>> nextSteps,
                                      String attributeName,
                                      @Nullable String attributeValue,
                                      boolean matchEntireValue) {
@@ -62,7 +62,7 @@ public class GetElementsByAttribute extends CommonOperationsStepBase<GetElements
     }
 
     @Override
-    public List<StepResult> execute(ParsingContext ctx) {
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
         Supplier<List<DomNode>> nodesSearch = () -> {
             if (attributeValue != null) {
                 return HtmlUnitUtils.getAllChildElementsByAttributeValue(ctx.getNode(), attributeName, attributeValue, this.matchEntireValue);
@@ -70,7 +70,9 @@ public class GetElementsByAttribute extends CommonOperationsStepBase<GetElements
                 return HtmlUnitUtils.getAllChildElementsByAttribute(ctx.getNode(), attributeName);
             }
         };
-        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting, getName()).execute(ctx, nodesSearch);
+        @SuppressWarnings("unchecked")
+        HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());
+        return wrapper.execute(ctx, nodesSearch);
     }
 
 

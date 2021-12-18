@@ -44,7 +44,7 @@ public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBa
     }
 
     @Override
-    public List<StepResult> execute(ParsingContext ctx) {
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
 
         // here we want to identify all the elements that will then be processed by the next steps??
         // ... so we can for example apply specific HtmlUnitParsingStrategyByFullXPath on each one of them ... BUT the expaths will need to be dynamic as the root will change for each listed item ....
@@ -76,7 +76,9 @@ public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBa
                     .collect(Collectors.toList());
         };
 
-        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting, getName()).execute(ctx, nodesSearch);
+        @SuppressWarnings("unchecked")
+        HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());
+        return wrapper.execute(ctx, nodesSearch);
     }
 
     private void logMatching(String xPath, boolean matches) {

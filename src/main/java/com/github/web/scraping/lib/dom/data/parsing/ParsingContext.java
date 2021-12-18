@@ -30,18 +30,15 @@ import javax.annotation.Nullable;
 @Getter
 @Setter
 @ToString
-public class ParsingContext {
+public class ParsingContext<ModelT, ContainerT> {
 
     private DomNode node;
 
-    // Curr model?
     @Nullable
-    private ModelProxy<Object> modelProxy;
-
-    // TODO prevStepModel ?
+    private ModelProxy<ModelT> modelProxy;
 
     @Nullable
-    private Object container;
+    private ContainerT container;
 
     private boolean collectorToParentModel;
 
@@ -49,7 +46,7 @@ public class ParsingContext {
         this(node, null, null, false);
     }
 
-    public ParsingContext(DomNode node, @Nullable ModelProxy<Object> modelProxy, @Nullable Object container, boolean collectorToParentModel) {
+    public ParsingContext(DomNode node, @Nullable ModelProxy<ModelT> modelProxy, @Nullable ContainerT container, boolean collectorToParentModel) {
         this.node = node;
         this.modelProxy = modelProxy;
         this.container = container;
