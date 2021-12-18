@@ -16,13 +16,13 @@
 
 package com.github.web.scraping.lib.drivers;
 
+import com.github.web.scraping.lib.AppConfig;
 import com.github.web.scraping.lib.drivers.lifecycle.QuitAfterIdleInterval;
 import com.github.web.scraping.lib.drivers.lifecycle.RestartDriverAfterInterval;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
-import com.github.web.scraping.lib.AppConfig;
 
 import java.util.ArrayList;
 import java.util.List;

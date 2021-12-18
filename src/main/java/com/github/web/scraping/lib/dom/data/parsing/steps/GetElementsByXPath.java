@@ -22,11 +22,9 @@ import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-public class GetElementsByXPath extends HtmlUnitChainableStep<GetElementsByXPath>
-        implements HtmlUnitCollectorSetupStep<GetElementsByXPath> {
+public class GetElementsByXPath extends CommonOperationsStepBase<GetElementsByXPath> {
 
     private final String xPath;
     private Collecting<?, ?> collecting;
@@ -48,18 +46,6 @@ public class GetElementsByXPath extends HtmlUnitChainableStep<GetElementsByXPath
     public List<StepResult> execute(ParsingContext ctx) {
         Supplier<List<DomNode>> nodesSearch = () -> ctx.getNode().getByXPath(xPath);
         return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting, getName()).execute(ctx, nodesSearch);
-    }
-
-    @Override
-    public <R, T> GetElementsByXPath collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
-        this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
-        return this;
-    }
-
-    @Override
-    public <R, T> GetElementsByXPath collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
-        this.collecting = new Collecting<>(modelSupplier, null, accumulator);
-        return this;
     }
 
 }

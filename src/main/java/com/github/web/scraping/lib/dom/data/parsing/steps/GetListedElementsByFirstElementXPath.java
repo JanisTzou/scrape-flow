@@ -24,14 +24,12 @@ import com.github.web.scraping.lib.dom.data.parsing.XPathUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class GetListedElementsByFirstElementXPath extends HtmlUnitChainableStep<GetListedElementsByFirstElementXPath>
-    implements HtmlUnitCollectorSetupStep<GetListedElementsByFirstElementXPath> {
+public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBase<GetListedElementsByFirstElementXPath> {
 
     private final String xPath;
     private Collecting<?, ?> collecting;
@@ -88,18 +86,5 @@ public class GetListedElementsByFirstElementXPath extends HtmlUnitChainableStep<
             System.out.println("Unmatched listing xPath = " + xPath);
         }
     }
-
-    @Override
-    public <R, T> GetListedElementsByFirstElementXPath collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
-        this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
-        return this;
-    }
-
-    @Override
-    public <R, T> GetListedElementsByFirstElementXPath collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
-        this.collecting = new Collecting<>(modelSupplier, null, accumulator);
-        return this;
-    }
-
 
 }

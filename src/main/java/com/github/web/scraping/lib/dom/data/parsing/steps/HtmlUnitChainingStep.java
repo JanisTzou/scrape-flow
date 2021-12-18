@@ -16,20 +16,8 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+public interface HtmlUnitChainingStep<C>  {
 
-/**
- * Wrapper around the model object that ensures that when the model returns populated with data
- * it is collected only once (thus avoiding duplicates in resulting collections od data)
- */
-@RequiredArgsConstructor
-@Getter
-@Setter
-public class AccumulatedModelProxy<M> {
-
-    private final M model;
-    private boolean accumulated;
+    C then(HtmlUnitParsingStep nextStep);
 
 }

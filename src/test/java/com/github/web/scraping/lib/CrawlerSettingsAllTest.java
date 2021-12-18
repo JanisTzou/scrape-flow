@@ -20,7 +20,6 @@ import com.github.web.scraping.lib.throttling.model.ScrapedDataType;
 import com.github.web.scraping.lib.throttling.model.ScraperSettings;
 import com.github.web.scraping.lib.throttling.model.ScraperSettingsAll;
 import org.junit.Test;
-import com.github.web.scraping.lib.AppConfig;
 
 import java.util.List;
 

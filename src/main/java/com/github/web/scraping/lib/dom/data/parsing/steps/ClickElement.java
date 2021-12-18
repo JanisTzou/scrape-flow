@@ -28,9 +28,15 @@ import java.util.Collections;
 import java.util.List;
 
 // TODO maybe we should express better that we expect the next page here ...
-public class ClickElement extends HtmlUnitParsingStep {
+public class ClickElement extends HtmlUnitParsingStep<ClickElement> implements HtmlUnitChainingStep<ClickElement> {
 
-    // TODO support next strategies ...
+    public ClickElement(List<HtmlUnitParsingStep> nextSteps) {
+        super(nextSteps);
+    }
+
+    public ClickElement() {
+        this(null);
+    }
 
     public static ClickElement instance() {
         return new ClickElement();
@@ -54,5 +60,10 @@ public class ClickElement extends HtmlUnitParsingStep {
         return Collections.emptyList();
     }
 
+    @Override
+    public ClickElement then(HtmlUnitParsingStep nextStep) {
+        this.nextSteps.add(nextStep);
+        return this;
+    }
 
 }

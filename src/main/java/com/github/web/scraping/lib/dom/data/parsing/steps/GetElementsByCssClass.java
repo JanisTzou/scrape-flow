@@ -23,13 +23,11 @@ import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-public class GetElementsByCssClass extends HtmlUnitChainableStep<GetElementsByCssClass> implements HtmlUnitCollectorSetupStep<GetElementsByCssClass> {
+public class GetElementsByCssClass extends CommonOperationsStepBase<GetElementsByCssClass> {
 
     private final String cssClassName;
-    private Collecting<?, ?> collecting;
 
     public GetElementsByCssClass(@Nullable List<HtmlUnitParsingStep> nextSteps, String cssClassName) {
         super(nextSteps);
@@ -49,22 +47,5 @@ public class GetElementsByCssClass extends HtmlUnitChainableStep<GetElementsByCs
         Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getAllChildElementsByClass(ctx.getNode(), cssClassName);
         return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting, getName()).execute(ctx, nodesSearch);
     }
-
-    @Override
-    public <R, T> GetElementsByCssClass collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
-        mustBeNull(this.collecting);
-        this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
-        return this;
-    }
-
-    @Override
-    public <R, T> GetElementsByCssClass collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
-        mustBeNull(this.collecting);
-        this.collecting = new Collecting<>(modelSupplier, null, accumulator);
-        return this;
-    }
-
-
-
 
 }

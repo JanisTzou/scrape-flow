@@ -16,9 +16,8 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps.pipe;
 
-import com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler;
-
-import static com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler.*;
+import static com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler.Product;
+import static com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler.ProductCode;
 
 public class Demo {
 

@@ -16,15 +16,25 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 
-public interface HtmlUnitCollectingToModelStep<C> {
+import java.util.function.BiConsumer;
+
+interface HtmlUnitCollectingToModelStep<C> {
 
     /**
      * Sets up the operation that will set the actual scraped data to model object
      * @param modelMutation
      */
     <T> C thenCollect(BiConsumer<T, String> modelMutation);
+
+
+    default void setParsedValueToModel(BiConsumer<Object, String> modelMutation, ParsingContext ctx, String tc) {
+        if (modelMutation != null && ctx.getModelProxy() != null) {
+            modelMutation.accept(ctx.getModelProxy().getModel(), tc);
+        } else {
+            // TODO log something about this ... that we cannot set anything ...
+        }
+    }
 
 }

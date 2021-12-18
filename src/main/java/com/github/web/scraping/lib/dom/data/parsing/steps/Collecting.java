@@ -38,7 +38,6 @@ public class Collecting<R, T> {
 
 
     public Optional<R> supplyContainer() {
-        final R container;
         if (containerSupplier != null && accumulator != null) {
             return Optional.ofNullable(containerSupplier.get());
         } else {

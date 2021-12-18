@@ -23,16 +23,15 @@ import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-public class GetElementsByAttribute extends HtmlUnitChainableStep<GetElementsByAttribute>
-    implements HtmlUnitCollectorSetupStep<GetElementsByAttribute> {
+
+public class GetElementsByAttribute extends CommonOperationsStepBase<GetElementsByAttribute> {
 
     private final String attributeName;
     private final String attributeValue;
     private boolean matchEntireValue;
-    private Collecting<?, ?> collecting;
+
     private static final boolean MATCH_ENTIRE_VALUE_DEFAULT = true;
 
     protected GetElementsByAttribute(@Nullable List<HtmlUnitParsingStep> nextSteps,
@@ -77,18 +76,6 @@ public class GetElementsByAttribute extends HtmlUnitChainableStep<GetElementsByA
 
     public GetElementsByAttribute setMatchEntireValue(boolean matchEntireValue) {
         this.matchEntireValue = matchEntireValue;
-        return this;
-    }
-
-    @Override
-    public <R, T> GetElementsByAttribute collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
-        this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
-        return this;
-    }
-
-    @Override
-    public <R, T> GetElementsByAttribute collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
-        this.collecting = new Collecting<>(modelSupplier, null, accumulator);
         return this;
     }
 

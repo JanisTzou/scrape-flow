@@ -26,12 +26,9 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-
-// TODO ... in this version we only execute the content of the element ...
-
-//@RequiredArgsConstructor
-public class ParseElementText extends HtmlUnitChainableStep<ParseElementText>
-    implements HtmlUnitCollectingToModelStep<ParseElementText> {
+public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
+        implements HtmlUnitChainingStep<ParseElementText>,
+        HtmlUnitCollectingToModelStep<ParseElementText> {
 
 
     private boolean removeChildElementsTextContent;
@@ -68,16 +65,14 @@ public class ParseElementText extends HtmlUnitChainableStep<ParseElementText>
             }
         }
 
-        if (modelMutation != null && ctx.getModelProxy() != null) {
-            modelMutation.accept(ctx.getModelProxy().getModel(), tc);
-        } else {
-            // TODO log something about this ... that we cannot set anything ...
-        }
+        setParsedValueToModel(modelMutation, ctx, tc);
 
         ParsedElement parsedElement = new ParsedElement(null, null, tc, false, ctx.getNode());
         parsedElement.setModelProxy(ctx.getModelProxy());
         return List.of(parsedElement);
     }
+
+
 
     private String removeChildElementsTextContent(String textContent, HtmlElement el) {
         for (DomElement childElement : el.getChildElements()) {
@@ -95,6 +90,12 @@ public class ParseElementText extends HtmlUnitChainableStep<ParseElementText>
     @Override
     public <T> ParseElementText thenCollect(BiConsumer<T, String> modelMutation) {
         this.modelMutation = (BiConsumer<Object, String>) modelMutation;
+        return this;
+    }
+
+    @Override
+    public ParseElementText then(HtmlUnitParsingStep nextStep) {
+        this.nextSteps.add(nextStep);
         return this;
     }
 

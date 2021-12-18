@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-// TODO consider naming this something like ParserManager and the parsing strategire just "Parser"
 /**
  * Parses data from a given site/URL based on provided parsingStrategies
  */

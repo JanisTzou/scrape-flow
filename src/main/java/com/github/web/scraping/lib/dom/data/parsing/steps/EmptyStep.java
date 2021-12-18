@@ -19,10 +19,8 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
-import lombok.NoArgsConstructor;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -30,7 +28,9 @@ import java.util.function.Supplier;
 /**
  * Used just to test context propagation
  */
-public class EmptyStep extends HtmlUnitChainableStep<EmptyStep> implements HtmlUnitCollectorSetupStep<EmptyStep> {
+public class EmptyStep extends HtmlUnitParsingStep<EmptyStep>
+        implements HtmlUnitChainingStep<EmptyStep>,
+        HtmlUnitCollectorSetupStep<EmptyStep> {
 
     private Collecting<?, ?> collecting;
 
@@ -62,6 +62,12 @@ public class EmptyStep extends HtmlUnitChainableStep<EmptyStep> implements HtmlU
     @Override
     public <R, T> EmptyStep collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
         this.collecting = new Collecting<>(modelSupplier, null, accumulator);
+        return this;
+    }
+
+    @Override
+    public EmptyStep then(HtmlUnitParsingStep nextStep) {
+        this.nextSteps.add(nextStep);
         return this;
     }
 

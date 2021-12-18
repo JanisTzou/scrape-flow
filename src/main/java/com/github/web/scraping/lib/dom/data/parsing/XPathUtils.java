@@ -58,6 +58,8 @@ public class XPathUtils {
         }
     }
 
+    // TODO see what could be solved by using XPAth expressions ...
+
     // TODO better clearer names ...
 
 

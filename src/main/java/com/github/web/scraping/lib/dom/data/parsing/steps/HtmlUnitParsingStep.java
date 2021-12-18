@@ -19,14 +19,21 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-// TODO maybe rename to static ... ??
-// TODO make an interface?
 public abstract class HtmlUnitParsingStep<C> {
 
     // just for debugging
     private String name;
+    protected final List<HtmlUnitParsingStep> nextSteps;
+    protected Collecting<?, ?> collecting;
+
+
+    public HtmlUnitParsingStep(List<HtmlUnitParsingStep> nextSteps) {
+        this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
+    }
 
     public abstract List<StepResult> execute(ParsingContext ctx);
 
@@ -34,8 +41,10 @@ public abstract class HtmlUnitParsingStep<C> {
         return name;
     }
 
+    @SuppressWarnings("unchecked")
     public C setName(String name) {
         this.name = name;
         return (C) this;
     }
+
 }

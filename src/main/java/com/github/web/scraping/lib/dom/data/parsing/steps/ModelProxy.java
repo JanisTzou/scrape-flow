@@ -16,22 +16,20 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-public abstract class HtmlUnitChainableStep<C> extends HtmlUnitParsingStep<C> {
+/**
+ * Wrapper around the model object that ensures that when the model returns populated with data
+ * it is collected only once (thus avoiding duplicates in resulting collections od data)
+ */
+@RequiredArgsConstructor
+@Getter
+@Setter
+public class ModelProxy<M> {
 
-    protected final List<HtmlUnitParsingStep> nextSteps;
-
-    public HtmlUnitChainableStep(@Nullable List<HtmlUnitParsingStep> nextSteps) {
-        this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
-    }
-
-    public C then(HtmlUnitParsingStep nextStep) {
-        this.nextSteps.add(nextStep);
-        return (C) this;
-    }
+    private final M model;
+    private boolean accumulated;
 
 }

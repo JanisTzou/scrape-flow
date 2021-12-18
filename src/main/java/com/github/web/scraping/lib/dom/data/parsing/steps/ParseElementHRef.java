@@ -24,10 +24,14 @@ import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 
-public class ParseElementHRef extends HtmlUnitChainableStep<ParseElementHRef> {
+public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
+        implements HtmlUnitChainingStep<ParseElementHRef>,
+        HtmlUnitCollectingToModelStep<ParseElementHRef>{
 
     private final Enum<?> identifier;
+    private BiConsumer<Object, String> modelMutation;
     // TODO add some filtering logic for the hrefs parsed ...
 
 
@@ -49,11 +53,23 @@ public class ParseElementHRef extends HtmlUnitChainableStep<ParseElementHRef> {
         if (ctx.getNode() instanceof HtmlAnchor anch) {
             String href = anch.getHrefAttribute();
             if (href != null) {
+                setParsedValueToModel(modelMutation, ctx, href);
                 return List.of(new ParsedElement(identifier, href, null, true, ctx.getNode()));
             }
         }
         return Collections.emptyList();
     }
 
+    @Override
+    public <T> ParseElementHRef thenCollect(BiConsumer<T, String> modelMutation) {
+        this.modelMutation = (BiConsumer<Object, String>) modelMutation;
+        return this;
+    }
+
+    @Override
+    public ParseElementHRef then(HtmlUnitParsingStep nextStep) {
+        this.nextSteps.add(nextStep);
+        return this;
+    }
 
 }

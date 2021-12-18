@@ -18,7 +18,7 @@ package com.github.web.scraping.lib.dom.data.parsing.steps.pipe;
 
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
-import com.github.web.scraping.lib.dom.data.parsing.steps.*;
+import com.github.web.scraping.lib.dom.data.parsing.steps.Collecting;
 
 import java.util.List;
 import java.util.function.BiConsumer;

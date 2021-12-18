@@ -118,8 +118,8 @@ public class HtmlUnitParsingExecutionWrapper<R, T> {
     }
 
     private NextParsingContextBasis getNextContextBasis(ParsingContext ctx) {
-        Optional<AccumulatedModelProxy<T>> suppliedModelProxy = collecting.supplyModel().map(AccumulatedModelProxy::new);
-        AccumulatedModelProxy<T> nextModelProxy;
+        Optional<ModelProxy<T>> suppliedModelProxy = collecting.supplyModel().map(ModelProxy::new);
+        ModelProxy<T> nextModelProxy;
         R nextContainer;
 //
 //        if (ctxContainer != null) {
@@ -148,7 +148,7 @@ public class HtmlUnitParsingExecutionWrapper<R, T> {
             nextContainer = (R) suppliedModelProxy.get().getModel(); // previous suppliedModelProxy must be the current container ...
             System.out.println("here ... 4");
         } else {
-            AccumulatedModelProxy<T> ctxModelProxy = (AccumulatedModelProxy<T>) ctx.getModelProxy();
+            ModelProxy<T> ctxModelProxy = (ModelProxy<T>) ctx.getModelProxy();
             nextModelProxy = ctxModelProxy; // needs to be propagated
             nextContainer = ctxModelProxy != null ? (R) ctxModelProxy.getModel() : null; // must not be propagated ...
             System.out.println("here ... 5");
@@ -169,7 +169,7 @@ public class HtmlUnitParsingExecutionWrapper<R, T> {
                     .filter(Objects::nonNull)
                     .forEach(mp -> {
                         // the proxy prevents duplicates to be accumulated as data is returning upstream
-                        AccumulatedModelProxy<T> modelProxy = (AccumulatedModelProxy<T>) mp;
+                        ModelProxy<T> modelProxy = (ModelProxy<T>) mp;
 //                        System.out.println(modelProxy);
                         if (!modelProxy.isAccumulated()) {
                             BiConsumer<R, T> accumulator = collecting.getAccumulator();
@@ -207,7 +207,7 @@ public class HtmlUnitParsingExecutionWrapper<R, T> {
     private static class NextParsingContextBasis<T> {
 
         @Nullable
-        private final AccumulatedModelProxy<T> model;
+        private final ModelProxy<T> model;
 
         @Nullable
         private final Object container;

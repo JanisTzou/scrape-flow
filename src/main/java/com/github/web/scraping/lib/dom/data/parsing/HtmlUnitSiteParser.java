@@ -76,7 +76,6 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
         if (paginatingSequence == null) {
             return parsing.apply(page);
         } else {
-            // Hmm ... we need something like do ... while ...
             List<ParsedData> result = new ArrayList<>();
             AtomicReference<HtmlPage> pageRef = new AtomicReference<>(page);
             while (true) {

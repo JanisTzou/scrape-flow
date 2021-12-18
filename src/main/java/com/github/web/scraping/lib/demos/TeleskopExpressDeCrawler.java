@@ -64,11 +64,15 @@ public class TeleskopExpressDeCrawler {
 
         final CrawlingStage.Builder productListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
+                        // step set root model ?
                         .setPaginatingSequence(getNextBtnLinkElemStep
                                 .then(clickNextPageBtnElem))
                         // TODO have top level collector here ? Or make it a list as a default and not worry about it ?
                         //  it will probably be needed ... pagination produces multiple instances of containers that should only be one instance ...
                         .addParsingSequence(
+                                // step "startPagination"
+                                //  ... then everything else ...
+                                // step set root model ?
                                 getProductTdElemsStep           // TODO express somehow that the next operation involves collection of elements? ... collectors would then make more sense ...
                                         .collector(Product::new, Products::new, Products::add)
                                         .then(getProductCodeElemStep
@@ -85,7 +89,7 @@ public class TeleskopExpressDeCrawler {
                                                 .then(new ParseElementText().thenCollect(Product::setPrice))
                                         )
                                         .then(getProductTitleElemStep2
-                                                .then(ParseElementHRef.instance(PRODUCT_DETAIL_LINK))
+                                                .then(ParseElementHRef.instance(PRODUCT_DETAIL_LINK).thenCollect(Product::setDetailUrl))
                                         )
                         )
                         .build()
@@ -145,6 +149,7 @@ public class TeleskopExpressDeCrawler {
         private String code;
         private String price;
         private ProductCode productCode;
+        private String detailUrl;
     }
 
     @Setter

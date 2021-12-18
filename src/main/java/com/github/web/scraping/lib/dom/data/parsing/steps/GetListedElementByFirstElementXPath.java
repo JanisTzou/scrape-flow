@@ -25,12 +25,10 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class GetListedElementByFirstElementXPath extends HtmlUnitChainableStep<GetListedElementByFirstElementXPath>
-        implements HtmlUnitCollectorSetupStep<GetListedElementByFirstElementXPath> {
+public class GetListedElementByFirstElementXPath extends CommonOperationsStepBase<GetListedElementByFirstElementXPath> {
 
     // the xPath of the first child
     private final String xPath;
@@ -73,18 +71,6 @@ public class GetListedElementByFirstElementXPath extends HtmlUnitChainableStep<G
         };
 
         return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting, getName()).execute(ctx, nodesSearch);
-    }
-
-    @Override
-    public <R, T> GetListedElementByFirstElementXPath collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
-        this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
-        return this;
-    }
-
-    @Override
-    public <R, T> GetListedElementByFirstElementXPath collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
-        this.collecting = new Collecting<>(modelSupplier, null, accumulator);
-        return this;
     }
 
 }
