@@ -19,33 +19,29 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
-import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class GetElementsByCssClass extends CommonOperationsStepBase<GetElementsByCssClass> {
+public class GetHtmlBody extends CommonOperationsStepBase<GetHtmlBody> {
 
-    private final String cssClassName;
-
-    public GetElementsByCssClass(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String cssClassName) {
+    public GetHtmlBody(@Nullable List<HtmlUnitParsingStep<?>> nextSteps) {
         super(nextSteps);
-        this.cssClassName = cssClassName;
     }
 
-    public GetElementsByCssClass(String cssClassName) {
-        this(null, cssClassName);
+    public GetHtmlBody() {
+        this(null);
     }
 
-    public static GetElementsByCssClass instance(String cssClassName) {
-        return new GetElementsByCssClass(cssClassName);
+    public static GetHtmlBody instance() {
+        return new GetHtmlBody();
     }
 
     @Override
     public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
         logExecutionStart();
-        Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsByClass(ctx.getNode(), cssClassName);
+        Supplier<List<DomNode>> nodesSearch = () ->  ctx.getNode().getByXPath("/html/body");
         @SuppressWarnings("unchecked")
         HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());
         return wrapper.execute(ctx, nodesSearch);

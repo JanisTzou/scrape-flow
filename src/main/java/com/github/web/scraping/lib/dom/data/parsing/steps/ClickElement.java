@@ -55,11 +55,11 @@ import java.util.List;
                 log.debug("{}: Clicking HtmlAnchor element at {}", getName(), anch.getHrefAttribute());
                 anch.click();
                 HtmlPage currPage = (HtmlPage) enclosingWindow.getEnclosedPage();
-                log.debug("{} Loaded page URL after anchor clicked: {}", getName(), currPage.getUrl().toString());
+                log.debug("{}: Loaded page URL after anchor clicked: {}", getName(), currPage.getUrl().toString());
 //                System.out.println(currPage.asXml());
                 return List.of(new ElementClicked(anch, currPage));
             } catch (IOException e) {
-                log.error("Error while clicking element {}", anch, e);
+                log.error("{} Error while clicking element {}", getName(), anch, e);
             }
         }
         return Collections.emptyList();

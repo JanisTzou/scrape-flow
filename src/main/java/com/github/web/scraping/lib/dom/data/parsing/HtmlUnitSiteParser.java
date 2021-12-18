@@ -120,11 +120,13 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
             this.driverManager = driverManager;
         }
 
+        // TODO maybe there should only be one parsing sequence? ... no need for more ... probably
         public Builder addParsingSequence(HtmlUnitParsingStep<?> parsingStep) {
             this.parsingSteps.add(parsingStep);
             return this;
         }
 
+        @Deprecated // TODO maybe should not be supported at this level ?
         public Builder setPaginatingSequence(HtmlUnitParsingStep<?> paginatingStep) {
             this.paginatingStep = paginatingStep;
             return this;

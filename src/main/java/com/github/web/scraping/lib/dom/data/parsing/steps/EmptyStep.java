@@ -56,13 +56,13 @@ public class EmptyStep extends HtmlUnitParsingStep<EmptyStep>
     }
 
     @Override
-    public <R, T> EmptyStep collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
+    public <R, T> EmptyStep setCollector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
         this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
         return this;
     }
 
     @Override
-    public <R, T> EmptyStep collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
+    public <R, T> EmptyStep setCollector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
         this.collecting = new Collecting<>(modelSupplier, null, accumulator);
         return this;
     }

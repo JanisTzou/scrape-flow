@@ -20,32 +20,40 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
+import org.apache.logging.log4j.core.util.Assert;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
-public class GetElementsByCssClass extends CommonOperationsStepBase<GetElementsByCssClass> {
+public class GetElementsByTag extends CommonOperationsStepBase<GetElementsByTag> {
 
-    private final String cssClassName;
+    private final String tagName;
 
-    public GetElementsByCssClass(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String cssClassName) {
+    /**
+     * @param nextSteps
+     * @param tagName
+     * @throws NullPointerException if tagName is null
+     */
+    public GetElementsByTag(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String tagName) {
         super(nextSteps);
-        this.cssClassName = cssClassName;
+        Objects.requireNonNull(tagName);
+        this.tagName = tagName;
     }
 
-    public GetElementsByCssClass(String cssClassName) {
-        this(null, cssClassName);
+    public GetElementsByTag(String tagName) {
+        this(null, tagName);
     }
 
-    public static GetElementsByCssClass instance(String cssClassName) {
-        return new GetElementsByCssClass(cssClassName);
+    public static GetElementsByTag instance(String cssClassName) {
+        return new GetElementsByTag(cssClassName);
     }
 
     @Override
     public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
         logExecutionStart();
-        Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsByClass(ctx.getNode(), cssClassName);
+        Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsByTagName(ctx.getNode(), tagName);
         @SuppressWarnings("unchecked")
         HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());
         return wrapper.execute(ctx, nodesSearch);

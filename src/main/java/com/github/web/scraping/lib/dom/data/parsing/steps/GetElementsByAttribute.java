@@ -66,9 +66,9 @@ public class GetElementsByAttribute extends CommonOperationsStepBase<GetElements
         logExecutionStart();
         Supplier<List<DomNode>> nodesSearch = () -> {
             if (attributeValue != null) {
-                return HtmlUnitUtils.getAllChildElementsByAttributeValue(ctx.getNode(), attributeName, attributeValue, this.matchEntireValue);
+                return HtmlUnitUtils.getDescendantsByAttributeValue(ctx.getNode(), attributeName, attributeValue, this.matchEntireValue);
             } else {
-                return HtmlUnitUtils.getAllChildElementsByAttribute(ctx.getNode(), attributeName);
+                return HtmlUnitUtils.getDescendantsByAttribute(ctx.getNode(), attributeName);
             }
         };
         @SuppressWarnings("unchecked")

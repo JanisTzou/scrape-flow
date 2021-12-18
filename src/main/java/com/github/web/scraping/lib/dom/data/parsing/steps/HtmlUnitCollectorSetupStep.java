@@ -28,7 +28,7 @@ public interface HtmlUnitCollectorSetupStep<C> {
      * @param containerSupplier a factory for containers that will be used to store model instances populated with parsed data
      * @param accumulator operation that inserts a model instance into the container
      */
-    <R, T> C collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator);
+    <R, T> C setCollector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator);
 
     /**
      * Sets up custom models that will be used to store the scraped data.
@@ -36,7 +36,7 @@ public interface HtmlUnitCollectorSetupStep<C> {
      * @param modelSupplier a factory for new model instances that parsed data can be set to in the steps following this one
      * @param accumulator operation that inserts a model instance into the container
      */
-    <R, T> C collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator);
+    <R, T> C setCollector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator);
 
     /**
      * checks invariants

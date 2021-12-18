@@ -28,7 +28,7 @@ interface HtmlUnitCollectingToModelStep<C> {
     /**
      * Sets up the operation that will set the actual scraped data to model object
      */
-    <T> C thenCollect(BiConsumer<T, String> modelMutation);
+    <T> C setCollector(BiConsumer<T, String> modelMutation);
 
 
     default void setParsedStringToModel(BiConsumer<Object, String> modelMutation, ParsingContext<?, ?> ctx, String value, String stepName) {

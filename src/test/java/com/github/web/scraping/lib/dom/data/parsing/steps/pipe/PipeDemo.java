@@ -24,7 +24,7 @@ public class PipeDemo {
     public static void main(String[] args) {
 
         new GetElementsByCssClassPipe("class_name")
-                .collector(ProductCode::new, Product::setProductCode)
+                .setCollector(ProductCode::new, Product::setProductCode)
                 .then(new ParseElementTextPipe()
                         .then(new ParseElementTextPipe()));
 

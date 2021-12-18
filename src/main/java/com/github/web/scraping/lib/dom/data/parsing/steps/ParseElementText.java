@@ -100,7 +100,7 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> ParseElementText thenCollect(BiConsumer<T, String> modelMutation) {
+    public <T> ParseElementText setCollector(BiConsumer<T, String> modelMutation) {
         this.modelMutation = (BiConsumer<Object, String>) modelMutation;
         return this;
     }

@@ -57,52 +57,55 @@ public class TeleskopExpressDeDemo {
         GetElementsByCssClass getProductTitleElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("get-product-title-elem");
         GetElementsByCssClass getProductPriceElemStep = GetElementsByCssClass.instance("prod_preis").setName("get-product-price-elem");
         GetElementsByAttribute getProductDetailHRefElemStep = GetElementsByAttribute.instance("href", "product_info.php/info").setMatchEntireValue(false).setName("get-product-detail-elem");
-        ClickElement clickNextPageBtnElem = ClickElement.instance();
-
+        ClickElement clickNextPageBtnElem = ClickElement.instance().setName("click-next-page-button");
+        GetElementsByCssClass getNavigationPositionElemStep = GetElementsByCssClass.instance("headerlinks").setName("headerlinks").setName("get-nav-position-elem-step");
 
         final CrawlingStage.Builder productListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
-                        // step set root model ?
-                        .setPaginatingSequence(getNextBtnLinkElemStep
-                                .then(clickNextPageBtnElem))
-                        // TODO have top level collector here ? Or make it a list as a default and not worry about it ?
-                        //  it will probably be needed ... pagination produces multiple instances of containers that should only be one instance ...
-                        .addParsingSequence(
-                                // step "startPagination"
-                                //  ... then everything else ...
                                 // step set root model ?
-                                GetElementsByAttribute.instance("id", "geruest")
-                                        .collector(ProductsPage::new, ProductsPages::new, ProductsPages::add)
-                                        .then(GetElementsByCssClass.instance("headerlinks").setName("headerlinks")
-                                                .then(new ParseElementText().setName("pet-1")
-                                                        .excludeChildElements(false)
-                                                        .thenCollect(ProductsPage::setPosition)
-                                                )
-                                        )
-                                        .then(getProductTdElemsStep
-                                                .collector(Product::new, ProductsPage::add)
-                                                .then(getProductCodeElemStep
-                                                        .then(new EmptyStep()
-                                                                .collector(ProductCode::new, Product::setProductCode)
-                                                                .then(new ParseElementText().setName("pet-2").thenCollect(ProductCode::setValue))
+//                        .setPaginatingSequence(getNextBtnLinkElemStep
+//                                .then(clickNextPageBtnElem))
+                                // TODO have top level collector here ? Or make it a list as a default and not worry about it ?
+                                //  it will probably be needed ... pagination produces multiple instances of containers that should only be one instance ...
+                                .addParsingSequence(
+                                        //  ... then everything else ...
+                                        // step set root model ?
+                                        new GetHtmlBody()
+                                                .setCollector(ProductsPage::new, ProductsPages::new, ProductsPages::add)
+                                                .then(new EmptyStep().setName("before-pagination"))
+                                                .then(new Paginate()
+                                                        .setPaginationTrigger(getNextBtnLinkElemStep.then(clickNextPageBtnElem))
+                                                        .thenForEachPage(getNavigationPositionElemStep
+                                                                .then(new ParseElementText().setName("pet-1")
+                                                                        .excludeChildElements(false)
+                                                                        .setCollector(ProductsPage::setPosition)
+                                                                )
+                                                        )
+                                                        .thenForEachPage(getProductTdElemsStep
+                                                                .setCollector(Product::new, ProductsPage::add)
+                                                                .then(getProductCodeElemStep
+                                                                        .then(new EmptyStep()
+                                                                                .setCollector(ProductCode::new, Product::setProductCode)
+                                                                                .then(new ParseElementText().setName("pet-2").setCollector(ProductCode::setValue))
+                                                                        )
+                                                                )
+                                                                .then(getProductCodeElemStep2 // this needs to be new instance ... throws exception otherwise ...
+                                                                        .then(new ParseElementText().setCollector(Product::setCode))
+                                                                )
+                                                                .then(getProductPriceElemStep
+                                                                        .then(new ParseElementText().setCollector(Product::setPrice))
+                                                                )
+                                                                .then(getProductTitleElemStep2
+                                                                        .then(ParseElementHRef.instance(PRODUCT_DETAIL_LINK)
+                                                                                .setTransformation(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
+                                                                                .setCollector(Product::setDetailUrl)
+                                                                        )
+                                                                )
                                                         )
                                                 )
-                                                .then(getProductCodeElemStep2 // this needs to be new instance ... throws exception otherwise ...
-                                                        .then(new ParseElementText().thenCollect(Product::setCode))
-                                                )
-                                                .then(getProductPriceElemStep
-                                                        .then(new ParseElementText().thenCollect(Product::setPrice))
-                                                )
-                                                .then(getProductTitleElemStep2
-                                                        .then(ParseElementHRef.instance(PRODUCT_DETAIL_LINK)
-                                                                .setTransformation(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
-                                                                .thenCollect(Product::setDetailUrl)
-                                                        )
-                                                )
-                                        )
-
-                        )
-                        .build()
+                                                .then(new EmptyStep().setName("after-pagination"))
+                                )
+                                .build()
                 );
 
         GetElementsByAttribute getProductDetailTitle = GetElementsByAttribute.instance("itemprop", "name");

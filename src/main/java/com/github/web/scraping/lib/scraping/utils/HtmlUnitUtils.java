@@ -102,16 +102,16 @@ public class HtmlUnitUtils {
         return result;
     }
 
-    public static List<DomNode> getAllChildElementsByAttributeValue(DomNode parentElement, String attributeName, String attributeValue, boolean exactMatch) {
-        return getAllChildElementsRecursively(parentElement, el -> hasAttributeWithValue(el, attributeName, attributeValue, exactMatch));
+    public static List<DomNode> getDescendantsByAttributeValue(DomNode parentElement, String attributeName, String attributeValue, boolean exactMatch) {
+        return filterAndGetDescendants(parentElement, el -> hasAttributeWithValue(el, attributeName, attributeValue, exactMatch));
     }
 
-    public static List<DomNode> getAllChildElementsByAttribute(DomNode parentElement, String attributeName) {
-        return getAllChildElementsRecursively(parentElement, el -> el.hasAttribute(attributeName));
+    public static List<DomNode> getDescendantsByAttribute(DomNode parentElement, String attributeName) {
+        return filterAndGetDescendants(parentElement, el -> el.hasAttribute(attributeName));
     }
 
-    public static List<DomNode> getAllChildElementsByClass(DomNode parentElement, String cssClassName) {
-        return getAllChildElementsRecursively(parentElement, el -> {
+    public static List<DomNode> getDescendantsByClass(DomNode parentElement, String cssClassName) {
+        return filterAndGetDescendants(parentElement, el -> {
             if (el.hasAttribute("class")) {
                 return Arrays.stream(el.getAttribute("class").split(" ")).anyMatch(ccls -> ccls.equalsIgnoreCase(cssClassName));
             }
@@ -119,16 +119,17 @@ public class HtmlUnitUtils {
         });
     }
 
+    public static List<DomNode> getDescendantsByTagName(DomNode parentElement, String tagName) {
+        return filterAndGetDescendants(parentElement, el -> el.getTagName().equalsIgnoreCase(tagName));
+    }
 
-
-    public static List<DomNode> getAllChildElementsRecursively(DomNode parentElement, Predicate<DomElement> filter) {
+    public static List<DomNode> filterAndGetDescendants(DomNode parentElement, Predicate<DomElement> filter) {
         List<DomNode> found = new ArrayList<>();
-        for (DomNode childElement : parentElement.getChildNodes()) {
+        for (DomNode childElement : parentElement.getHtmlElementDescendants()) {
             if (childElement instanceof HtmlElement htmlEl) {
                 if (filter.test(htmlEl)) {
                     found.add(childElement);
                 }
-                found.addAll(getAllChildElementsRecursively(childElement, filter));
             }
         }
         return found;

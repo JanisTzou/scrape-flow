@@ -35,7 +35,7 @@ public class GetElementsByCssClassPipe extends HtmlUnitParsingStepPipe {
 
     @Override
     public List<StepResult> execute(ParsingContext ctx) {
-        Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getAllChildElementsByClass(ctx.getNode(), cssClassName);
+        Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsByClass(ctx.getNode(), cssClassName);
         // TODO what to do here ....
         return Collections.emptyList();
     }

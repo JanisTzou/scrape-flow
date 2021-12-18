@@ -36,19 +36,19 @@ public class CollectionSetupPiped extends HtmlUnitParsingStepPipe {
     @Override
     public List<StepResult> execute(ParsingContext ctx) {
         return prevStep.execute(ctx);
-//        Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getAllChildElementsByClass(ctx.getNode(), cssClassName);
+//        Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsByClass(ctx.getNode(), cssClassName);
 //        return new HtmlUnitParsingExecutionWrapper<>(nextSteps, collecting, getName()).execute(ctx, nodesSearch);
     }
 
     @Override
-    public <R, T> CollectionSetupPiped collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
+    public <R, T> CollectionSetupPiped setCollector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
         mustBeNull(this.collecting);
         this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
         return this;
     }
 
     @Override
-    public <R, T> CollectionSetupPiped collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
+    public <R, T> CollectionSetupPiped setCollector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
         mustBeNull(this.collecting);
         this.collecting = new Collecting<>(modelSupplier, null, accumulator);
         return this;

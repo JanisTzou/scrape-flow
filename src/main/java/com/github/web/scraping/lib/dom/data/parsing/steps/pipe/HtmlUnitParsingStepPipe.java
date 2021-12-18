@@ -40,12 +40,12 @@ public abstract class HtmlUnitParsingStepPipe implements HtmlUnitCollectorSetupS
 
     public abstract List<StepResult> execute(ParsingContext ctx);
 
-    public <R, T> CollectionSetupPiped collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
+    public <R, T> CollectionSetupPiped setCollector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
         Collecting<T, R> col = new Collecting<>(modelSupplier, containerSupplier, accumulator);
         return new CollectionSetupPiped(this, col);
     }
 
-    public <R, T> CollectionSetupPiped collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
+    public <R, T> CollectionSetupPiped setCollector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
         Collecting<T, R> col = new Collecting<>(modelSupplier, null, accumulator);
         return new CollectionSetupPiped(this, col);
     }

@@ -30,7 +30,7 @@ public abstract class CommonOperationsStepBase<C> extends HtmlUnitParsingStep<C>
 
     @SuppressWarnings("unchecked")
     @Override
-    public <R, T> C collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
+    public <R, T> C setCollector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
         mustBeNull(this.collecting);
         this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
         return (C) this;
@@ -38,7 +38,7 @@ public abstract class CommonOperationsStepBase<C> extends HtmlUnitParsingStep<C>
 
     @SuppressWarnings("unchecked")
     @Override
-    public <R, T> C collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
+    public <R, T> C setCollector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
         mustBeNull(this.collecting);
         this.collecting = new Collecting<>(modelSupplier, null, accumulator);
         return (C) this;

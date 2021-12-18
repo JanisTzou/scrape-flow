@@ -66,7 +66,7 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> ParseElementHRef thenCollect(BiConsumer<T, String> modelMutation) {
+    public <T> ParseElementHRef setCollector(BiConsumer<T, String> modelMutation) {
         this.modelMutation = (BiConsumer<Object, String>) modelMutation;
         return this;
     }
