@@ -24,14 +24,13 @@ interface HtmlUnitCollectingToModelStep<C> {
 
     /**
      * Sets up the operation that will set the actual scraped data to model object
-     * @param modelMutation
      */
     <T> C thenCollect(BiConsumer<T, String> modelMutation);
 
 
-    default void setParsedValueToModel(BiConsumer<Object, String> modelMutation, ParsingContext ctx, String tc) {
+    default void setParsedStringToModel(BiConsumer<Object, String> modelMutation, ParsingContext ctx, String value) {
         if (modelMutation != null && ctx.getModelProxy() != null) {
-            modelMutation.accept(ctx.getModelProxy().getModel(), tc);
+            modelMutation.accept(ctx.getModelProxy().getModel(), value);
         } else {
             // TODO log something about this ... that we cannot set anything ...
         }

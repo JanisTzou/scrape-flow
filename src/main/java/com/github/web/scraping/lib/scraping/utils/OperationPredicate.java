@@ -17,5 +17,5 @@
 package com.github.web.scraping.lib.scraping.utils;
 
 public interface OperationPredicate<T> {
-    public boolean test(T t) throws ProcessingException;
+    boolean test(T t) throws ProcessingException;
 }

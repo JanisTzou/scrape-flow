@@ -30,7 +30,7 @@ import java.util.List;
 // TODO maybe we should express better that we expect the next page here ...
 public class ClickElement extends HtmlUnitParsingStep<ClickElement> implements HtmlUnitChainingStep<ClickElement> {
 
-    public ClickElement(List<HtmlUnitParsingStep> nextSteps) {
+    public ClickElement(List<HtmlUnitParsingStep<?>> nextSteps) {
         super(nextSteps);
     }
 

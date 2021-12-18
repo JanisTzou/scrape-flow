@@ -39,23 +39,23 @@ public class HtmlUnitParsingExecutionWrapper<R, T> {
     @Getter
     private String name;
 
-    private final List<HtmlUnitParsingStep> nextSteps;
+    private final List<HtmlUnitParsingStep<?>> nextSteps;
     private final Collecting<R, T> collecting;
 
     /**
      * @param name for debugging purposes
      */
-    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep> nextSteps, @Nullable Collecting<R, T> collecting, String name) {
+    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, @Nullable Collecting<R, T> collecting, String name) {
         this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
         this.collecting = Objects.requireNonNullElse(collecting, new Collecting<>());
         setName(name);
     }
 
-    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep> nextSteps, @Nullable Collecting<R, T> collecting) {
+    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, @Nullable Collecting<R, T> collecting) {
         this(nextSteps, collecting, null);
     }
 
-    public HtmlUnitParsingExecutionWrapper(List<HtmlUnitParsingStep> nextSteps) {
+    public HtmlUnitParsingExecutionWrapper(List<HtmlUnitParsingStep<?>> nextSteps) {
         this(nextSteps, null);
     }
 
@@ -66,7 +66,7 @@ public class HtmlUnitParsingExecutionWrapper<R, T> {
             final List<StepResult> nextStepResults = foundNodes
                     .stream()
                     .flatMap(node -> {
-                        NextParsingContextBasis nextContextBasis = getNextContextBasis(ctx);
+                        NextParsingContextBasis<?> nextContextBasis = getNextContextBasis(ctx);
                         return executeNextSteps(node, nextContextBasis);
                     })
                     .collect(Collectors.toList());
@@ -154,7 +154,7 @@ public class HtmlUnitParsingExecutionWrapper<R, T> {
             System.out.println("here ... 5");
         }
 
-        return new NextParsingContextBasis(nextModelProxy, nextContainer);
+        return new NextParsingContextBasis<>(nextModelProxy, nextContainer);
     }
 
     private List<StepResult> collectStepResults(R container, List<StepResult> stepResults) {

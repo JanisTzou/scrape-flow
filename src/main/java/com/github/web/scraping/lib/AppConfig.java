@@ -89,7 +89,7 @@ public class AppConfig {
 
 
     // scraping - scraper settings
-    private static List<? extends Config> scrapersSettings = conf.getConfigList("scraping.scrapersSettings");
+    private static final List<? extends Config> scrapersSettings = conf.getConfigList("scraping.scrapersSettings");
 
 
     public static List<ScraperSettings> getScrapersSettings() {

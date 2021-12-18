@@ -30,9 +30,6 @@ public class HtmlUnitDriversFactory implements DriversFactory<WebClient> {
     @Override
     public WebClient startDriver() {
         final WebClient webClient = new WebClient(BrowserVersion.CHROME);
-//        ProxyConfig proxyConfig = new ProxyConfig("zproxy.lum-superproxy.io", 22225);
-//        webClient.getOptions().setProxyConfig(proxyConfig);
-//        webClient.getCredentialsProvider().setCredentials(AuthScope.ANY, new NTCredentials("lum-customer-hl_bc0ad3de-zone-janispayperusagezone", "6ddlx7snsimw", "", ""));
         webClient.getOptions().setTimeout(15000);
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
         webClient.addRequestHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36");

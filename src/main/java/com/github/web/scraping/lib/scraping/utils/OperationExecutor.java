@@ -22,9 +22,10 @@ import org.apache.logging.log4j.Logger;
 import java.util.Optional;
 
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class OperationExecutor {
 
-	private static Logger log = LogManager.getLogger();
+	private static final Logger log = LogManager.getLogger();
 
 
 	public static <T> T attemptExecute(SupplierOperation<T> operation,

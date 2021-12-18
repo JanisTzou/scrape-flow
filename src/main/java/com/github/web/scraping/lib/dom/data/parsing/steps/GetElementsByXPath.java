@@ -29,7 +29,7 @@ public class GetElementsByXPath extends CommonOperationsStepBase<GetElementsByXP
     private final String xPath;
     private Collecting<?, ?> collecting;
 
-    protected GetElementsByXPath(@Nullable List<HtmlUnitParsingStep> nextSteps, String xPath) {
+    protected GetElementsByXPath(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String xPath) {
         super(nextSteps);
         this.xPath = xPath;
     }

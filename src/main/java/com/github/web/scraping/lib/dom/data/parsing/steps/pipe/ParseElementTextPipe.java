@@ -34,7 +34,7 @@ public class ParseElementTextPipe extends HtmlUnitParsingStepPipe {
 
 
     private boolean removeChildElementsTextContent;
-    private BiConsumer<Object, String> modelMutation;
+    private final BiConsumer<Object, String> modelMutation;
 
     public ParseElementTextPipe() {
         this(true, null);

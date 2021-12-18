@@ -39,12 +39,11 @@ public class CrawlingStage {
     @Getter
     private final SiteParser<?> siteParser;
 
-    // TODO maybe encapsulate the identifier with the mapper bewlo so it is clear that they belong together ...
     // identifies which parsed href belongs to this scrapingStage
     @Nullable
     private final Enum<?> parsedHRefIdentifier;
 
-    // creates a full url from from a parsed href
+    // creates a full url from a parsed href
     @Getter
     private final FullUrlCreator fullURLCreator;
 
@@ -89,16 +88,6 @@ public class CrawlingStage {
             this.siteParser = siteParser;
             return this;
         }
-
-//        public Builder setParsedHRefIdentifier(@Nullable Enum<?> parsedHRefIdentifier) {
-//            this.parsedHRefIdentifier = parsedHRefIdentifier;
-//            return this;
-//        }
-//
-//        public Builder setHrefToURLMapper(Function<String, String> hrefToURLMapper) {
-//            this.hrefToURLMapper = hrefToURLMapper;
-//            return this;
-//        }
 
         /**
          * @param parsedHRefIdentifier identifier of the scraped HRef value

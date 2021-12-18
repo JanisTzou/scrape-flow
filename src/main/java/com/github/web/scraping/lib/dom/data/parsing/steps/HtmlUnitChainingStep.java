@@ -18,6 +18,6 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 public interface HtmlUnitChainingStep<C>  {
 
-    C then(HtmlUnitParsingStep nextStep);
+    C then(HtmlUnitParsingStep<?> nextStep);
 
 }

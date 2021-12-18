@@ -29,7 +29,7 @@ public class GetElementsByCssClass extends CommonOperationsStepBase<GetElementsB
 
     private final String cssClassName;
 
-    public GetElementsByCssClass(@Nullable List<HtmlUnitParsingStep> nextSteps, String cssClassName) {
+    public GetElementsByCssClass(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String cssClassName) {
         super(nextSteps);
         this.cssClassName = cssClassName;
     }

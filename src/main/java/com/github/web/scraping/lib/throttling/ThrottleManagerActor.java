@@ -72,6 +72,7 @@ public class ThrottleManagerActor extends AbstractActor {
     }
 
 
+    @SuppressWarnings("OptionalIsPresent")
     private void onRunStatisticsAnalysis(RunStatisticsAnalysis msg) {
         log.info("Got RunStatisticsAnalysis");
 

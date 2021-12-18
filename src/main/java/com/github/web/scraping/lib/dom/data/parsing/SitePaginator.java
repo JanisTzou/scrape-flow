@@ -14,23 +14,13 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib;
+package com.github.web.scraping.lib.dom.data.parsing;
 
-import com.github.web.scraping.lib.dom.data.parsing.SiteParser;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+public interface SitePaginator<T> {
 
-/**
- * Settings for scraping data from a specific site/URL
- */
-@RequiredArgsConstructor
-@Getter
-public class SiteScrapingSettings {
+    // encapsulates logic to go to the next page when everything is scraped from current site ...
 
-    private final SiteParser<?> siteParser;
-
-    // TODO static vs dynamic ... this should be expressed by the specified siteParser ...
-    // TODO support nested scraping ...
+    // this is driver specific ... something like parser ....
 
 
 }

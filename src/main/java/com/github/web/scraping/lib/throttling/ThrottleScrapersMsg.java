@@ -24,7 +24,7 @@ import ret.appcore.model.enums.WebsiteEnum;
 public class ThrottleScrapersMsg {
 
     private final WebsiteEnum website;
-    private ThrottleCommand throttleCommand;
+    private final ThrottleCommand throttleCommand;
 
     public ThrottleScrapersMsg(WebsiteEnum website, ThrottleCommand throttleCommand) {
         this.website = website;

@@ -34,7 +34,7 @@ public class GetListedElementByFirstElementXPath extends CommonOperationsStepBas
     private final String xPath;
     private Collecting<?, ?> collecting;
 
-    protected GetListedElementByFirstElementXPath(@Nullable List<HtmlUnitParsingStep> nextSteps, String xPath) {
+    protected GetListedElementByFirstElementXPath(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String xPath) {
         super(nextSteps);
         this.xPath = xPath;
     }

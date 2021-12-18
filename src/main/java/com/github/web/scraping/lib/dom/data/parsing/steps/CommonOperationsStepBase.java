@@ -24,13 +24,14 @@ import java.util.function.Supplier;
 public abstract class CommonOperationsStepBase<C> extends HtmlUnitParsingStep<C>
     implements HtmlUnitChainingStep<C>, HtmlUnitCollectorSetupStep<C> {
 
-    public CommonOperationsStepBase(List<HtmlUnitParsingStep> nextSteps) {
+    public CommonOperationsStepBase(List<HtmlUnitParsingStep<?>> nextSteps) {
         super(nextSteps);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <R, T> C collector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
+        mustBeNull(this.collecting);
         this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
         return (C) this;
     }
@@ -38,13 +39,14 @@ public abstract class CommonOperationsStepBase<C> extends HtmlUnitParsingStep<C>
     @SuppressWarnings("unchecked")
     @Override
     public <R, T> C collector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
+        mustBeNull(this.collecting);
         this.collecting = new Collecting<>(modelSupplier, null, accumulator);
         return (C) this;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public C then(HtmlUnitParsingStep nextStep) {
+    public C then(HtmlUnitParsingStep<?> nextStep) {
         this.nextSteps.add(nextStep);
         return (C) this;
     }

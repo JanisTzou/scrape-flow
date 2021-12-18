@@ -30,17 +30,16 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
         implements HtmlUnitChainingStep<ParseElementText>,
         HtmlUnitCollectingToModelStep<ParseElementText> {
 
-
-    private boolean removeChildElementsTextContent;
     private BiConsumer<Object, String> modelMutation;
+    private boolean removeChildElementsTextContent;
 
     public ParseElementText() {
-        this(null, true, null);
+        this(null, null, true);
     }
 
-    protected ParseElementText(@Nullable List<HtmlUnitParsingStep> nextSteps,
-                               boolean removeChildElementsTextContent,
-                               @Nullable BiConsumer<Object, String> modelMutation) {
+    protected ParseElementText(@Nullable List<HtmlUnitParsingStep<?>> nextSteps,
+                               @Nullable BiConsumer<Object, String> modelMutation,
+                               boolean removeChildElementsTextContent) {
         super(nextSteps);
         this.removeChildElementsTextContent = removeChildElementsTextContent;
         this.modelMutation = modelMutation;
@@ -65,7 +64,7 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
             }
         }
 
-        setParsedValueToModel(modelMutation, ctx, tc);
+        setParsedStringToModel(modelMutation, ctx, tc);
 
         ParsedElement parsedElement = new ParsedElement(null, null, tc, false, ctx.getNode());
         parsedElement.setModelProxy(ctx.getModelProxy());
@@ -94,7 +93,7 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
     }
 
     @Override
-    public ParseElementText then(HtmlUnitParsingStep nextStep) {
+    public ParseElementText then(HtmlUnitParsingStep<?> nextStep) {
         this.nextSteps.add(nextStep);
         return this;
     }

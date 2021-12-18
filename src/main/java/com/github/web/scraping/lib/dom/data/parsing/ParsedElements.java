@@ -31,7 +31,6 @@ public class ParsedElements implements StepResult { // TODO rename to parsed ele
 
     // TODO should this not always be either container or model but in one field ?
     @Nullable
-    @Setter
     private final Object container;
 
     private final List<ParsedElement> parsedHRefs;

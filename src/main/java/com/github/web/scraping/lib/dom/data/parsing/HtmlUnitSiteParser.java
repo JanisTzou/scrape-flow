@@ -111,18 +111,18 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
         private final List<HtmlUnitParsingStep<?>> parsingSteps = new ArrayList<>();
         private HtmlUnitParsingStep<?> paginatingStep;
         // TODO somehow we wanna get the driverManager reference here from the outside ...
-        private DriverManager<WebClient> driverManager;
+        private final DriverManager<WebClient> driverManager;
 
         public Builder(DriverManager<WebClient> driverManager) {
             this.driverManager = driverManager;
         }
 
-        public Builder addParsingSequence(HtmlUnitParsingStep parsingStep) {
+        public Builder addParsingSequence(HtmlUnitParsingStep<?> parsingStep) {
             this.parsingSteps.add(parsingStep);
             return this;
         }
 
-        public Builder setPaginatingSequence(HtmlUnitParsingStep paginatingStep) {
+        public Builder setPaginatingSequence(HtmlUnitParsingStep<?> paginatingStep) {
             this.paginatingStep = paginatingStep;
             return this;
         }

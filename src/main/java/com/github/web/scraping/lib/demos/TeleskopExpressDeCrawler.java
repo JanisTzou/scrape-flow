@@ -58,9 +58,6 @@ public class TeleskopExpressDeCrawler {
         GetElementsByAttribute getProductDetailHRefElemStep = GetElementsByAttribute.instance("href", "product_info.php/info").setMatchEntireValue(false);
         ClickElement clickNextPageBtnElem = ClickElement.instance();
 
-        // TODO the next (then(...)) operations should be decoupled from the individual parsing steps... they should just decorate them !
-
-        Flux.just(1).map(i -> i).subscribe();
 
         final CrawlingStage.Builder productListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)

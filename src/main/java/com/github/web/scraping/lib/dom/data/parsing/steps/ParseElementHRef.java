@@ -35,7 +35,7 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
     // TODO add some filtering logic for the hrefs parsed ...
 
 
-    protected ParseElementHRef(@Nullable List<HtmlUnitParsingStep> nextSteps, Enum<?> identifier) {
+    protected ParseElementHRef(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, Enum<?> identifier) {
         super(nextSteps);
         this.identifier = identifier;
     }
@@ -53,7 +53,7 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
         if (ctx.getNode() instanceof HtmlAnchor anch) {
             String href = anch.getHrefAttribute();
             if (href != null) {
-                setParsedValueToModel(modelMutation, ctx, href);
+                setParsedStringToModel(modelMutation, ctx, href);
                 return List.of(new ParsedElement(identifier, href, null, true, ctx.getNode()));
             }
         }
@@ -67,7 +67,7 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
     }
 
     @Override
-    public ParseElementHRef then(HtmlUnitParsingStep nextStep) {
+    public ParseElementHRef then(HtmlUnitParsingStep<?> nextStep) {
         this.nextSteps.add(nextStep);
         return this;
     }

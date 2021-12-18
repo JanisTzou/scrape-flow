@@ -27,11 +27,11 @@ public abstract class HtmlUnitParsingStep<C> {
 
     // just for debugging
     private String name;
-    protected final List<HtmlUnitParsingStep> nextSteps;
+    protected final List<HtmlUnitParsingStep<?>> nextSteps;
     protected Collecting<?, ?> collecting;
 
 
-    public HtmlUnitParsingStep(List<HtmlUnitParsingStep> nextSteps) {
+    public HtmlUnitParsingStep(List<HtmlUnitParsingStep<?>> nextSteps) {
         this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
     }
 
