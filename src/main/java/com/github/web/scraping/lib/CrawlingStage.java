@@ -99,6 +99,13 @@ public class CrawlingStage {
             return this;
         }
 
+        /**
+         * @param parsedHRefIdentifier identifier of the scraped HRef value
+         */
+        public Builder setReferenceForParsedHrefToCrawl(@Nullable Enum<?> parsedHRefIdentifier) {
+            return setReferenceForParsedHrefToCrawl(parsedHRefIdentifier, s -> s);
+        }
+
         public Builder addNextStage(CrawlingStage nextStage) {
             this.nextStages.add(nextStage);
             return this;

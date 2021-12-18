@@ -25,10 +25,11 @@ import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
-        implements HtmlUnitChainingStep<ParseElementText>,
-        HtmlUnitCollectingToModelStep<ParseElementText> {
+        implements HtmlUnitCollectingToModelStep<ParseElementText>,
+        HtmlUnitStringTransformingStep<ParseElementText> {
 
     private BiConsumer<Object, String> modelMutation;
     private boolean removeChildElementsTextContent;
@@ -49,6 +50,9 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
         return new ParseElementText();
     }
 
+    // TODO we need to be able to scrape another thing based on this parsed value ...
+    //  how to communicate the parsed text to next steps? What to put in the context?
+
 
     @SuppressWarnings("unchecked")
     @Override
@@ -65,14 +69,17 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
             }
         }
 
-        setParsedStringToModel(modelMutation, ctx, tc);
+        String transformed = transformParsedText(tc);
 
-        ParsedElement parsedElement = new ParsedElement(null, null, tc, false, ctx.getNode());
+        setParsedStringToModel(modelMutation, ctx, transformed, getName());
+
+        ParsedElement parsedElement = new ParsedElement(null, null, transformed, false, ctx.getNode());
         parsedElement.setModelProxy((ModelProxy<Object>) ctx.getModelProxy());
+
+        // TODO how to populate the following context?
+
         return List.of(parsedElement);
     }
-
-
 
     private String removeChildElementsTextContent(String textContent, HtmlElement el) {
         for (DomElement childElement : el.getChildElements()) {
@@ -95,10 +102,9 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
     }
 
     @Override
-    public ParseElementText then(HtmlUnitParsingStep<?> nextStep) {
-        this.nextSteps.add(nextStep);
+    public ParseElementText setTransformation(Function<String, String> parsedTextTransformation) {
+        this.parsedTextTransformation = parsedTextTransformation;
         return this;
     }
-
 
 }

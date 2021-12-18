@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 
 public abstract class CommonOperationsStepBase<C> extends HtmlUnitParsingStep<C>
-    implements HtmlUnitChainingStep<C>, HtmlUnitCollectorSetupStep<C> {
+    implements HtmlUnitChainableStep<C>, HtmlUnitCollectorSetupStep<C> {
 
     public CommonOperationsStepBase(List<HtmlUnitParsingStep<?>> nextSteps) {
         super(nextSteps);

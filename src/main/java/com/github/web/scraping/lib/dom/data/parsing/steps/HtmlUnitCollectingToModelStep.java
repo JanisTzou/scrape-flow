@@ -28,11 +28,16 @@ interface HtmlUnitCollectingToModelStep<C> {
     <T> C thenCollect(BiConsumer<T, String> modelMutation);
 
 
-    default void setParsedStringToModel(BiConsumer<Object, String> modelMutation, ParsingContext ctx, String value) {
-        if (modelMutation != null && ctx.getModelProxy() != null) {
-            modelMutation.accept(ctx.getModelProxy().getModel(), value);
-        } else {
-            // TODO log something about this ... that we cannot set anything ...
+    default void setParsedStringToModel(BiConsumer<Object, String> modelMutation, ParsingContext ctx, String value, String stepName) {
+        try {
+            if (modelMutation != null && ctx.getModelProxy() != null) {
+                modelMutation.accept(ctx.getModelProxy().getModel(), value);
+            } else {
+                // TODO log something about this ... that we cannot set anything ...
+            }
+        } catch (Exception e) {
+            System.out.println("Exception in step " + stepName);
+            e.printStackTrace();
         }
     }
 

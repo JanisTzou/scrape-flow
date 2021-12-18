@@ -22,6 +22,7 @@ import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 public abstract class HtmlUnitParsingStep<T> {
 
@@ -29,6 +30,9 @@ public abstract class HtmlUnitParsingStep<T> {
     private String name;
     protected final List<HtmlUnitParsingStep<?>> nextSteps;
     protected Collecting<?, ?> collecting;
+
+    // renlevant for steps that do scrape textual values
+    protected Function<String, String> parsedTextTransformation = s -> s; // by default return the string as-is
 
 
     public HtmlUnitParsingStep(List<HtmlUnitParsingStep<?>> nextSteps) {
@@ -45,6 +49,10 @@ public abstract class HtmlUnitParsingStep<T> {
     public T setName(String name) {
         this.name = name;
         return (T) this;
+    }
+
+    protected String transformParsedText(String text) {
+        return text != null ? parsedTextTransformation.apply(text) : null;
     }
 
 }

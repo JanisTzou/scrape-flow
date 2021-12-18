@@ -25,10 +25,12 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
-        implements HtmlUnitChainingStep<ParseElementHRef>,
-        HtmlUnitCollectingToModelStep<ParseElementHRef>{
+        implements HtmlUnitChainableStep<ParseElementHRef>,
+        HtmlUnitCollectingToModelStep<ParseElementHRef>,
+        HtmlUnitStringTransformingStep<ParseElementHRef> {
 
     private final Enum<?> identifier;
     private BiConsumer<Object, String> modelMutation;
@@ -53,8 +55,9 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
         if (ctx.getNode() instanceof HtmlAnchor anch) {
             String href = anch.getHrefAttribute();
             if (href != null) {
-                setParsedStringToModel(modelMutation, ctx, href);
-                return List.of(new ParsedElement(identifier, href, null, true, ctx.getNode()));
+                String transformed = transformParsedText(href);
+                setParsedStringToModel(modelMutation, ctx, transformed, getName());
+                return List.of(new ParsedElement(identifier, transformed, null, true, ctx.getNode()));
             }
         }
         return Collections.emptyList();
@@ -70,6 +73,12 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
     @Override
     public ParseElementHRef then(HtmlUnitParsingStep<?> nextStep) {
         this.nextSteps.add(nextStep);
+        return this;
+    }
+
+    @Override
+    public ParseElementHRef setTransformation(Function<String, String> parsedTextToNewText) {
+        this.parsedTextTransformation = parsedTextToNewText;
         return this;
     }
 

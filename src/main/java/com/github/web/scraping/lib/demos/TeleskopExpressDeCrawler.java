@@ -27,7 +27,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,24 +69,36 @@ public class TeleskopExpressDeCrawler {
                                 // step "startPagination"
                                 //  ... then everything else ...
                                 // step set root model ?
-                                getProductTdElemsStep           // TODO express somehow that the next operation involves collection of elements? ... collectors would then make more sense ...
-                                        .collector(Product::new, Products::new, Products::add)
-                                        .then(getProductCodeElemStep
-                                                .then(new EmptyStep().setName("EmptyStep")
-                                                        .collector(ProductCode::new, Product::setProductCode)
-                                                        .then(new ParseElementText().setName("ParseElementText").thenCollect(ProductCode::setValue)
-                                                                .then(null)) // TODO sanitise, tranform ... scrape something else based on this ...
+                                GetElementsByAttribute.instance("id", "geruest")
+                                        .collector(ProductsPage::new, ProductsPages::new, ProductsPages::add)
+                                        .then(GetElementsByCssClass.instance("headerlinks").setName("headerlinks-step")
+                                                .then(new ParseElementText().setName("pet-1")
+                                                        .setRemoveChildElementsTextContent(false)
+                                                        .thenCollect(ProductsPage::setPosition)
                                                 )
                                         )
-                                        .then(getProductCodeElemStep2 // this needs to be new instance ... throws exception otherwise ...
-                                                .then(new ParseElementText().thenCollect(Product::setCode))
+                                        .then(getProductTdElemsStep
+                                                .collector(Product::new, ProductsPage::add)
+                                                .then(getProductCodeElemStep
+                                                        .then(new EmptyStep().setName("EmptyStep")
+                                                                .collector(ProductCode::new, Product::setProductCode)
+                                                                .then(new ParseElementText().setName("pet-2").thenCollect(ProductCode::setValue))
+                                                        )
+                                                )
+                                                .then(getProductCodeElemStep2 // this needs to be new instance ... throws exception otherwise ...
+                                                        .then(new ParseElementText().thenCollect(Product::setCode))
+                                                )
+                                                .then(getProductPriceElemStep
+                                                        .then(new ParseElementText().thenCollect(Product::setPrice))
+                                                )
+                                                .then(getProductTitleElemStep2
+                                                        .then(ParseElementHRef.instance(PRODUCT_DETAIL_LINK)
+                                                                .setTransformation(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
+                                                                .thenCollect(Product::setDetailUrl)
+                                                        )
+                                                )
                                         )
-                                        .then(getProductPriceElemStep
-                                                .then(new ParseElementText().thenCollect(Product::setPrice))
-                                        )
-                                        .then(getProductTitleElemStep2
-                                                .then(ParseElementHRef.instance(PRODUCT_DETAIL_LINK).thenCollect(Product::setDetailUrl))
-                                        )
+
                         )
                         .build()
                 );
@@ -95,7 +106,7 @@ public class TeleskopExpressDeCrawler {
         GetElementsByAttribute getProductDetailTitle = GetElementsByAttribute.instance("itemprop", "name");
 
         final CrawlingStage productDetailStage = CrawlingStage.builder()
-                .setReferenceForParsedHrefToCrawl(PRODUCT_DETAIL_LINK, hrefVal -> "https://www.teleskop-express.de/" + hrefVal)
+                .setReferenceForParsedHrefToCrawl(PRODUCT_DETAIL_LINK)
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                         .addParsingSequence(getProductDetailTitle
                                 .then(getProductCodeElemStep
@@ -129,7 +140,37 @@ public class TeleskopExpressDeCrawler {
     @Getter
     @NoArgsConstructor
     @ToString
+    public static class ProductsPages {
+        private final List<ProductsPage> pageList = new ArrayList<>();
+
+        public void add(ProductsPage products) {
+            this.pageList.add(products);
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @ToString
+    public static class ProductsPage {
+        private final List<Product> products = new ArrayList<>();
+        private String position;
+
+        public void add(Product product) {
+            this.products.add(product);
+        }
+
+        public void setPosition(String position) {
+            this.position = position;
+        }
+    }
+
+
+    @Getter
+    @NoArgsConstructor
+    @ToString
+    @Deprecated
     public static class Products {
+
         private final List<Product> products = new ArrayList<>();
 
         public void add(Product product) {

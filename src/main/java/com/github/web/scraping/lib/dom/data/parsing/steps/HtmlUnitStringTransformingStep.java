@@ -16,8 +16,13 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-public interface HtmlUnitChainingStep<C>  {
+import java.util.function.Function;
 
-    C then(HtmlUnitParsingStep<?> nextStep);
+public interface HtmlUnitStringTransformingStep<C>  {
+
+    /**
+     * @param parsedTextToNewText transformation the parsed string
+     */
+    C setTransformation(Function<String, String> parsedTextToNewText);
 
 }

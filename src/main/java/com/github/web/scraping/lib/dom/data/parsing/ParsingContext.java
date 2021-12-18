@@ -42,6 +42,8 @@ public class ParsingContext<ModelT, ContainerT> {
 
     private boolean collectorToParentModel;
 
+    private String parsedText;
+
     public ParsingContext(DomNode node) {
         this(node, null, null, false);
     }

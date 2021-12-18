@@ -27,8 +27,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-// TODO maybe we should express better that we expect the next page here ...
-public class ClickElement extends HtmlUnitParsingStep<ClickElement> implements HtmlUnitChainingStep<ClickElement> {
+// TODO maybe we should express better that we expect the next page here ... or maybe in a new step ...
+ public class ClickElement extends HtmlUnitParsingStep<ClickElement> implements HtmlUnitChainableStep<ClickElement> {
 
     public ClickElement(List<HtmlUnitParsingStep<?>> nextSteps) {
         super(nextSteps);
