@@ -48,6 +48,7 @@ public class EmptyStep extends HtmlUnitParsingStep<EmptyStep>
 
     @Override
     public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
+        logExecutionStart();
         Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
         @SuppressWarnings("unchecked")
         HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());

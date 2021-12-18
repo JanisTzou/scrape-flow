@@ -52,6 +52,7 @@ public class GetListedElementByFirstElementXPath extends CommonOperationsStepBas
 
     @Override
     public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
+        logExecutionStart();
         Supplier<List<DomNode>> nodesSearch = () -> {
             // figure out the diff between this.xPath and the parent element xPath ... then use that
             String parentXPath = ctx.getNode().getCanonicalXPath();

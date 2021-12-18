@@ -44,6 +44,7 @@ public class GetElementsByCssClass extends CommonOperationsStepBase<GetElementsB
 
     @Override
     public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
+        logExecutionStart();
         Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getAllChildElementsByClass(ctx.getNode(), cssClassName);
         @SuppressWarnings("unchecked")
         HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());

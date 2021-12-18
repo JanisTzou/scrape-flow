@@ -19,9 +19,11 @@ package com.github.web.scraping.lib;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedData;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
 import com.github.web.scraping.lib.dom.data.parsing.SiteParser;
+import lombok.extern.log4j.Log4j2;
 
 import java.util.List;
 
+@Log4j2
 public class Crawler {
 
     // can the parsing here be from both selenium and htmlunit?
@@ -55,7 +57,8 @@ public class Crawler {
                     doScrape(nextUrl, nextStage);
                 }
             }
-            System.out.println(pd);
+
+            log.info("Scraped data: {}", pd);
         }
     }
 

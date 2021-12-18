@@ -17,7 +17,9 @@
 package com.github.web.scraping.lib;
 
 import com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 public class App {
 
     public static void main(String[] args) {

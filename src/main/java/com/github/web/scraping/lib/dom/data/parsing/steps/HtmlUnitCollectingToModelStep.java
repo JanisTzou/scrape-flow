@@ -17,10 +17,13 @@
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
+import lombok.extern.log4j.Log4j2;
 
 import java.util.function.BiConsumer;
 
 interface HtmlUnitCollectingToModelStep<C> {
+
+    org.apache.logging.log4j.Logger log = org.apache.logging.log4j.LogManager.getLogger(HtmlUnitCollectingToModelStep.class);
 
     /**
      * Sets up the operation that will set the actual scraped data to model object
@@ -28,16 +31,17 @@ interface HtmlUnitCollectingToModelStep<C> {
     <T> C thenCollect(BiConsumer<T, String> modelMutation);
 
 
-    default void setParsedStringToModel(BiConsumer<Object, String> modelMutation, ParsingContext ctx, String value, String stepName) {
+    default void setParsedStringToModel(BiConsumer<Object, String> modelMutation, ParsingContext<?, ?> ctx, String value, String stepName) {
         try {
-            if (modelMutation != null && ctx.getModelProxy() != null) {
-                modelMutation.accept(ctx.getModelProxy().getModel(), value);
-            } else {
-                // TODO log something about this ... that we cannot set anything ...
+            if (modelMutation != null) {
+                if (ctx.getModelProxy() != null) {
+                    modelMutation.accept(ctx.getModelProxy().getModel(), value);
+                } else {
+                    log.error("{}: ctx modelProxy is null but modelMutation exists! Check the setting of data collection model.", stepName);
+                }
             }
         } catch (Exception e) {
-            System.out.println("Exception in step " + stepName);
-            e.printStackTrace();
+            log.error("{}: failed to set parsed value to model", stepName, e);
         }
     }
 

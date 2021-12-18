@@ -63,6 +63,7 @@ public class GetElementsByAttribute extends CommonOperationsStepBase<GetElements
 
     @Override
     public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
+        logExecutionStart();
         Supplier<List<DomNode>> nodesSearch = () -> {
             if (attributeValue != null) {
                 return HtmlUnitUtils.getAllChildElementsByAttributeValue(ctx.getNode(), attributeName, attributeValue, this.matchEntireValue);

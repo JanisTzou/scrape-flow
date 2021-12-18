@@ -52,6 +52,7 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
 
     @Override
     public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
+        logExecutionStart();
         if (ctx.getNode() instanceof HtmlAnchor anch) {
             String href = anch.getHrefAttribute();
             if (href != null) {

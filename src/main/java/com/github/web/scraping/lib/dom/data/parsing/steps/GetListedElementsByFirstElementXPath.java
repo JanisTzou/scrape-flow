@@ -21,6 +21,8 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.dom.data.parsing.XPathUtils;
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+@Log4j2
 public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBase<GetListedElementsByFirstElementXPath> {
 
     private final String xPath;
@@ -45,6 +48,7 @@ public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBa
 
     @Override
     public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
+        logExecutionStart();
 
         // here we want to identify all the elements that will then be processed by the next steps??
         // ... so we can for example apply specific HtmlUnitParsingStrategyByFullXPath on each one of them ... BUT the expaths will need to be dynamic as the root will change for each listed item ....
@@ -83,9 +87,9 @@ public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBa
 
     private void logMatching(String xPath, boolean matches) {
         if (matches) {
-            System.out.println("Matched listing xPath = " + xPath);
+            log.debug("{} Matched listing xPath = {}", getName(), xPath);
         } else {
-            System.out.println("Unmatched listing xPath = " + xPath);
+            log.debug("{} Unmatched listing xPath = {}", getName(), xPath);
         }
     }
 

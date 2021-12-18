@@ -22,12 +22,14 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.web.scraping.lib.dom.data.parsing.ElementClicked;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 // TODO maybe we should express better that we expect the next page here ... or maybe in a new step ...
+@Log4j2
  public class ClickElement extends HtmlUnitParsingStep<ClickElement> implements HtmlUnitChainableStep<ClickElement> {
 
     public ClickElement(List<HtmlUnitParsingStep<?>> nextSteps) {
@@ -43,7 +45,8 @@ import java.util.List;
     }
 
     @Override
-    public List<StepResult> execute(ParsingContext ctx) {
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
+        logExecutionStart();
         // TODO clean this mess ...
         if (ctx.getNode() instanceof HtmlAnchor anch) {
             try {
@@ -54,7 +57,7 @@ import java.util.List;
 //                System.out.println(currPage.asXml());
                 return List.of(new ElementClicked(anch, currPage));
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Error while clicking element", e);
             }
         }
         return Collections.emptyList();

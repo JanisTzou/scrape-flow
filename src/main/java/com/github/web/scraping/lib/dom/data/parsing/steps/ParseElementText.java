@@ -32,7 +32,7 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
         HtmlUnitStringTransformingStep<ParseElementText> {
 
     private BiConsumer<Object, String> modelMutation;
-    private boolean removeChildElementsTextContent;
+    private boolean excludeChildElementsTextContent;
 
     public ParseElementText() {
         this(null, null, true);
@@ -40,9 +40,9 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
 
     protected ParseElementText(@Nullable List<HtmlUnitParsingStep<?>> nextSteps,
                                @Nullable BiConsumer<Object, String> modelMutation,
-                               boolean removeChildElementsTextContent) {
+                               boolean excludeChildElementsTextContent) {
         super(nextSteps);
-        this.removeChildElementsTextContent = removeChildElementsTextContent;
+        this.excludeChildElementsTextContent = excludeChildElementsTextContent;
         this.modelMutation = modelMutation;
     }
 
@@ -57,12 +57,13 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
     @SuppressWarnings("unchecked")
     @Override
     public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
+        logExecutionStart();
         String tc = null;
         if (ctx.getNode() instanceof HtmlElement htmlEl) {
             tc = htmlEl.getTextContent();
             if (tc != null) {
                 // this should be optional ... used in cases when child elements' content filthies the parent element's content ...
-                if (this.removeChildElementsTextContent) {
+                if (this.excludeChildElementsTextContent) {
                     tc = removeChildElementsTextContent(tc, htmlEl);
                 }
                 tc = tc.trim();
@@ -89,8 +90,11 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
     }
 
 
-    public ParseElementText setRemoveChildElementsTextContent(boolean removeChildElementsTextContent) {
-        this.removeChildElementsTextContent = removeChildElementsTextContent;
+    /**
+     * Determines if the text of child elements should be part of the resulting parsed text content
+     */
+    public ParseElementText excludeChildElements(boolean removeChildElementsTextContent) {
+        this.excludeChildElementsTextContent = removeChildElementsTextContent;
         return this;
     }
 

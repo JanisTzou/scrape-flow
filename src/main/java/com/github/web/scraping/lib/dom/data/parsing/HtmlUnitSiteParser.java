@@ -20,6 +20,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitParsingStep;
 import com.github.web.scraping.lib.drivers.DriverManager;
+import lombok.extern.log4j.Log4j2;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-
+@Log4j2
 public class HtmlUnitSiteParser extends SiteParser<WebClient> {
 
     // TODO should the strategies contain info about how to group the parsed output?
@@ -94,14 +95,16 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
 
     }
 
-    private Optional<HtmlPage> getHtmlPage(String inzeratUrl, WebClient webClient) {
+    private Optional<HtmlPage> getHtmlPage(String pageUrl, WebClient webClient) {
         try {
+            log.debug("Loading page URL: {}", pageUrl);
             String winName = "window_name";
-            URL url = new URL(inzeratUrl);
+            URL url = new URL(pageUrl);
             webClient.openWindow(url, winName);
+            log.debug("Loaded page URL: {}", pageUrl);
             return Optional.ofNullable((HtmlPage) webClient.getWebWindowByName(winName).getEnclosedPage());
         } catch (MalformedURLException e) {
-            // TODO log something ...
+            log.error("Error when getting htmlPage for utl {}", pageUrl, e);
             return Optional.empty();
         }
     }

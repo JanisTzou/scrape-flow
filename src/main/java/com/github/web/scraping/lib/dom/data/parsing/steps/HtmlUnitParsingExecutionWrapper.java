@@ -17,14 +17,12 @@
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
-import com.github.web.scraping.lib.dom.data.parsing.ParsedElements;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import com.github.web.scraping.lib.dom.data.parsing.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -33,30 +31,26 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Log4j2
 public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
-
-    // just for debugging
-    @Getter
-    private String name;
 
     private final List<HtmlUnitParsingStep<?>> nextSteps;
     private final Collecting<ModelT, ContainerT> collecting;
+    // just for debugging
+    @Getter
+    private String stepName;
 
     /**
-     * @param name for debugging purposes
+     * @param stepName the delegating step name for debugging purposes
      */
-    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, @Nullable Collecting<ModelT, ContainerT> collecting, String name) {
+    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, @Nullable Collecting<ModelT, ContainerT> collecting, String stepName) {
         this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
         this.collecting = Objects.requireNonNullElse(collecting, new Collecting<>());
-        setName(name);
+        setStepName(stepName);
     }
 
-    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, @Nullable Collecting<ModelT, ContainerT> collecting) {
-        this(nextSteps, collecting, null);
-    }
-
-    public HtmlUnitParsingExecutionWrapper(List<HtmlUnitParsingStep<?>> nextSteps) {
-        this(nextSteps, null);
+    public HtmlUnitParsingExecutionWrapper(List<HtmlUnitParsingStep<?>> nextSteps, String stepName) {
+        this(nextSteps, null, stepName);
     }
 
     public <M, T> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, Supplier<List<DomNode>> nodesSearch) {
@@ -80,7 +74,6 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
     }
 
 
-
     private <M, T> Stream<StepResult> executeNextSteps(DomNode node, NextParsingContextBasis<M, T> nextContextBasis) {
         return nextSteps.stream().flatMap(step -> {
             ParsingContext<M, T> nextCtx = new ParsingContext<>(node, nextContextBasis.model, nextContextBasis.container, false);
@@ -99,15 +92,11 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
                 if (ctxContainer != null) {
                     return Optional.of(new StepContainer<>(ctxContainer, false));
                 } else {
-                    System.out.println("Context container null ... in " + getName());
+                    log.error("{} no container provided", stepName); // TODO is this error or not ?
                 }
             }
         }
         return Optional.empty();
-    }
-
-    // TODO remove .... probably not needed ... this wrapping ...
-    private record StepContainer<R>(R container, boolean isNewInstance) {
     }
 
     @SuppressWarnings("unchecked")
@@ -119,12 +108,12 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
         if (suppliedModelProxy.isPresent()) {
             nextModelProxy = (ModelProxy<ModelT2>) suppliedModelProxy.get();
             nextContainer = (ContainerT2) suppliedModelProxy.get().getModel(); // previous suppliedModelProxy must be the next container ...
-            System.out.println("here ... 4");
+            log.trace("{}: next model is supplied", getStepName());
         } else {
             ModelProxy<?> ctxModelProxy = ctx.getModelProxy();
             nextModelProxy = (ModelProxy<ModelT2>) ctxModelProxy; // needs to be propagated
             nextContainer = ctxModelProxy != null ? (ContainerT2) ctxModelProxy.getModel() : null;
-            System.out.println("here ... 5");
+            log.trace("{}: next model is not supplied", getStepName());
         }
 
         return new NextParsingContextBasis<>(nextModelProxy, nextContainer);
@@ -137,7 +126,6 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
         if (container != null) {
             final List<ParsedElement> hrefs = stepResults.stream().filter(sr -> sr instanceof ParsedElement pe && pe.isHasHRef()).map(sr -> (ParsedElement) sr).collect(Collectors.toList());
 
-            // TODO handle duplicates ...
             stepResults.stream()
                     .filter(sr -> sr instanceof ParsedElement)
                     .map(sr -> (ParsedElement) sr)
@@ -147,18 +135,23 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
                         // the proxy prevents duplicates to be accumulated as data is returning upstream
                         @SuppressWarnings("unchecked")
                         ModelProxy<ModelT> modelProxy = (ModelProxy<ModelT>) mp;
-//                        System.out.println(modelProxy);
                         if (!mp.isAccumulated()) {
                             BiConsumer<ContainerT, ModelT> accumulator = collecting.getAccumulator();
                             if (accumulator != null) {
-                                accumulator.accept(container, modelProxy.getModel()); // if collectors are incorrectly set up, here is where we get exps like this: java.lang.ClassCastException: class com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler$Product cannot be cast to class com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler$Products
-                                modelProxy.setAccumulated(true);
-                                System.out.println("Accumulator exists ...");
+                                try {
+                                    // if collectors are incorrectly set up, here is where we get exps like this: java.lang.ClassCastException: class com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler$Product cannot be cast to class com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler$Products
+                                    accumulator.accept(container, modelProxy.getModel());
+                                    modelProxy.setAccumulated(true);
+                                } catch (ClassCastException e) {
+                                    // TODO improve this further by parsing the class names from the original exception to provide a detailed message ...
+                                    throw new IncorrectDataCollectionSetupException("Error while setting parsed data to provided models in step " +
+                                            "'" + getStepName() +"'. The setup of data collection into models must be fixed.", e);
+                                }
                             } else {
-                                System.out.println("Accumulator is null ...");
+                                log.error("{}: Accumulator is null - cannot collect parsed data", getStepName());
                             }
                         } else {
-                            System.out.println("Skipping ... already accumulated");
+                            log.trace("{}: skipping item - already accumulated", getStepName());
                         }
                     });
 
@@ -166,14 +159,18 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
         } else {
             BiConsumer<?, ?> accumulator = collecting.getAccumulator();
             if (accumulator != null) {
-                System.out.println("Wrong existing accumulator ... in " + getName());
+                log.error("{}: No container available while there is an accumulator set. Error in data collection setting.", getStepName());
             }
             return stepResults;
         }
     }
 
-    private void setName(String name) {
-        this.name = name != null ? name + "-wrapper" : null;
+    private void setStepName(String stepName) {
+        this.stepName = stepName != null ? stepName + "-wrapper" : null;
+    }
+
+    // TODO remove .... probably not needed ... this wrapping ...
+    private record StepContainer<R>(R container, boolean isNewInstance) {
     }
 
     @Getter

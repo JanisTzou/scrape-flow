@@ -73,7 +73,7 @@ public class TeleskopExpressDeCrawler {
                                         .collector(ProductsPage::new, ProductsPages::new, ProductsPages::add)
                                         .then(GetElementsByCssClass.instance("headerlinks").setName("headerlinks-step")
                                                 .then(new ParseElementText().setName("pet-1")
-                                                        .setRemoveChildElementsTextContent(false)
+                                                        .excludeChildElements(false)
                                                         .thenCollect(ProductsPage::setPosition)
                                                 )
                                         )

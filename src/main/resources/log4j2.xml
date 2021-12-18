@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+
+    <Properties>
+        <Property name="level">debug</Property>
+        <Property name="layoutPattern">$${sys:app-name} %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-20thread %-30c{1.}:  %msg%n
+        </Property>
+        <Property name="app-name">Srapers</Property>
+    </Properties>
+
+    <Appenders>
+
+        <Console name="Console">
+            <PatternLayout pattern="${layoutPattern}"/>
+        </Console>
+
+    </Appenders>
+
+    <Loggers>
+
+        <Logger name="com.gargoylesoftware.htmlunit" level="error" />
+        <Logger name="org.apache" level="error"/>
+
+        <Root level="${sys:level}">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+
+</Configuration>

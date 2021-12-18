@@ -18,16 +18,18 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import lombok.extern.log4j.Log4j2;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
+@Log4j2
 public abstract class HtmlUnitParsingStep<T> {
 
     // just for debugging
-    private String name;
+    private String name = "unnamed-step-" + getClass().getSimpleName();
     protected final List<HtmlUnitParsingStep<?>> nextSteps;
     protected Collecting<?, ?> collecting;
 
@@ -53,6 +55,10 @@ public abstract class HtmlUnitParsingStep<T> {
 
     protected String transformParsedText(String text) {
         return text != null ? parsedTextTransformation.apply(text) : null;
+    }
+
+    protected void logExecutionStart() {
+        log.trace("{}: executing ...", getName());
     }
 
 }
