@@ -47,8 +47,7 @@ public class TeleskopExpressDeDemo {
         // TODO the parsing/scraping steps should be better named so it is clear what action they perform ... it might not be parsing exacly but also actions like button clicks etc ...
         //  maybe it is ok to have a "parsing ste" that is not exacly parsing enything but performing an action ... it's just something that needs to be performed to do the actual parsing ...
 
-        // TODO consider not using builders at all ...
-        GetElementsByAttribute getNextBtnLinkElemStep = GetElementsByAttribute.instance("title", " nächste Seite ").setName("get-next-page-elem");
+        GetElementsByAttribute getNextPageLinkElemStep = GetElementsByAttribute.instance("title", " nächste Seite ").setName("get-next-page-elem");
         // TODO here there are duplicates becase bellow the instances are mutated ... change this so that each call below in the sequence
         //  creates a new instance based on the previous one and only then it sets values ....
         GetElementsByCssClass getProductTdElemsStep = GetElementsByCssClass.instance("main").setName("get-product-elems"); // TODO add by tag ... filtering
@@ -57,14 +56,14 @@ public class TeleskopExpressDeDemo {
         GetElementsByCssClass getProductTitleElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("get-product-title-elem");
         GetElementsByCssClass getProductPriceElemStep = GetElementsByCssClass.instance("prod_preis").setName("get-product-price-elem");
         GetElementsByAttribute getProductDetailHRefElemStep = GetElementsByAttribute.instance("href", "product_info.php/info").setMatchEntireValue(false).setName("get-product-detail-elem");
-        ClickElement clickNextPageBtnElem = ClickElement.instance().setName("click-next-page-button");
+        ClickElement clickNextPageLinkElem = ClickElement.instance().setName("click-next-page-button");
         GetElementsByCssClass getNavigationPositionElemStep = GetElementsByCssClass.instance("headerlinks").setName("headerlinks").setName("get-nav-position-elem-step");
 
         final CrawlingStage.Builder productListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
                                 // step set root model ?
-//                        .setPaginatingSequence(getNextBtnLinkElemStep
-//                                .then(clickNextPageBtnElem))
+//                        .setPaginatingSequence(getNextPageLinkElemStep
+//                                .then(clickNextPageLinkElem))
                                 // TODO have top level collector here ? Or make it a list as a default and not worry about it ?
                                 //  it will probably be needed ... pagination produces multiple instances of containers that should only be one instance ...
                                 .addParsingSequence(
@@ -74,7 +73,7 @@ public class TeleskopExpressDeDemo {
                                                 .setCollector(ProductsPage::new, ProductsPages::new, ProductsPages::add)
                                                 .then(new EmptyStep().setName("before-pagination"))
                                                 .then(new Paginate()
-                                                        .setPaginationTrigger(getNextBtnLinkElemStep.then(clickNextPageBtnElem))
+                                                        .setPaginationTrigger(getNextPageLinkElemStep.then(clickNextPageLinkElem))
                                                         .thenForEachPage(getNavigationPositionElemStep
                                                                 .then(new ParseElementText().setName("pet-1")
                                                                         .excludeChildElements(false)

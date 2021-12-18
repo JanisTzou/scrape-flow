@@ -21,7 +21,6 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.web.scraping.lib.dom.data.parsing.ElementClicked;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
-import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
@@ -34,7 +33,7 @@ import java.util.function.Supplier;
 @Log4j2
 public class Paginate extends CommonOperationsStepBase<Paginate> {
 
-    private HtmlUnitParsingStep<?> paginatingSequence;
+    private HtmlUnitParsingStep<?> paginationTrigger;
 
     public Paginate(@Nullable List<HtmlUnitParsingStep<?>> nextSteps) {
         super(nextSteps);
@@ -51,6 +50,9 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
     @Override
     public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
         logExecutionStart();
+        if (paginationTrigger == null) {
+            throw new IllegalStateException("paginationTrigger must be set for pagination to work!");
+        }
         AtomicReference<HtmlPage> pageRef = new AtomicReference<>(ctx.getNode().getHtmlPageOrNull());
         List<StepResult> all = new ArrayList<>();
         while (true) {
@@ -60,8 +62,8 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
             List<StepResult> scraping = wrapper.execute(ctx, nodesSearch);
             all.addAll(scraping);
 
-            if (paginatingSequence != null) {
-                List<StepResult> pagination = paginatingSequence.execute(new ParsingContext<>(pageRef.get()));
+            if (paginationTrigger != null) {
+                List<StepResult> pagination = paginationTrigger.execute(new ParsingContext<>(pageRef.get()));
                 Optional<HtmlPage> nextPage = pagination.stream().filter(sr -> sr instanceof ElementClicked).map(sr -> ((ElementClicked) sr).getPageAfterElementClicked()).findFirst();
                 if (nextPage.isPresent()) {
                     pageRef.set(nextPage.get());
@@ -81,7 +83,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
      * In practice this is most often the action finding the "NEXT" button element and clicking it.
      */
     public Paginate setPaginationTrigger(HtmlUnitParsingStep<?> paginatingSequence) {
-        this.paginatingSequence = paginatingSequence;
+        this.paginationTrigger = paginatingSequence;
         return this;
     }
 
