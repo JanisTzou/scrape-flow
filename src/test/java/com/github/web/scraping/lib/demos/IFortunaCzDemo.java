@@ -17,15 +17,13 @@
 package com.github.web.scraping.lib.demos;
 
 import com.github.web.scraping.lib.Crawler;
-import com.github.web.scraping.lib.CrawlingStage;
+import com.github.web.scraping.lib.Crawling;
 import com.github.web.scraping.lib.EntryPoint;
 import com.github.web.scraping.lib.dom.data.parsing.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.dom.data.parsing.steps.*;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
 import org.junit.Test;
-
-import static com.github.web.scraping.lib.demos.IFortunaCzDemo.Identifiers.EVENT_LINK;
 
 public class IFortunaCzDemo {
 
@@ -51,8 +49,8 @@ public class IFortunaCzDemo {
         // TODO step examples:
         //  search x execute x paginate x click x wait ...
 
-        final CrawlingStage.Builder eventsListStage = CrawlingStage.builder()
-                .setParser(HtmlUnitSiteParser.builder(driverManager)
+        final Crawling matchesCrawling = new Crawling()
+                .setSiteParser(new HtmlUnitSiteParser(driverManager)
                         .setParsingSequence(getEventsListElements
                                 .then(getEventDetailLinkElem  // TODO perhaps we can express it better that the next step is going for the children ?
                                         .then(ParseElementHRef.instance())
@@ -64,25 +62,21 @@ public class IFortunaCzDemo {
                                         .then(new ParseElementText())
                                 )
                         )
-                        .build());
+                );
 
         final GetElementsByXPath getEventHomeOddsElem = GetElementsByXPath.instance("/html/body/div[1]/div/div[2]/div[2]/div/section/div/div[2]/table/tbody/tr/td[2]/a/span");
 
-        final CrawlingStage eventDetailOddsStage = CrawlingStage.builder()
-                .setParser(HtmlUnitSiteParser.builder(driverManager)
-                        .setParsingSequence(getEventHomeOddsElem
-                                .then(new ParseElementText())
-                        )
-                        .build())
-                .setReferenceForParsedHrefToCrawl(EVENT_LINK, href -> "https://www.ifortuna.cz/" + href)
-                .build();
+//        final Crawling eventDetailOddsStage = new Crawling()
+//                .setSiteParser(new HtmlUnitSiteParser(driverManager)
+//                        .setParsingSequence(getEventHomeOddsElem
+//                                .then(new ParseElementText())
+//                        )
+//                        )
+//               ;
 
-        final CrawlingStage allCrawling = eventsListStage
-                .addNextStage(eventDetailOddsStage)
-                .build();
 
         // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?
-        final EntryPoint entryPoint = new EntryPoint("https://www.ifortuna.cz/", allCrawling);
+        final EntryPoint entryPoint = new EntryPoint("https://www.ifortuna.cz/", matchesCrawling);
 
         final Crawler crawler = new Crawler();
 

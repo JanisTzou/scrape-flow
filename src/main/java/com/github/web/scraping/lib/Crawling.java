@@ -16,17 +16,27 @@
 
 package com.github.web.scraping.lib;
 
+import com.github.web.scraping.lib.dom.data.parsing.SiteParser;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
-@RequiredArgsConstructor
-@Getter
-@ToString
-public class EntryPoint {
 
-    private final String url;
+/**
+ * Encapsulates settings of the next level to scrape data from
+ */
+public class Crawling {
 
-    private final Crawling crawling;
+    @Getter
+    private SiteParser<?> siteParser;
 
+    public Crawling() {
+    }
+
+    public Crawling(SiteParser<?> siteParser) {
+        this.siteParser = siteParser;
+    }
+
+    public Crawling setSiteParser(SiteParser<?> siteParser) {
+        this.siteParser = siteParser;
+        return this;
+    }
 }

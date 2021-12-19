@@ -29,6 +29,4 @@ public class ParsedData {
 
     private final Object data;
 
-    private final List<ParsedElement> parsedHRefs;
-
 }

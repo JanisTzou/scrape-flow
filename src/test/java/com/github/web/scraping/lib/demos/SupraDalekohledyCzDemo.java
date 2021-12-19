@@ -17,7 +17,7 @@
 package com.github.web.scraping.lib.demos;
 
 import com.github.web.scraping.lib.Crawler;
-import com.github.web.scraping.lib.CrawlingStage;
+import com.github.web.scraping.lib.Crawling;
 import com.github.web.scraping.lib.EntryPoint;
 import com.github.web.scraping.lib.dom.data.parsing.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.dom.data.parsing.steps.ClickElement;
@@ -39,18 +39,15 @@ public class SupraDalekohledyCzDemo {
 
         GetElementsByXPath getNextBtnLink = GetElementsByXPath.instance("/html/body/div[2]/div[1]/div[4]/div/div/div[2]/div[3]/div[1]/ul/li[4]/a");
 
-        final CrawlingStage.Builder articleListStage = CrawlingStage.builder()
-                .setParser(HtmlUnitSiteParser.builder(driverManager)
+        final Crawling productsCrawling = new Crawling()
+                .setSiteParser(new HtmlUnitSiteParser(driverManager)
                         .setParsingSequence(getNextBtnLink
                                 .then(ClickElement.instance())
                         )
-                        .build()
                 );
 
-        final CrawlingStage allCrawling = articleListStage.build();
-
         // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?
-        final EntryPoint entryPoint = new EntryPoint("http://www.supra-dalekohledy.cz/prislusenstvi4/okulary/tele-vue/", allCrawling);
+        final EntryPoint entryPoint = new EntryPoint("http://www.supra-dalekohledy.cz/prislusenstvi4/okulary/tele-vue/", productsCrawling);
 
         final Crawler crawler = new Crawler();
 

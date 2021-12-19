@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 @Log4j2
 public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
 
-    private final List<HtmlUnitParsingStep<?>> parsingSequences;
+    private List<HtmlUnitParsingStep<?>> parsingSequences;
 
     public HtmlUnitSiteParser(DriverManager<WebClient> driverManager,
                               List<HtmlUnitParsingStep<?>> parsingSequences) {
@@ -40,8 +40,13 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
         this.parsingSequences = Objects.requireNonNullElse(parsingSequences, new ArrayList<>());
     }
 
-    public static Builder builder(DriverManager<WebClient> driverManager) {
-        return new Builder(driverManager);
+    public HtmlUnitSiteParser(DriverManager<WebClient> driverManager) {
+        this(driverManager, null);
+    }
+
+    public HtmlUnitSiteParser setParsingSequence(HtmlUnitParsingStep<?> parsingSequence) {
+        this.parsingSequences = List.of(parsingSequence);
+        return this;
     }
 
     @Override
@@ -75,10 +80,9 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
         Function<HtmlPage, List<ParsedData>> parsing = page1 -> applyParsingStepsToPage(new ParsingContext<>(page1), parsingSequences)
                 .map(sr -> {
                     if (sr instanceof ParsedElement parsedElement) {
-                        // TODO handle parsed HRef .... references ...
-                        return new ParsedData(parsedElement.getModelProxy(), Collections.emptyList());
+                        return new ParsedData(parsedElement.getModelProxy());
                     } else if (sr instanceof ParsedElements parsedElements) {
-                        return new ParsedData(parsedElements.getContainer(), Collections.emptyList());
+                        return new ParsedData(parsedElements.getContainer());
                     }
                     return null;
                 })
@@ -113,29 +117,5 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
             return Optional.empty();
         }
     }
-
-    public static class Builder {
-
-        private HtmlUnitParsingStep<?> parsingSequence;
-        // TODO somehow we wanna get the driverManager reference here from the outside ...
-        private final DriverManager<WebClient> driverManager;
-
-        public Builder(DriverManager<WebClient> driverManager) {
-            this.driverManager = driverManager;
-        }
-
-        // TODO maybe there should only be one parsing sequence? ... no need for more ... probably
-        public Builder setParsingSequence(HtmlUnitParsingStep<?> seq) {
-            this.parsingSequence = seq;
-            return this;
-        }
-
-        public HtmlUnitSiteParser build() {
-            List<HtmlUnitParsingStep<?>> seqs = parsingSequence != null ? List.of(parsingSequence) : null;
-            return new HtmlUnitSiteParser(this.driverManager, seqs);
-        }
-
-    }
-
 
 }

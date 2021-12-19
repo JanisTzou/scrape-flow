@@ -17,7 +17,7 @@
 package com.github.web.scraping.lib.demos;
 
 import com.github.web.scraping.lib.Crawler;
-import com.github.web.scraping.lib.CrawlingStage;
+import com.github.web.scraping.lib.Crawling;
 import com.github.web.scraping.lib.EntryPoint;
 import com.github.web.scraping.lib.dom.data.parsing.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.dom.data.parsing.steps.GetElementsByAttribute;
@@ -43,8 +43,8 @@ public class AktualneCzDemo {
         final GetElementsByCssClass getArticleDescElem1 = GetElementsByCssClass.instance("section-opener__desc");
         final GetElementsByCssClass getArticleDescElem2 = GetElementsByCssClass.instance("small-box__desc");
 
-        final CrawlingStage.Builder articleListStage = CrawlingStage.builder()
-                .setParser(HtmlUnitSiteParser.builder(driverManager)
+        final Crawling articlesCrawling = new Crawling()
+                .setSiteParser(new HtmlUnitSiteParser(driverManager)
                         .setParsingSequence(getArticleElements
                                 .then(getArticleHeadlineElem
                                         .then(new ParseElementText())
@@ -57,13 +57,11 @@ public class AktualneCzDemo {
                                         .then(new ParseElementText())
                                 )
                         )
-                        .build()
                 );
 
-        final CrawlingStage allCrawling = articleListStage.build();
 
         // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?
-        final EntryPoint entryPoint = new EntryPoint("https://zpravy.aktualne.cz/zahranici/", allCrawling);
+        final EntryPoint entryPoint = new EntryPoint("https://zpravy.aktualne.cz/zahranici/", articlesCrawling);
 
         final Crawler crawler = new Crawler();
 

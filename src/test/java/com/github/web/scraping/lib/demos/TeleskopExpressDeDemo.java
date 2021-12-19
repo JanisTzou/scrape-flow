@@ -17,7 +17,7 @@
 package com.github.web.scraping.lib.demos;
 
 import com.github.web.scraping.lib.Crawler;
-import com.github.web.scraping.lib.CrawlingStage;
+import com.github.web.scraping.lib.Crawling;
 import com.github.web.scraping.lib.EntryPoint;
 import com.github.web.scraping.lib.dom.data.parsing.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.dom.data.parsing.steps.*;
@@ -61,8 +61,8 @@ public class TeleskopExpressDeDemo {
         GetElementsByAttribute getProductDetailTitleElem = GetElementsByAttribute.instance("itemprop", "name");
         GetElementsByAttribute getProductDescriptionElem = GetElementsByAttribute.instance("id", "c0");
 
-        final CrawlingStage.Builder productListStage = CrawlingStage.builder()
-                .setParser(HtmlUnitSiteParser.builder(driverManager)
+        final Crawling productsCrawling = new Crawling()
+                .setSiteParser(new HtmlUnitSiteParser(driverManager)
                         // step set root model / collector ... here somewhere ... ? ????
                         .setParsingSequence(
                                 new GetHtmlBody()
@@ -95,7 +95,7 @@ public class TeleskopExpressDeDemo {
                                                                         .setTransformation(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
                                                                         .setCollector(Product::setDetailUrl)
                                                                         .thenNavigate(new NavigateToNewSite()
-                                                                                .setSiteParser(HtmlUnitSiteParser.builder(driverManager).build())
+                                                                                .setSiteParser(new HtmlUnitSiteParser(driverManager))
                                                                                 .then(getProductDetailTitleElem // TODO perhaps we need a setParsingSequence method after all instead of then() here ... so that we are consistent with how we set up a SiteParse (allows only 1 sequence) ....
                                                                                         .then(new ParseElementText().setCollector(Product::setTitle))
                                                                                 )
@@ -107,7 +107,7 @@ public class TeleskopExpressDeDemo {
                                                                                                 .then(ParseElementHRef.instance()
                                                                                                         .setTransformation(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
                                                                                                         .thenNavigate(new NavigateToNewSite()
-                                                                                                                .setSiteParser(HtmlUnitSiteParser.builder(driverManager).build())
+                                                                                                                .setSiteParser(new HtmlUnitSiteParser(driverManager))
                                                                                                                 .then(GetListedElementsByFirstElementXPath.instance("/html/body/table/tbody/tr[1]")
                                                                                                                         .setCollector(ShippingCosts::new, (Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc))
                                                                                                                         .then(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[1]")
@@ -127,25 +127,16 @@ public class TeleskopExpressDeDemo {
                                                 )
                                         )
                         )
-                        .build()
                 );
 
 
-        final CrawlingStage allCrawling = productListStage.build();
-
         // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?
-        final EntryPoint entryPoint = new EntryPoint("https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html/page/2", allCrawling);
+        final EntryPoint entryPoint = new EntryPoint("https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html/page/2", productsCrawling);
         final Crawler crawler = new Crawler();
 
         crawler.scrape(entryPoint);
 
     }
-
-
-    public enum Identifiers {
-        PRODUCT_DETAIL_LINK
-    }
-
 
     @Getter
     @NoArgsConstructor

@@ -33,6 +33,4 @@ public class ParsedElements implements StepResult { // TODO rename to parsed ele
     @Nullable
     private final Object container;
 
-    private final List<ParsedElement> parsedHRefs;
-
 }

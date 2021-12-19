@@ -18,7 +18,6 @@ package com.github.web.scraping.lib;
 
 import com.github.web.scraping.lib.dom.data.parsing.JsonUtils;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedData;
-import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
 import com.github.web.scraping.lib.dom.data.parsing.SiteParser;
 import lombok.extern.log4j.Log4j2;
 
@@ -33,32 +32,18 @@ public class Crawler {
     public void scrape(List<EntryPoint> entryPoints) {
         for (EntryPoint entryPoint : entryPoints) {
             String url = entryPoint.getUrl();
-            CrawlingStage crawlingStage = entryPoint.getCrawlingStage();
-            doScrape(url, crawlingStage);
+            Crawling crawling = entryPoint.getCrawling();
+            doScrape(url, crawling);
         }
     }
 
     // TODO what do we want to return actually? And how ?
-    private void doScrape(String url, CrawlingStage crawlingStage) {
-        SiteParser<?> siteParser = crawlingStage.getSiteParser();
+    private void doScrape(String url, Crawling crawling) {
+        SiteParser<?> siteParser = crawling.getSiteParser();
         List<ParsedData> pdList = siteParser.parse(url);
-
-        // TODO these results correspond to one "row" of data ...
-        //  but we need to be able to iterate through multiple "rows" ...
-        //  ... at the beginning we might need to scroll all the way down ...
-        //  ... at the end we might need to paginate ...
-
         // TODO think of good ways to parallelize this ... also taking into account throttling ...
 
         for (ParsedData pd : pdList) {
-            for (ParsedElement parsedElement : pd.getParsedHRefs()) {
-                List<CrawlingStage> nextStages = crawlingStage.findNextStagesByReference(parsedElement.getIdentifier());
-                for (CrawlingStage nextStage : nextStages) {
-                    String nextUrl = nextStage.getFullURLCreator().apply(parsedElement.getHref());
-                    doScrape(nextUrl, nextStage);
-                }
-            }
-
             log.info("Scraped data:");
             log.info(JsonUtils.write(pd.getData()));
         }

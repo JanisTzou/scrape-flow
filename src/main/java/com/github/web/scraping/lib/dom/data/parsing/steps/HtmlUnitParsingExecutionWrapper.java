@@ -131,8 +131,6 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
         final ContainerT container = stepContainer.map(sc -> sc.container).orElse(null);
 
         if (container != null) {
-            final List<ParsedElement> hrefs = stepResults.stream().filter(sr -> sr instanceof ParsedElement pe && pe.isHasHRef()).map(sr -> (ParsedElement) sr).collect(Collectors.toList());
-
             stepResults.stream()
                     .filter(sr -> sr instanceof ParsedElement)
                     .map(sr -> (ParsedElement) sr)
@@ -162,7 +160,8 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
                         }
                     });
 
-            return List.of(new ParsedElements(container, hrefs));
+            // TODO hmm what to return here? Or better ... what to wrap this in?
+            return List.of(new ParsedElements(container));
         } else {
             BiConsumer<?, ?> accumulator = collecting.getAccumulator();
             if (accumulator != null) {
