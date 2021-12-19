@@ -41,7 +41,7 @@ public class SupraDalekohledyCzDemo {
 
         final CrawlingStage.Builder articleListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
-                        .addParsingSequence(getNextBtnLink
+                        .setParsingSequence(getNextBtnLink
                                 .then(ClickElement.instance())
                         )
                         .build()

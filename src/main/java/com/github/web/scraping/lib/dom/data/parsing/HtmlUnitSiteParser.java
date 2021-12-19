@@ -25,25 +25,19 @@ import lombok.extern.log4j.Log4j2;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Log4j2
-public class HtmlUnitSiteParser extends SiteParser<WebClient> {
+public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
 
-    // TODO should the strategies contain info about how to group the parsed output?
-    // TODO parsing sequence vs parsing step(s)
     private final List<HtmlUnitParsingStep<?>> parsingSequences;
-    private final HtmlUnitParsingStep<?> paginatingSequence;
-
 
     public HtmlUnitSiteParser(DriverManager<WebClient> driverManager,
-                              List<HtmlUnitParsingStep<?>> parsingSequences,
-                              HtmlUnitParsingStep<?> paginatingSequence) {
+                              List<HtmlUnitParsingStep<?>> parsingSequences) {
         super(driverManager);
-        this.parsingSequences = parsingSequences;
-        this.paginatingSequence = paginatingSequence;
+        this.parsingSequences = Objects.requireNonNullElse(parsingSequences, new ArrayList<>());
     }
 
     public static Builder builder(DriverManager<WebClient> driverManager) {
@@ -52,16 +46,33 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
 
     @Override
     public List<ParsedData> parse(String url) {
-        final WebClient webClient = driverManager.getDriver();
-        final Optional<HtmlPage> page = getHtmlPage(url, webClient);
-//        System.out.println(page.get().asXml());
-        return page.map(this::parsePage)
+        if (parsingSequences == null) {
+            throw new IllegalStateException("parsingSequence not set for SiteParser!");
+        }
+        return loadPage(url)
+//                .map(printPageToConsole())
+                .map(this::parsePageAndFilterDataResults)
                 .orElse(Collections.emptyList());
     }
 
-    private List<ParsedData> parsePage(HtmlPage page) {
-        Function<HtmlPage, List<ParsedData>> parsing = page1 -> parsingSequences.stream()
-                .flatMap(s -> s.execute(new ParsingContext<>(page1)).stream())
+    @Override
+    public List<StepResult> parseInternal(String url, ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequence) {
+        return loadPage(url).stream()
+//                .map(printPageToConsole())
+                .flatMap(page1 -> {
+                    ParsingContext<?, ?> nextCtx = ctx.toBuilder().setNode(page1).build();
+                    return applyParsingStepsToPage(nextCtx, parsingSequence);
+                })
+                .collect(Collectors.toList());
+    }
+
+    private Optional<HtmlPage> loadPage(String url) {
+        final WebClient webClient = driverManager.getDriver();
+        return getHtmlPage(url, webClient);
+    }
+
+    private List<ParsedData> parsePageAndFilterDataResults(HtmlPage page) {
+        Function<HtmlPage, List<ParsedData>> parsing = page1 -> applyParsingStepsToPage(new ParsingContext<>(page1), parsingSequences)
                 .map(sr -> {
                     if (sr instanceof ParsedElement parsedElement) {
                         // TODO handle parsed HRef .... references ...
@@ -74,25 +85,19 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        if (paginatingSequence == null) {
-            return parsing.apply(page);
-        } else {
-            List<ParsedData> result = new ArrayList<>();
-            AtomicReference<HtmlPage> pageRef = new AtomicReference<>(page);
-            while (true) {
-                result.addAll(parsing.apply(pageRef.get()));
-                List<StepResult> paginationResult = paginatingSequence.execute(new ParsingContext<>(pageRef.get()));
+        return parsing.apply(page);
 
-                Optional<HtmlPage> nextPage = paginationResult.stream().filter(sr -> sr instanceof ElementClicked).map(sr -> ((ElementClicked) sr).getPageAfterElementClicked()).findFirst();
-                if (nextPage.isPresent()) {
-                    pageRef.set(nextPage.get());
-                } else {
-                    break;
-                }
-            }
-            return result;
-        }
+    }
 
+    private Stream<StepResult> applyParsingStepsToPage(ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequences) {
+        return parsingSequences.stream().flatMap(s -> s.execute(ctx).stream());
+    }
+
+    private Function<HtmlPage, HtmlPage> printPageToConsole() {
+        return page -> {
+            System.out.println(page.asXml());
+            return page;
+        };
     }
 
     private Optional<HtmlPage> getHtmlPage(String pageUrl, WebClient webClient) {
@@ -104,15 +109,14 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
             log.debug("Loaded page URL: {}", pageUrl);
             return Optional.ofNullable((HtmlPage) webClient.getWebWindowByName(winName).getEnclosedPage());
         } catch (MalformedURLException e) {
-            log.error("Error when getting htmlPage for utl {}", pageUrl, e);
+            log.error("Error when getting htmlPage for URL: {}", pageUrl, e);
             return Optional.empty();
         }
     }
 
     public static class Builder {
 
-        private final List<HtmlUnitParsingStep<?>> parsingSteps = new ArrayList<>();
-        private HtmlUnitParsingStep<?> paginatingStep;
+        private HtmlUnitParsingStep<?> parsingSequence;
         // TODO somehow we wanna get the driverManager reference here from the outside ...
         private final DriverManager<WebClient> driverManager;
 
@@ -121,19 +125,14 @@ public class HtmlUnitSiteParser extends SiteParser<WebClient> {
         }
 
         // TODO maybe there should only be one parsing sequence? ... no need for more ... probably
-        public Builder addParsingSequence(HtmlUnitParsingStep<?> parsingStep) {
-            this.parsingSteps.add(parsingStep);
-            return this;
-        }
-
-        @Deprecated // TODO maybe should not be supported at this level ?
-        public Builder setPaginatingSequence(HtmlUnitParsingStep<?> paginatingStep) {
-            this.paginatingStep = paginatingStep;
+        public Builder setParsingSequence(HtmlUnitParsingStep<?> seq) {
+            this.parsingSequence = seq;
             return this;
         }
 
         public HtmlUnitSiteParser build() {
-            return new HtmlUnitSiteParser(this.driverManager, parsingSteps, paginatingStep);
+            List<HtmlUnitParsingStep<?>> seqs = parsingSequence != null ? List.of(parsingSequence) : null;
+            return new HtmlUnitSiteParser(this.driverManager, seqs);
         }
 
     }

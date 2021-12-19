@@ -76,7 +76,14 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
 
     private <M, T> Stream<StepResult> executeNextSteps(DomNode node, NextParsingContextBasis<M, T> nextContextBasis) {
         return nextSteps.stream().flatMap(step -> {
-            ParsingContext<M, T> nextCtx = new ParsingContext<>(node, nextContextBasis.model, nextContextBasis.container, false);
+            ParsingContext<M, T> nextCtx = new ParsingContext<>(
+                    node,
+                    nextContextBasis.model,
+                    nextContextBasis.container,
+                    false,
+                    null, // TODO send parsed text as well? Probably not, the parsed text should be possible to access differently ... (through model)
+                    nextContextBasis.parsedURL
+                    );
             return step.execute(nextCtx).stream();
         });
     }
@@ -116,7 +123,7 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
             log.trace("{}: next model is not supplied", getStepName());
         }
 
-        return new NextParsingContextBasis<>(nextModelProxy, nextContainer);
+        return new NextParsingContextBasis<>(nextModelProxy, nextContainer, ctx.getParsedURL());
     }
 
     private List<StepResult> collectStepResults(ParsingContext<ModelT, ContainerT> ctx, List<StepResult> stepResults) {
@@ -184,6 +191,10 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
 
         @Nullable
         private final ContainerT container;
+
+        // if we are getting a URL from previous scraping we wanna preserve it in the context
+        @Nullable
+        private final String parsedURL;
 
     }
 

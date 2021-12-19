@@ -119,6 +119,8 @@ public class HtmlUnitUtils {
         });
     }
 
+    // TODO there is a big problem here that some elements are being searched but only for descendants and in fact we want those same "parents" returned ... somehow express this in the
+    //  steps that go for elements ... so that their filtering function is clear ...
     public static List<DomNode> getDescendantsByTagName(DomNode parentElement, String tagName) {
         return filterAndGetDescendants(parentElement, el -> el.getTagName().equalsIgnoreCase(tagName));
     }

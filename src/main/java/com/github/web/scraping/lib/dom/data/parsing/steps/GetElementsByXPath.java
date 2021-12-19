@@ -27,7 +27,6 @@ import java.util.function.Supplier;
 public class GetElementsByXPath extends CommonOperationsStepBase<GetElementsByXPath> {
 
     private final String xPath;
-    private Collecting<?, ?> collecting;
 
     protected GetElementsByXPath(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String xPath) {
         super(nextSteps);

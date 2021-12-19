@@ -16,12 +16,17 @@
 
 package com.github.web.scraping.lib.dom.data.parsing;
 
-import java.util.List;
+import com.github.web.scraping.lib.drivers.DriverManager;
+import lombok.RequiredArgsConstructor;
 
-public interface SiteParser<T> {
-    // TODO how to organize the results? we might have tabular data and need to distinguish between different rows ...
-    //  also there might be some shared data ...
-    //  we should be able to assign group numbers
-    List<ParsedData> parse(String url);
+/**
+ * Parses data from a given site/URL based on provided parsingStrategies
+ */
+@RequiredArgsConstructor
+public abstract class SiteParserBase<T> implements SiteParserInternal<T> {
+
+    protected final DriverManager<T> driverManager;
+
+    // TODO create specific implementations for HtmlUnit and Selenium ...
 
 }

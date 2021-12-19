@@ -16,6 +16,7 @@
 
 package com.github.web.scraping.lib;
 
+import com.github.web.scraping.lib.dom.data.parsing.JsonUtils;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedData;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
 import com.github.web.scraping.lib.dom.data.parsing.SiteParser;
@@ -58,7 +59,8 @@ public class Crawler {
                 }
             }
 
-            log.info("Scraped data: {}", pd);
+            log.info("Scraped data:");
+            log.info(JsonUtils.write(pd.getData()));
         }
     }
 

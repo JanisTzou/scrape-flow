@@ -16,6 +16,7 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
+import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
@@ -26,28 +27,29 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
         implements HtmlUnitChainableStep<ParseElementHRef>,
         HtmlUnitCollectingToModelStep<ParseElementHRef>,
         HtmlUnitStringTransformingStep<ParseElementHRef> {
 
-    private final Enum<?> identifier;
     private BiConsumer<Object, String> modelMutation;
     // TODO add some filtering logic for the hrefs parsed ...
 
 
-    protected ParseElementHRef(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, Enum<?> identifier) {
+    protected ParseElementHRef(@Nullable List<HtmlUnitParsingStep<?>> nextSteps) {
         super(nextSteps);
-        this.identifier = identifier;
     }
 
-    public ParseElementHRef(Enum<?> identifier) {
-        this(null, identifier);
+    public ParseElementHRef() {
+        this(null);
     }
 
-    public static ParseElementHRef instance(Enum<?> identifier) {
-        return new ParseElementHRef(identifier);
+    public static ParseElementHRef instance() {
+        return new ParseElementHRef();
     }
 
     @Override
@@ -57,8 +59,14 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
             String href = anch.getHrefAttribute();
             if (href != null) {
                 String transformed = transformParsedText(href);
+                // TODO actually have another transformation that will say something like "transformToFullURL ... and put that one to the context below)
                 setParsedStringToModel(modelMutation, ctx, transformed, getName());
-                return List.of(new ParsedElement(identifier, transformed, null, true, ctx.getNode()));
+                Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ... // TODO actually think if this is best ...
+                @SuppressWarnings("unchecked")
+                HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());
+                ParsingContext<ModelT, ContainerT> ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
+                List<StepResult> nextResults = wrapper.execute(ctxCopy, nodesSearch);
+                return Stream.concat(Stream.of(new ParsedElement(null, transformed, null, true, ctx.getNode())), nextResults.stream()).collect(Collectors.toList());
             }
         }
         return Collections.emptyList();
@@ -71,8 +79,15 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
         return this;
     }
 
+    // TODO perhaps we should distinguish between the then() and thenNavigate() steps that come through those methods  and have separate executions for both?
     @Override
     public ParseElementHRef then(HtmlUnitParsingStep<?> nextStep) {
+        this.nextSteps.add(nextStep);
+        return this;
+    }
+
+    // TODO provide JavaDoc
+    public ParseElementHRef thenNavigate(NavigateToNewSite nextStep) {
         this.nextSteps.add(nextStep);
         return this;
     }

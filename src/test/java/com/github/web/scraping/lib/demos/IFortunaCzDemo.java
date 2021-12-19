@@ -53,9 +53,9 @@ public class IFortunaCzDemo {
 
         final CrawlingStage.Builder eventsListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
-                        .addParsingSequence(getEventsListElements
+                        .setParsingSequence(getEventsListElements
                                 .then(getEventDetailLinkElem  // TODO perhaps we can express it better that the next step is going for the children ?
-                                        .then(ParseElementHRef.instance(EVENT_LINK))
+                                        .then(ParseElementHRef.instance())
                                 )
                                 .then(getEventTitleElem
                                         .then(new ParseElementText())
@@ -70,7 +70,7 @@ public class IFortunaCzDemo {
 
         final CrawlingStage eventDetailOddsStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
-                        .addParsingSequence(getEventHomeOddsElem
+                        .setParsingSequence(getEventHomeOddsElem
                                 .then(new ParseElementText())
                         )
                         .build())

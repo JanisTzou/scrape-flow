@@ -32,12 +32,12 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.web.scraping.lib.demos.TeleskopExpressDeDemo.Identifiers.PRODUCT_DETAIL_LINK;
-
 public class TeleskopExpressDeDemo {
 
     @Test
     public void start() {
+
+        // TODO it might be nice to provide progress in the logs ... like scraped 10/125 Urls ... (if the finitie number of urls is available)
 
         // TODO suppot something like temporary models? e.g. for communication of multiple pieces of data downstream so that an action/step can be executed ...
 
@@ -53,82 +53,88 @@ public class TeleskopExpressDeDemo {
         GetElementsByCssClass getProductTdElemsStep = GetElementsByCssClass.instance("main").setName("get-product-elems"); // TODO add by tag ... filtering
         GetElementsByCssClass getProductCodeElemStep = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("get-product-code-elem-1");
         GetElementsByCssClass getProductCodeElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("get-product-code-elem-2");
-        GetElementsByCssClass getProductTitleElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("get-product-title-elem");
+        GetElementsByCssClass getProductCodeElemStep3 = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("get-product-code-elem-3");
         GetElementsByCssClass getProductPriceElemStep = GetElementsByCssClass.instance("prod_preis").setName("get-product-price-elem");
         GetElementsByAttribute getProductDetailHRefElemStep = GetElementsByAttribute.instance("href", "product_info.php/info").setMatchEntireValue(false).setName("get-product-detail-elem");
         ClickElement clickNextPageLinkElem = ClickElement.instance().setName("click-next-page-button");
         GetElementsByCssClass getNavigationPositionElemStep = GetElementsByCssClass.instance("headerlinks").setName("headerlinks").setName("get-nav-position-elem-step");
+        GetElementsByAttribute getProductDetailTitleElem = GetElementsByAttribute.instance("itemprop", "name");
+        GetElementsByAttribute getProductDescriptionElem = GetElementsByAttribute.instance("id", "c0");
 
         final CrawlingStage.Builder productListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
-                                // step set root model ?
-//                        .setPaginatingSequence(getNextPageLinkElemStep
-//                                .then(clickNextPageLinkElem))
-                                // TODO have top level collector here ? Or make it a list as a default and not worry about it ?
-                                //  it will probably be needed ... pagination produces multiple instances of containers that should only be one instance ...
-                                .addParsingSequence(
-                                        //  ... then everything else ...
-                                        // step set root model ?
-                                        new GetHtmlBody()
-                                                .setCollector(ProductsPage::new, ProductsPages::new, ProductsPages::add)
-                                                .then(new EmptyStep().setName("before-pagination"))
-                                                .then(new Paginate()
-                                                        .setPaginationTrigger(getNextPageLinkElemStep.then(clickNextPageLinkElem))
-                                                        .thenForEachPage(getNavigationPositionElemStep
-                                                                .then(new ParseElementText().setName("pet-1")
-                                                                        .excludeChildElements(false)
-                                                                        .setCollector(ProductsPage::setPosition)
+                        // step set root model / collector ... here somewhere ... ? ????
+                        .setParsingSequence(
+                                new GetHtmlBody()
+                                        .setCollector(ProductsPage::new, ProductsPages::new, ProductsPages::add)
+                                        .then(new EmptyStep().setName("before-pagination"))
+                                        .then(new Paginate()
+                                                .setPaginationTrigger(getNextPageLinkElemStep.then(clickNextPageLinkElem))
+                                                .thenForEachPage(getNavigationPositionElemStep
+                                                        .then(new ParseElementText().setName("pet-1")
+                                                                .excludeChildElements(false)
+                                                                .setCollector(ProductsPage::setPosition)
+                                                        )
+                                                )
+                                                .thenForEachPage(getProductTdElemsStep
+                                                        .setCollector(Product::new, ProductsPage::add)
+                                                        .then(getProductCodeElemStep
+                                                                .then(new EmptyStep()
+                                                                        .setCollector(ProductCode::new, Product::setProductCode)
+                                                                        .then(new ParseElementText().setName("pet-2").setCollector(ProductCode::setValue))
                                                                 )
                                                         )
-                                                        .thenForEachPage(getProductTdElemsStep
-                                                                .setCollector(Product::new, ProductsPage::add)
-                                                                .then(getProductCodeElemStep
-                                                                        .then(new EmptyStep()
-                                                                                .setCollector(ProductCode::new, Product::setProductCode)
-                                                                                .then(new ParseElementText().setName("pet-2").setCollector(ProductCode::setValue))
-                                                                        )
-                                                                )
-                                                                .then(getProductCodeElemStep2 // this needs to be new instance ... throws exception otherwise ...
-                                                                        .then(new ParseElementText().setCollector(Product::setCode))
-                                                                )
-                                                                .then(getProductPriceElemStep
-                                                                        .then(new ParseElementText().setCollector(Product::setPrice))
-                                                                )
-                                                                .then(getProductTitleElemStep2
-                                                                        .then(ParseElementHRef.instance(PRODUCT_DETAIL_LINK)
-                                                                                .setTransformation(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
-                                                                                .setCollector(Product::setDetailUrl)
+                                                        .then(getProductCodeElemStep2 // this needs to be new instance ... throws exception otherwise ...
+                                                                .then(new ParseElementText().setCollector(Product::setCode))
+                                                        )
+                                                        .then(getProductPriceElemStep
+                                                                .then(new ParseElementText().setCollector(Product::setPrice))
+                                                        )
+                                                        .then(getProductCodeElemStep3
+                                                                .then(ParseElementHRef.instance()
+                                                                        .setTransformation(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
+                                                                        .setCollector(Product::setDetailUrl)
+                                                                        .thenNavigate(new NavigateToNewSite()
+                                                                                .setSiteParser(HtmlUnitSiteParser.builder(driverManager).build())
+                                                                                .then(getProductDetailTitleElem // TODO perhaps we need a setParsingSequence method after all instead of then() here ... so that we are consistent with how we set up a SiteParse (allows only 1 sequence) ....
+                                                                                        .then(new ParseElementText().setCollector(Product::setTitle))
+                                                                                )
+                                                                                .then(getProductDescriptionElem
+                                                                                        .then(new ParseElementText().setCollector(Product::setDescription))
+                                                                                )
+                                                                                .then(GetElementsByAttribute.instance("id", "MwStInfoMO")
+                                                                                        .then(GetElementsByTag.instance("a")
+                                                                                                .then(ParseElementHRef.instance()
+                                                                                                        .setTransformation(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
+                                                                                                        .thenNavigate(new NavigateToNewSite()
+                                                                                                                .setSiteParser(HtmlUnitSiteParser.builder(driverManager).build())
+                                                                                                                .then(GetListedElementsByFirstElementXPath.instance("/html/body/table/tbody/tr[1]")
+                                                                                                                        .setCollector(ShippingCosts::new, (Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc))
+                                                                                                                        .then(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[1]")
+                                                                                                                                .then(new ParseElementText().setName("get-shipping-service").setCollector(ShippingCosts::setService))
+                                                                                                                        )
+                                                                                                                        .then(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[2]")
+                                                                                                                                .then(new ParseElementText().setName("get-shipping-price").setCollector(ShippingCosts::setPrice))
+                                                                                                                        )
+                                                                                                                )
+                                                                                                        )
+                                                                                                )
+                                                                                        )
+                                                                                )
                                                                         )
                                                                 )
                                                         )
                                                 )
-                                                .then(new EmptyStep().setName("after-pagination"))
-                                )
-                                .build()
-                );
-
-        GetElementsByAttribute getProductDetailTitle = GetElementsByAttribute.instance("itemprop", "name");
-
-        final CrawlingStage productDetailStage = CrawlingStage.builder()
-                .setReferenceForParsedHrefToCrawl(PRODUCT_DETAIL_LINK)
-                .setParser(HtmlUnitSiteParser.builder(driverManager)
-                        .addParsingSequence(getProductDetailTitle
-                                .then(getProductCodeElemStep
-                                        .then(new ParseElementText())
-                                )
+                                        )
                         )
                         .build()
-                )
-                .build();
+                );
 
 
-        final CrawlingStage allCrawling = productListStage
-//                .addNextStage(productDetailStage)
-                .build();
+        final CrawlingStage allCrawling = productListStage.build();
 
         // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?
-        final EntryPoint entryPoint = new EntryPoint("https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html", allCrawling);
-
+        final EntryPoint entryPoint = new EntryPoint("https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html/page/2", allCrawling);
         final Crawler crawler = new Crawler();
 
         crawler.scrape(entryPoint);
@@ -192,6 +198,8 @@ public class TeleskopExpressDeDemo {
         private String price;
         private ProductCode productCode;
         private String detailUrl;
+        private String description;
+        private List<ShippingCosts> shippingCosts = new ArrayList<>();
     }
 
     @Setter
@@ -199,6 +207,14 @@ public class TeleskopExpressDeDemo {
     @ToString
     public static class ProductCode {
         private String value;
+    }
+
+    @Setter
+    @Getter
+    @ToString
+    public static class ShippingCosts {
+        private String service;
+        private String price;
     }
 
 }

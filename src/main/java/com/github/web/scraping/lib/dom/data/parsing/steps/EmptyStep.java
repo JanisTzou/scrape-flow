@@ -28,10 +28,8 @@ import java.util.function.Supplier;
 /**
  * Used just to test context propagation
  */
-public class EmptyStep extends HtmlUnitParsingStep<EmptyStep>
+public class EmptyStep extends CommonOperationsStepBase<EmptyStep>
         implements HtmlUnitChainableStep<EmptyStep>, HtmlUnitCollectorSetupStep<EmptyStep> {
-
-    private Collecting<?, ?> collecting;
 
     protected EmptyStep(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, Collecting<?, ?> collecting) {
         super(nextSteps);
@@ -54,24 +52,5 @@ public class EmptyStep extends HtmlUnitParsingStep<EmptyStep>
         HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());
         return wrapper.execute(ctx, nodesSearch);
     }
-
-    @Override
-    public <R, T> EmptyStep setCollector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
-        this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator);
-        return this;
-    }
-
-    @Override
-    public <R, T> EmptyStep setCollector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
-        this.collecting = new Collecting<>(modelSupplier, null, accumulator);
-        return this;
-    }
-
-    @Override
-    public EmptyStep then(HtmlUnitParsingStep<?> nextStep) {
-        this.nextSteps.add(nextStep);
-        return this;
-    }
-
 
 }

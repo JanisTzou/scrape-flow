@@ -45,7 +45,7 @@ public class AktualneCzDemo {
 
         final CrawlingStage.Builder articleListStage = CrawlingStage.builder()
                 .setParser(HtmlUnitSiteParser.builder(driverManager)
-                        .addParsingSequence(getArticleElements
+                        .setParsingSequence(getArticleElements
                                 .then(getArticleHeadlineElem
                                         .then(new ParseElementText())
                                 )

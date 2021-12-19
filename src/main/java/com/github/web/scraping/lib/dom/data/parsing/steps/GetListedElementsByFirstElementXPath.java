@@ -35,7 +35,6 @@ import java.util.stream.StreamSupport;
 public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBase<GetListedElementsByFirstElementXPath> {
 
     private final String xPath;
-    private Collecting<?, ?> collecting;
 
     protected GetListedElementsByFirstElementXPath(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String xPath) {
         super(nextSteps);
