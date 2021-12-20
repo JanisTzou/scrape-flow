@@ -16,6 +16,7 @@
 
 package com.github.web.scraping.lib.dom.data.parsing;
 
+import com.github.web.scraping.lib.dom.data.parsing.steps.CrawlingServices;
 import com.github.web.scraping.lib.drivers.DriverManager;
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +27,13 @@ import lombok.RequiredArgsConstructor;
 public abstract class SiteParserBase<T> implements SiteParserInternal<T> {
 
     protected final DriverManager<T> driverManager;
+
+    protected CrawlingServices services;
+
+    // only for internal uses ...
+    public void setServicesInternal(CrawlingServices services) {
+        this.services = services;
+    }
 
     // TODO create specific implementations for HtmlUnit and Selenium ...
 

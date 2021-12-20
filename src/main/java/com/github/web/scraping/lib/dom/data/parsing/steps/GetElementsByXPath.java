@@ -19,9 +19,11 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import com.github.web.scraping.lib.parallelism.StepOrder;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 public class GetElementsByXPath extends CommonOperationsStepBase<GetElementsByXPath> {
@@ -42,12 +44,18 @@ public class GetElementsByXPath extends CommonOperationsStepBase<GetElementsByXP
     }
 
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
-        logExecutionStart();
-        Supplier<List<DomNode>> nodesSearch = () -> ctx.getNode().getByXPath(xPath);
-        @SuppressWarnings("unchecked")
-        HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());
-        return wrapper.execute(ctx, nodesSearch);
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode) {
+        StepOrder stepOrder = genNextOrderAfter(ctx.getPrevStepOrder());
+
+        Callable<List<StepResult>> callable = () -> {
+            logExecutionStart(stepOrder);
+            Supplier<List<DomNode>> nodesSearch = () -> ctx.getNode().getByXPath(xPath);
+            @SuppressWarnings("unchecked")
+            HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+            return wrapper.execute(ctx, nodesSearch, stepOrder, mode);
+        };
+
+        return handleExecution(mode, stepOrder, callable);
     }
 
 }

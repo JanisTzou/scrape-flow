@@ -18,6 +18,7 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.*;
+import com.github.web.scraping.lib.parallelism.StepOrder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -40,20 +41,24 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
     @Getter
     private String stepName;
 
+    private final CrawlingServices services;
+
     /**
      * @param stepName the delegating step name for debugging purposes
+     * @param services
      */
-    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, @Nullable Collecting<ModelT, ContainerT> collecting, String stepName) {
+    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, @Nullable Collecting<ModelT, ContainerT> collecting, String stepName, CrawlingServices services) {
         this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
         this.collecting = Objects.requireNonNullElse(collecting, new Collecting<>());
+        this.services = services;
         setStepName(stepName);
     }
 
-    public HtmlUnitParsingExecutionWrapper(List<HtmlUnitParsingStep<?>> nextSteps, String stepName) {
-        this(nextSteps, null, stepName);
+    public HtmlUnitParsingExecutionWrapper(List<HtmlUnitParsingStep<?>> nextSteps, String stepName, CrawlingServices services) {
+        this(nextSteps, null, stepName, services);
     }
 
-    public <M, T> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, Supplier<List<DomNode>> nodesSearch) {
+    public <M, T> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, Supplier<List<DomNode>> nodesSearch, StepOrder currStepOrder, ExecutionMode mode) {
         try {
             final List<DomNode> foundNodes = nodesSearch.get();
 
@@ -61,7 +66,7 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
                     .stream()
                     .flatMap(node -> {
                         NextParsingContextBasis<M, T> nextContextBasis = getNextContextBasis(ctx);
-                        return executeNextSteps(node, nextContextBasis);
+                        return executeNextSteps(currStepOrder, node, nextContextBasis, mode);
                     })
                     .collect(Collectors.toList());
 
@@ -74,9 +79,10 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
     }
 
 
-    private <M, T> Stream<StepResult> executeNextSteps(DomNode node, NextParsingContextBasis<M, T> nextContextBasis) {
+    private <M, T> Stream<StepResult> executeNextSteps(StepOrder currStepOrder, DomNode node, NextParsingContextBasis<M, T> nextContextBasis, ExecutionMode mode) {
         return nextSteps.stream().flatMap(step -> {
             ParsingContext<M, T> nextCtx = new ParsingContext<>(
+                    currStepOrder,
                     node,
                     nextContextBasis.model,
                     nextContextBasis.container,
@@ -84,7 +90,7 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
                     null, // TODO send parsed text as well? Probably not, the parsed text should be possible to access differently ... (through model)
                     nextContextBasis.parsedURL
                     );
-            return step.execute(nextCtx).stream();
+            return step.execute(nextCtx, mode).stream();
         });
     }
 

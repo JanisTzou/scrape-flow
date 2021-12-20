@@ -19,12 +19,13 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import com.github.web.scraping.lib.parallelism.StepOrder;
 import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
-import org.apache.logging.log4j.core.util.Assert;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 public class GetElementsByTag extends CommonOperationsStepBase<GetElementsByTag> {
@@ -51,12 +52,18 @@ public class GetElementsByTag extends CommonOperationsStepBase<GetElementsByTag>
     }
 
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
-        logExecutionStart();
-        Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsByTagName(ctx.getNode(), tagName);
-        @SuppressWarnings("unchecked")
-        HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());
-        return wrapper.execute(ctx, nodesSearch);
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode) {
+        StepOrder stepOrder = genNextOrderAfter(ctx.getPrevStepOrder());
+
+        Callable<List<StepResult>> callable = () -> {
+            logExecutionStart(stepOrder);
+            Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsByTagName(ctx.getNode(), tagName);
+            @SuppressWarnings("unchecked")
+            HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+            return wrapper.execute(ctx, nodesSearch, stepOrder, mode);
+        };
+
+        return handleExecution(mode, stepOrder, callable);
     }
 
 }

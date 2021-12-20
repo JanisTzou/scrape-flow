@@ -21,9 +21,11 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import com.github.web.scraping.lib.parallelism.StepOrder;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -56,30 +58,36 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
 
     @SuppressWarnings("unchecked")
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
-        logExecutionStart();
-        String tc = null;
-        if (ctx.getNode() instanceof HtmlElement htmlEl) {
-            tc = htmlEl.getTextContent();
-            if (tc != null) {
-                // this should be optional ... used in cases when child elements' content filthies the parent element's content ...
-                if (this.excludeChildElementsTextContent) {
-                    tc = removeChildElementsTextContent(tc, htmlEl);
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode) {
+        StepOrder stepOrder = genNextOrderAfter(ctx.getPrevStepOrder());
+
+        Callable<List<StepResult>> callable = () -> {
+            logExecutionStart(stepOrder);
+            String tc = null;
+            if (ctx.getNode() instanceof HtmlElement htmlEl) {
+                tc = htmlEl.getTextContent();
+                if (tc != null) {
+                    // this should be optional ... used in cases when child elements' content filthies the parent element's content ...
+                    if (this.excludeChildElementsTextContent) {
+                        tc = removeChildElementsTextContent(tc, htmlEl);
+                    }
+                    tc = tc.trim();
                 }
-                tc = tc.trim();
             }
-        }
 
-        String transformed = transformParsedText(tc);
+            String transformed = transformParsedText(tc);
 
-        setParsedStringToModel(modelMutation, ctx, transformed, getName());
+            setParsedStringToModel(modelMutation, ctx, transformed, getName());
 
-        ParsedElement parsedElement = new ParsedElement(null, null, transformed, false, ctx.getNode());
-        parsedElement.setModelProxy((ModelProxy<Object>) ctx.getModelProxy());
+            ParsedElement parsedElement = new ParsedElement(null, null, transformed, false, ctx.getNode());
+            parsedElement.setModelProxy((ModelProxy<Object>) ctx.getModelProxy());
 
-        // TODO how to populate the following context?
+            // TODO how to populate the following context?
 
-        return List.of(parsedElement);
+            return List.of(parsedElement);
+        };
+
+        return handleExecution(mode, stepOrder, callable);
     }
 
     private String removeChildElementsTextContent(String textContent, HtmlElement el) {

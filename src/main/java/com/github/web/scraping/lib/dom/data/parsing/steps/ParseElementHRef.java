@@ -21,10 +21,12 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import com.github.web.scraping.lib.parallelism.StepOrder;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -53,23 +55,29 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
     }
 
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
-        logExecutionStart();
-        if (ctx.getNode() instanceof HtmlAnchor anch) {
-            String href = anch.getHrefAttribute();
-            if (href != null) {
-                String transformed = transformParsedText(href);
-                // TODO actually have another transformation that will say something like "transformToFullURL ... and put that one to the context below)
-                setParsedStringToModel(modelMutation, ctx, transformed, getName());
-                Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ... // TODO actually think if this is best ...
-                @SuppressWarnings("unchecked")
-                HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());
-                ParsingContext<ModelT, ContainerT> ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
-                List<StepResult> nextResults = wrapper.execute(ctxCopy, nodesSearch);
-                return Stream.concat(Stream.of(new ParsedElement(null, transformed, null, true, ctx.getNode())), nextResults.stream()).collect(Collectors.toList());
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode) {
+        StepOrder stepOrder = genNextOrderAfter(ctx.getPrevStepOrder());
+
+        Callable<List<StepResult>> callable = () -> {
+            logExecutionStart(stepOrder);
+            if (ctx.getNode() instanceof HtmlAnchor anch) {
+                String href = anch.getHrefAttribute();
+                if (href != null) {
+                    String transformed = transformParsedText(href);
+                    // TODO actually have another transformation that will say something like "transformToFullURL ... and put that one to the context below)
+                    setParsedStringToModel(modelMutation, ctx, transformed, getName());
+                    Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ... // TODO actually think if this is best ...
+                    @SuppressWarnings("unchecked")
+                    HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+                    ParsingContext<ModelT, ContainerT> ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
+                    List<StepResult> nextResults = wrapper.execute(ctxCopy, nodesSearch, stepOrder, mode);
+                    return Stream.concat(Stream.of(new ParsedElement(null, transformed, null, true, ctx.getNode())), nextResults.stream()).collect(Collectors.toList());
+                }
             }
-        }
-        return Collections.emptyList();
+            return Collections.emptyList();
+        };
+
+        return handleExecution(mode, stepOrder, callable);
     }
 
     @SuppressWarnings("unchecked")

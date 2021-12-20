@@ -16,7 +16,6 @@
 
 package com.github.web.scraping.lib.parallelism;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.*;
@@ -45,13 +44,13 @@ public class StepOrderTest {
     @Test
     public void nextAtNewLevel() {
         StepOrder so1 = new StepOrder(1, 1, 1);
-        assertEquals(new StepOrder(1, 1, 1, 1), so1.nextAtNewLevel());
+        assertEquals(new StepOrder(1, 1, 1, 1), so1.nextAsChild());
     }
 
     @Test
     public void nextAtSameLevel() {
         StepOrder so1 = new StepOrder(1, 1, 1);
-        assertEquals(new StepOrder(1, 1, 2), so1.nextAtSameLevel());
+        assertEquals(new StepOrder(1, 1, 2), so1.nextAsSibling());
     }
 
     private List<StepOrder> listOf(StepOrder... sos) {

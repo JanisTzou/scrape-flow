@@ -44,6 +44,15 @@ public abstract class CommonOperationsStepBase<C> extends HtmlUnitParsingStep<C>
         return (C) this;
     }
 
+    // TODO implement this ... this no make sense when we can publish results freely to client listeners ...
+//    @SuppressWarnings("unchecked")
+//    @Override
+//    public <R, T> C setCollector(Supplier<T> modelSupplier) {
+//        mustBeNull(this.collecting);
+//        this.collecting = new Collecting<>(modelSupplier, null, null);
+//        return (C) this;
+//    }
+
     @SuppressWarnings("unchecked")
     @Override
     public C then(HtmlUnitParsingStep<?> nextStep) {

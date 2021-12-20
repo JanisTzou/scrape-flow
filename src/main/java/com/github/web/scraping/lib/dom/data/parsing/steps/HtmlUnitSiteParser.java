@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing;
+package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitParsingStep;
+import com.github.web.scraping.lib.dom.data.parsing.*;
 import com.github.web.scraping.lib.drivers.DriverManager;
+import com.github.web.scraping.lib.parallelism.StepOrder;
 import lombok.extern.log4j.Log4j2;
 
 import java.net.MalformedURLException;
@@ -32,6 +33,7 @@ import java.util.stream.Stream;
 @Log4j2
 public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
 
+    // TODO iportant: check sequence for cyclic dependencies in steps
     private List<HtmlUnitParsingStep<?>> parsingSequences;
 
     public HtmlUnitSiteParser(DriverManager<WebClient> driverManager,
@@ -53,6 +55,9 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
     public List<ParsedData> parse(String url) {
         if (parsingSequences == null) {
             throw new IllegalStateException("parsingSequence not set for SiteParser!");
+        }
+        for (HtmlUnitParsingStep<?> parsingSequence : parsingSequences) {
+            StepsUtils.propagateServicesRecursively(parsingSequence, services, new HashSet<>());
         }
         return loadPage(url)
 //                .map(printPageToConsole())
@@ -77,7 +82,7 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
     }
 
     private List<ParsedData> parsePageAndFilterDataResults(HtmlPage page) {
-        Function<HtmlPage, List<ParsedData>> parsing = page1 -> applyParsingStepsToPage(new ParsingContext<>(page1), parsingSequences)
+        Function<HtmlPage, List<ParsedData>> parsing = page1 -> applyParsingStepsToPage(new ParsingContext<>(StepOrder.INITIAL, page1), parsingSequences)
                 .map(sr -> {
                     if (sr instanceof ParsedElement parsedElement) {
                         return new ParsedData(parsedElement.getModelProxy());
@@ -94,7 +99,8 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
     }
 
     private Stream<StepResult> applyParsingStepsToPage(ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequences) {
-        return parsingSequences.stream().flatMap(s -> s.execute(ctx).stream());
+        return parsingSequences.stream()
+                .flatMap(s -> s.execute(ctx, ExecutionMode.ASYNC).stream()); // TODO then switch to async ...
     }
 
     private Function<HtmlPage, HtmlPage> printPageToConsole() {

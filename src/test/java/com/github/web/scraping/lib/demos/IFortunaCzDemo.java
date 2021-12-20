@@ -19,7 +19,7 @@ package com.github.web.scraping.lib.demos;
 import com.github.web.scraping.lib.Crawler;
 import com.github.web.scraping.lib.Crawling;
 import com.github.web.scraping.lib.EntryPoint;
-import com.github.web.scraping.lib.dom.data.parsing.HtmlUnitSiteParser;
+import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.dom.data.parsing.steps.*;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;

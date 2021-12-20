@@ -21,11 +21,12 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.dom.data.parsing.XPathUtils;
-import lombok.extern.java.Log;
+import com.github.web.scraping.lib.parallelism.StepOrder;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,42 +47,48 @@ public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBa
     }
 
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
-        logExecutionStart();
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode) {
+        StepOrder stepOrder = genNextOrderAfter(ctx.getPrevStepOrder());
 
-        // here we want to identify all the elements that will then be processed by the next steps??
-        // ... so we can for example apply specific HtmlUnitParsingStrategyByFullXPath on each one of them ... BUT the expaths will need to be dynamic as the root will change for each listed item ....
+        Callable<List<StepResult>> callable = () -> {
+            logExecutionStart(stepOrder);
 
-        Supplier<List<DomNode>> nodesSearch = () -> {
-            // TODO improve working with XPath ...
-            String parentXPath = XPathUtils.getXPathSubstrHead(xPath, 1);
-            String xPathTail = XPathUtils.getXPathSubstrTail(xPath, 1).replaceAll("\\d+", "\\\\d+");
-            String pattern = XPathUtils.regexEscape(XPathUtils.concat(parentXPath, xPathTail));
+            // here we want to identify all the elements that will then be processed by the next steps??
+            // ... so we can for example apply specific HtmlUnitParsingStrategyByFullXPath on each one of them ... BUT the expaths will need to be dynamic as the root will change for each listed item ....
 
-            return ctx.getNode().getByXPath(parentXPath)
-                    .stream()
-                    .flatMap(el -> {
-                        // child elements ...
-                        if (el instanceof HtmlElement htmlEl) {
-                            return StreamSupport.stream(htmlEl.getChildElements().spliterator(), false);
-                        }
-                        return Stream.empty();
-                    })
-                    .filter(el -> {
-                        if (el instanceof HtmlElement htmlEl) {
-                            String xPath = htmlEl.getCanonicalXPath();
-                            boolean matches = xPath.matches(pattern);
+            Supplier<List<DomNode>> nodesSearch = () -> {
+                // TODO improve working with XPath ...
+                String parentXPath = XPathUtils.getXPathSubstrHead(xPath, 1);
+                String xPathTail = XPathUtils.getXPathSubstrTail(xPath, 1).replaceAll("\\d+", "\\\\d+");
+                String pattern = XPathUtils.regexEscape(XPathUtils.concat(parentXPath, xPathTail));
+
+                return ctx.getNode().getByXPath(parentXPath)
+                        .stream()
+                        .flatMap(el -> {
+                            // child elements ...
+                            if (el instanceof HtmlElement htmlEl) {
+                                return StreamSupport.stream(htmlEl.getChildElements().spliterator(), false);
+                            }
+                            return Stream.empty();
+                        })
+                        .filter(el -> {
+                            if (el instanceof HtmlElement htmlEl) {
+                                String xPath = htmlEl.getCanonicalXPath();
+                                boolean matches = xPath.matches(pattern);
 //                        logMatching(xPath, matches);
-                            return matches;
-                        }
-                        return false;
-                    })
-                    .collect(Collectors.toList());
+                                return matches;
+                            }
+                            return false;
+                        })
+                        .collect(Collectors.toList());
+            };
+
+            @SuppressWarnings("unchecked")
+            HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+            return wrapper.execute(ctx, nodesSearch, stepOrder, mode);
         };
 
-        @SuppressWarnings("unchecked")
-        HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());
-        return wrapper.execute(ctx, nodesSearch);
+        return handleExecution(mode, stepOrder, callable);
     }
 
     private void logMatching(String xPath, boolean matches) {

@@ -16,27 +16,39 @@
 
 package com.github.web.scraping.lib;
 
-import com.github.web.scraping.lib.dom.data.parsing.SiteParser;
+import com.github.web.scraping.lib.dom.data.parsing.SiteParserInternal;
+import com.github.web.scraping.lib.dom.data.parsing.steps.CrawlingServices;
 import lombok.Getter;
 
 
 /**
  * Encapsulates settings of the next level to scrape data from
  */
+@Getter
 public class Crawling {
 
-    @Getter
-    private SiteParser<?> siteParser;
+    /**
+     * Should specific for one crawling
+     */
+    private final CrawlingServices services;
+    private SiteParserInternal<?> siteParser;
 
     public Crawling() {
+        this(null);
     }
 
-    public Crawling(SiteParser<?> siteParser) {
+    public Crawling(SiteParserInternal<?> siteParser) {
+        this(new CrawlingServices(), siteParser);
+    }
+
+    public Crawling(CrawlingServices services, SiteParserInternal<?> siteParser) {
+        this.services = services;
         this.siteParser = siteParser;
     }
 
-    public Crawling setSiteParser(SiteParser<?> siteParser) {
+    public Crawling setSiteParser(SiteParserInternal<?> siteParser) {
         this.siteParser = siteParser;
+        siteParser.setServicesInternal(services);
         return this;
     }
 }

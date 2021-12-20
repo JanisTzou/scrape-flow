@@ -21,12 +21,15 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.web.scraping.lib.dom.data.parsing.ElementClicked;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import com.github.web.scraping.lib.parallelism.StepOrder;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -48,34 +51,42 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
     }
 
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
-        logExecutionStart();
-        if (paginationTrigger == null) {
-            throw new IllegalStateException("paginationTrigger must be set for pagination to work!");
-        }
-        AtomicReference<HtmlPage> pageRef = new AtomicReference<>(ctx.getNode().getHtmlPageOrNull());
-        List<StepResult> all = new ArrayList<>();
-        while (true) {
-            Supplier<List<DomNode>> nodesSearch = () -> List.of(pageRef.get());
-            @SuppressWarnings("unchecked")
-            HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());
-            List<StepResult> scraping = wrapper.execute(ctx, nodesSearch);
-            all.addAll(scraping);
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode) {
+        StepOrder stepOrder = genNextOrderAfter(ctx.getPrevStepOrder());
 
-            if (paginationTrigger != null) {
-                List<StepResult> pagination = paginationTrigger.execute(new ParsingContext<>(pageRef.get()));
-                Optional<HtmlPage> nextPage = pagination.stream().filter(sr -> sr instanceof ElementClicked).map(sr -> ((ElementClicked) sr).getPageAfterElementClicked()).findFirst();
-                if (nextPage.isPresent()) {
-                    pageRef.set(nextPage.get());
+        Callable<List<StepResult>> callable = () -> {
+            logExecutionStart(stepOrder);
+            if (paginationTrigger == null) {
+                throw new IllegalStateException("paginationTrigger must be set for pagination to work!");
+            } else {
+                StepsUtils.propagateServicesRecursively(paginationTrigger, services, new HashSet<>());
+            }
+            AtomicReference<HtmlPage> pageRef = new AtomicReference<>(ctx.getNode().getHtmlPageOrNull());
+            List<StepResult> all = new ArrayList<>();
+            while (true) {
+                Supplier<List<DomNode>> nodesSearch = () -> List.of(pageRef.get());
+                @SuppressWarnings("unchecked")
+                HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+                // in terms of parallelization this is a bit bad ... we need to hae this immediately ... not later ...
+                List<StepResult> scraping = wrapper.execute(ctx, nodesSearch, stepOrder, mode);
+                all.addAll(scraping);
+                if (paginationTrigger != null) {
+                    List<StepResult> pagination = paginationTrigger.execute(new ParsingContext<>(stepOrder, pageRef.get()), ExecutionMode.SYNC); // ALWAYS SYNC! unless there is a way to rewrite the pagination completely
+                    Optional<HtmlPage> nextPage = pagination.stream().filter(sr -> sr instanceof ElementClicked).map(sr -> ((ElementClicked) sr).getPageAfterElementClicked()).findFirst();
+                    if (nextPage.isPresent()) {
+                        pageRef.set(nextPage.get());
+                    } else {
+                        break;
+                    }
                 } else {
                     break;
                 }
-            } else {
-                break;
             }
-        }
 
-        return all;
+            return all;
+        };
+
+        return handleExecution(mode, stepOrder, callable);
     }
 
     /**

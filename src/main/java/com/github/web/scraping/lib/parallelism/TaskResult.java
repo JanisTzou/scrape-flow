@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing;
+package com.github.web.scraping.lib.parallelism;
 
-import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitParsingStep;
-import com.github.web.scraping.lib.dom.data.parsing.steps.CrawlingServices;
+import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-/**
- * Exposes some internally used methods - for internal use only
- */
-public interface SiteParserInternal<T> extends SiteParser<T> {
+@RequiredArgsConstructor
+@Getter
+public class TaskResult {
 
-    /**
-     * For internal lib uses only
-     */
-    List<StepResult> parseInternal(String url, ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequence);
-
-    /**
-     * For internal lib uses only
-     */
-    void setServicesInternal(CrawlingServices services);
+    private final StepTask task;
+    private final List<StepResult> results;
 
 }

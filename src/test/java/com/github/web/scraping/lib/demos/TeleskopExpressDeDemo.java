@@ -19,7 +19,7 @@ package com.github.web.scraping.lib.demos;
 import com.github.web.scraping.lib.Crawler;
 import com.github.web.scraping.lib.Crawling;
 import com.github.web.scraping.lib.EntryPoint;
-import com.github.web.scraping.lib.dom.data.parsing.HtmlUnitSiteParser;
+import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.dom.data.parsing.steps.*;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
@@ -29,6 +29,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.junit.Test;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +70,10 @@ public class TeleskopExpressDeDemo {
                                         .setCollector(ProductsPage::new, ProductsPages::new, ProductsPages::add)
                                         .then(new EmptyStep().setName("before-pagination"))
                                         .then(new Paginate()
-                                                .setPaginationTrigger(getNextPageLinkElemStep.then(clickNextPageLinkElem))
+                                                .setPaginationTrigger(
+                                                        getNextPageLinkElemStep
+                                                                .then(clickNextPageLinkElem)
+                                                )
                                                 .thenForEachPage(getNavigationPositionElemStep
                                                         .then(new ParseElementText().setName("pet-1")
                                                                 .excludeChildElements(false)
@@ -131,10 +135,15 @@ public class TeleskopExpressDeDemo {
 
 
         // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?
-        final EntryPoint entryPoint = new EntryPoint("https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html/page/2", productsCrawling);
+
+        String url = "https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html/page/2";
+//        String url = "https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html";
+        final EntryPoint entryPoint = new EntryPoint(url, productsCrawling);
         final Crawler crawler = new Crawler();
 
         crawler.scrape(entryPoint);
+
+        crawler.awaitCompletion(Duration.ofSeconds(200)); // TODO await completion ...
 
     }
 

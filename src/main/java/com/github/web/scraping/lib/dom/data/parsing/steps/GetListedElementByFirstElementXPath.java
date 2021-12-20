@@ -20,11 +20,13 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.dom.data.parsing.XPathUtils;
+import com.github.web.scraping.lib.parallelism.StepOrder;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -50,29 +52,35 @@ public class GetListedElementByFirstElementXPath extends CommonOperationsStepBas
     }
 
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx) {
-        logExecutionStart();
-        Supplier<List<DomNode>> nodesSearch = () -> {
-            // figure out the diff between this.xPath and the parent element xPath ... then use that
-            String parentXPath = ctx.getNode().getCanonicalXPath();
-            String parentBaseXPath = XPathUtils.getXPathSubstrHead(parentXPath, 1);
-            // the part of the child's xpath that will be the same through all the parents
-            Optional<String> xPathDiff = XPathUtils.getXPathDiff(parentBaseXPath, xPath);
-            if (xPathDiff.isEmpty()) {
-                return Collections.emptyList();
-            }
-            String childStaticPartXPath = XPathUtils.getXPathSubstrTailFromStart(xPathDiff.get(), 1);
-            String childXPath = XPathUtils.concat(parentXPath, childStaticPartXPath);
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode) {
+        StepOrder stepOrder = genNextOrderAfter(ctx.getPrevStepOrder());
 
-            return ctx.getNode().getByXPath(childXPath).stream()
-                    .filter(o -> o instanceof DomNode)
-                    .map(o -> (DomNode) o)
-                    .collect(Collectors.toList());
+        Callable<List<StepResult>> callable = () -> {
+            logExecutionStart(stepOrder);
+            Supplier<List<DomNode>> nodesSearch = () -> {
+                // figure out the diff between this.xPath and the parent element xPath ... then use that
+                String parentXPath = ctx.getNode().getCanonicalXPath();
+                String parentBaseXPath = XPathUtils.getXPathSubstrHead(parentXPath, 1);
+                // the part of the child's xpath that will be the same through all the parents
+                Optional<String> xPathDiff = XPathUtils.getXPathDiff(parentBaseXPath, xPath);
+                if (xPathDiff.isEmpty()) {
+                    return Collections.emptyList();
+                }
+                String childStaticPartXPath = XPathUtils.getXPathSubstrTailFromStart(xPathDiff.get(), 1);
+                String childXPath = XPathUtils.concat(parentXPath, childStaticPartXPath);
+
+                return ctx.getNode().getByXPath(childXPath).stream()
+                        .filter(o -> o instanceof DomNode)
+                        .map(o -> (DomNode) o)
+                        .collect(Collectors.toList());
+            };
+
+            @SuppressWarnings("unchecked")
+            HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+            return wrapper.execute(ctx, nodesSearch, stepOrder, mode);
         };
 
-        @SuppressWarnings("unchecked")
-        HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName());
-        return wrapper.execute(ctx, nodesSearch);
+        return handleExecution(mode, stepOrder, callable);
     }
 
 }

@@ -20,10 +20,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
+/**
+ * TODO explain notions of sibling, parent and child ...
+ */
 public class StepOrder {
 
-    public static final StepOrder INITIAL = new StepOrder(List.of(1));
+    public static final StepOrder INITIAL = new StepOrder(List.of(0));
 
     public static final Comparator<StepOrder> NATURAL_COMPARATOR = (so1, so2) -> {
         List<StepOrder> sortedBySize = Stream.of(so1, so2).sorted(Comparator.comparingInt(StepOrder::size)).collect(Collectors.toList());
@@ -62,7 +64,7 @@ public class StepOrder {
         this.values.addAll(values); // important to create a copy!
     }
 
-    public StepOrder nextAtSameLevel() {
+    StepOrder nextAsSibling() {
         int lastIdx = values.size() - 1;
         int newOrder = 1 + values.get(lastIdx);
         StepOrder next = new StepOrder(values);
@@ -70,7 +72,7 @@ public class StepOrder {
         return next;
     }
 
-    public StepOrder nextAtNewLevel() {
+    StepOrder nextAsChild() {
         StepOrder next = new StepOrder(values);
         next.values.add(1);
         return next;
