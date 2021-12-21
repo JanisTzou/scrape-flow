@@ -22,7 +22,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.web.scraping.lib.dom.data.parsing.ElementClicked;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
-import com.github.web.scraping.lib.parallelism.StepOrder;
+import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ import java.util.List;
 // TODO maybe we should express better that we expect the next page here ... or maybe in a new step ...
 @Log4j2
  public class ClickElement extends HtmlUnitParsingStep<ClickElement>
-        implements HtmlUnitChainableStep<ClickElement>, ThrottlableStep {
+        implements HtmlUnitChainableStep<ClickElement> {
 
     public ClickElement(List<HtmlUnitParsingStep<?>> nextSteps) {
         super(nextSteps);
@@ -47,10 +47,9 @@ import java.util.List;
     }
 
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode) {
-        StepOrder stepOrder = genNextOrderAfter(ctx.getPrevStepOrder());
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
+        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder(), onOrderGenerated);
 
-        logExecutionStart(stepOrder);
         // TODO clean this mess ...
         if (ctx.getNode() instanceof HtmlAnchor anch) {
             try {
@@ -81,4 +80,8 @@ import java.util.List;
         return this;
     }
 
+    @Override
+    public boolean throttlingAllowed() {
+        return true;
+    }
 }

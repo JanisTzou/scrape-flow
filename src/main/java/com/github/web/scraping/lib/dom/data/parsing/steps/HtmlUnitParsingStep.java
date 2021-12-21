@@ -18,7 +18,7 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
-import com.github.web.scraping.lib.parallelism.StepOrder;
+import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.parallelism.StepTask;
 import lombok.extern.log4j.Log4j2;
 
@@ -30,24 +30,24 @@ import java.util.concurrent.Callable;
 import java.util.function.Function;
 
 @Log4j2
-public abstract class HtmlUnitParsingStep<T> {
+public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
 
-    // for logging and debugging
-    private String name = getClass().getSimpleName() + "-unnamed-step";
     protected final List<HtmlUnitParsingStep<?>> nextSteps;
     protected Collecting<?, ?> collecting;
-
     // renlevant for steps that do scrape textual values
     protected Function<String, String> parsedTextTransformation = s -> s; // by default return the string as-is
-
     protected CrawlingServices services;
+    // for logging and debugging
+    private String name = getClass().getSimpleName() + "-unnamed-step";
 
 
     public HtmlUnitParsingStep(List<HtmlUnitParsingStep<?>> nextSteps) {
         this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
     }
 
-    public abstract <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode);
+    public abstract <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx,
+                                                                  ExecutionMode mode,
+                                                                  OnOrderGenerated onOrderGenerated);
 
     // internal usage only
     protected void setServices(CrawlingServices services) {
@@ -75,23 +75,28 @@ public abstract class HtmlUnitParsingStep<T> {
 
     /**
      * @param mode
-     * @param stepOrder
-     * @param callable task can be executed immediately or at some later point based on the given mode
+     * @param stepExecOrder
+     * @param callable  task can be executed immediately or at some later point based on the given mode
      * @return if mode = ExecutionMode.SYNC than a non-empty list might be returned, otherwise an empty list will always be returned ...
      */
-    protected List<StepResult> handleExecution(ExecutionMode mode, StepOrder stepOrder, Callable<List<StepResult>> callable) {
+    protected List<StepResult> handleExecution(ExecutionMode mode, StepExecOrder stepExecOrder, Callable<List<StepResult>> callable) {
         switch (mode) {
             case SYNC -> {
                 try {
                     return callable.call();
                 } catch (Exception e) {
-                    e.printStackTrace();  // TODO ... notify StepOrder service about this task failure ...
+                    log.error("{} - {}: Error synchronously processing step", stepExecOrder, getName());
                     return Collections.emptyList();
                 }
             }
             case ASYNC -> {
-                StepTask stepTask = new StepTask(stepOrder, getName(), callable, this instanceof ThrottlableStep);
-                services.getTaskQueue().submit(stepTask, r -> {}, e -> {}); // TODO provide consumers? How ... and from where ?
+                StepTask stepTask = new StepTask(stepExecOrder, getName(), callable, throttlingAllowed());
+                services.getActiveStepsTracker().track(stepExecOrder, getName());
+                services.getTaskQueue().submit(
+                        stepTask,
+                        r -> handleFinishedStep(stepExecOrder),
+                        e -> handleFinishedStep(stepExecOrder) // even when we finish in error there might be successfully parsed other data that might be waiting to get published outside
+                );
                 return Collections.emptyList(); // for now, always return empty list ...
             }
             default -> {
@@ -101,13 +106,15 @@ public abstract class HtmlUnitParsingStep<T> {
         }
     }
 
-    protected StepOrder genNextOrderAfter(StepOrder stepAtPrevLevel) {
-        return services.getStepOrderGenerator().genNextOrderAfter(stepAtPrevLevel);
+    private void handleFinishedStep(StepExecOrder stepExecOrder) {
+        services.getActiveStepsTracker().untrack(stepExecOrder);
+        services.getNotificationService().notifyAfterStepFinished(stepExecOrder);
     }
 
-    // TODO no longer needs to be called by individual steps ... the task executor can call this ...
-    protected void logExecutionStart(StepOrder stepOrder) {
-        log.trace("{} - {} - ... executing ...", stepOrder, getName());
+    protected StepExecOrder genNextOrderAfter(StepExecOrder stepAtPrevLevel, OnOrderGenerated onOrderGenerated) {
+        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(stepAtPrevLevel);
+        onOrderGenerated.accept(stepExecOrder);
+        return stepExecOrder;
     }
 
 }

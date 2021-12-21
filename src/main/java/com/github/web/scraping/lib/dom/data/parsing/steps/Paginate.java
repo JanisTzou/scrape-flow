@@ -21,7 +21,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.web.scraping.lib.dom.data.parsing.ElementClicked;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
-import com.github.web.scraping.lib.parallelism.StepOrder;
+import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
@@ -51,11 +51,10 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
     }
 
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode) {
-        StepOrder stepOrder = genNextOrderAfter(ctx.getPrevStepOrder());
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
+        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder(), onOrderGenerated);
 
         Callable<List<StepResult>> callable = () -> {
-            logExecutionStart(stepOrder);
             if (paginationTrigger == null) {
                 throw new IllegalStateException("paginationTrigger must be set for pagination to work!");
             } else {
@@ -67,11 +66,15 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
                 Supplier<List<DomNode>> nodesSearch = () -> List.of(pageRef.get());
                 @SuppressWarnings("unchecked")
                 HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
-                // in terms of parallelization this is a bit bad ... we need to hae this immediately ... not later ...
-                List<StepResult> scraping = wrapper.execute(ctx, nodesSearch, stepOrder, mode);
+                List<StepResult> scraping = wrapper.execute(ctx, nodesSearch, stepExecOrder, mode);
                 all.addAll(scraping);
                 if (paginationTrigger != null) {
-                    List<StepResult> pagination = paginationTrigger.execute(new ParsingContext<>(stepOrder, pageRef.get()), ExecutionMode.SYNC); // ALWAYS SYNC! unless there is a way to rewrite the pagination completely
+                    // as long as we execute the pagination synchronously it is ok not no collect and handle the generated order ...
+                    OnOrderGenerated order = so -> {
+                    };
+                    // TODO think about how to make this ASYNC ...
+                    // ALWAYS SYNC! we need to wait for the next page to be loaded immediately ... one bad thing though is that this does not participate in throttling ...
+                    List<StepResult> pagination = paginationTrigger.execute(new ParsingContext<>(stepExecOrder, pageRef.get()), ExecutionMode.SYNC, order);
                     Optional<HtmlPage> nextPage = pagination.stream().filter(sr -> sr instanceof ElementClicked).map(sr -> ((ElementClicked) sr).getPageAfterElementClicked()).findFirst();
                     if (nextPage.isPresent()) {
                         pageRef.set(nextPage.get());
@@ -86,7 +89,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
             return all;
         };
 
-        return handleExecution(mode, stepOrder, callable);
+        return handleExecution(mode, stepExecOrder, callable);
     }
 
     /**

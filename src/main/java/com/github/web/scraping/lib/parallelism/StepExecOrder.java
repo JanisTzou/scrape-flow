@@ -23,14 +23,14 @@ import java.util.stream.Stream;
 /**
  * TODO explain notions of sibling, parent and child ...
  */
-public class StepOrder {
+public class StepExecOrder {
 
-    public static final StepOrder INITIAL = new StepOrder(List.of(0));
+    public static final StepExecOrder INITIAL = new StepExecOrder(List.of(0));
 
-    public static final Comparator<StepOrder> NATURAL_COMPARATOR = (so1, so2) -> {
-        List<StepOrder> sortedBySize = Stream.of(so1, so2).sorted(Comparator.comparingInt(StepOrder::size)).collect(Collectors.toList());
-        StepOrder smaller = sortedBySize.get(0);
-        StepOrder bigger = sortedBySize.get(1);
+    public static final Comparator<StepExecOrder> NATURAL_COMPARATOR = (so1, so2) -> {
+        List<StepExecOrder> sortedBySize = Stream.of(so1, so2).sorted(Comparator.comparingInt(StepExecOrder::size)).collect(Collectors.toList());
+        StepExecOrder smaller = sortedBySize.get(0);
+        StepExecOrder bigger = sortedBySize.get(1);
         for (int idx = 0; idx < smaller.values.size(); idx++) {
             Integer sVal = smaller.values.get(idx);
             Integer bVal = bigger.values.get(idx);
@@ -56,38 +56,67 @@ public class StepOrder {
      */
     private final List<Integer> values = new ArrayList<>();
 
-    StepOrder(Integer ... values) {
-        this.values.addAll(Arrays.asList(values));
+
+    static StepExecOrder from(Integer ... values) {
+        return new StepExecOrder(values);
     }
 
-    private StepOrder(List<Integer> values) {
+    StepExecOrder(Integer ... values) {
+        this(Arrays.asList(values));
+    }
+
+    private StepExecOrder(List<Integer> values) {
+        checkInvariants(values.size());
         this.values.addAll(values); // important to create a copy!
     }
 
-    StepOrder nextAsSibling() {
+    private void checkInvariants(int length) {
+        if (length == 0) {
+            throw new IllegalArgumentException("StepOrder must contain at least one value!");
+        }
+    }
+
+    StepExecOrder nextAsSibling() {
         int lastIdx = values.size() - 1;
         int newOrder = 1 + values.get(lastIdx);
-        StepOrder next = new StepOrder(values);
+        StepExecOrder next = new StepExecOrder(values);
         next.values.set(lastIdx, newOrder);
         return next;
     }
 
-    StepOrder nextAsChild() {
-        StepOrder next = new StepOrder(values);
+    StepExecOrder nextAsChild() {
+        StepExecOrder next = new StepExecOrder(values);
         next.values.add(1);
         return next;
+    }
+
+    boolean hasParent() {
+        return size() > 1; // position 0 is root ...
+    }
+
+    Optional<StepExecOrder> getParent() {
+        if (hasParent()) {
+            StepExecOrder parent = new StepExecOrder(values.subList(0, values.size() - 1));
+            return Optional.of(parent);
+        }
+        return Optional.empty();
     }
 
     public int size() {
         return this.values.size();
     }
 
+    // error-prone having this as a field ... review methods modifying the list before doinf so ...
+    public String asString() {
+        return this.values.stream().map(Object::toString).collect(Collectors.joining("-"));
+    };
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof StepOrder)) return false;
-        StepOrder stepOrder = (StepOrder) o;
-        return Objects.equals(values, stepOrder.values);
+        if (!(o instanceof StepExecOrder)) return false;
+        StepExecOrder stepExecOrder = (StepExecOrder) o;
+        return Objects.equals(values, stepExecOrder.values);
     }
 
     @Override
@@ -97,8 +126,7 @@ public class StepOrder {
 
     @Override
     public String toString() {
-        return "StepOrder{" +
-                "values=" + values +
-                '}';
+        return "step-order-" + asString();
     }
+
 }

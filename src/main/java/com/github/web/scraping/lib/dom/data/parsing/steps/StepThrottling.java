@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.throttling;
+package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.github.web.scraping.lib.throttling.model.SingleScrapingResponsivenessData;
+/**
+ * Marker interface - marks steps that are candidates for being throttled
+ * as they execute (or very likely will might execute) requests to crawled websites
+ */
+public interface StepThrottling {
 
-public interface StatisticsSending {
-
-    void sendStatisticsToStatisticsCollector(SingleScrapingResponsivenessData stats);
+    default boolean throttlingAllowed() {
+        return false;
+    }
 
 }

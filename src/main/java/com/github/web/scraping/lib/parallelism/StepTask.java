@@ -31,14 +31,14 @@ import java.util.concurrent.Callable;
 public class StepTask implements Comparable<StepTask> {
 
     public static Comparator<StepTask> NATURAL_COMPARATOR = (st1, st2) -> {
-        return StepOrder.NATURAL_COMPARATOR.compare(st1.stepOrder, st2.stepOrder);
+        return StepExecOrder.NATURAL_COMPARATOR.compare(st1.stepExecOrder, st2.stepExecOrder);
     };
 
-    private final StepOrder stepOrder;
+    private final StepExecOrder stepExecOrder;
     private final String stepName;
     private final Callable<List<StepResult>> callableStep;
     private final LocalDateTime created = LocalDateTime.now();
-    private final boolean throttlable;
+    private final boolean throttlingAllowed;
 
     @Override
     public int compareTo(StepTask o) {
@@ -48,14 +48,14 @@ public class StepTask implements Comparable<StepTask> {
     @Override
     public String toString() {
         return "StepTask{" +
-                "stepOrder=" + stepOrder +
+                "stepExecOrder=" + stepExecOrder +
                 ", stepName='" + stepName + '\'' +
                 ", created=" + created +
                 '}';
     }
 
     public String loggingInfo() {
-        return toString();
+        return toString(); // TODO make nicer and shorter ...
     }
 
     public long getNumOfRetries() {

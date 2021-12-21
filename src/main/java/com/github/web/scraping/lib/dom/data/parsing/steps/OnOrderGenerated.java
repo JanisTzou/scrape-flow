@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.throttling;
+package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-public class ThrottlingService {
+import com.github.web.scraping.lib.parallelism.StepExecOrder;
 
-    // TODO implement based on crawling metrics (web response times etc ...)
-    // TODO gather metrics by web domain
+public interface OnOrderGenerated {
 
-    // throttlable
-    private final int maxTasks = 2;
-
-    public boolean canProceed(int executingThrottlableTasksCount) {
-        return executingThrottlableTasksCount < maxTasks;
-    }
+    void accept(StepExecOrder order);
 
 }

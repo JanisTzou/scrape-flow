@@ -21,7 +21,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
-import com.github.web.scraping.lib.parallelism.StepOrder;
+import com.github.web.scraping.lib.parallelism.StepExecOrder;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -58,11 +58,10 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
 
     @SuppressWarnings("unchecked")
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode) {
-        StepOrder stepOrder = genNextOrderAfter(ctx.getPrevStepOrder());
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
+        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder(), onOrderGenerated);
 
         Callable<List<StepResult>> callable = () -> {
-            logExecutionStart(stepOrder);
             String tc = null;
             if (ctx.getNode() instanceof HtmlElement htmlEl) {
                 tc = htmlEl.getTextContent();
@@ -87,7 +86,7 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
             return List.of(parsedElement);
         };
 
-        return handleExecution(mode, stepOrder, callable);
+        return handleExecution(mode, stepExecOrder, callable);
     }
 
     private String removeChildElementsTextContent(String textContent, HtmlElement el) {

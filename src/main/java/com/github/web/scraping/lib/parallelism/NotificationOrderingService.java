@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing.steps;
+package com.github.web.scraping.lib.parallelism;
 
-/**
- * Marker interface - marks steps that are candidates for being throttled
- * as they execute (or very likely will might execute) requests to crawled websites
- */
-public interface ThrottlableStep {
+public class NotificationOrderingService {
+
+
+    // TODO implementation should buffer data before it is sent to listeners so that correct order is achieved ... as if the data was was scraped sequentially ...
+    //  it should be possible to turn off by clients ... for faster results and no buffering
+
 }

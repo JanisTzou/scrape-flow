@@ -19,14 +19,17 @@ package com.github.web.scraping.lib.demos;
 import com.github.web.scraping.lib.Crawler;
 import com.github.web.scraping.lib.Crawling;
 import com.github.web.scraping.lib.EntryPoint;
+import com.github.web.scraping.lib.dom.data.parsing.JsonUtils;
 import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.dom.data.parsing.steps.*;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
+import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.log4j.Log4j2;
 import org.junit.Test;
 
 import java.time.Duration;
@@ -54,7 +57,6 @@ public class TeleskopExpressDeDemo {
         GetElementsByCssClass getProductTdElemsStep = GetElementsByCssClass.instance("main").setName("get-product-elems"); // TODO add by tag ... filtering
         GetElementsByCssClass getProductCodeElemStep = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("get-product-code-elem-1");
         GetElementsByCssClass getProductCodeElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("get-product-code-elem-2");
-        GetElementsByCssClass getProductCodeElemStep3 = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("get-product-code-elem-3");
         GetElementsByCssClass getProductPriceElemStep = GetElementsByCssClass.instance("prod_preis").setName("get-product-price-elem");
         GetElementsByAttribute getProductDetailHRefElemStep = GetElementsByAttribute.instance("href", "product_info.php/info").setMatchEntireValue(false).setName("get-product-detail-elem");
         ClickElement clickNextPageLinkElem = ClickElement.instance().setName("click-next-page-button");
@@ -81,26 +83,27 @@ public class TeleskopExpressDeDemo {
                                                         )
                                                 )
                                                 .thenForEachPage(getProductTdElemsStep
-                                                        .setCollector(Product::new, ProductsPage::add)
+                                                        .setCollector(Product::new, ProductsPage::add, new ProductListenerParsed())// this step generates the Product model and does not modify it ... all the child steps need to finish
+                                                        // this can register the step order of this parent step with NotificationOrderingService ...
+                                                        // set parsed data listener ?
+                                                        //  ... we might wanna listen for simple String values that were parsed ... not just complex models ...
+                                                        // when should data be eligible to notify listeners?
                                                         .then(getProductCodeElemStep
-                                                                .then(new EmptyStep()
+                                                                .then(new EmptyStep().setName("before-product-code-collection")
                                                                         .setCollector(ProductCode::new, Product::setProductCode)
                                                                         .then(new ParseElementText().setName("pet-2").setCollector(ProductCode::setValue))
                                                                 )
                                                         )
-                                                        .then(getProductCodeElemStep2 // this needs to be new instance ... throws exception otherwise ...
-                                                                .then(new ParseElementText().setCollector(Product::setCode))
-                                                        )
                                                         .then(getProductPriceElemStep
                                                                 .then(new ParseElementText().setCollector(Product::setPrice))
                                                         )
-                                                        .then(getProductCodeElemStep3
-                                                                .then(ParseElementHRef.instance()
+                                                        .then(getProductCodeElemStep2
+                                                                .then(ParseElementHRef.instance().setName("parse-product-href")
                                                                         .setTransformation(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
                                                                         .setCollector(Product::setDetailUrl)
                                                                         .thenNavigate(new NavigateToNewSite()
                                                                                 .setSiteParser(new HtmlUnitSiteParser(driverManager))
-                                                                                .then(getProductDetailTitleElem // TODO perhaps we need a setParsingSequence method after all instead of then() here ... so that we are consistent with how we set up a SiteParse (allows only 1 sequence) ....
+                                                                                .then(getProductDetailTitleElem.setName("get-product-detail-title") // TODO perhaps we need a setParsingSequence method after all instead of then() here ... so that we are consistent with how we set up a SiteParse (allows only 1 sequence) ....
                                                                                         .then(new ParseElementText().setCollector(Product::setTitle))
                                                                                 )
                                                                                 .then(getProductDescriptionElem
@@ -163,7 +166,7 @@ public class TeleskopExpressDeDemo {
     @ToString
     public static class ProductsPage {
         private final List<Product> products = new ArrayList<>();
-        private String position;
+        private volatile String position;
 
         public void add(Product product) {
             this.products.add(product);
@@ -193,28 +196,36 @@ public class TeleskopExpressDeDemo {
     @NoArgsConstructor
     @ToString
     public static class Product {
-        private String title;
-        private String code;
-        private String price;
-        private ProductCode productCode;
-        private String detailUrl;
-        private String description;
-        private List<ShippingCosts> shippingCosts = new ArrayList<>();
+        private volatile String title;
+        private volatile String price;
+        private volatile ProductCode productCode;
+        private volatile String detailUrl;
+        private volatile String description;
+        private volatile List<ShippingCosts> shippingCosts = new ArrayList<>();
     }
 
     @Setter
     @Getter
     @ToString
     public static class ProductCode {
-        private String value;
+        private volatile String value;
     }
 
     @Setter
     @Getter
     @ToString
     public static class ShippingCosts {
-        private String service;
-        private String price;
+        private volatile String service;
+        private volatile String price;
+    }
+
+    @Log4j2
+    public static class ProductListenerParsed implements ParsedDataListener<Product> {
+
+        @Override
+        public void onParsingFinished(Product data) {
+            log.info(JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
+        }
     }
 
 }

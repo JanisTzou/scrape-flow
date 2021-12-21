@@ -20,7 +20,11 @@ import com.gargoylesoftware.htmlunit.WebClient;
 
 public class HtmlUnitDriverManager implements DriverManager<WebClient> {
 
-    private volatile WebClient webClient = null;
+    /**
+     * WebClient docs:
+     * Note: a WebClient instance is not thread safe. It is intended to be used from a single thread
+     */
+    private volatile ThreadLocal<WebClient> webClient = ThreadLocal.withInitial(this::startNewDriver);
     private final HtmlUnitDriversFactory driversFactory;
 
 
@@ -30,12 +34,7 @@ public class HtmlUnitDriverManager implements DriverManager<WebClient> {
 
 
     public WebClient getDriver() {
-        if (webClient == null) {
-            webClient = startNewDriver();
-            return webClient;
-        } else {
-            return webClient;
-        }
+        return webClient.get();
     }
 
     @Override
@@ -73,12 +72,9 @@ public class HtmlUnitDriverManager implements DriverManager<WebClient> {
 
     @Override
     public boolean terminateDriver() {
-        if (webClient != null) {
-            webClient.close();
-            webClient = null; // important
-            return true;
-        }
-        return false;
+        webClient.get().close();
+        webClient.remove(); // important
+        return true;
     }
 
 }

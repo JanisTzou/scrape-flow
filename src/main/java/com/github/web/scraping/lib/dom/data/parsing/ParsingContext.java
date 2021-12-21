@@ -18,7 +18,7 @@ package com.github.web.scraping.lib.dom.data.parsing;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.steps.ModelProxy;
-import com.github.web.scraping.lib.parallelism.StepOrder;
+import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -39,7 +39,7 @@ public class ParsingContext<ModelT, ContainerT> {
      * StepOrder value at the previous level of step hierarchy (so the step calling this step)
      */
     @Nonnull
-    private final StepOrder prevStepOrder;
+    private final StepExecOrder prevStepExecOrder;
 
     private DomNode node;
 
@@ -49,8 +49,6 @@ public class ParsingContext<ModelT, ContainerT> {
     @Nullable
     private ContainerT container;
 
-    private boolean collectorToParentModel;
-
     private String parsedText;
 
     // TODO make sure this contains the full URL so that it can be further navigated to ...
@@ -58,20 +56,19 @@ public class ParsingContext<ModelT, ContainerT> {
 
 
 
-    public ParsingContext(StepOrder prevStepOrder, DomNode node) {
-        this(prevStepOrder, node, null, null, false);
+    public ParsingContext(StepExecOrder prevStepExecOrder, DomNode node) {
+        this(prevStepExecOrder, node, null, null);
     }
 
-    public ParsingContext(StepOrder prevStepOrder, DomNode node, @Nullable ModelProxy<ModelT> modelProxy, @Nullable ContainerT container, boolean collectorToParentModel) {
-        this(prevStepOrder, node, modelProxy, container, collectorToParentModel, null, null);
+    public ParsingContext(StepExecOrder prevStepExecOrder, DomNode node, @Nullable ModelProxy<ModelT> modelProxy, @Nullable ContainerT container) {
+        this(prevStepExecOrder, node, modelProxy, container, null, null);
     }
 
-    public ParsingContext(@Nonnull StepOrder prevStepOrder, DomNode node, @Nullable ModelProxy<ModelT> modelProxy, @Nullable ContainerT container, boolean collectorToParentModel, String parsedText, String parsedURL) {
-        this.prevStepOrder = Objects.requireNonNull(prevStepOrder);
+    public ParsingContext(@Nonnull StepExecOrder prevStepExecOrder, DomNode node, @Nullable ModelProxy<ModelT> modelProxy, @Nullable ContainerT container, String parsedText, String parsedURL) {
+        this.prevStepExecOrder = Objects.requireNonNull(prevStepExecOrder);
         this.node = node;
         this.modelProxy = modelProxy;
         this.container = container;
-        this.collectorToParentModel = collectorToParentModel;
         this.parsedText = parsedText;
         this.parsedURL = parsedURL;
     }
@@ -82,30 +79,28 @@ public class ParsingContext<ModelT, ContainerT> {
 
     public static class Builder<ModelT, ContainerT> {
 
-        private StepOrder prevStepOrder;
+        private StepExecOrder prevStepExecOrder;
         private DomNode node;
         private ModelProxy<ModelT> modelProxy;
         private ContainerT container;
-        private boolean collectorToParentModel;
         private String parsedText;
         private String parsedURL;
 
-        public Builder(StepOrder prevStepOrder, DomNode node, ModelProxy<ModelT> modelProxy, ContainerT container, boolean collectorToParentModel, String parsedText, String parsedURL) {
-            this.prevStepOrder = prevStepOrder;
+        public Builder(StepExecOrder prevStepExecOrder, DomNode node, ModelProxy<ModelT> modelProxy, ContainerT container, String parsedText, String parsedURL) {
+            this.prevStepExecOrder = prevStepExecOrder;
             this.node = node;
             this.modelProxy = modelProxy;
             this.container = container;
-            this.collectorToParentModel = collectorToParentModel;
             this.parsedText = parsedText;
             this.parsedURL = parsedURL;
         }
 
         public Builder(ParsingContext<ModelT, ContainerT> ctx) {
-            this(ctx.prevStepOrder, ctx.node, ctx.modelProxy, ctx.container, ctx.collectorToParentModel, ctx.parsedText, ctx.parsedURL);
+            this(ctx.prevStepExecOrder, ctx.node, ctx.modelProxy, ctx.container, ctx.parsedText, ctx.parsedURL);
         }
 
-        public Builder<ModelT, ContainerT> setPrevStepOrder(StepOrder prevStepOrder) {
-            this.prevStepOrder = prevStepOrder;
+        public Builder<ModelT, ContainerT> setPrevStepOrder(StepExecOrder prevStepExecOrder) {
+            this.prevStepExecOrder = prevStepExecOrder;
             return this;
         }
 
@@ -124,11 +119,6 @@ public class ParsingContext<ModelT, ContainerT> {
             return this;
         }
 
-        public Builder<ModelT, ContainerT> setCollectorToParentModel(boolean collectorToParentModel) {
-            this.collectorToParentModel = collectorToParentModel;
-            return this;
-        }
-
         public Builder<ModelT, ContainerT> setParsedText(String parsedText) {
             this.parsedText = parsedText;
             return this;
@@ -140,7 +130,7 @@ public class ParsingContext<ModelT, ContainerT> {
         }
 
         public ParsingContext<ModelT, ContainerT> build() {
-            return new ParsingContext<>(prevStepOrder, node, modelProxy, container, collectorToParentModel, parsedText, parsedURL);
+            return new ParsingContext<>(prevStepExecOrder, node, modelProxy, container, parsedText, parsedURL);
         }
     }
 }

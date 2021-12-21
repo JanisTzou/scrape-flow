@@ -16,6 +16,8 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
+import com.github.web.scraping.lib.parallelism.ParsedDataListener;
+
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -37,6 +39,8 @@ public interface HtmlUnitCollectorSetupStep<C> {
      * @param accumulator operation that inserts a model instance into the container
      */
     <R, T> C setCollector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator);
+
+    <R, T> C setCollector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator, ParsedDataListener<T> parsedDataListener);
 
     /**
      * checks invariants

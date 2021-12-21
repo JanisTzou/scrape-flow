@@ -20,7 +20,7 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.dom.data.parsing.XPathUtils;
-import com.github.web.scraping.lib.parallelism.StepOrder;
+import com.github.web.scraping.lib.parallelism.StepExecOrder;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -52,11 +52,10 @@ public class GetListedElementByFirstElementXPath extends CommonOperationsStepBas
     }
 
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode) {
-        StepOrder stepOrder = genNextOrderAfter(ctx.getPrevStepOrder());
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
+        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder(), onOrderGenerated);
 
         Callable<List<StepResult>> callable = () -> {
-            logExecutionStart(stepOrder);
             Supplier<List<DomNode>> nodesSearch = () -> {
                 // figure out the diff between this.xPath and the parent element xPath ... then use that
                 String parentXPath = ctx.getNode().getCanonicalXPath();
@@ -77,10 +76,10 @@ public class GetListedElementByFirstElementXPath extends CommonOperationsStepBas
 
             @SuppressWarnings("unchecked")
             HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
-            return wrapper.execute(ctx, nodesSearch, stepOrder, mode);
+            return wrapper.execute(ctx, nodesSearch, stepExecOrder, mode);
         };
 
-        return handleExecution(mode, stepOrder, callable);
+        return handleExecution(mode, stepExecOrder, callable);
     }
 
 }

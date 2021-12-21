@@ -22,72 +22,75 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 
-public class StepOrderTest {
+public class StepExecOrderTest {
 
 
     @Test
     public void testSortingByNaturalComparator() {
-        StepOrder so1 = new StepOrder(1, 1, 1);
-        StepOrder so2 = new StepOrder(1, 2, 1);
-        StepOrder so3 = new StepOrder(1, 2, 2);
-        StepOrder so4 = new StepOrder(1, 2, 2, 4);
+        StepExecOrder so1 = new StepExecOrder(1, 1, 1);
+        StepExecOrder so2 = new StepExecOrder(1, 2, 1);
+        StepExecOrder so3 = new StepExecOrder(1, 2, 2);
+        StepExecOrder so4 = new StepExecOrder(1, 2, 2, 4);
 
-        List<StepOrder> stepOrders = listOf(so1, so2, so3, so4);
+        List<StepExecOrder> stepExecOrders = listOf(so1, so2, so3, so4);
 
-        stepOrders.sort(StepOrder.NATURAL_COMPARATOR.reversed());
-        assertEquals(List.of(so4, so3, so2, so1), stepOrders);
+        stepExecOrders.sort(StepExecOrder.NATURAL_COMPARATOR.reversed());
+        assertEquals(List.of(so4, so3, so2, so1), stepExecOrders);
 
-        stepOrders.sort(StepOrder.NATURAL_COMPARATOR);
-        assertEquals(List.of(so1, so2, so3, so4), stepOrders);
+        stepExecOrders.sort(StepExecOrder.NATURAL_COMPARATOR);
+        assertEquals(List.of(so1, so2, so3, so4), stepExecOrders);
     }
 
     @Test
     public void nextAtNewLevel() {
-        StepOrder so1 = new StepOrder(1, 1, 1);
-        assertEquals(new StepOrder(1, 1, 1, 1), so1.nextAsChild());
+        StepExecOrder so1 = new StepExecOrder(1, 1, 1);
+        assertEquals(new StepExecOrder(1, 1, 1, 1), so1.nextAsChild());
     }
 
     @Test
     public void nextAtSameLevel() {
-        StepOrder so1 = new StepOrder(1, 1, 1);
-        assertEquals(new StepOrder(1, 1, 2), so1.nextAsSibling());
+        StepExecOrder so1 = new StepExecOrder(1, 1, 1);
+        assertEquals(new StepExecOrder(1, 1, 2), so1.nextAsSibling());
     }
 
-    private List<StepOrder> listOf(StepOrder... sos) {
+    private List<StepExecOrder> listOf(StepExecOrder... sos) {
         return new ArrayList<>(Arrays.asList(sos));
     }
 
     @Test
     public void testPerformancesInSortedSets() {
 
-        List<StepOrder> stepOrders = new ArrayList<>();
+        List<StepExecOrder> stepExecOrders = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 for (int k = 0; k < 10; k++) {
                     for (int l = 0; l < 10; l++) {
                         for (int m = 0; m < 10; m++) {
-                            stepOrders.add(new StepOrder(i, j, k, l, m));
+                            stepExecOrders.add(new StepExecOrder(i, j, k, l, m));
                         }
                     }
                 }
             }
         }
 
-        long runDuration1 = addToSortedSet(stepOrders); // warmup
+        long runDuration1 = addToSortedSet(stepExecOrders); // warmup
         System.out.println("1 run took " + runDuration1 + " ms");
 
-        long runDuration2 = addToSortedSet(stepOrders);
+        long runDuration2 = addToSortedSet(stepExecOrders);
         System.out.println("2 run took " + runDuration2 + " ms");
 
     }
 
-    private long addToSortedSet(List<StepOrder> stepOrders) {
+    private long addToSortedSet(List<StepExecOrder> stepExecOrders) {
         long start = System.currentTimeMillis();
-        SortedSet<StepOrder> sortedSet = new TreeSet<>(StepOrder.NATURAL_COMPARATOR);
-        sortedSet.addAll(stepOrders);
+        SortedSet<StepExecOrder> sortedSet = new TreeSet<>(StepExecOrder.NATURAL_COMPARATOR);
+        sortedSet.addAll(stepExecOrders);
         long end = System.currentTimeMillis();
         return end - start;
     }
 
-
+    @Test
+    public void asString() {
+        assertEquals("1-1-1", new StepExecOrder(1, 1, 1).asString());
+    }
 }

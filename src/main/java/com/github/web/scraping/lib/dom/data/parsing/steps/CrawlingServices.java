@@ -16,11 +16,9 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.github.web.scraping.lib.parallelism.StepOrderGenerator;
-import com.github.web.scraping.lib.parallelism.TaskQueue;
+import com.github.web.scraping.lib.parallelism.*;
 import com.github.web.scraping.lib.throttling.ThrottlingService;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Encapsulates service singleton classes that need to be accessible to all steps
@@ -28,8 +26,12 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public class CrawlingServices {
 
-    private final StepOrderGenerator stepOrderGenerator = new StepOrderGenerator();
+    private final StepExecOrderGenerator stepExecOrderGenerator = new StepExecOrderGenerator();
     private final ThrottlingService throttlingService = new ThrottlingService();
+    private final ActiveStepsTracker activeStepsTracker = new ActiveStepsTracker();
+    private final StepAndDataRelationshipTracker stepAndDataRelationshipTracker = new StepAndDataRelationshipTracker(activeStepsTracker);
     private final TaskQueue taskQueue = new TaskQueue(throttlingService);
+    private final NotificationService notificationService = new NotificationService(stepAndDataRelationshipTracker);
+
 
 }

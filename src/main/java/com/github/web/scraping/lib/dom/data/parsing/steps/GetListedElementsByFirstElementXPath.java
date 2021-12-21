@@ -21,7 +21,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.dom.data.parsing.XPathUtils;
-import com.github.web.scraping.lib.parallelism.StepOrder;
+import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
@@ -47,11 +47,10 @@ public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBa
     }
 
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode) {
-        StepOrder stepOrder = genNextOrderAfter(ctx.getPrevStepOrder());
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
+        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder(), onOrderGenerated);
 
         Callable<List<StepResult>> callable = () -> {
-            logExecutionStart(stepOrder);
 
             // here we want to identify all the elements that will then be processed by the next steps??
             // ... so we can for example apply specific HtmlUnitParsingStrategyByFullXPath on each one of them ... BUT the expaths will need to be dynamic as the root will change for each listed item ....
@@ -62,7 +61,9 @@ public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBa
                 String xPathTail = XPathUtils.getXPathSubstrTail(xPath, 1).replaceAll("\\d+", "\\\\d+");
                 String pattern = XPathUtils.regexEscape(XPathUtils.concat(parentXPath, xPathTail));
 
-                return ctx.getNode().getByXPath(parentXPath)
+                List<Object> nodes = ctx.getNode().getByXPath(parentXPath);
+                log.debug("{} - {} Found {} nodes in {}", stepExecOrder, getName(), nodes.size(), ctx.getNode());
+                return nodes
                         .stream()
                         .flatMap(el -> {
                             // child elements ...
@@ -85,10 +86,10 @@ public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBa
 
             @SuppressWarnings("unchecked")
             HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
-            return wrapper.execute(ctx, nodesSearch, stepOrder, mode);
+            return wrapper.execute(ctx, nodesSearch, stepExecOrder, mode);
         };
 
-        return handleExecution(mode, stepOrder, callable);
+        return handleExecution(mode, stepExecOrder, callable);
     }
 
     private void logMatching(String xPath, boolean matches) {

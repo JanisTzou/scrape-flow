@@ -16,26 +16,8 @@
 
 package com.github.web.scraping.lib.parallelism;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+public interface ParsedDataListener<T> {
 
-public class ExecutingTasksTracker {
+    void onParsingFinished(T data);
 
-    private final Map<StepExecOrder, StepTask> tracked = new ConcurrentHashMap<>();
-
-    public void track(StepTask task) {
-        tracked.put(task.getStepExecOrder(), task);
-    }
-
-    public void untrack(StepTask task) {
-        tracked.remove(task.getStepExecOrder());
-    }
-
-    public int countOfExecutingTasks() {
-        return tracked.size();
-    }
-
-    public int countOfExecutingThrottlableTasks() {
-        return (int) tracked.values().stream().filter(StepTask::isThrottlingAllowed).count();
-    }
 }

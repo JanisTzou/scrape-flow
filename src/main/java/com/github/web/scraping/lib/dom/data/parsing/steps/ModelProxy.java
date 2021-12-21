@@ -30,6 +30,7 @@ import lombok.Setter;
 public class ModelProxy<ModelT> {
 
     private final ModelT model;
+
     private boolean accumulated;
 
 }

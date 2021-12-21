@@ -19,15 +19,16 @@ package com.github.web.scraping.lib.parallelism;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class StepOrderGenerator {
+public class StepExecOrderGenerator {
 
-    private final Map<StepOrder, StepOrder> parentToLastGeneratedChild = new ConcurrentHashMap<>();
+    private final Map<StepExecOrder, StepExecOrder> parentToLastGeneratedChild = new ConcurrentHashMap<>();
 
     /**
      * @param stepAtPrevLevel step that was preceding on the "higher"/"previous" level
      *                        ... so has kind of a parent relationship to the next one to be generated
      */
-    public StepOrder genNextOrderAfter(StepOrder stepAtPrevLevel) {
+    public StepExecOrder genNextOrderAfter(StepExecOrder stepAtPrevLevel) {
+        // TODO immediately track by StepOrderTracker? Here or on the caller side?
         return this.parentToLastGeneratedChild.compute(stepAtPrevLevel, (parent0, prevLastStep) -> {
             if (prevLastStep == null) {
                 return stepAtPrevLevel.nextAsChild();

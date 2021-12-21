@@ -16,14 +16,14 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.web.scraping.lib.dom.data.parsing.*;
 import com.github.web.scraping.lib.drivers.DriverManager;
-import com.github.web.scraping.lib.parallelism.StepOrder;
+import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
 
-import java.net.MalformedURLException;
+import javax.annotation.Nullable;
 import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
@@ -59,30 +59,28 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
         for (HtmlUnitParsingStep<?> parsingSequence : parsingSequences) {
             StepsUtils.propagateServicesRecursively(parsingSequence, services, new HashSet<>());
         }
-        return loadPage(url)
-//                .map(printPageToConsole())
+        return loadPage(url, null)
                 .map(this::parsePageAndFilterDataResults)
                 .orElse(Collections.emptyList());
     }
 
     @Override
-    public List<StepResult> parseInternal(String url, ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequence) {
-        return loadPage(url).stream()
-//                .map(printPageToConsole())
+    public List<StepResult> parseInternal(String url, ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequence, StepExecOrder currStepExecOrder) {
+        return loadPage(url, currStepExecOrder).stream()
                 .flatMap(page1 -> {
-                    ParsingContext<?, ?> nextCtx = ctx.toBuilder().setNode(page1).build();
-                    return applyParsingStepsToPage(nextCtx, parsingSequence);
+                    ParsingContext<?, ?> nextCtx = ctx.toBuilder().setNode(page1).setPrevStepOrder(currStepExecOrder).build();
+                    return executeNextSteps(nextCtx, parsingSequence);
                 })
                 .collect(Collectors.toList());
     }
 
-    private Optional<HtmlPage> loadPage(String url) {
+    private Optional<HtmlPage> loadPage(String url, @Nullable StepExecOrder currStepExecOrder) {
         final WebClient webClient = driverManager.getDriver();
-        return getHtmlPage(url, webClient);
+        return loadHtmlPage(url, webClient, currStepExecOrder);
     }
 
     private List<ParsedData> parsePageAndFilterDataResults(HtmlPage page) {
-        Function<HtmlPage, List<ParsedData>> parsing = page1 -> applyParsingStepsToPage(new ParsingContext<>(StepOrder.INITIAL, page1), parsingSequences)
+        Function<HtmlPage, List<ParsedData>> parsing = page1 -> executeNextSteps(new ParsingContext<>(StepExecOrder.INITIAL, page1), parsingSequences)
                 .map(sr -> {
                     if (sr instanceof ParsedElement parsedElement) {
                         return new ParsedData(parsedElement.getModelProxy());
@@ -98,30 +96,42 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
 
     }
 
-    private Stream<StepResult> applyParsingStepsToPage(ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequences) {
+    private Stream<StepResult> executeNextSteps(ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequences) {
         return parsingSequences.stream()
-                .flatMap(s -> s.execute(ctx, ExecutionMode.ASYNC).stream()); // TODO then switch to async ...
+                .flatMap(s -> s.execute(ctx, ExecutionMode.ASYNC, o -> { // TODO what to do about this ??? this needs to be fixed ... we need to collect steps and then track them (data) ... if there are any models generated ... (see inside Wrapper ... possibly reuse)
+                }).stream());
     }
 
-    private Function<HtmlPage, HtmlPage> printPageToConsole() {
-        return page -> {
-            System.out.println(page.asXml());
-            return page;
-        };
-    }
-
-    private Optional<HtmlPage> getHtmlPage(String pageUrl, WebClient webClient) {
+    private Optional<HtmlPage> loadHtmlPage(String pageUrl, WebClient webClient, @Nullable StepExecOrder currStepExecOrder) {
+        String logInfo = currStepExecOrder != null ? currStepExecOrder + " - " : "";
         try {
-            log.debug("Loading page URL: {}", pageUrl);
-            String winName = "window_name";
+            log.debug("{}Loading page URL: {}", logInfo, pageUrl);
             URL url = new URL(pageUrl);
-            webClient.openWindow(url, winName);
-            log.debug("Loaded page URL: {}", pageUrl);
-            return Optional.ofNullable((HtmlPage) webClient.getWebWindowByName(winName).getEnclosedPage());
-        } catch (MalformedURLException e) {
-            log.error("Error when getting htmlPage for URL: {}", pageUrl, e);
+            Page page = webClient.getPage(url);
+            WebResponse resp = page.getWebResponse();
+            int statusCode = resp.getStatusCode();
+            if (statusCode >= 400) {
+                // TODO think about how to handle this and if we should le the clients to define desired behaviour (for retry logic to work etc ...)
+                log.warn("{}Returned status {} - could not load page! Response time {}ms", logInfo, statusCode, resp.getLoadTime());
+                return Optional.empty();
+            } else {
+                if (page.isHtmlPage()) {
+                    log.debug("{}Loaded page in {}ms at URL: {}", logInfo, resp.getLoadTime(), pageUrl);
+                    HtmlPage htmlPage = (HtmlPage) page;
+                    printPageToConsole(htmlPage);
+                    return Optional.of(htmlPage);
+                }
+                log.warn("{}Cannot process non-HTML page!", logInfo);
+                return Optional.empty();
+            }
+        } catch (Exception e) {
+            log.error("{}Error when getting htmlPage for URL: {}", logInfo, pageUrl, e);
             return Optional.empty();
         }
+    }
+
+    private void printPageToConsole(HtmlPage page) {
+        System.out.println(page.asXml());
     }
 
 }

@@ -118,7 +118,7 @@ public class TaskQueue {
      * Non-throttlable tasks can proceed without limits. Throttlable tasks need to be limited in terms of how many are executed in parallel
      */
     private boolean canExecute(QueueStepTask next) {
-        return next != null && (!next.getStepTask().isThrottlable() || throttlingService.canProceed(executingTasksTracker.countOfExecutingThrottlableTasks()));
+        return next != null && (!next.getStepTask().isThrottlingAllowed() || throttlingService.canProceed(executingTasksTracker.countOfExecutingThrottlableTasks()));
     }
 
     private void executeTask(StepTask task,
@@ -129,6 +129,9 @@ public class TaskQueue {
         AtomicBoolean isRetry = new AtomicBoolean(false);
 
         Mono.just(task)
+                .doOnNext(t -> {
+                    log.trace("{} - ... executing ...", task.loggingInfo());
+                })
                 .map(task0 -> handleTaskIfRetried(isRetry, task0))
                 .flatMap(canProceed -> Mono.fromCallable(task.getCallableStep())) // if we got her eit means that the previous step passed and emmited 'true'
                 .onErrorMap(error -> {
@@ -153,8 +156,24 @@ public class TaskQueue {
                 .doOnCancel(taskFinishedHook())
                 .doOnTerminate(taskFinishedHook())
                 .subscribeOn(Schedulers.parallel())
-                .subscribe(pullResultConsumer); // TODO wrap in error handling ...
+//                .subscribeOn(Schedulers.single())
+                .subscribe(taskResult -> {
+                            try {
+                                pullResultConsumer.accept(taskResult);
+                            } catch (Exception e) {
+                                log.error("Error consuming result for task: {}", task.loggingInfo());
+                            }
+                        },
+                        throwable -> {
+                            try {
+                                pullErrorConsumer.accept(new TaskError(task, throwable));
+                            } catch (Exception e) {
+                                log.error("Error consuming error result for execution of task: {}", task.loggingInfo());
+                            }
+                        }
+                );
     }
+
 
     private Runnable taskFinishedHook() {
         return this::dequeueNextAndExecute;

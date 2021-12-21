@@ -19,7 +19,7 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.SiteParserInternal;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
-import com.github.web.scraping.lib.parallelism.StepOrder;
+import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
@@ -29,7 +29,7 @@ import java.util.concurrent.Callable;
 
 @Log4j2
 public class NavigateToNewSite extends CommonOperationsStepBase<NavigateToNewSite>
-        implements HtmlUnitParserSwitchingStep<NavigateToNewSite>, ThrottlableStep {
+        implements HtmlUnitParserSwitchingStep<NavigateToNewSite> {
 
     // TODp perhaps provide in the constructor as a mandatory thing ?
     private SiteParserInternal<?> siteParser;
@@ -44,20 +44,22 @@ public class NavigateToNewSite extends CommonOperationsStepBase<NavigateToNewSit
 
     // the URL must come from the parsing context!!
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode) {
-        StepOrder stepOrder = genNextOrderAfter(ctx.getPrevStepOrder());
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
+        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder(), onOrderGenerated);
 
+        // TODO problem ... this does not track steps for us and also the data ...
         Callable<List<StepResult>> callable = () -> {
-            logExecutionStart(stepOrder);
             if (ctx.getParsedText() == null) {
-                return siteParser.parseInternal(ctx.getParsedURL(), ctx, this.nextSteps);
+                // TODO if this step type has collectors then we need similar logic as in Wrapper ...
+                return siteParser.parseInternal(ctx.getParsedURL(), ctx, this.nextSteps, stepExecOrder);
+
             } else {
                 log.error("{}: Cannot parse next site - the parsed URL is null!", getName());
                 return Collections.emptyList();
             }
         };
 
-        return handleExecution(mode, stepOrder, callable);
+        return handleExecution(mode, stepExecOrder, callable);
     }
 
 
@@ -68,4 +70,8 @@ public class NavigateToNewSite extends CommonOperationsStepBase<NavigateToNewSit
         return this;
     }
 
+    @Override
+    public boolean throttlingAllowed() {
+        return true;
+    }
 }

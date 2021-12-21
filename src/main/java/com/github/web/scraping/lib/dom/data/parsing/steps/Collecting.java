@@ -16,6 +16,7 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
+import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -32,8 +33,10 @@ public class Collecting<ModelT, ContainerT> {
     @Getter
     private final BiConsumer<ContainerT, ModelT> accumulator;
 
+    private final ParsedDataListener<ModelT> parsedDataListener;
+
     public Collecting() {
-        this(null, null, null);
+        this(null, null, null, null);
     }
 
 
@@ -53,4 +56,7 @@ public class Collecting<ModelT, ContainerT> {
         }
     }
 
+    public ParsedDataListener<ModelT> getDataListener() {
+        return parsedDataListener;
+    }
 }
