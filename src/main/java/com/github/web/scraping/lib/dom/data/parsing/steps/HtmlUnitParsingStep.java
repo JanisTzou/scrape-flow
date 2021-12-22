@@ -19,6 +19,8 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.parallelism.StepTask;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.ArrayList;
@@ -30,6 +32,10 @@ import java.util.function.Function;
 public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
 
     protected final List<HtmlUnitParsingStep<?>> nextSteps;
+
+    @Getter @Setter
+    protected boolean exclusiveExecution = false;
+
     protected Collecting<?, ?> collecting;
     // renlevant for steps that do scrape textual values
     protected Function<String, String> parsedTextTransformation = s -> s; // by default return the string as-is
@@ -42,7 +48,7 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
         this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
     }
 
-    // TODO instead of step result return generated order ...
+
     public abstract <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx);
 
     // internal usage only
@@ -74,9 +80,9 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
      * @param runnable  task can be executed immediately or at some later point based on the given mode
      */
     protected void handleExecution(StepExecOrder stepExecOrder, Runnable runnable) {
-            StepTask stepTask = new StepTask(stepExecOrder, getName(), runnable, throttlingAllowed());
+            StepTask stepTask = new StepTask(stepExecOrder, exclusiveExecution, getName(), runnable, throttlingAllowed());
             services.getActiveStepsTracker().track(stepExecOrder, getName());
-            services.getTaskQueue().submit(
+            services.getStepTaskExecutor().submit(
                     stepTask,
                     r -> handleFinishedStep(stepExecOrder),
                     e -> handleFinishedStep(stepExecOrder) // even when we finish in error there might be successfully parsed other data that might be waiting to get published outside

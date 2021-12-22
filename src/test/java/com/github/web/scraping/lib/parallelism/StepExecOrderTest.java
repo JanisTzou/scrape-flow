@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class StepExecOrderTest {
 
@@ -39,6 +39,18 @@ public class StepExecOrderTest {
 
         stepExecOrders.sort(StepExecOrder.NATURAL_COMPARATOR);
         assertEquals(List.of(so1, so2, so3, so4), stepExecOrders);
+    }
+
+    @Test
+    public void testSortingByNaturalComparator2() {
+        StepExecOrder so1 = new StepExecOrder(0, 1, 1, 1, 1, 2, 1, 1, 2, 1);
+        StepExecOrder so2 = new StepExecOrder(0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1);
+
+        List<StepExecOrder> stepExecOrders = listOf(so1, so2);
+
+        stepExecOrders.sort(StepExecOrder.NATURAL_COMPARATOR);
+        assertEquals(List.of(so2, so1), stepExecOrders);
+
     }
 
     @Test
@@ -92,5 +104,31 @@ public class StepExecOrderTest {
     @Test
     public void asString() {
         assertEquals("1-1-1", new StepExecOrder(1, 1, 1).asString());
+    }
+
+    @Test
+    public void subOrder() {
+        assertEquals(new StepExecOrder(1, 2, 2), new StepExecOrder(1, 2, 2, 4).getSubOrder(3).get());
+
+        assertTrue(new StepExecOrder(1, 2, 2, 4).getSubOrder(5).isEmpty());
+    }
+
+    @Test
+    public void isParentOf() {
+        assertTrue(new StepExecOrder(1, 2, 2).isParentOf(new StepExecOrder(1, 2, 2, 4)));
+        assertFalse(new StepExecOrder(1, 2, 2).isParentOf(new StepExecOrder(1, 2, 2)));
+        assertFalse(new StepExecOrder(1, 2, 2, 4).isParentOf(new StepExecOrder(1, 2, 2)));
+    }
+
+    @Test
+    public void isBefore() {
+        assertTrue(new StepExecOrder(1, 2, 2).isBefore(new StepExecOrder(1, 2, 2, 4)));
+        assertFalse(new StepExecOrder(1, 2, 2, 1).isBefore(new StepExecOrder(1, 2, 2)));
+    }
+
+    @Test
+    public void isAfter() {
+        assertTrue(new StepExecOrder(1, 2, 2, 1).isAfter(new StepExecOrder(1, 2, 2)));
+        assertFalse(new StepExecOrder(1, 2, 2).isAfter(new StepExecOrder(1, 2, 2, 4)));
     }
 }

@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Getter
@@ -32,6 +33,13 @@ public class StepTask implements Comparable<StepTask> {
     };
 
     private final StepExecOrder stepExecOrder;
+
+    /**
+     * Tasks with this setting will be executed with priority
+     * The implementation should effectively disable the execution of tasks without exclusive order for the time.
+     */
+    private final boolean exclusiveExecution;
+
     private final String stepName;
     private final Runnable stepRunnable;
     private final LocalDateTime created = LocalDateTime.now();
@@ -46,6 +54,7 @@ public class StepTask implements Comparable<StepTask> {
     public String toString() {
         return "StepTask{" +
                 "stepExecOrder=" + stepExecOrder +
+                ", exclusiveExecution=" + exclusiveExecution +
                 ", stepName='" + stepName + '\'' +
                 ", created=" + created +
                 '}';

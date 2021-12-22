@@ -75,17 +75,18 @@ public class TeleskopExpressDeDemo {
                                                                 .then(Actions.returnNextPage())
                                                         )
                                         )
-                                        .thenForEachPageOrdered(StepFlow.asStepGroup() // no steps with higher order than this very step can be allowed to run before this whole thing finishes ... lower steps can continue running ... send an event that this step finished so normal parallelism can resume ... also there might be nested ordered steps ...
-                                                .then(getNavigationPositionElemStep
-                                                        .then(ParseElement.getTextContent().stepName("pet-1")
-                                                                .setCollector(ProductsPage::setPosition)
+                                        .thenForEachPageExclusively(
+                                                StepFlow.asStepGroup() // no steps with higher order than this very step can be allowed to run before this whole thing finishes ... lower steps can continue running ... send an event that this step finished so normal parallelism can resume ... also there might be nested ordered steps ...
+                                                        .then(getNavigationPositionElemStep
+                                                                .then(ParseElement.getTextContent().stepName("pet-1")
+                                                                        .setCollector(ProductsPage::setPosition)
+                                                                )
                                                         )
-                                                )
-                                                .then(getNavigationPositionElemStep
-                                                        .then(ParseElement.getTextContent().stepName("pet-1")
-                                                                .setCollector(ProductsPage::setPosition)
+                                                        .then(getNavigationPositionElemStep
+                                                                .then(ParseElement.getTextContent().stepName("pet-1")
+                                                                        .setCollector(ProductsPage::setPosition)
+                                                                )
                                                         )
-                                                )
                                         )
                                         .thenForEachPage(getNavigationPositionElemStep
                                                 .then(ParseElement.getTextContent().stepName("pet-1")

@@ -21,12 +21,11 @@ import com.github.web.scraping.lib.dom.data.parsing.SiteParserInternal;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 @Log4j2
 public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToParsedLink>
-        implements HtmlUnitParserSwitchingStep<NavigateToParsedLink> {
+        implements HtmlUnitParserSwitchingStep<NavigateToParsedLink>, LoadingNewPage {
 
     // TODp perhaps provide in the constructor as a mandatory thing ?
     private SiteParserInternal<?> siteParser;

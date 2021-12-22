@@ -84,7 +84,7 @@ public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBa
             };
 
             @SuppressWarnings("unchecked")
-            HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+            HtmlUnitParsingStepHelper<ModelT, ContainerT> wrapper = new HtmlUnitParsingStepHelper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
             wrapper.execute(ctx, nodesSearch, stepExecOrder);
         };
 

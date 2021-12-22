@@ -30,7 +30,8 @@ public class ScrapingServices {
     private final ThrottlingService throttlingService = new ThrottlingService();
     private final ActiveStepsTracker activeStepsTracker = new ActiveStepsTracker();
     private final StepAndDataRelationshipTracker stepAndDataRelationshipTracker = new StepAndDataRelationshipTracker(activeStepsTracker);
-    private final TaskQueue taskQueue = new TaskQueue(throttlingService);
+    private final ExclusiveExecutionStack exclusiveExecutionStack = new ExclusiveExecutionStack(activeStepsTracker);
+    private final StepTaskExecutor stepTaskExecutor = new StepTaskExecutor(throttlingService, exclusiveExecutionStack);
     private final NotificationService notificationService = new NotificationService(stepAndDataRelationshipTracker);
 
 

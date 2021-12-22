@@ -71,9 +71,10 @@ public abstract class CommonOperationsStepBase<C> extends HtmlUnitParsingStep<C>
         return (C) this;
     }
 
-    // TODO provide actual implementation and put to base class ...
     @SuppressWarnings("unchecked")
-    public C thenOrdered(HtmlUnitParsingStep<?> nextStep) {
+    @Override
+    public C thenExclusively(HtmlUnitParsingStep<?> nextStep) {
+        nextStep.setExclusiveExecution(true);
         this.nextSteps.add(nextStep);
         return (C) this;
     }

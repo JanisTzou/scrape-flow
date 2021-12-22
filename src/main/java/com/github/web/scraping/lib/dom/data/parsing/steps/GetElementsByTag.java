@@ -53,7 +53,7 @@ public class GetElementsByTag extends CommonOperationsStepBase<GetElementsByTag>
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsByTagName(ctx.getNode(), tagName);
             @SuppressWarnings("unchecked")
-            HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+            HtmlUnitParsingStepHelper<ModelT, ContainerT> wrapper = new HtmlUnitParsingStepHelper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
             wrapper.execute(ctx, nodesSearch, stepExecOrder);
         };
 

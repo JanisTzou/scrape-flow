@@ -71,7 +71,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
                 // GENERAL
                 Supplier<List<DomNode>> nodesSearch = () -> List.of(page.get());
                 @SuppressWarnings("unchecked")
-                HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+                HtmlUnitParsingStepHelper<ModelT, ContainerT> wrapper = new HtmlUnitParsingStepHelper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
                 // important to set the recursiveRootStepExecOrder to null ... the general nextSteps and logic should not be affected by it ... it's only related to pagination
                 ParsingContext<ModelT, ContainerT> plainCtx = ctx.toBuilder()
                         .setRecursiveRootStepExecOrder(null)
@@ -109,7 +109,6 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
         return this;
     }
 
-    // TODO ordered version ?
     /**
      * Performs the specified step sequence for content loaded in pagination
      * Same as calling {@link com.github.web.scraping.lib.dom.data.parsing.steps.CommonOperationsStepBase#then(HtmlUnitParsingStep)}
@@ -120,7 +119,8 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
     }
 
     // TODO actually implement ...
-    public Paginate thenForEachPageOrdered(HtmlUnitParsingStep<?> stepsForPaginatedContent) {
+    public Paginate thenForEachPageExclusively(HtmlUnitParsingStep<?> stepsForPaginatedContent) {
+        stepsForPaginatedContent.setExclusiveExecution(true);
         then(stepsForPaginatedContent);
         return this;
     }

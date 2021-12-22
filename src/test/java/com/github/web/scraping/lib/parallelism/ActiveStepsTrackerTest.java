@@ -40,11 +40,11 @@ public class ActiveStepsTrackerTest {
     public void isActiveOrHasRelatedActiveSteps() {
 
         ast.track(step_1, "");
-        assertTrue(ast.isActiveOrHasRelatedActiveSteps(step_1));
+        assertTrue(ast.isPartOfActiveStepSequence(step_1));
 
-        assertFalse(ast.isActiveOrHasRelatedActiveSteps(step_1_1));
+        assertFalse(ast.isPartOfActiveStepSequence(step_1_1));
         ast.track(step_1_1, "");
-        assertTrue(ast.isActiveOrHasRelatedActiveSteps(step_1_1));
+        assertTrue(ast.isPartOfActiveStepSequence(step_1_1));
 
         ast.track(step_1_2, "");
     }
@@ -56,12 +56,12 @@ public class ActiveStepsTrackerTest {
         ast.track(step_1_1, "");
 
         ast.untrack(step_1);
-        assertTrue(ast.isActiveOrHasRelatedActiveSteps(step_1_1));
-        assertTrue(ast.isActiveOrHasRelatedActiveSteps(step_1));
+        assertTrue(ast.isPartOfActiveStepSequence(step_1_1));
+        assertTrue(ast.isPartOfActiveStepSequence(step_1));
 
         ast.untrack(step_1_1);
-        assertFalse(ast.isActiveOrHasRelatedActiveSteps(step_1_1));
-        assertFalse(ast.isActiveOrHasRelatedActiveSteps(step_1));
+        assertFalse(ast.isPartOfActiveStepSequence(step_1_1));
+        assertFalse(ast.isPartOfActiveStepSequence(step_1));
     }
 
 

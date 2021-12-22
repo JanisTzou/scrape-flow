@@ -18,7 +18,10 @@ package com.github.web.scraping.lib.parallelism;
 
 import lombok.extern.log4j.Log4j2;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Log4j2
 public class NotificationService {
@@ -26,6 +29,8 @@ public class NotificationService {
     private final NotificationOrderingService orderingService = null;
 
     private final StepAndDataRelationshipTracker stepAndDataRelationshipTracker;
+
+    private final Set<Object> published = Collections.synchronizedSet(new HashSet<>()); // TODO temporary ...
 
     public NotificationService(StepAndDataRelationshipTracker stepAndDataRelationshipTracker) {
         this.stepAndDataRelationshipTracker = stepAndDataRelationshipTracker;
@@ -38,7 +43,8 @@ public class NotificationService {
         if (!finalizedData.isEmpty()) {
             for (StepAndDataRelationshipTracker.FinalizedModel data : finalizedData) {
                 log.debug("{} has finalized data of type '{}'", stepExecOrder, data.getModel().getClass().getSimpleName());
-                if (data.getModelListener() != null) {
+                if (data.getModelListener() != null && !published.contains(data.getModel())) { // TODO temporary ...
+                    published.add(data.getModel());
                     log.debug("{} About to publish data to listener after step finished", stepExecOrder);
                     data.getModelListener().onParsingFinished(data.getModel());
                 }

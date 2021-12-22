@@ -20,23 +20,22 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.function.Consumer;
 
-public class QueueStepTask {
+public class QueuedStepTask {
 
-    public static Comparator<QueueStepTask> NATURAL_COMPARATOR = (qst1, qst2) -> StepTask.NATURAL_COMPARATOR.compare(qst1.getStepTask(), qst2.getStepTask());
-
+    public static Comparator<QueuedStepTask> NATURAL_COMPARATOR = (qst1, qst2) -> StepTask.NATURAL_COMPARATOR.compare(qst1.getStepTask(), qst2.getStepTask());
 
     private final StepTask stepTask;
-    private final Consumer<TaskResult> pullResultConsumer;
-    private final Consumer<TaskError> pullErrorConsumer;
+    private final Consumer<TaskResult> taskResultConsumer;
+    private final Consumer<TaskError> taskErrorConsumer;
     private final long enqueuedTimestamp;
 
-    public QueueStepTask(StepTask stepTask,
-                         Consumer<TaskResult> pullResultConsumer,
-                         Consumer<TaskError> pullErrorConsumer,
-                         long enqueuedTimestamp) {
+    public QueuedStepTask(StepTask stepTask,
+                          Consumer<TaskResult> taskResultConsumer,
+                          Consumer<TaskError> taskErrorConsumer,
+                          long enqueuedTimestamp) {
         this.stepTask = stepTask;
-        this.pullResultConsumer = pullResultConsumer;
-        this.pullErrorConsumer = pullErrorConsumer;
+        this.taskResultConsumer = taskResultConsumer;
+        this.taskErrorConsumer = taskErrorConsumer;
         this.enqueuedTimestamp = enqueuedTimestamp;
     }
 
@@ -44,12 +43,12 @@ public class QueueStepTask {
         return stepTask;
     }
 
-    public Consumer<TaskResult> getPullResultConsumer() {
-        return pullResultConsumer;
+    public Consumer<TaskResult> getTaskResultConsumer() {
+        return taskResultConsumer;
     }
 
-    public Consumer<TaskError> getPullErrorConsumer() {
-        return pullErrorConsumer;
+    public Consumer<TaskError> getTaskErrorConsumer() {
+        return taskErrorConsumer;
     }
 
     public long getEnqueuedTimestamp() {

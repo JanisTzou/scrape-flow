@@ -37,7 +37,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Log4j2
-public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
+public class HtmlUnitParsingStepHelper<ModelT, ContainerT> {
 
     private final List<HtmlUnitParsingStep<?>> nextSteps;
     private final Collecting<ModelT, ContainerT> collecting;
@@ -50,14 +50,14 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
      * @param stepName the delegating step name for debugging purposes
      * @param services
      */
-    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, @Nullable Collecting<ModelT, ContainerT> collecting, String stepName, ScrapingServices services) {
+    public HtmlUnitParsingStepHelper(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, @Nullable Collecting<ModelT, ContainerT> collecting, String stepName, ScrapingServices services) {
         this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
         this.collecting = Objects.requireNonNullElse(collecting, new Collecting<>());
         this.services = services;
         setStepName(stepName);
     }
 
-    public HtmlUnitParsingExecutionWrapper(List<HtmlUnitParsingStep<?>> nextSteps, String stepName, ScrapingServices services) {
+    public HtmlUnitParsingStepHelper(List<HtmlUnitParsingStep<?>> nextSteps, String stepName, ScrapingServices services) {
         this(nextSteps, null, stepName, services);
     }
 

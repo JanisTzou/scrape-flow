@@ -30,10 +30,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
-// TODO maybe we should express better that we expect the next page here ... or maybe in a new step ...
 @Log4j2
-public class FollowLink extends HtmlUnitParsingStep<FollowLink>
-        implements HtmlUnitChainableStep<FollowLink> {
+public class FollowLink extends CommonOperationsStepBase<FollowLink>
+        implements LoadingNewPage {
 
     FollowLink(List<HtmlUnitParsingStep<?>> nextSteps) {
         super(nextSteps);
@@ -64,6 +63,7 @@ public class FollowLink extends HtmlUnitParsingStep<FollowLink>
                         log.debug("{} - {}: Loaded page URL after anchor clicked: {}", stepExecOrder, getName(), nextUrl.toString());
 //                  System.out.println(nextPage.asXml());
 
+                        // TODO log / throw error if urls of curr and next pages are the same ...
                         if (nextPage2 != null) {
                             return List.of(nextPage2);
                         } else {
@@ -75,7 +75,7 @@ public class FollowLink extends HtmlUnitParsingStep<FollowLink>
                     }
                 };
                 @SuppressWarnings("unchecked")
-                HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+                HtmlUnitParsingStepHelper<ModelT, ContainerT> wrapper = new HtmlUnitParsingStepHelper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
                 wrapper.execute(ctx, nodesSearch, stepExecOrder);
 
             } else {
@@ -85,12 +85,6 @@ public class FollowLink extends HtmlUnitParsingStep<FollowLink>
 
         handleExecution(stepExecOrder, runnable);
         return stepExecOrder;
-    }
-
-    @Override
-    public FollowLink then(HtmlUnitParsingStep<?> nextStep) {
-        this.nextSteps.add(nextStep);
-        return this;
     }
 
     @Override

@@ -51,7 +51,7 @@ public class MaxEuroCzDemo {
                                 .then(GetElements.ByTextContent.searchString("Mozaika skleněná", false)
                                         .then(Actions.mapElements(anchor -> Optional.ofNullable(anchor.getParentNode()))
                                                 .then(GetElements.ByTag.anchor()
-                                                        .then(ParseElement.getTextContent().setCollector(Product::setCategory)) // ... TODO hmm interesting ... how to communicate the category down ?
+                                                        .then(ParseElement.getTextContent().setCollector(Product::setCategory)) // ... TODO hmm interesting ... how to communicate the category downstream ?
                                                         .then(ParseElement.getHRef(href -> "https://www.maxeuro.cz" + href)
                                                                 .thenNavigate(Actions.navigateToParsedLink(siteParser)
                                                                         .then(Actions.paginate()

@@ -27,9 +27,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
-        implements HtmlUnitChainableStep<ParseElementHRef>,
-        HtmlUnitCollectingToModelStep<ParseElementHRef>,
+public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
+        implements HtmlUnitCollectingToModelStep<ParseElementHRef>,
         HtmlUnitStringTransformingStep<ParseElementHRef> {
 
     private BiConsumer<Object, String> modelMutation;
@@ -47,16 +46,8 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
         this(null, parsedTextTransformation);
     }
 
-    ParseElementHRef(@Nullable List<HtmlUnitParsingStep<?>> nextSteps) {
-        this(nextSteps, null);
-    }
-
     ParseElementHRef() {
         this(null, null);
-    }
-
-    public static ParseElementHRef instance() {
-        return new ParseElementHRef();
     }
 
     @Override
@@ -73,7 +64,7 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
                     setParsedStringToModel(modelMutation, ctx, transformed, getName());
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ... // TODO actually think if this is best ...
                     @SuppressWarnings("unchecked")
-                    HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+                    HtmlUnitParsingStepHelper<ModelT, ContainerT> wrapper = new HtmlUnitParsingStepHelper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
                     ParsingContext<ModelT, ContainerT> ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
                     wrapper.execute(ctxCopy, nodesSearch, stepExecOrder);
                 }
@@ -94,14 +85,9 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
         return this;
     }
 
-    // TODO perhaps we should distinguish between the then() and thenNavigate() steps that come through those methods  and have separate executions for both?
-    @Override
-    public ParseElementHRef then(HtmlUnitParsingStep<?> nextStep) {
-        this.nextSteps.add(nextStep);
-        return this;
-    }
-
-    // TODO provide JavaDoc
+    /**
+     * Same as then() but with a more meaningful name for the purpose
+     */
     public ParseElementHRef thenNavigate(NavigateToParsedLink nextStep) {
         this.nextSteps.add(nextStep);
         return this;

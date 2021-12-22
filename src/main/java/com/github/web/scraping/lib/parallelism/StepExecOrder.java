@@ -28,12 +28,9 @@ public class StepExecOrder {
     public static final StepExecOrder INITIAL = new StepExecOrder(List.of(0));
 
     public static final Comparator<StepExecOrder> NATURAL_COMPARATOR = (so1, so2) -> {
-        List<StepExecOrder> sortedBySize = Stream.of(so1, so2).sorted(Comparator.comparingInt(StepExecOrder::size)).collect(Collectors.toList());
-        StepExecOrder smaller = sortedBySize.get(0);
-        StepExecOrder bigger = sortedBySize.get(1);
-        for (int idx = 0; idx < smaller.values.size(); idx++) {
-            Integer sVal = smaller.values.get(idx);
-            Integer bVal = bigger.values.get(idx);
+        for (int idx = 0; idx < Math.min(so1.size(), so2.size()); idx++) {
+            Integer sVal = so1.values.get(idx);
+            Integer bVal = so2.values.get(idx);
             int compared = Integer.compare(sVal, bVal);
             if (compared != 0) {
                 return compared;
@@ -41,9 +38,9 @@ public class StepExecOrder {
         }
 
         // if we got here the StepOrder instances are either same length or they are equal up to the length of the smaller one
-        if (bigger.size() == smaller.size()) {
+        if (so1.size() == so2.size()) {
           return 0;
-        } else if (so1 == smaller) {
+        } else if (so1.size() < so2.size()) {
             return -1;
         } else {
             return 1;
@@ -102,13 +99,44 @@ public class StepExecOrder {
         return Optional.empty();
     }
 
+    public boolean isParentOf(StepExecOrder other) {
+        if (other.size() > this.size()) {
+            Optional<StepExecOrder> subOrder = other.getSubOrder(size());
+            if (subOrder.isPresent()) {
+                return this.equals(subOrder.get());
+            }
+        }
+        return false;
+    }
+
+    Optional<StepExecOrder> getSubOrder(int valuesToInclude) {
+        if (valuesToInclude <= 0) {
+            throw new IllegalStateException("Specified value must be greater than 0!");
+        }
+        if (size() < valuesToInclude) {
+            return Optional.empty();
+        } else if (size() == valuesToInclude) {
+            return Optional.of(this);
+        } else {
+            return Optional.of(new StepExecOrder(this.values.subList(0, valuesToInclude)));
+        }
+    }
+
+    public boolean isBefore(StepExecOrder other) {
+        return NATURAL_COMPARATOR.compare(this, other) < 0;
+    }
+
+    public boolean isAfter(StepExecOrder other) {
+        return NATURAL_COMPARATOR.compare(this, other) > 0;
+    }
+
     public int size() {
         return this.values.size();
     }
 
     // error-prone having this as a field ... review methods modifying the list before doinf so ...
     public String asString() {
-        return this.values.stream().map(Object::toString).collect(Collectors.joining("-"));
+        return this.values.stream().map(Object::toString).collect(Collectors.joining("-", "", "-")); // IMPORTANT - the suffix is needed for prefix matching to work when tracking active steps/tasks...
     };
 
     @Override

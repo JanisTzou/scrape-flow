@@ -32,8 +32,8 @@ public class ActiveStepsTracker {
     /**
      * @return true if this or any child step is still being tracked; false otherwise
      */
-    public synchronized boolean isActiveOrHasRelatedActiveSteps(StepExecOrder stepExecOrder) {
-        return patriciaTrie.prefixMap(stepExecOrder.asString()).size() > 0;
+    public synchronized boolean isPartOfActiveStepSequence(StepExecOrder stepOrder) {
+        return patriciaTrie.prefixMap(stepOrder.asString()).size() > 0;
     }
 
     public synchronized void track(StepExecOrder stepExecOrder, String name) {

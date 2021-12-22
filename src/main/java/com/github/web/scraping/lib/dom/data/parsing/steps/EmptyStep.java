@@ -49,7 +49,7 @@ public class EmptyStep extends CommonOperationsStepBase<EmptyStep>
 
         Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
         @SuppressWarnings("unchecked")
-        HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+        HtmlUnitParsingStepHelper<ModelT, ContainerT> wrapper = new HtmlUnitParsingStepHelper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
         wrapper.execute(ctx, nodesSearch, stepExecOrder);
 
         return stepExecOrder;

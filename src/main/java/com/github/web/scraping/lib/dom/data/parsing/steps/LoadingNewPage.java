@@ -16,13 +16,7 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-public interface HtmlUnitChainableStep<C>  {
-
-    // TODo we need to insure that the steps actuallty happen in the declared sequence and not in various order?
-    //  how to address this in terms of parallel execution ?
-
-    C then(HtmlUnitParsingStep<?> nextStep);
-
-    C thenExclusively(HtmlUnitParsingStep<?> nextStep);
-
+// marker interface for steps that are expected to lod a new page and that (optionally - depending on implementation)
+// pass it to the following step via the ParsingContext
+public interface LoadingNewPage {
 }

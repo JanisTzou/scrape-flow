@@ -31,65 +31,69 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Log4j2
-public class TaskQueue {
+public class StepTaskExecutor {
 
-    public static final Duration PERIODIC_EXEC_NEXT_TRIGGER_INTERVAL = Duration.ofMillis(5);
-    private final Queue<QueueStepTask> taskQueue;
+    // TODO specialised thread pool for parsing / blocking operations  ...
+
+    public static final Duration PERIODIC_EXEC_NEXT_TRIGGER_INTERVAL = Duration.ofMillis(100);
+    private final Queue<QueuedStepTask> taskQueue;
     private final ThrottlingService throttlingService;
     private final Duration periodicExecNextTriggerInterval;
     private final ExecutingTasksTracker executingTasksTracker;
     private volatile Supplier<LocalDateTime> nowSupplier;
+    private final ExclusiveExecutionStack exclusiveExecutionStack;
 
-    public TaskQueue(ThrottlingService throttlingService) {
+    public StepTaskExecutor(ThrottlingService throttlingService, ExclusiveExecutionStack exclusiveExecutionStack) {
         this(throttlingService,
                 PERIODIC_EXEC_NEXT_TRIGGER_INTERVAL, // sensible default
                 LocalDateTime::now,
-                new ExecutingTasksTracker()
-        );
+                new ExecutingTasksTracker(),
+                exclusiveExecutionStack);
     }
 
     /**
      * FOR TESTING PURPOSES ONLY
      * package private access is intentional
      */
-    TaskQueue(ThrottlingService requestsPerSecondCounter,
-              Duration periodicPullNextTriggerInterval,
-              Supplier<LocalDateTime> nowSupplier, ExecutingTasksTracker executingTasksTracker) {
+    StepTaskExecutor(ThrottlingService requestsPerSecondCounter,
+                     Duration periodicExecNextTriggerInterval,
+                     Supplier<LocalDateTime> nowSupplier, ExecutingTasksTracker executingTasksTracker,
+                     ExclusiveExecutionStack exclusiveExecutionStack) {
         this.throttlingService = requestsPerSecondCounter;
         this.executingTasksTracker = executingTasksTracker;
-        this.taskQueue = new PriorityBlockingQueue<>(100, QueueStepTask.NATURAL_COMPARATOR);
-        this.periodicExecNextTriggerInterval = periodicPullNextTriggerInterval;
+        this.exclusiveExecutionStack = exclusiveExecutionStack;
+        this.taskQueue = new PriorityBlockingQueue<>(100, QueuedStepTask.NATURAL_COMPARATOR);
+        this.periodicExecNextTriggerInterval = periodicExecNextTriggerInterval;
         this.nowSupplier = nowSupplier;
-        schedulePeriodicPullNextTrigger();
+        schedulePeriodicExecNextTrigger();
     }
 
 
-    private void schedulePeriodicPullNextTrigger() {
+    private void schedulePeriodicExecNextTrigger() {
         Flux.interval(periodicExecNextTriggerInterval, periodicExecNextTriggerInterval)
                 .doOnNext(num -> {
-//                    jsonLog.debug("Running regular trigger of pullNext()");
                     this.dequeueNextAndExecute();
                 })
                 .onErrorResume(throwable -> {
-                    log.warn("Error in scheduled trigger of pullNext()", throwable);
+                    log.warn("Error in scheduled trigger of dequeueNextAndExecute()", throwable);
                     return Mono.empty();
                 })
                 .subscribe();
     }
 
     public void submit(StepTask task,
-                       Consumer<TaskResult> pullResultConsumer,
-                       Consumer<TaskError> pullErrorConsumer) {
-        enqueueTask(task, pullResultConsumer, pullErrorConsumer);
+                       Consumer<TaskResult> taskResultConsumer,
+                       Consumer<TaskError> taskErrorConsumer) {
+        enqueueTask(task, taskResultConsumer, taskErrorConsumer);
         dequeueNextAndExecute();
     }
 
     /**
      * must be synchronized -> is called from multiple threads and accesses data that is not thread-safe and operations on it need to be atomic
      */
-    private synchronized void enqueueTask(StepTask feedRequest, Consumer<TaskResult> pullResultConsumer, Consumer<TaskError> pullErrorConsumer) {
-        taskQueue.add(new QueueStepTask(feedRequest, pullResultConsumer, pullErrorConsumer, System.currentTimeMillis()));
-        log.trace("New enqueued request info: {}", feedRequest.loggingInfo());
+    private synchronized void enqueueTask(StepTask stepTask, Consumer<TaskResult> taskResultConsumer, Consumer<TaskError> taskErrorConsumer) {
+        taskQueue.add(new QueuedStepTask(stepTask, taskResultConsumer, taskErrorConsumer, System.currentTimeMillis()));
+        log.trace("New enqueued request info: {}", stepTask.loggingInfo());
         logEnqueuedRequestCount();
     }
 
@@ -98,39 +102,53 @@ public class TaskQueue {
      */
     private synchronized void dequeueNextAndExecute() {
         try {
-            QueueStepTask next = taskQueue.peek();
+            /*
+            when can we execute?
+            - ... we want to preserve the order the tasks came in ...
+            - if ordered steps are executing, nothing else can if it comes After them (this is evaluated based on their root step order)
+                - child steps can execute
+            - take the longest step order and execute that first if there is a situation where we have order -> not ordered -> ordered step chaining ...
+
+             */
+
+            // how to manage the number of executing tasks?
+
+            QueuedStepTask next = taskQueue.peek();
+
             while (canExecute(next)) { // TODO maybe we are processing too much ? ... we should only take as many as there are threads in the pool ... at most ...
                 executingTasksTracker.track(next.getStepTask());
                 taskQueue.poll(); // remove from queue head
                 executeTask(next.getStepTask(),
-                        next.getPullResultConsumer(),
-                        next.getPullErrorConsumer(),
+                        next.getTaskResultConsumer(),
+                        next.getTaskErrorConsumer(),
                         next.getEnqueuedTimestamp()
                 );
                 next = taskQueue.peek();
             }
         } catch (Exception e) {
-            log.error("Error pulling next request!", e);
+            log.error("Error executing next task!", e);
         }
     }
 
     /**
      * Non-throttlable tasks can proceed without limits. Throttlable tasks need to be limited in terms of how many are executed in parallel
      */
-    private boolean canExecute(QueueStepTask next) {
-        return next != null && (!next.getStepTask().isThrottlingAllowed() || throttlingService.canProceed(executingTasksTracker.countOfExecutingThrottlableTasks()));
+    private boolean canExecute(QueuedStepTask next) {
+        return next != null
+                && exclusiveExecutionStack.canExecute(next)
+                && (!next.getStepTask().isThrottlingAllowed() || throttlingService.canProceed(executingTasksTracker.countOfExecutingThrottlableTasks()));
     }
 
     private void executeTask(StepTask task,
-                             Consumer<TaskResult> pullResultConsumer,
-                             Consumer<TaskError> pullErrorConsumer,
+                             Consumer<TaskResult> taskResultConsumer,
+                             Consumer<TaskError> taskErrorConsumer,
                              long enqueuedTimestamp) {
 
         AtomicBoolean isRetry = new AtomicBoolean(false);
 
         Mono.just(task)
                 .doOnNext(t -> {
-                    log.trace("{} - ... executing ...", task.loggingInfo());
+                    log.debug("{} - ... executing ...", task.loggingInfo());
                 })
                 .map(task0 -> handleTaskIfRetried(isRetry, task0))
                 .flatMap(canProceed ->
@@ -148,7 +166,7 @@ public class TaskQueue {
                 .onErrorResume(error -> {
                     logDroppingRetrying(task, error);
                     logEnqueuedRequestCount();
-                    notifyOnErrorCallback(task, pullErrorConsumer, error);
+                    notifyOnErrorCallback(task, taskErrorConsumer, error);
                     return Mono.empty();
                     // note - do not untrack task here, it should already be untracked by onErrorMap() above
                 })
@@ -160,18 +178,18 @@ public class TaskQueue {
                 .map(stepResults -> new TaskResult(task))
                 .doOnCancel(taskFinishedHook())
                 .doOnTerminate(taskFinishedHook())
-//                .subscribeOn(Schedulers.parallel())
-                .subscribeOn(Schedulers.single())
+                .subscribeOn(Schedulers.parallel())
+//                .subscribeOn(Schedulers.single())
                 .subscribe(taskResult -> {
                             try {
-                                pullResultConsumer.accept(taskResult);
+                                taskResultConsumer.accept(taskResult);
                             } catch (Exception e) {
                                 log.error("Error consuming result for task: {}", task.loggingInfo());
                             }
                         },
                         throwable -> {
                             try {
-                                pullErrorConsumer.accept(new TaskError(task, throwable));
+                                taskErrorConsumer.accept(new TaskError(task, throwable));
                             } catch (Exception e) {
                                 log.error("Error consuming error result for execution of task: {}", task.loggingInfo());
                             }
@@ -210,11 +228,11 @@ public class TaskQueue {
         }
     }
 
-    private void notifyOnErrorCallback(StepTask task, Consumer<TaskError> pullErrorConsumer, Throwable error) {
+    private void notifyOnErrorCallback(StepTask task, Consumer<TaskError> taskErrorConsumer, Throwable error) {
         try {
-            pullErrorConsumer.accept(new TaskError(task, error));
+            taskErrorConsumer.accept(new TaskError(task, error));
         } catch (Exception e) {
-            log.error("Error in pullErrorConsumer callback: ", e);
+            log.error("Error in taskErrorConsumer callback: ", e);
         }
     }
 

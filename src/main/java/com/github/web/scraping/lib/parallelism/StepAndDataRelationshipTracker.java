@@ -129,7 +129,7 @@ public class StepAndDataRelationshipTracker {
 
         List<RelatedSteps> rsList = getAllRelatedStepsTo(finishedStep);
         for (RelatedSteps relatedSteps : rsList) {
-            boolean anyRelatedStepSeqStillActive = relatedSteps.spawned.steps.values().stream().anyMatch(activeStepsTracker::isActiveOrHasRelatedActiveSteps);
+            boolean anyRelatedStepSeqStillActive = relatedSteps.spawned.steps.values().stream().anyMatch(activeStepsTracker::isPartOfActiveStepSequence);
             if (anyRelatedStepSeqStillActive) {
                 // cannot publish this data
                 log.debug("Cannot publish related data for finished step yet: {}", finishedStep);

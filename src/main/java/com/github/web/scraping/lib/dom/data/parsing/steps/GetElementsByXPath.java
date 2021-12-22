@@ -46,7 +46,7 @@ public class GetElementsByXPath extends CommonOperationsStepBase<GetElementsByXP
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> ctx.getNode().getByXPath(xPath);
             @SuppressWarnings("unchecked")
-            HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+            HtmlUnitParsingStepHelper<ModelT, ContainerT> wrapper = new HtmlUnitParsingStepHelper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
             wrapper.execute(ctx, nodesSearch, stepExecOrder);
         };
 
