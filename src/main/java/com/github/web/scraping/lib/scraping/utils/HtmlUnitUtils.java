@@ -137,6 +137,12 @@ public class HtmlUnitUtils {
         return found;
     }
 
+    public static boolean hasAttributeWithValue(DomNode domNode, String attribute, String value, boolean exactMatch) {
+        if (domNode instanceof DomElement) {
+            return hasAttributeWithValue((DomElement) domNode, attribute, value, exactMatch);
+        }
+        return false;
+    }
 
     public static boolean hasAttributeWithValue(DomElement element, String attribute, String value, boolean exactMatch) {
         if (exactMatch) {

@@ -45,6 +45,7 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
         this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
     }
 
+    // TODO instead of step result return generated order ...
     public abstract <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx,
                                                                   ExecutionMode mode,
                                                                   OnOrderGenerated onOrderGenerated);
@@ -116,5 +117,7 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
         onOrderGenerated.accept(stepExecOrder);
         return stepExecOrder;
     }
+
+    // TODO methid failSilently() ???
 
 }

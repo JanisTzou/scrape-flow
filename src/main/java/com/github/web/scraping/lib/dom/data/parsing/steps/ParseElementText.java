@@ -22,6 +22,7 @@ import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
+import org.apache.commons.text.StringEscapeUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -33,11 +34,13 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
         implements HtmlUnitCollectingToModelStep<ParseElementText>,
         HtmlUnitStringTransformingStep<ParseElementText> {
 
+    // TODO provide a set of options to transform/sanitize text ... \n \t .. etc ...
+
     private BiConsumer<Object, String> modelMutation;
     private boolean excludeChildElementsTextContent;
 
     public ParseElementText() {
-        this(null, null, true);
+        this(null, null, false);
     }
 
     protected ParseElementText(@Nullable List<HtmlUnitParsingStep<?>> nextSteps,
@@ -64,10 +67,13 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
         Callable<List<StepResult>> callable = () -> {
             String tc = null;
             if (ctx.getNode() instanceof HtmlElement htmlEl) {
+                // TODO look for DomText ...
                 tc = htmlEl.getTextContent();
                 if (tc != null) {
+                    tc = StringEscapeUtils.unescapeHtml4(tc);
                     // this should be optional ... used in cases when child elements' content filthies the parent element's content ...
                     if (this.excludeChildElementsTextContent) {
+                        // TODO maybe we can use the text node for this very purpose ?
                         tc = removeChildElementsTextContent(tc, htmlEl);
                     }
                     tc = tc.trim();
@@ -79,7 +85,7 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
             setParsedStringToModel(modelMutation, ctx, transformed, getName());
 
             ParsedElement parsedElement = new ParsedElement(null, null, transformed, false, ctx.getNode());
-            parsedElement.setModelProxy((ModelProxy<Object>) ctx.getModelProxy());
+            parsedElement.setModelWrapper((ModelWrapper<Object>) ctx.getModelWrapper());
 
             // TODO how to populate the following context?
 
@@ -99,6 +105,7 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
 
     /**
      * Determines if the text of child elements should be part of the resulting parsed text content
+     * set to false by default
      */
     public ParseElementText excludeChildElements(boolean removeChildElementsTextContent) {
         this.excludeChildElementsTextContent = removeChildElementsTextContent;

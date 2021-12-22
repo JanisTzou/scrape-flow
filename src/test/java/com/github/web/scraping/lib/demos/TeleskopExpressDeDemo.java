@@ -101,7 +101,7 @@ public class TeleskopExpressDeDemo {
                                                                 .then(ParseElementHRef.instance().setName("parse-product-href")
                                                                         .setTransformation(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
                                                                         .setCollector(Product::setDetailUrl)
-                                                                        .thenNavigate(new NavigateToNewSite()
+                                                                        .thenNavigate(new NavigateToParsedHRef()
                                                                                 .setSiteParser(new HtmlUnitSiteParser(driverManager))
                                                                                 .then(getProductDetailTitleElem.setName("get-product-detail-title") // TODO perhaps we need a setParsingSequence method after all instead of then() here ... so that we are consistent with how we set up a SiteParse (allows only 1 sequence) ....
                                                                                         .then(new ParseElementText().setCollector(Product::setTitle))
@@ -113,7 +113,7 @@ public class TeleskopExpressDeDemo {
                                                                                         .then(GetElementsByTag.instance("a")
                                                                                                 .then(ParseElementHRef.instance()
                                                                                                         .setTransformation(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
-                                                                                                        .thenNavigate(new NavigateToNewSite()
+                                                                                                        .thenNavigate(new NavigateToParsedHRef()
                                                                                                                 .setSiteParser(new HtmlUnitSiteParser(driverManager))
                                                                                                                 .then(GetListedElementsByFirstElementXPath.instance("/html/body/table/tbody/tr[1]")
                                                                                                                         .setCollector(ShippingCosts::new, (Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc))

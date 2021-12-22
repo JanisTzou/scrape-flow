@@ -155,8 +155,8 @@ public class TaskQueue {
                 .map(stepResults -> new TaskResult(task, stepResults))
                 .doOnCancel(taskFinishedHook())
                 .doOnTerminate(taskFinishedHook())
-                .subscribeOn(Schedulers.parallel())
-//                .subscribeOn(Schedulers.single())
+//                .subscribeOn(Schedulers.parallel())
+                .subscribeOn(Schedulers.single())
                 .subscribe(taskResult -> {
                             try {
                                 pullResultConsumer.accept(taskResult);

@@ -83,7 +83,7 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
         Function<HtmlPage, List<ParsedData>> parsing = page1 -> executeNextSteps(new ParsingContext<>(StepExecOrder.INITIAL, page1), parsingSequences)
                 .map(sr -> {
                     if (sr instanceof ParsedElement parsedElement) {
-                        return new ParsedData(parsedElement.getModelProxy());
+                        return new ParsedData(parsedElement.getModelWrapper());
                     } else if (sr instanceof ParsedElements parsedElements) {
                         return new ParsedData(parsedElements.getContainer());
                     }
@@ -116,9 +116,9 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
                 return Optional.empty();
             } else {
                 if (page.isHtmlPage()) {
-                    log.debug("{}Loaded page in {}ms at URL: {}", logInfo, resp.getLoadTime(), pageUrl);
+                    log.info("{}Loaded page in {}ms at URL: {}", logInfo, resp.getLoadTime(), pageUrl);
                     HtmlPage htmlPage = (HtmlPage) page;
-                    printPageToConsole(htmlPage);
+//                    printPageToConsole(htmlPage);
                     return Optional.of(htmlPage);
                 }
                 log.warn("{}Cannot process non-HTML page!", logInfo);

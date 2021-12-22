@@ -27,6 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Getter
 @ToString
+@Deprecated
 public class ParsedElements implements StepResult { // TODO rename to parsed element? parsed field ? ...
 
     // TODO should this not always be either container or model but in one field ?

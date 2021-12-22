@@ -42,6 +42,8 @@ public interface HtmlUnitCollectorSetupStep<C> {
 
     <R, T> C setCollector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator, ParsedDataListener<T> parsedDataListener);
 
+    <R, T> C setCollector(Supplier<T> modelSupplier,  Supplier<R> containerSupplier, BiConsumer<R, T> accumulator, ParsedDataListener<T> parsedDataListener);
+
     /**
      * checks invariants
      */

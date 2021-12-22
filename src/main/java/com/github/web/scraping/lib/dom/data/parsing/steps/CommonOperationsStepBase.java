@@ -58,6 +58,14 @@ public abstract class CommonOperationsStepBase<C> extends HtmlUnitParsingStep<C>
 
     @SuppressWarnings("unchecked")
     @Override
+    public <R, T> C setCollector(Supplier<T> modelSupplier,  Supplier<R> containerSupplier, BiConsumer<R, T> accumulator, ParsedDataListener<T> parsedDataListener) {
+        mustBeNull(this.collecting);
+        this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator, parsedDataListener);
+        return (C) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
     public C then(HtmlUnitParsingStep<?> nextStep) {
         this.nextSteps.add(nextStep);
         return (C) this;

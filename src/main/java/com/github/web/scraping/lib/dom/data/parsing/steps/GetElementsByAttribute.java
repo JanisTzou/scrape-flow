@@ -59,6 +59,16 @@ public class GetElementsByAttribute extends CommonOperationsStepBase<GetElements
         return new GetElementsByAttribute(attributeName, attributeValue);
     }
 
+    public static GetElementsByAttribute id(String idValue) {
+        return new GetElementsByAttribute("id", idValue);
+    }
+
+    public static GetElementsByAttribute cssClass(String className) {
+        return new GetElementsByAttribute("class", className);
+    }
+
+
+
     public static GetElementsByAttribute instance(String attributeName) {
         return new GetElementsByAttribute(attributeName);
     }

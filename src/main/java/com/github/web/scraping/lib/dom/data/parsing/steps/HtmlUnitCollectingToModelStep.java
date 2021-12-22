@@ -17,8 +17,8 @@
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import lombok.extern.log4j.Log4j2;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 
 interface HtmlUnitCollectingToModelStep<C> {
@@ -31,11 +31,18 @@ interface HtmlUnitCollectingToModelStep<C> {
     <T> C setCollector(BiConsumer<T, String> modelMutation);
 
 
-    default void setParsedStringToModel(BiConsumer<Object, String> modelMutation, ParsingContext<?, ?> ctx, String value, String stepName) {
+    default void setParsedStringToModel(BiConsumer<Object, String> modelMutation, ParsingContext<?, ?> ctx, String parsedValue, String stepName) {
         try {
             if (modelMutation != null) {
-                if (ctx.getModelProxy() != null) {
-                    modelMutation.accept(ctx.getModelProxy().getModel(), value);
+                if (ctx.getModelWrapper() != null) {
+                    ModelWrapper<?> modelWrapper = ctx.getModelWrapper();
+                    if (modelWrapper.isAlreadyApplied(modelMutation)) {
+                        log.error("Wrong parsed data collector setup detected in the step sequence related to model of class type '{}' and somewhere around step {}! " +
+                                " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided", modelWrapper.getModel().getClass().getSimpleName(), stepName);
+                    } else {
+                        modelMutation.accept(modelWrapper.getModel(), parsedValue);
+                        modelWrapper.addAppliedAccumulator(modelMutation);
+                    }
                 } else {
                     log.error("{}: ctx modelProxy is null but modelMutation exists! Check the setting of data collection model.", stepName);
                 }

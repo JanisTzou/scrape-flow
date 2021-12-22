@@ -63,6 +63,7 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
                 String href = anch.getHrefAttribute();
                 if (href != null) {
                     String transformed = transformParsedText(href);
+                    log.debug("{} - {}: Parsed href: {}", stepExecOrder, getName(), transformed);
                     // TODO actually have another transformation that will say something like "transformToFullURL ... and put that one to the context below)
                     setParsedStringToModel(modelMutation, ctx, transformed, getName());
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ... // TODO actually think if this is best ...
@@ -72,6 +73,8 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
                     List<StepResult> nextResults = wrapper.execute(ctxCopy, nodesSearch, stepExecOrder, mode);
                     return Stream.concat(Stream.of(new ParsedElement(null, transformed, null, true, ctx.getNode())), nextResults.stream()).collect(Collectors.toList());
                 }
+            } else {
+                log.warn("No HtmlAnchor element provided -> cannot parse href value! Check the steps sequence above step {}", getName());
             }
             return Collections.emptyList();
         };
@@ -94,7 +97,7 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
     }
 
     // TODO provide JavaDoc
-    public ParseElementHRef thenNavigate(NavigateToNewSite nextStep) {
+    public ParseElementHRef thenNavigate(NavigateToParsedHRef nextStep) {
         this.nextSteps.add(nextStep);
         return this;
     }

@@ -14,18 +14,24 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing;
+package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import org.junit.Test;
 
-@RequiredArgsConstructor
-@Getter
-public class ElementClicked implements StepResult {
+import java.util.Optional;
 
-    private final DomNode clickedElement;
-    private final HtmlPage pageAfterElementClicked;
+import static org.junit.Assert.*;
 
+public class StepsUtilsTest {
+
+    @Test
+    public void findStepOfTypeInSequence() {
+
+        Paginate sequence = new Paginate().then(new ReturnNextPage());
+
+        Optional<ReturnNextPage> returnNextPageStep = StepsUtils.findStepOfTypeInSequence(sequence, ReturnNextPage.class);
+
+        assertTrue(returnNextPageStep.isPresent());
+
+    }
 }

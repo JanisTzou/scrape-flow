@@ -16,7 +16,7 @@
 
 package com.github.web.scraping.lib.dom.data.parsing;
 
-import com.github.web.scraping.lib.dom.data.parsing.steps.ModelProxy;
+import com.github.web.scraping.lib.dom.data.parsing.steps.ModelWrapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 @RequiredArgsConstructor
 @Getter
 @ToString
+@Deprecated
 public class ParsedElement implements StepResult { // TODO rename to parsed element? parsed field ? ...
 
     private final Enum<?> identifier;
@@ -41,7 +42,7 @@ public class ParsedElement implements StepResult { // TODO rename to parsed elem
     // TODO make properly iomplementated later ...
     @Nullable
     @Setter
-    private ModelProxy<Object> modelProxy;
+    private ModelWrapper<Object> modelWrapper;
 
     private final Object element;
 

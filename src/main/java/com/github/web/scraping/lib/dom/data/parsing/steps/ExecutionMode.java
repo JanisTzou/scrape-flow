@@ -16,6 +16,7 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
+@Deprecated
 public enum ExecutionMode {
 
     SYNC,

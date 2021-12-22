@@ -31,6 +31,8 @@ public class GetElementsByCssClass extends CommonOperationsStepBase<GetElementsB
 
     private final String cssClassName;
 
+    // TODO maybe put in the attribute step ?
+
     public GetElementsByCssClass(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String cssClassName) {
         super(nextSteps);
         this.cssClassName = cssClassName;

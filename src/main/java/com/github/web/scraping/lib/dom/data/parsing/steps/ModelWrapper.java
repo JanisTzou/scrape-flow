@@ -20,6 +20,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Wrapper around the model object that ensures that when the model returns populated with data
  * it is collected only once (thus avoiding duplicates in resulting collections od data)
@@ -27,10 +31,24 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Getter
 @Setter
-public class ModelProxy<ModelT> {
+public class ModelWrapper<ModelT> {
 
     private final ModelT model;
 
     private boolean accumulated;
+
+    /**
+     * Stores all methods used to store parsed data into the model object, so we can provide warnings that a model field is overwritten multiple times.
+     * Such a case would mean that the model declaration as a collector in the step sequence is misplaced and should be placed lower down the steps sequence
+     */
+    private Set<Object> appliedAccumulators = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
+    public boolean isAlreadyApplied(Object accumulator) {
+        return appliedAccumulators.contains(accumulator);
+    }
+
+    public void addAppliedAccumulator(Object object) {
+        this.appliedAccumulators.add(object);
+    }
 
 }

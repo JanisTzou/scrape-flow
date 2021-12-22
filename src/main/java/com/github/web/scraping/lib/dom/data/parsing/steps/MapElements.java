@@ -16,8 +16,8 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
+import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.dom.data.parsing.SiteParserInternal;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
@@ -25,53 +25,52 @@ import lombok.extern.log4j.Log4j2;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
+/**
+ * Maps nodes acquired in the previous steps to other nodes ... e.g. children/parents/siblings etc ...
+ */
 @Log4j2
-public class NavigateToNewSite extends CommonOperationsStepBase<NavigateToNewSite>
-        implements HtmlUnitParserSwitchingStep<NavigateToNewSite> {
+public class MapElements extends CommonOperationsStepBase<MapElements> {
 
-    // TODp perhaps provide in the constructor as a mandatory thing ?
-    private SiteParserInternal<?> siteParser;
+    private final Function<DomNode, Optional<DomNode>> mapper;
 
-    public NavigateToNewSite(@Nullable List<HtmlUnitParsingStep<?>> nextSteps) {
+    MapElements(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, Function<DomNode, Optional<DomNode>> mapper) {
         super(nextSteps);
+        this.mapper = mapper;
     }
 
-    public NavigateToNewSite() {
-        this(null);
+    public MapElements(Function<DomNode, Optional<DomNode>> mapper) {
+        this(null, mapper);
     }
 
-    // the URL must come from the parsing context!!
     @Override
     public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder(), onOrderGenerated);
 
-        // TODO problem ... this does not track steps for us and also the data ...
         Callable<List<StepResult>> callable = () -> {
-            if (ctx.getParsedText() == null) {
-                // TODO if this step type has collectors then we need similar logic as in Wrapper ...
-                return siteParser.parseInternal(ctx.getParsedURL(), ctx, this.nextSteps, stepExecOrder);
 
-            } else {
-                log.error("{}: Cannot parse next site - the parsed URL is null!", getName());
+            Supplier<List<DomNode>> nodesSearch = () -> {
+                Optional<DomNode> other = mapper.apply(ctx.getNode());
+                if (other.isPresent()) {
+                    log.debug("{} element mapped successfully from {} to {}", getName(), ctx.getNode(), other.get());
+                    return List.of(other.get());
+                } else {
+                    log.debug("{} element could not be mapped from {} to other element", getName(), ctx.getNode());
+                }
                 return Collections.emptyList();
-            }
+            };
+
+            @SuppressWarnings("unchecked")
+            HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+            return wrapper.execute(ctx, nodesSearch, stepExecOrder, mode);
         };
 
         return handleExecution(mode, stepExecOrder, callable);
     }
 
-
-    @Override
-    public NavigateToNewSite setSiteParser(SiteParserInternal<?> siteParser) {
-        this.siteParser = siteParser;
-        this.siteParser.setServicesInternal(services);
-        return this;
-    }
-
-    @Override
-    public boolean throttlingAllowed() {
-        return true;
-    }
 }

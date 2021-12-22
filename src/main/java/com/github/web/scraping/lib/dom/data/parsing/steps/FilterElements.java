@@ -17,67 +17,52 @@
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.gargoylesoftware.htmlunit.html.DomText;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
-import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class GetElementsByTag extends CommonOperationsStepBase<GetElementsByTag> {
+/**
+ * Filters nodes acquired in the previous steps by custom conditions
+ */
+@Log4j2
+public class FilterElements extends CommonOperationsStepBase<FilterElements> {
 
-    private final String tagName;
+    private final Predicate<DomNode> domNodePredicate;
 
-    /**
-     * @param nextSteps
-     * @param tagName
-     * @throws NullPointerException if tagName is null
-     */
-    public GetElementsByTag(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String tagName) {
+    FilterElements(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, Predicate<DomNode> domNodePredicate) {
         super(nextSteps);
-        Objects.requireNonNull(tagName);
-        this.tagName = tagName;
+        this.domNodePredicate = domNodePredicate;
     }
 
-    public GetElementsByTag(String tagName) {
-        this(null, tagName);
+    public FilterElements(Predicate<DomNode> domNodePredicate) {
+        this(null, domNodePredicate);
     }
-
-    public static GetElementsByTag instance(String tagName) {
-        return new GetElementsByTag(tagName);
-    }
-
-    public static GetElementsByTag div() {
-        return new GetElementsByTag("div");
-    }
-
-    public static GetElementsByTag anchor() {
-        return new GetElementsByTag("a");
-    }
-
-    public static GetElementsByTag li() {
-        return new GetElementsByTag("li");
-    }
-
-    public static GetElementsByTag span() {
-        return new GetElementsByTag("span");
-    }
-
-    public static GetElementsByTag img() {
-        return new GetElementsByTag("img");
-    }
-
 
     @Override
     public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder(), onOrderGenerated);
 
         Callable<List<StepResult>> callable = () -> {
-            Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsByTagName(ctx.getNode(), tagName);
+            Supplier<List<DomNode>> nodesSearch = () -> {
+                if (domNodePredicate.test(ctx.getNode())) {
+                    log.debug("{} element passed filter: {}", getName(), ctx.getNode());
+                    return List.of(ctx.getNode());
+                } else {
+                    log.debug("{} element filtered away: {}", getName(), ctx.getNode());
+                }
+                return Collections.emptyList();
+            };
+
             @SuppressWarnings("unchecked")
             HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
             return wrapper.execute(ctx, nodesSearch, stepExecOrder, mode);

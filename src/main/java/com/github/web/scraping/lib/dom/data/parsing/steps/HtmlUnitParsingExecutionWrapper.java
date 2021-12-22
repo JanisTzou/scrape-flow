@@ -60,6 +60,7 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
     public <M, T> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, Supplier<List<DomNode>> nodesSearch, StepExecOrder currStepExecOrder, ExecutionMode mode) {
         try {
             final List<DomNode> foundNodes = nodesSearch.get();
+            log.debug("{} - {}: found {} nodes", currStepExecOrder, getStepName(), foundNodes.size());
 
             final List<StepResult> nextStepResults = foundNodes
                     .stream()
@@ -117,7 +118,8 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
                             nextContextBasis.model,
                             nextContextBasis.container,
                             null, // TODO send parsed text as well? Probably not, the parsed text should be possible to access differently ... (through model)
-                            nextContextBasis.parsedURL
+                            nextContextBasis.parsedURL,
+                            nextContextBasis.recursiveRootStepExecOrder
                     );
                     List<StepResult> stepResults = step.execute(nextCtx, mode, executedSteps::add);
                     return stepResults.stream();
@@ -145,28 +147,29 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
 
     @SuppressWarnings("unchecked")
     private <ModelT2, ContainerT2> NextParsingContextBasis<ModelT2, ContainerT2> getNextContextBasis(ParsingContext<ModelT, ContainerT> ctx) {
-        Optional<ModelProxy<?>> suppliedModelProxy = collecting.supplyModel().map(ModelProxy::new);
+        Optional<ModelWrapper<?>> suppliedModelProxy = collecting.supplyModel().map(ModelWrapper::new);
         boolean suppliedModel;
-        ModelProxy<ModelT2> nextModelProxy;
+        ModelWrapper<ModelT2> nextModelWrapper;
         ContainerT2 nextContainer;
 
         if (suppliedModelProxy.isPresent()) {
             suppliedModel = true;
-            nextModelProxy = (ModelProxy<ModelT2>) suppliedModelProxy.get();
+            nextModelWrapper = (ModelWrapper<ModelT2>) suppliedModelProxy.get();
             nextContainer = (ContainerT2) suppliedModelProxy.get().getModel(); // previous suppliedModelProxy must be the next container ...
             log.trace("{}: next model is supplied", getStepName());
         } else {
             suppliedModel = false;
-            ModelProxy<?> ctxModelProxy = ctx.getModelProxy();
-            nextModelProxy = (ModelProxy<ModelT2>) ctxModelProxy; // needs to be propagated
-            nextContainer = ctxModelProxy != null ? (ContainerT2) ctxModelProxy.getModel() : null;
+            ModelWrapper<?> ctxModelWrapper = ctx.getModelWrapper();
+            nextModelWrapper = (ModelWrapper<ModelT2>) ctxModelWrapper; // needs to be propagated
+            nextContainer = ctxModelWrapper != null ? (ContainerT2) ctxModelWrapper.getModel() : null;
             log.trace("{}: next model is not supplied", getStepName());
         }
 
-        return new NextParsingContextBasis<>(nextModelProxy, suppliedModel, nextContainer, ctx.getParsedURL());
+        return new NextParsingContextBasis<>(nextModelWrapper, suppliedModel, nextContainer, ctx.getParsedURL(), ctx.getRecursiveRootStepExecOrder());
     }
 
     // TODO execute this onlt in the SYNC mode ... probably ...
+    @Deprecated // relevant only for the SYNC execution ...
     private List<StepResult> collectStepResults(ParsingContext<ModelT, ContainerT> ctx, List<StepResult> stepResults) {
         final Optional<StepContainer<ContainerT>> stepContainer = getStepContainer(ctx);
         final ContainerT container = stepContainer.map(sc -> sc.container).orElse(null);
@@ -175,20 +178,20 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
             stepResults.stream()
                     .filter(sr -> sr instanceof ParsedElement)
                     .map(sr -> (ParsedElement) sr)
-                    .map(ParsedElement::getModelProxy)
+                    .map(ParsedElement::getModelWrapper)
                     .filter(Objects::nonNull)
                     .forEach(mp -> {
                         // the proxy prevents duplicates to be accumulated as data is returning upstream
                         @SuppressWarnings("unchecked")
-                        ModelProxy<ModelT> modelProxy = (ModelProxy<ModelT>) mp;
+                        ModelWrapper<ModelT> modelWrapper = (ModelWrapper<ModelT>) mp;
                         if (!mp.isAccumulated()) {
 
                             BiConsumer<ContainerT, ModelT> accumulator = collecting.getAccumulator();
                             if (accumulator != null) {
                                 try {
                                     // if collectors are incorrectly set up, here is where we get exps like this: java.lang.ClassCastException: class com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler$Product cannot be cast to class com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler$Products
-                                    accumulator.accept(container, modelProxy.getModel());
-                                    modelProxy.setAccumulated(true);
+                                    accumulator.accept(container, modelWrapper.getModel());
+                                    modelWrapper.setAccumulated(true);
                                 } catch (ClassCastException e) {
                                     throwIncorrectDataCollectionSetupEx(e);
                                 }
@@ -233,7 +236,7 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
     private static class NextParsingContextBasis<ModelT, ContainerT> {
 
         @Nullable
-        private final ModelProxy<ModelT> model;
+        private final ModelWrapper<ModelT> model;
 
         /**
          * If the model has been just instantiated
@@ -246,6 +249,10 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
         // if we are getting a URL from previous scraping we wanna preserve it in the context
         @Nullable
         private final String parsedURL;
+
+        // this must be preserved between the step calls ... but some step needs to have the responsibility for resetting it (setting to null)
+        @Nullable
+        private final StepExecOrder recursiveRootStepExecOrder;
 
     }
 

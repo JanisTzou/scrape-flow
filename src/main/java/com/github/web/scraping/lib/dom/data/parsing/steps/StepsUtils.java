@@ -18,6 +18,7 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import lombok.extern.log4j.Log4j2;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Log4j2
@@ -33,6 +34,18 @@ public class StepsUtils {
         for (HtmlUnitParsingStep<?> ns : nextStep.nextSteps) {
             propagateServicesRecursively(ns, services, visited);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends HtmlUnitParsingStep<T>> Optional<T> findStepOfTypeInSequence(HtmlUnitParsingStep<?> sequence, Class<T> stepType) {
+        if (stepType.isAssignableFrom(sequence.getClass())) {
+            return Optional.of((T) sequence);
+        } else {
+            for (HtmlUnitParsingStep<?> nextStep : sequence.nextSteps) {
+                return findStepOfTypeInSequence(nextStep, stepType);
+            }
+        }
+        return Optional.empty();
     }
 
 }

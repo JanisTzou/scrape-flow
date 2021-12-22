@@ -16,8 +16,76 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-public class GetElementsByTextContent {
+import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.gargoylesoftware.htmlunit.html.DomText;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
+import com.github.web.scraping.lib.dom.data.parsing.StepResult;
+import com.github.web.scraping.lib.parallelism.StepExecOrder;
+import lombok.extern.log4j.Log4j2;
 
-    // TODO it should also be possible to provide a "dynamic" component to the name creation ... so that the searched name can be created based on previously parsed data ...
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
+@Log4j2
+public class GetElementsByTextContent extends CommonOperationsStepBase<GetElementsByTextContent> {
+
+    private final String stringToSearch;
+
+    private boolean matchWholeTextContent = true;
+
+
+    GetElementsByTextContent(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String stringToSearch) {
+        super(nextSteps);
+        Objects.requireNonNull(stringToSearch);
+        this.stringToSearch = stringToSearch;
+    }
+
+    public GetElementsByTextContent(String stringToSearch) {
+        this(null, stringToSearch);
+    }
+
+
+    @Override
+    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
+        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder(), onOrderGenerated);
+
+        Callable<List<StepResult>> callable = () -> {
+            Supplier<List<DomNode>> nodesSearch = () -> {
+                for (DomNode domNode : ctx.getNode().getDescendants()) {
+                    if (domNode instanceof DomText textNode) {
+                        boolean found;
+                        if (matchWholeTextContent) {
+                            found = textNode.getTextContent().trim().equalsIgnoreCase(stringToSearch);
+                        } else {
+                            found = textNode.getTextContent().trim().contains(stringToSearch);
+                        }
+                        if (found) {
+                            log.debug("Found element by textContent: {}", stringToSearch);
+                            return Collections.singletonList(textNode.getParentNode());
+                        }
+                    }
+                }
+                return Collections.emptyList();
+            };
+
+            @SuppressWarnings("unchecked")
+            HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+            return wrapper.execute(ctx, nodesSearch, stepExecOrder, mode);
+        };
+
+        return handleExecution(mode, stepExecOrder, callable);
+    }
+
+    /**
+     * set to true by default
+     * @return
+     */
+    public GetElementsByTextContent setMatchWholeTextContent(boolean matchWholeTextContent) {
+        this.matchWholeTextContent = matchWholeTextContent;
+        return this;
+    }
 }
