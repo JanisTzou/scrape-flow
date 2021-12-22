@@ -18,7 +18,6 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 
 import javax.annotation.Nullable;
@@ -45,13 +44,15 @@ public class EmptyStep extends CommonOperationsStepBase<EmptyStep>
     }
 
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
-        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder(), onOrderGenerated);
+    public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {
+        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
         @SuppressWarnings("unchecked")
         HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
-        return wrapper.execute(ctx, nodesSearch, stepExecOrder, mode);
+        wrapper.execute(ctx, nodesSearch, stepExecOrder);
+
+        return stepExecOrder;
     }
 
 }

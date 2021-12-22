@@ -19,14 +19,13 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
-import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
-import java.util.*;
-import java.util.concurrent.Callable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 @Log4j2
@@ -52,15 +51,13 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
      * @param ctx must contain a reference to HtmlPage that might be paginated (contains some for of next link or button)
      */
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
-
-        // TODO we need to generate this kind of carefully ... otherwise we risk an infinitely long step order ...
+    public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {
 
         StepExecOrder prevStepExecOrder = ctx.getRecursiveRootStepExecOrder() == null
                 ? ctx.getPrevStepExecOrder()
                 : ctx.getRecursiveRootStepExecOrder();
 
-        StepExecOrder stepExecOrder = genNextOrderAfter(prevStepExecOrder, onOrderGenerated);
+        StepExecOrder stepExecOrder = genNextOrderAfter(prevStepExecOrder);
 
         checkPaginationTriggerAndLinkItToThisStep();
 
@@ -73,7 +70,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
 
         // >>>>>    this part just processes the received page ...
 
-        Callable<List<StepResult>> callable = () -> {
+        Runnable runnable = () -> {
             if (page.isPresent()) {
                 // GENERAL
                 Supplier<List<DomNode>> nodesSearch = () -> List.of(page.get());
@@ -83,7 +80,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
                 ParsingContext<ModelT, ContainerT> plainCtx = ctx.toBuilder()
                         .setRecursiveRootStepExecOrder(null)
                         .build();
-                List<StepResult> stepResults = wrapper.execute(plainCtx, nodesSearch, stepExecOrder, mode);
+                wrapper.execute(plainCtx, nodesSearch, stepExecOrder);
 
                 // PAGINATION
                 ParsingContext<ModelT, ContainerT> paginatingCtx = ctx.toBuilder()
@@ -96,15 +93,14 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
 //                services.getStepAndDataRelationshipTracker().track(stepExecOrder, generatedSteps, model, (ParsedDataListener<Object>) collecting.getDataListener());
                 OnOrderGenerated onOrderGenerated1 = so -> {
                 };
-                paginationTrigger.execute(paginatingCtx, mode, onOrderGenerated1);
+                paginationTrigger.execute(paginatingCtx);
 
-                return stepResults;
-            } else {
-                return Collections.emptyList();
             }
         };
 
-        return handleExecution(mode, stepExecOrder, callable);
+        handleExecution(stepExecOrder, runnable);
+
+        return stepExecOrder;
     }
 
     // TODO rename? To stepsReturningNextPage ? or something like that ...

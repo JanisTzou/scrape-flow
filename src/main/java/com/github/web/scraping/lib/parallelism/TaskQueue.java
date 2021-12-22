@@ -133,7 +133,12 @@ public class TaskQueue {
                     log.trace("{} - ... executing ...", task.loggingInfo());
                 })
                 .map(task0 -> handleTaskIfRetried(isRetry, task0))
-                .flatMap(canProceed -> Mono.fromCallable(task.getCallableStep())) // if we got her eit means that the previous step passed and emmited 'true'
+                .flatMap(canProceed ->
+                    Mono.fromCallable(() -> {
+                        task.getStepRunnable().run();
+                        return task;
+                    }) // if we got her eit means that the previous step passed and emmited 'true'
+                )
                 .onErrorMap(error -> {
                     logRequestError(task, error);
                     executingTasksTracker.untrack(task);   // if an error happened and will be retried at some point, we want to untrack the task so that other requests coming in for the same url do not get ignored
@@ -152,7 +157,7 @@ public class TaskQueue {
                     logEnqueuedRequestCount();
                     logRequestProcessed(task, enqueuedTimestamp);
                 })
-                .map(stepResults -> new TaskResult(task, stepResults))
+                .map(stepResults -> new TaskResult(task))
                 .doOnCancel(taskFinishedHook())
                 .doOnTerminate(taskFinishedHook())
 //                .subscribeOn(Schedulers.parallel())

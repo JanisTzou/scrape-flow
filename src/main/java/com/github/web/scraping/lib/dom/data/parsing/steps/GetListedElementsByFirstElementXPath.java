@@ -19,14 +19,12 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.dom.data.parsing.XPathUtils;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,10 +45,10 @@ public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBa
     }
 
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
-        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder(), onOrderGenerated);
+    public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {
+        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
-        Callable<List<StepResult>> callable = () -> {
+        Runnable runnable = () -> {
 
             // here we want to identify all the elements that will then be processed by the next steps??
             // ... so we can for example apply specific HtmlUnitParsingStrategyByFullXPath on each one of them ... BUT the expaths will need to be dynamic as the root will change for each listed item ....
@@ -86,10 +84,12 @@ public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBa
 
             @SuppressWarnings("unchecked")
             HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
-            return wrapper.execute(ctx, nodesSearch, stepExecOrder, mode);
+            wrapper.execute(ctx, nodesSearch, stepExecOrder);
         };
 
-        return handleExecution(mode, stepExecOrder, callable);
+        handleExecution(stepExecOrder, runnable);
+
+        return stepExecOrder;
     }
 
     private void logMatching(String xPath, boolean matches) {

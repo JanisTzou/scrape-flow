@@ -16,9 +16,6 @@
 
 package com.github.web.scraping.lib;
 
-import com.github.web.scraping.lib.dom.data.parsing.JsonUtils;
-import com.github.web.scraping.lib.dom.data.parsing.ParsedData;
-import com.github.web.scraping.lib.dom.data.parsing.SiteParser;
 import com.github.web.scraping.lib.dom.data.parsing.SiteParserInternal;
 import lombok.extern.log4j.Log4j2;
 
@@ -29,7 +26,6 @@ import java.util.List;
 public class Crawler {
 
     // can the parsing here be from both selenium and htmlunit?
-    // TODO make flux based ...
 
     public void scrape(List<EntryPoint> entryPoints) {
         for (EntryPoint entryPoint : entryPoints) {
@@ -39,17 +35,10 @@ public class Crawler {
         }
     }
 
-    // TODO what do we want to return actually? And how ?
     private void doScrape(String url, Crawling crawling) {
         SiteParserInternal<?> siteParser = crawling.getSiteParser();
         siteParser.setServicesInternal(crawling.getServices());
-        List<ParsedData> pdList = siteParser.parse(url);
-        // TODO think of good ways to parallelize this ... also taking into account throttling ...
-
-        for (ParsedData pd : pdList) {
-            log.info("Scraped data:");
-            log.info(JsonUtils.write(pd.getData()));
-        }
+        siteParser.parse(url);
     }
 
     public void scrape(EntryPoint entryPoint) {

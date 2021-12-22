@@ -18,14 +18,12 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 public class GetElementsByTag extends CommonOperationsStepBase<GetElementsByTag> {
@@ -73,17 +71,19 @@ public class GetElementsByTag extends CommonOperationsStepBase<GetElementsByTag>
 
 
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
-        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder(), onOrderGenerated);
+    public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {
+        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
-        Callable<List<StepResult>> callable = () -> {
+        Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsByTagName(ctx.getNode(), tagName);
             @SuppressWarnings("unchecked")
             HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
-            return wrapper.execute(ctx, nodesSearch, stepExecOrder, mode);
+            wrapper.execute(ctx, nodesSearch, stepExecOrder);
         };
 
-        return handleExecution(mode, stepExecOrder, callable);
+        handleExecution(stepExecOrder, runnable);
+
+        return stepExecOrder;
     }
 
 }

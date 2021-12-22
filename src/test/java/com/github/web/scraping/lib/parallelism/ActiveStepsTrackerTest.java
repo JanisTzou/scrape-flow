@@ -19,7 +19,8 @@ package com.github.web.scraping.lib.parallelism;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ActiveStepsTrackerTest {
 

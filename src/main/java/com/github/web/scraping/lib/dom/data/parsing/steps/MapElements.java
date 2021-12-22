@@ -18,7 +18,6 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
 
@@ -26,10 +25,8 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 
 /**
  * Maps nodes acquired in the previous steps to other nodes ... e.g. children/parents/siblings etc ...
@@ -49,10 +46,10 @@ public class MapElements extends CommonOperationsStepBase<MapElements> {
     }
 
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
-        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder(), onOrderGenerated);
+    public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {
+        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
-        Callable<List<StepResult>> callable = () -> {
+        Runnable runnable = () -> {
 
             Supplier<List<DomNode>> nodesSearch = () -> {
                 Optional<DomNode> other = mapper.apply(ctx.getNode());
@@ -67,10 +64,12 @@ public class MapElements extends CommonOperationsStepBase<MapElements> {
 
             @SuppressWarnings("unchecked")
             HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
-            return wrapper.execute(ctx, nodesSearch, stepExecOrder, mode);
+            wrapper.execute(ctx, nodesSearch, stepExecOrder);
         };
 
-        return handleExecution(mode, stepExecOrder, callable);
+        handleExecution(stepExecOrder, runnable);
+
+        return stepExecOrder;
     }
 
 }

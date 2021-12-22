@@ -16,9 +16,12 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.gargoylesoftware.htmlunit.*;
+import com.gargoylesoftware.htmlunit.Page;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.github.web.scraping.lib.dom.data.parsing.*;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
+import com.github.web.scraping.lib.dom.data.parsing.SiteParserBase;
 import com.github.web.scraping.lib.drivers.DriverManager;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
@@ -26,9 +29,6 @@ import lombok.extern.log4j.Log4j2;
 import javax.annotation.Nullable;
 import java.net.URL;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Log4j2
 public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
@@ -52,26 +52,22 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
     }
 
     @Override
-    public List<ParsedData> parse(String url) {
+    public void parse(String url) {
         if (parsingSequences == null) {
             throw new IllegalStateException("parsingSequence not set for SiteParser!");
         }
         for (HtmlUnitParsingStep<?> parsingSequence : parsingSequences) {
             StepsUtils.propagateServicesRecursively(parsingSequence, services, new HashSet<>());
         }
-        return loadPage(url, null)
-                .map(this::parsePageAndFilterDataResults)
-                .orElse(Collections.emptyList());
+        loadPage(url, null).ifPresent(this::parsePageAndFilterDataResults);
     }
 
     @Override
-    public List<StepResult> parseInternal(String url, ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequence, StepExecOrder currStepExecOrder) {
-        return loadPage(url, currStepExecOrder).stream()
-                .flatMap(page1 -> {
-                    ParsingContext<?, ?> nextCtx = ctx.toBuilder().setNode(page1).setPrevStepOrder(currStepExecOrder).build();
-                    return executeNextSteps(nextCtx, parsingSequence);
-                })
-                .collect(Collectors.toList());
+    public void parseInternal(String url, ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequence, StepExecOrder currStepExecOrder) {
+        loadPage(url, currStepExecOrder).ifPresent(page1 -> {
+            ParsingContext<?, ?> nextCtx = ctx.toBuilder().setNode(page1).setPrevStepOrder(currStepExecOrder).build();
+            executeNextSteps(nextCtx, parsingSequence);
+        });
     }
 
     private Optional<HtmlPage> loadPage(String url, @Nullable StepExecOrder currStepExecOrder) {
@@ -79,27 +75,12 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
         return loadHtmlPage(url, webClient, currStepExecOrder);
     }
 
-    private List<ParsedData> parsePageAndFilterDataResults(HtmlPage page) {
-        Function<HtmlPage, List<ParsedData>> parsing = page1 -> executeNextSteps(new ParsingContext<>(StepExecOrder.INITIAL, page1), parsingSequences)
-                .map(sr -> {
-                    if (sr instanceof ParsedElement parsedElement) {
-                        return new ParsedData(parsedElement.getModelWrapper());
-                    } else if (sr instanceof ParsedElements parsedElements) {
-                        return new ParsedData(parsedElements.getContainer());
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        return parsing.apply(page);
-
+    private void parsePageAndFilterDataResults(HtmlPage page) {
+        executeNextSteps(new ParsingContext<>(StepExecOrder.INITIAL, page), parsingSequences);
     }
 
-    private Stream<StepResult> executeNextSteps(ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequences) {
-        return parsingSequences.stream()
-                .flatMap(s -> s.execute(ctx, ExecutionMode.ASYNC, o -> { // TODO what to do about this ??? this needs to be fixed ... we need to collect steps and then track them (data) ... if there are any models generated ... (see inside Wrapper ... possibly reuse)
-                }).stream());
+    private void executeNextSteps(ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequences) {
+        parsingSequences.forEach(s -> s.execute(ctx));
     }
 
     private Optional<HtmlPage> loadHtmlPage(String pageUrl, WebClient webClient, @Nullable StepExecOrder currStepExecOrder) {

@@ -17,22 +17,11 @@
 package com.github.web.scraping.lib;
 
 
-import com.github.web.scraping.lib.throttling.model.ScrapedDataType;
-import com.github.web.scraping.lib.throttling.model.ScraperSettings;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import ret.appcore.model.enums.WebsiteEnum;
 
 import java.io.File;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 @Deprecated
 public class AppConfig {

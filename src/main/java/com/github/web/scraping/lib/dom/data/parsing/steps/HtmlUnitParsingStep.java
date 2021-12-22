@@ -17,16 +17,13 @@
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.parallelism.StepTask;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.function.Function;
 
 @Log4j2
@@ -46,9 +43,7 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
     }
 
     // TODO instead of step result return generated order ...
-    public abstract <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx,
-                                                                  ExecutionMode mode,
-                                                                  OnOrderGenerated onOrderGenerated);
+    public abstract <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx);
 
     // internal usage only
     protected void setServices(CrawlingServices services) {
@@ -75,36 +70,17 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
     }
 
     /**
-     * @param mode
      * @param stepExecOrder
-     * @param callable  task can be executed immediately or at some later point based on the given mode
-     * @return if mode = ExecutionMode.SYNC than a non-empty list might be returned, otherwise an empty list will always be returned ...
+     * @param runnable  task can be executed immediately or at some later point based on the given mode
      */
-    protected List<StepResult> handleExecution(ExecutionMode mode, StepExecOrder stepExecOrder, Callable<List<StepResult>> callable) {
-        switch (mode) {
-            case SYNC -> {
-                try {
-                    return callable.call();
-                } catch (Exception e) {
-                    log.error("{} - {}: Error synchronously processing step", stepExecOrder, getName());
-                    return Collections.emptyList();
-                }
-            }
-            case ASYNC -> {
-                StepTask stepTask = new StepTask(stepExecOrder, getName(), callable, throttlingAllowed());
-                services.getActiveStepsTracker().track(stepExecOrder, getName());
-                services.getTaskQueue().submit(
-                        stepTask,
-                        r -> handleFinishedStep(stepExecOrder),
-                        e -> handleFinishedStep(stepExecOrder) // even when we finish in error there might be successfully parsed other data that might be waiting to get published outside
-                );
-                return Collections.emptyList(); // for now, always return empty list ...
-            }
-            default -> {
-                log.error("Unhandled executionMode {}!", mode);
-                return Collections.emptyList();
-            }
-        }
+    protected void handleExecution(StepExecOrder stepExecOrder, Runnable runnable) {
+            StepTask stepTask = new StepTask(stepExecOrder, getName(), runnable, throttlingAllowed());
+            services.getActiveStepsTracker().track(stepExecOrder, getName());
+            services.getTaskQueue().submit(
+                    stepTask,
+                    r -> handleFinishedStep(stepExecOrder),
+                    e -> handleFinishedStep(stepExecOrder) // even when we finish in error there might be successfully parsed other data that might be waiting to get published outside
+            );
     }
 
     private void handleFinishedStep(StepExecOrder stepExecOrder) {
@@ -112,9 +88,8 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
         services.getNotificationService().notifyAfterStepFinished(stepExecOrder);
     }
 
-    protected StepExecOrder genNextOrderAfter(StepExecOrder stepAtPrevLevel, OnOrderGenerated onOrderGenerated) {
+    protected StepExecOrder genNextOrderAfter(StepExecOrder stepAtPrevLevel) {
         StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(stepAtPrevLevel);
-        onOrderGenerated.accept(stepExecOrder);
         return stepExecOrder;
     }
 

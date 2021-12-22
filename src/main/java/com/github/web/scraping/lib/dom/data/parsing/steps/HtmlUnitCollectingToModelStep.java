@@ -18,7 +18,6 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 
-import java.util.List;
 import java.util.function.BiConsumer;
 
 interface HtmlUnitCollectingToModelStep<C> {

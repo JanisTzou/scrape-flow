@@ -16,12 +16,10 @@
 
 package com.github.web.scraping.lib.dom.data.parsing;
 
-import java.util.List;
-
 public interface SiteParser<T> {
     // TODO how to organize the results? we might have tabular data and need to distinguish between different rows ...
     //  also there might be some shared data ...
     //  we should be able to assign group numbers
-    List<ParsedData> parse(String url);
+    void parse(String url);
 
 }

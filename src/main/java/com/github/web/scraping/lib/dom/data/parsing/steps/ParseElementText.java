@@ -18,15 +18,12 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import org.apache.commons.text.StringEscapeUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -61,10 +58,10 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
 
     @SuppressWarnings("unchecked")
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
-        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder(), onOrderGenerated);
+    public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {
+        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
-        Callable<List<StepResult>> callable = () -> {
+        Runnable runnable = () -> {
             String tc = null;
             if (ctx.getNode() instanceof HtmlElement htmlEl) {
                 // TODO look for DomText ...
@@ -84,15 +81,12 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
 
             setParsedStringToModel(modelMutation, ctx, transformed, getName());
 
-            ParsedElement parsedElement = new ParsedElement(null, null, transformed, false, ctx.getNode());
-            parsedElement.setModelWrapper((ModelWrapper<Object>) ctx.getModelWrapper());
-
             // TODO how to populate the following context?
-
-            return List.of(parsedElement);
         };
 
-        return handleExecution(mode, stepExecOrder, callable);
+        handleExecution(stepExecOrder, runnable);
+
+        return stepExecOrder;
     }
 
     private String removeChildElementsTextContent(String textContent, HtmlElement el) {

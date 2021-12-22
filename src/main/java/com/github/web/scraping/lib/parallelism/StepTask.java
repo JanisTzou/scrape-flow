@@ -16,15 +16,12 @@
 
 package com.github.web.scraping.lib.parallelism;
 
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Comparator;
-import java.util.List;
-import java.util.concurrent.Callable;
 
 @RequiredArgsConstructor
 @Getter
@@ -36,7 +33,7 @@ public class StepTask implements Comparable<StepTask> {
 
     private final StepExecOrder stepExecOrder;
     private final String stepName;
-    private final Callable<List<StepResult>> callableStep;
+    private final Runnable stepRunnable;
     private final LocalDateTime created = LocalDateTime.now();
     private final boolean throttlingAllowed;
 

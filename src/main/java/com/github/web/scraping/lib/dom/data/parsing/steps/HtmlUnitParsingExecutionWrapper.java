@@ -17,7 +17,8 @@
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.dom.data.parsing.*;
+import com.github.web.scraping.lib.dom.data.parsing.IncorrectDataCollectionSetupException;
+import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.Getter;
@@ -27,7 +28,10 @@ import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -57,61 +61,50 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
         this(nextSteps, null, stepName, services);
     }
 
-    public <M, T> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, Supplier<List<DomNode>> nodesSearch, StepExecOrder currStepExecOrder, ExecutionMode mode) {
+    public <M, T> void execute(ParsingContext<ModelT, ContainerT> ctx, Supplier<List<DomNode>> nodesSearch, StepExecOrder currStepExecOrder) {
         try {
             final List<DomNode> foundNodes = nodesSearch.get();
             log.debug("{} - {}: found {} nodes", currStepExecOrder, getStepName(), foundNodes.size());
 
-            final List<StepResult> nextStepResults = foundNodes
-                    .stream()
-                    .flatMap(node -> {
-                        NextParsingContextBasis<M, T> nextContextBasis = getNextContextBasis(ctx);
-                        List<StepExecOrder> generatedSteps = new ArrayList<>(); // the generated model was propagated to these steps
-                        List<StepResult> stepResults = executeNextSteps(currStepExecOrder, node, nextContextBasis, generatedSteps, mode);
+            foundNodes.forEach(node -> {
+                NextParsingContextBasis<M, T> nextContextBasis = getNextContextBasis(ctx);
+                List<StepExecOrder> generatedSteps = executeNextSteps(currStepExecOrder, node, nextContextBasis);
 
-                        // TODO refactor ..
-                        if (mode.equals(ExecutionMode.ASYNC)) {
-                            if (nextContextBasis.model != null && nextContextBasis.modelSupplied) {
-                                M model = nextContextBasis.model.getModel();
+                if (nextContextBasis.model != null && nextContextBasis.modelSupplied) {
+                    M model = nextContextBasis.model.getModel();
 
-                                BiConsumer<ContainerT, ModelT> accumulator = collecting.getAccumulator();
+                    BiConsumer<ContainerT, ModelT> accumulator = collecting.getAccumulator();
 
-                                final Optional<StepContainer<ContainerT>> stepContainer = getStepContainer(ctx);
-                                final ContainerT container = stepContainer.map(sc -> sc.container).orElse(null);
+                    final Optional<StepContainer<ContainerT>> stepContainer = getStepContainer(ctx);
+                    final ContainerT container = stepContainer.map(sc -> sc.container).orElse(null);
 
-                                if (container != null) {
-                                    if (accumulator != null) {
-                                        try {
-                                            // if collectors are incorrectly set up, here is where we get exps like this: java.lang.ClassCastException: class com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler$Product cannot be cast to class com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler$Products
-                                            accumulator.accept(container, (ModelT) model);
-                                        } catch (ClassCastException e) {
-                                            throwIncorrectDataCollectionSetupEx(e);
-                                        }
-                                    } else {
-                                        log.error("{}: Accumulator is null - cannot collect parsed data", getStepName());
-                                    }
-                                }
-
-                                // TODO this step is what is missing when we call HtmlUnitSiteParser or NavigateToPage step ... from another step ... if it has a collector set to it ...
-                                services.getStepAndDataRelationshipTracker().track(currStepExecOrder, generatedSteps, model, (ParsedDataListener<Object>) collecting.getDataListener());
+                    if (container != null) {
+                        if (accumulator != null) {
+                            try {
+                                // if collectors are incorrectly set up, here is where we get exps like this: java.lang.ClassCastException: class com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler$Product cannot be cast to class com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler$Products
+                                accumulator.accept(container, (ModelT) model);
+                            } catch (ClassCastException e) {
+                                throwIncorrectDataCollectionSetupEx(e);
                             }
+                        } else {
+                            log.error("{}: Accumulator is null - cannot collect parsed data", getStepName());
                         }
-                        return stepResults.stream();
-                    })
-                    .collect(Collectors.toList());
+                    }
 
-            return collectStepResults(ctx, nextStepResults);
+                    // TODO this step is what is missing when we call HtmlUnitSiteParser or NavigateToPage step ... from another step ... if it has a collector set to it ...
+                    services.getStepAndDataRelationshipTracker().track(currStepExecOrder, generatedSteps, model, (ParsedDataListener<Object>) collecting.getDataListener());
+                }
+            });
 
         } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList();
+            log.error("{} - {}: Error executing step", currStepExecOrder, getStepName(), e);
         }
     }
 
 
-    private <M, T> List<StepResult> executeNextSteps(StepExecOrder currStepExecOrder, DomNode node, NextParsingContextBasis<M, T> nextContextBasis, List<StepExecOrder> executedSteps, ExecutionMode mode) {
+    private <M, T> List<StepExecOrder> executeNextSteps(StepExecOrder currStepExecOrder, DomNode node, NextParsingContextBasis<M, T> nextContextBasis) {
         return nextSteps.stream()
-                .flatMap(step -> {
+                .map(step -> {
                     ParsingContext<M, T> nextCtx = new ParsingContext<>(
                             currStepExecOrder,
                             node,
@@ -121,8 +114,7 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
                             nextContextBasis.parsedURL,
                             nextContextBasis.recursiveRootStepExecOrder
                     );
-                    List<StepResult> stepResults = step.execute(nextCtx, mode, executedSteps::add);
-                    return stepResults.stream();
+                    return step.execute(nextCtx);
                 })
                 .collect(Collectors.toList());
     }
@@ -166,53 +158,6 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
         }
 
         return new NextParsingContextBasis<>(nextModelWrapper, suppliedModel, nextContainer, ctx.getParsedURL(), ctx.getRecursiveRootStepExecOrder());
-    }
-
-    // TODO execute this onlt in the SYNC mode ... probably ...
-    @Deprecated // relevant only for the SYNC execution ...
-    private List<StepResult> collectStepResults(ParsingContext<ModelT, ContainerT> ctx, List<StepResult> stepResults) {
-        final Optional<StepContainer<ContainerT>> stepContainer = getStepContainer(ctx);
-        final ContainerT container = stepContainer.map(sc -> sc.container).orElse(null);
-
-        if (container != null) {
-            stepResults.stream()
-                    .filter(sr -> sr instanceof ParsedElement)
-                    .map(sr -> (ParsedElement) sr)
-                    .map(ParsedElement::getModelWrapper)
-                    .filter(Objects::nonNull)
-                    .forEach(mp -> {
-                        // the proxy prevents duplicates to be accumulated as data is returning upstream
-                        @SuppressWarnings("unchecked")
-                        ModelWrapper<ModelT> modelWrapper = (ModelWrapper<ModelT>) mp;
-                        if (!mp.isAccumulated()) {
-
-                            BiConsumer<ContainerT, ModelT> accumulator = collecting.getAccumulator();
-                            if (accumulator != null) {
-                                try {
-                                    // if collectors are incorrectly set up, here is where we get exps like this: java.lang.ClassCastException: class com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler$Product cannot be cast to class com.github.web.scraping.lib.demos.TeleskopExpressDeCrawler$Products
-                                    accumulator.accept(container, modelWrapper.getModel());
-                                    modelWrapper.setAccumulated(true);
-                                } catch (ClassCastException e) {
-                                    throwIncorrectDataCollectionSetupEx(e);
-                                }
-                            } else {
-                                log.error("{}: Accumulator is null - cannot collect parsed data", getStepName());
-                            }
-
-                        } else {
-                            log.trace("{}: skipping item - already accumulated", getStepName());
-                        }
-                    });
-
-            // TODO hmm what to return here? Or better ... what to wrap this in?
-            return List.of(new ParsedElements(container));
-        } else {
-            BiConsumer<?, ?> accumulator = collecting.getAccumulator();
-            if (accumulator != null) {
-                log.error("{}: No container available while there is an accumulator set. Error in data collection setting.", getStepName());
-            }
-            return stepResults;
-        }
     }
 
     private void throwIncorrectDataCollectionSetupEx(ClassCastException e) {

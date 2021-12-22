@@ -16,17 +16,13 @@
 
 package com.github.web.scraping.lib.parallelism;
 
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @Getter
 public class TaskResult {
 
     private final StepTask task;
-    private final List<StepResult> results;
 
 }

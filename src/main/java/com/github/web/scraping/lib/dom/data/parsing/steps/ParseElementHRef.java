@@ -18,20 +18,14 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
-import com.github.web.scraping.lib.dom.data.parsing.ParsedElement;
 import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.dom.data.parsing.StepResult;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
         implements HtmlUnitChainableStep<ParseElementHRef>,
@@ -55,10 +49,10 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
     }
 
     @Override
-    public <ModelT, ContainerT> List<StepResult> execute(ParsingContext<ModelT, ContainerT> ctx, ExecutionMode mode, OnOrderGenerated onOrderGenerated) {
-        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder(), onOrderGenerated);
+    public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {
+        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
-        Callable<List<StepResult>> callable = () -> {
+        Runnable runnable = () -> {
             if (ctx.getNode() instanceof HtmlAnchor anch) {
                 String href = anch.getHrefAttribute();
                 if (href != null) {
@@ -70,16 +64,16 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
                     @SuppressWarnings("unchecked")
                     HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
                     ParsingContext<ModelT, ContainerT> ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
-                    List<StepResult> nextResults = wrapper.execute(ctxCopy, nodesSearch, stepExecOrder, mode);
-                    return Stream.concat(Stream.of(new ParsedElement(null, transformed, null, true, ctx.getNode())), nextResults.stream()).collect(Collectors.toList());
+                    wrapper.execute(ctxCopy, nodesSearch, stepExecOrder);
                 }
             } else {
                 log.warn("No HtmlAnchor element provided -> cannot parse href value! Check the steps sequence above step {}", getName());
             }
-            return Collections.emptyList();
         };
 
-        return handleExecution(mode, stepExecOrder, callable);
+        handleExecution(stepExecOrder, runnable);
+
+        return stepExecOrder;
     }
 
     @SuppressWarnings("unchecked")
