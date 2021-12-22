@@ -24,8 +24,9 @@ import java.util.Set;
 @Log4j2
 public class StepsUtils {
 
-    // TODO not ideal ... especially that it has to be called repeatedly when e.g. in class Paginate ... if steps have reference to parents then we do not have to do this ... we can propagate it upwards to parents ...
-    public static void propagateServicesRecursively(HtmlUnitParsingStep<?> nextStep, CrawlingServices services, Set<HtmlUnitParsingStep<?>> visited) {
+    // TODO not ideal ... especially that it has to be called repeatedly when e.g. in class Paginate
+    //  ... if steps have reference to parents then we do not have to do this ... we can propagate it upwards to parents ...
+    public static void propagateServicesRecursively(HtmlUnitParsingStep<?> nextStep, ScrapingServices services, Set<HtmlUnitParsingStep<?>> visited) {
         if (visited.contains(nextStep)) {
             throw new IllegalStateException("Circular step dependencies detected for step: " + nextStep.getName());
         }

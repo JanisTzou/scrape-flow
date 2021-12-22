@@ -44,15 +44,16 @@ public class GetElementsByAttribute extends CommonOperationsStepBase<GetElements
         this.matchEntireValue = matchEntireValue;
     }
 
-    protected GetElementsByAttribute(String attributeName,
+    GetElementsByAttribute(String attributeName,
                                      @Nullable String attributeValue) {
         this(null, attributeName, attributeValue, MATCH_ENTIRE_VALUE_DEFAULT);
     }
 
-    protected GetElementsByAttribute(String attributeName) {
+    GetElementsByAttribute(String attributeName) {
         this(null, attributeName, null, MATCH_ENTIRE_VALUE_DEFAULT);
     }
 
+    @Deprecated
     public static GetElementsByAttribute instance(String attributeName, String attributeValue) {
         return new GetElementsByAttribute(attributeName, attributeValue);
     }
@@ -60,11 +61,6 @@ public class GetElementsByAttribute extends CommonOperationsStepBase<GetElements
     public static GetElementsByAttribute id(String idValue) {
         return new GetElementsByAttribute("id", idValue);
     }
-
-    public static GetElementsByAttribute cssClass(String className) {
-        return new GetElementsByAttribute("class", className);
-    }
-
 
 
     public static GetElementsByAttribute instance(String attributeName) {

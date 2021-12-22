@@ -27,30 +27,27 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
-        implements HtmlUnitCollectingToModelStep<ParseElementText>,
-        HtmlUnitStringTransformingStep<ParseElementText> {
+public class ParseElementTextContent extends HtmlUnitParsingStep<ParseElementTextContent>
+        implements HtmlUnitCollectingToModelStep<ParseElementTextContent>,
+        HtmlUnitStringTransformingStep<ParseElementTextContent> {
 
     // TODO provide a set of options to transform/sanitize text ... \n \t .. etc ...
 
     private BiConsumer<Object, String> modelMutation;
     private boolean excludeChildElementsTextContent;
 
-    public ParseElementText() {
+    ParseElementTextContent() {
         this(null, null, false);
     }
 
-    protected ParseElementText(@Nullable List<HtmlUnitParsingStep<?>> nextSteps,
-                               @Nullable BiConsumer<Object, String> modelMutation,
-                               boolean excludeChildElementsTextContent) {
+    ParseElementTextContent(@Nullable List<HtmlUnitParsingStep<?>> nextSteps,
+                            @Nullable BiConsumer<Object, String> modelMutation,
+                            boolean excludeChildElementsTextContent) {
         super(nextSteps);
         this.excludeChildElementsTextContent = excludeChildElementsTextContent;
         this.modelMutation = modelMutation;
     }
 
-    public static ParseElementText instance() {
-        return new ParseElementText();
-    }
 
     // TODO we need to be able to scrape another thing based on this parsed value ...
     //  how to communicate the parsed text to next steps? What to put in the context?
@@ -101,20 +98,20 @@ public class ParseElementText extends HtmlUnitParsingStep<ParseElementText>
      * Determines if the text of child elements should be part of the resulting parsed text content
      * set to false by default
      */
-    public ParseElementText excludeChildElements(boolean removeChildElementsTextContent) {
-        this.excludeChildElementsTextContent = removeChildElementsTextContent;
+    public ParseElementTextContent excludeChildElements() {
+        this.excludeChildElementsTextContent = true;
         return this;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> ParseElementText setCollector(BiConsumer<T, String> modelMutation) {
+    public <T> ParseElementTextContent setCollector(BiConsumer<T, String> modelMutation) {
         this.modelMutation = (BiConsumer<Object, String>) modelMutation;
         return this;
     }
 
     @Override
-    public ParseElementText setTransformation(Function<String, String> parsedTextTransformation) {
+    public ParseElementTextContent setTransformation(Function<String, String> parsedTextTransformation) {
         this.parsedTextTransformation = parsedTextTransformation;
         return this;
     }

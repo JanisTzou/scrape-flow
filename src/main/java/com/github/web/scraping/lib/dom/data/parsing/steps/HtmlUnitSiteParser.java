@@ -33,40 +33,24 @@ import java.util.*;
 @Log4j2
 public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
 
-    // TODO iportant: check sequence for cyclic dependencies in steps
-    private List<HtmlUnitParsingStep<?>> parsingSequences;
-
-    public HtmlUnitSiteParser(DriverManager<WebClient> driverManager,
-                              List<HtmlUnitParsingStep<?>> parsingSequences) {
-        super(driverManager);
-        this.parsingSequences = Objects.requireNonNullElse(parsingSequences, new ArrayList<>());
-    }
-
     public HtmlUnitSiteParser(DriverManager<WebClient> driverManager) {
-        this(driverManager, null);
-    }
-
-    public HtmlUnitSiteParser setParsingSequence(HtmlUnitParsingStep<?> parsingSequence) {
-        this.parsingSequences = List.of(parsingSequence);
-        return this;
+        super(driverManager);
     }
 
     @Override
-    public void parse(String url) {
-        if (parsingSequences == null) {
+    public void parse(String url, HtmlUnitParsingStep<?> parsingSequence) {
+        if (parsingSequence == null) {
             throw new IllegalStateException("parsingSequence not set for SiteParser!");
         }
-        for (HtmlUnitParsingStep<?> parsingSequence : parsingSequences) {
-            StepsUtils.propagateServicesRecursively(parsingSequence, services, new HashSet<>());
-        }
-        loadPage(url, null).ifPresent(this::parsePageAndFilterDataResults);
+        StepsUtils.propagateServicesRecursively(parsingSequence, services, new HashSet<>());
+        loadPage(url, null).ifPresent(page -> parsePageAndFilterDataResults(page, List.of(parsingSequence)));
     }
 
     @Override
-    public void parseInternal(String url, ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequence, StepExecOrder currStepExecOrder) {
+    public void parseInternal(String url, ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequences, StepExecOrder currStepExecOrder) {
         loadPage(url, currStepExecOrder).ifPresent(page1 -> {
             ParsingContext<?, ?> nextCtx = ctx.toBuilder().setNode(page1).setPrevStepOrder(currStepExecOrder).build();
-            executeNextSteps(nextCtx, parsingSequence);
+            executeNextSteps(nextCtx, parsingSequences);
         });
     }
 
@@ -75,7 +59,7 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
         return loadHtmlPage(url, webClient, currStepExecOrder);
     }
 
-    private void parsePageAndFilterDataResults(HtmlPage page) {
+    private void parsePageAndFilterDataResults(HtmlPage page, List<HtmlUnitParsingStep<?>> parsingSequences) {
         executeNextSteps(new ParsingContext<>(StepExecOrder.INITIAL, page), parsingSequences);
     }
 

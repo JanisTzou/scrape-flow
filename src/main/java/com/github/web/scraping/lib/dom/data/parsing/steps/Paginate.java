@@ -35,16 +35,12 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
 
     private boolean servicesPropagatedToTrigger = false;
 
-    public Paginate(@Nullable List<HtmlUnitParsingStep<?>> nextSteps) {
+    Paginate(@Nullable List<HtmlUnitParsingStep<?>> nextSteps) {
         super(nextSteps);
     }
 
-    public Paginate() {
+    Paginate() {
         this(null);
-    }
-
-    public static Paginate instance() {
-        return new Paginate();
     }
 
     /**
@@ -113,11 +109,18 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
         return this;
     }
 
+    // TODO ordered version ?
     /**
      * Performs the specified step sequence for content loaded in pagination
      * Same as calling {@link com.github.web.scraping.lib.dom.data.parsing.steps.CommonOperationsStepBase#then(HtmlUnitParsingStep)}
      */
     public Paginate thenForEachPage(HtmlUnitParsingStep<?> stepsForPaginatedContent) {
+        then(stepsForPaginatedContent);
+        return this;
+    }
+
+    // TODO actually implement ...
+    public Paginate thenForEachPageOrdered(HtmlUnitParsingStep<?> stepsForPaginatedContent) {
         then(stepsForPaginatedContent);
         return this;
     }

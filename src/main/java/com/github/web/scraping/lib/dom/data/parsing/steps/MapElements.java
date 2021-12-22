@@ -41,7 +41,7 @@ public class MapElements extends CommonOperationsStepBase<MapElements> {
         this.mapper = mapper;
     }
 
-    public MapElements(Function<DomNode, Optional<DomNode>> mapper) {
+    MapElements(Function<DomNode, Optional<DomNode>> mapper) {
         this(null, mapper);
     }
 

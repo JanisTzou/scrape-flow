@@ -45,6 +45,7 @@ public class GetListedElementByFirstElementXPath extends CommonOperationsStepBas
     // /html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[1]/div/div[1]/span[1]
      */
 
+    @Deprecated
     public static GetListedElementByFirstElementXPath instance(String xPath) {
         return new GetListedElementByFirstElementXPath(null, xPath);
     }

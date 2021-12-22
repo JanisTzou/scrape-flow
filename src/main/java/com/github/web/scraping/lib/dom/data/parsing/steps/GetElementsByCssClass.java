@@ -29,19 +29,13 @@ public class GetElementsByCssClass extends CommonOperationsStepBase<GetElementsB
 
     private final String cssClassName;
 
-    // TODO maybe put in the attribute step ?
-
-    public GetElementsByCssClass(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String cssClassName) {
+    GetElementsByCssClass(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String cssClassName) {
         super(nextSteps);
         this.cssClassName = cssClassName;
     }
 
-    public GetElementsByCssClass(String cssClassName) {
+    GetElementsByCssClass(String cssClassName) {
         this(null, cssClassName);
-    }
-
-    public static GetElementsByCssClass instance(String cssClassName) {
-        return new GetElementsByCssClass(cssClassName);
     }
 
     @Override

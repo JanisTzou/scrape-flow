@@ -28,18 +28,16 @@ public class GetElementsByXPath extends CommonOperationsStepBase<GetElementsByXP
 
     private final String xPath;
 
-    protected GetElementsByXPath(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String xPath) {
+
+    GetElementsByXPath(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String xPath) {
         super(nextSteps);
         this.xPath = xPath;
     }
 
-    public GetElementsByXPath(String xPath) {
+    GetElementsByXPath(String xPath) {
         this(null, xPath);
     }
 
-    public static GetElementsByXPath instance(String xPath) {
-        return new GetElementsByXPath(xPath);
-    }
 
     @Override
     public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {

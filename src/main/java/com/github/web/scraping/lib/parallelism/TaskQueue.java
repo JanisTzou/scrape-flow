@@ -99,7 +99,7 @@ public class TaskQueue {
     private synchronized void dequeueNextAndExecute() {
         try {
             QueueStepTask next = taskQueue.peek();
-            while (canExecute(next)) {
+            while (canExecute(next)) { // TODO maybe we are processing too much ? ... we should only take as many as there are threads in the pool ... at most ...
                 executingTasksTracker.track(next.getStepTask());
                 taskQueue.poll(); // remove from queue head
                 executeTask(next.getStepTask(),

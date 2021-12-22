@@ -27,6 +27,6 @@ public class EntryPoint {
 
     private final String url;
 
-    private final Crawling crawling;
+    private final Scraping scraping;
 
 }

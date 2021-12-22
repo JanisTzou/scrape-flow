@@ -16,14 +16,8 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.github.web.scraping.lib.dom.data.parsing.SiteParserInternal;
+public class ParseAttributeValue {
 
-// internal usage
-public interface HtmlUnitParserSwitchingStep<C>  {
-
-    /**
-     * Implementors must make sure that Services are set to the new parser as part of the services propagation ...
-     */
-    C setParser(SiteParserInternal<?> siteParser);
+    // TODO ... similar to ParseHref ...
 
 }

@@ -24,33 +24,31 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class GetHtmlBody extends CommonOperationsStepBase<GetHtmlBody> {
+/**
+ * Used just to test context propagation
+ */
+public class StepGroup extends CommonOperationsStepBase<StepGroup>
+        implements HtmlUnitChainableStep<StepGroup>, HtmlUnitCollectorSetupStep<StepGroup> {
 
-    public GetHtmlBody(@Nullable List<HtmlUnitParsingStep<?>> nextSteps) {
+    StepGroup(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, Collecting<?, ?> collecting) {
         super(nextSteps);
+        this.collecting = collecting;
     }
 
-    public GetHtmlBody() {
-        this(null);
+    StepGroup() {
+        this(null, null);
     }
 
-    public static GetHtmlBody instance() {
-        return new GetHtmlBody();
-    }
+
 
     @Override
     public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {
-
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
-        Runnable runnable = () -> {
-            Supplier<List<DomNode>> nodesSearch = () ->  ctx.getNode().getByXPath("/html/body");
-            @SuppressWarnings("unchecked")
-            HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
-            wrapper.execute(ctx, nodesSearch, stepExecOrder);
-        };
-
-        handleExecution(stepExecOrder, runnable);
+        Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
+        @SuppressWarnings("unchecked")
+        HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> wrapper = new HtmlUnitParsingExecutionWrapper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+        wrapper.execute(ctx, nodesSearch, stepExecOrder);
 
         return stepExecOrder;
     }

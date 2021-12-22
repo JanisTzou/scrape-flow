@@ -41,7 +41,7 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
 
     private final List<HtmlUnitParsingStep<?>> nextSteps;
     private final Collecting<ModelT, ContainerT> collecting;
-    private final CrawlingServices services;
+    private final ScrapingServices services;
     // just for debugging
     @Getter
     private String stepName;
@@ -50,14 +50,14 @@ public class HtmlUnitParsingExecutionWrapper<ModelT, ContainerT> {
      * @param stepName the delegating step name for debugging purposes
      * @param services
      */
-    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, @Nullable Collecting<ModelT, ContainerT> collecting, String stepName, CrawlingServices services) {
+    public HtmlUnitParsingExecutionWrapper(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, @Nullable Collecting<ModelT, ContainerT> collecting, String stepName, ScrapingServices services) {
         this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
         this.collecting = Objects.requireNonNullElse(collecting, new Collecting<>());
         this.services = services;
         setStepName(stepName);
     }
 
-    public HtmlUnitParsingExecutionWrapper(List<HtmlUnitParsingStep<?>> nextSteps, String stepName, CrawlingServices services) {
+    public HtmlUnitParsingExecutionWrapper(List<HtmlUnitParsingStep<?>> nextSteps, String stepName, ScrapingServices services) {
         this(nextSteps, null, stepName, services);
     }
 

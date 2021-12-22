@@ -33,6 +33,7 @@ public class NotificationService {
 
 
     public void notifyAfterStepFinished(StepExecOrder stepExecOrder) {
+        // TODO there is a problem somewhere, some data are not getting published ever ...
         List<StepAndDataRelationshipTracker.FinalizedModel> finalizedData = stepAndDataRelationshipTracker.getModelsWithNoActiveSteps(stepExecOrder);
         if (!finalizedData.isEmpty()) {
             for (StepAndDataRelationshipTracker.FinalizedModel data : finalizedData) {

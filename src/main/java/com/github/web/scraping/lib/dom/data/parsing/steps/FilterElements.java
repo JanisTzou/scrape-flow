@@ -40,7 +40,7 @@ public class FilterElements extends CommonOperationsStepBase<FilterElements> {
         this.domNodePredicate = domNodePredicate;
     }
 
-    public FilterElements(Predicate<DomNode> domNodePredicate) {
+    FilterElements(Predicate<DomNode> domNodePredicate) {
         this(null, domNodePredicate);
     }
 

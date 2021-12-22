@@ -24,7 +24,7 @@ import lombok.Getter;
  * Encapsulates service singleton classes that need to be accessible to all steps
  */
 @Getter
-public class CrawlingServices {
+public class ScrapingServices {
 
     private final StepExecOrderGenerator stepExecOrderGenerator = new StepExecOrderGenerator();
     private final ThrottlingService throttlingService = new ThrottlingService();

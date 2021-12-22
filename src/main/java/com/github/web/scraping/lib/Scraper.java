@@ -23,22 +23,22 @@ import java.time.Duration;
 import java.util.List;
 
 @Log4j2
-public class Crawler {
+public class Scraper {
 
     // can the parsing here be from both selenium and htmlunit?
 
     public void scrape(List<EntryPoint> entryPoints) {
         for (EntryPoint entryPoint : entryPoints) {
             String url = entryPoint.getUrl();
-            Crawling crawling = entryPoint.getCrawling();
-            doScrape(url, crawling);
+            Scraping scraping = entryPoint.getScraping();
+            doScrape(url, scraping);
         }
     }
 
-    private void doScrape(String url, Crawling crawling) {
-        SiteParserInternal<?> siteParser = crawling.getSiteParser();
-        siteParser.setServicesInternal(crawling.getServices());
-        siteParser.parse(url);
+    private void doScrape(String url, Scraping scraping) {
+        SiteParserInternal<?> parser = scraping.getParser();
+        parser.setServicesInternal(scraping.getServices());
+        parser.parse(url, scraping.getParsingSequence());
     }
 
     public void scrape(EntryPoint entryPoint) {

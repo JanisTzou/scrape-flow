@@ -18,6 +18,7 @@ package com.github.web.scraping.lib.parallelism;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <p>
  * the data head in this
  */
+@Log4j2
 public class StepAndDataRelationshipTracker {
 
     // TODO this should keep the order by which we want to publish the data ... we cannot publish it in just any order ...
@@ -130,6 +132,7 @@ public class StepAndDataRelationshipTracker {
             boolean anyRelatedStepSeqStillActive = relatedSteps.spawned.steps.values().stream().anyMatch(activeStepsTracker::isActiveOrHasRelatedActiveSteps);
             if (anyRelatedStepSeqStillActive) {
                 // cannot publish this data
+                log.debug("Cannot publish related data for finished step yet: {}", finishedStep);
             } else {
                 FinalizedModel fm = new FinalizedModel(
                         relatedSteps.spawned.model,

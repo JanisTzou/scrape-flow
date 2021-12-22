@@ -40,6 +40,7 @@ public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBa
         this.xPath = xPath;
     }
 
+    @Deprecated
     public static GetListedElementsByFirstElementXPath instance(String xPath) {
         return new GetListedElementsByFirstElementXPath(null, xPath);
     }

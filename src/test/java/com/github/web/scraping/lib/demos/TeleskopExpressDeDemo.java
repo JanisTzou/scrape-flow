@@ -16,8 +16,8 @@
 
 package com.github.web.scraping.lib.demos;
 
-import com.github.web.scraping.lib.Crawler;
-import com.github.web.scraping.lib.Crawling;
+import com.github.web.scraping.lib.Scraper;
+import com.github.web.scraping.lib.Scraping;
 import com.github.web.scraping.lib.EntryPoint;
 import com.github.web.scraping.lib.dom.data.parsing.JsonUtils;
 import com.github.web.scraping.lib.dom.data.parsing.steps.*;
@@ -50,80 +50,84 @@ public class TeleskopExpressDeDemo {
         // TODO the parsing/scraping steps should be better named so it is clear what action they perform ... it might not be parsing exacly but also actions like button clicks etc ...
         //  maybe it is ok to have a "parsing ste" that is not exacly parsing enything but performing an action ... it's just something that needs to be performed to do the actual parsing ...
 
-        GetElementsByAttribute getNextPageLinkElemStep = GetElementsByAttribute.instance("title", " nächste Seite ").setName("get-next-page-elem");
+        GetElementsByAttribute getNextPageLinkElemStep = GetElements.ByAttribute.nameAndValue("title", " nächste Seite ").stepName("get-next-page-elem");
         // TODO here there are duplicates becase bellow the instances are mutated ... change this so that each call below in the sequence
         //  creates a new instance based on the previous one and only then it sets values ....
-        GetElementsByCssClass getProductTdElemsStep = GetElementsByCssClass.instance("main").setName("get-product-elems"); // TODO add by tag ... filtering
-        GetElementsByCssClass getProductCodeElemStep = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("get-product-code-elem-1");
-        GetElementsByCssClass getProductCodeElemStep2 = GetElementsByCssClass.instance("PRODUCTS_NAME").setName("get-product-code-elem-2");
-        GetElementsByCssClass getProductPriceElemStep = GetElementsByCssClass.instance("prod_preis").setName("get-product-price-elem");
-        GetElementsByAttribute getProductDetailHRefElemStep = GetElementsByAttribute.instance("href", "product_info.php/info").setMatchEntireValue(false).setName("get-product-detail-elem");
-        ClickElement clickNextPageLinkElem = ClickElement.instance().setName("click-next-page-button");
-        GetElementsByCssClass getNavigationPositionElemStep = GetElementsByCssClass.instance("headerlinks").setName("headerlinks").setName("get-nav-position-elem-step");
-        GetElementsByAttribute getProductDetailTitleElem = GetElementsByAttribute.instance("itemprop", "name");
-        GetElementsByAttribute getProductDescriptionElem = GetElementsByAttribute.instance("id", "c0");
+        GetElementsByCssClass getProductTdElemsStep = GetElements.ByCssClass.className("main").stepName("get-product-elems"); // TODO add by tag ... filtering
+        GetElementsByCssClass getProductCodeElemStep = GetElements.ByCssClass.className("PRODUCTS_NAME").stepName("get-product-code-elem-1");
+        GetElementsByCssClass getProductCodeElemStep2 = GetElements.ByCssClass.className("PRODUCTS_NAME").stepName("get-product-code-elem-2");
+        GetElementsByCssClass getProductPriceElemStep = GetElements.ByCssClass.className("prod_preis").stepName("get-product-price-elem");
+        GetElementsByAttribute getProductDetailHRefElemStep = GetElements.ByAttribute.nameAndValue("href", "product_info.php/info").setMatchEntireValue(false).stepName("get-product-detail-elem");
+        FollowLink clickNextPageLinkElem = Actions.followLink().stepName("click-next-page-button");
+        GetElementsByCssClass getNavigationPositionElemStep = GetElements.ByCssClass.className("headerlinks").stepName("headerlinks").stepName("get-nav-position-elem-step");
+        GetElementsByAttribute getProductDetailTitleElem = GetElements.ByAttribute.nameAndValue("itemprop", "name");
+        GetElementsByAttribute getProductDescriptionElem = GetElements.ByAttribute.nameAndValue("id", "c0");
 
-        final Crawling productsCrawling = new Crawling()
-                .setSiteParser(new HtmlUnitSiteParser(driverManager)
-                        // step set root model / collector ... here somewhere ... ? ????
-                        .setParsingSequence(
-                                new GetHtmlBody()
-                                        .setCollector(ProductsPage::new, ProductsPages::new, ProductsPages::add)
-                                        .then(new EmptyStep().setName("before-pagination"))
-                                        .then(new Paginate()
-                                                .setPaginationTrigger(
-                                                        getNextPageLinkElemStep
-                                                                .then(clickNextPageLinkElem
-                                                                        .then(new ReturnNextPage())
-                                                                )
-                                                )
-                                                .thenForEachPage(getNavigationPositionElemStep
-                                                        .then(new ParseElementText().setName("pet-1")
-                                                                .excludeChildElements(false)
+        final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager))
+                .setParsingSequence(
+                        GetElements.ByTag.body()
+                                .setCollector(ProductsPage::new, ProductsPages::new, ProductsPages::add)
+                                .then(new EmptyStep().stepName("before-pagination"))
+                                .then(Actions.paginate()
+                                        .setPaginationTrigger(
+                                                getNextPageLinkElemStep
+                                                        .then(clickNextPageLinkElem
+                                                                .then(Actions.returnNextPage())
+                                                        )
+                                        )
+                                        .thenForEachPageOrdered(StepFlow.asStepGroup() // no steps with higher order than this very step can be allowed to run before this whole thing finishes ... lower steps can continue running ... send an event that this step finished so normal parallelism can resume ... also there might be nested ordered steps ...
+                                                .then(getNavigationPositionElemStep
+                                                        .then(ParseElement.getTextContent().stepName("pet-1")
                                                                 .setCollector(ProductsPage::setPosition)
                                                         )
                                                 )
-                                                .thenForEachPage(getProductTdElemsStep
-                                                        .setCollector(Product::new, ProductsPage::add, new ProductListenerParsed())// this step generates the Product model and does not modify it ... all the child steps need to finish
-                                                        // this can register the step order of this parent step with NotificationOrderingService ...
-                                                        // set parsed data listener ?
-                                                        //  ... we might wanna listen for simple String values that were parsed ... not just complex models ...
-                                                        // when should data be eligible to notify listeners?
-                                                        .then(getProductCodeElemStep
-                                                                .then(new EmptyStep().setName("before-product-code-collection")
-                                                                        .setCollector(ProductCode::new, Product::setProductCode)
-                                                                        .then(new ParseElementText().setName("pet-2").setCollector(ProductCode::setValue))
-                                                                )
+                                                .then(getNavigationPositionElemStep
+                                                        .then(ParseElement.getTextContent().stepName("pet-1")
+                                                                .setCollector(ProductsPage::setPosition)
                                                         )
-                                                        .then(getProductPriceElemStep
-                                                                .then(new ParseElementText().setCollector(Product::setPrice))
+                                                )
+                                        )
+                                        .thenForEachPage(getNavigationPositionElemStep
+                                                .then(ParseElement.getTextContent().stepName("pet-1")
+                                                        .setCollector(ProductsPage::setPosition)
+                                                )
+                                        )
+                                        .thenForEachPage(getProductTdElemsStep
+                                                .setCollector(Product::new, ProductsPage::add, new ProductListenerParsed())// this step generates the Product model and does not modify it ... all the child steps need to finish
+                                                // this can register the step order of this parent step with NotificationOrderingService ...
+                                                // set parsed data listener ?
+                                                //  ... we might wanna listen for simple String values that were parsed ... not just complex models ...
+                                                // when should data be eligible to notify listeners?
+                                                .then(getProductCodeElemStep
+                                                        .then(new EmptyStep().stepName("before-product-code-collection")
+                                                                .setCollector(ProductCode::new, Product::setProductCode)
+                                                                .then(ParseElement.getTextContent().stepName("pet-2").setCollector(ProductCode::setValue))
                                                         )
-                                                        .then(getProductCodeElemStep2
-                                                                .then(ParseElementHRef.instance().setName("parse-product-href")
-                                                                        .setTransformation(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
-                                                                        .setCollector(Product::setDetailUrl)
-                                                                        .thenNavigate(new NavigateToParsedHRef()
-                                                                                .setSiteParser(new HtmlUnitSiteParser(driverManager))
-                                                                                .then(getProductDetailTitleElem.setName("get-product-detail-title") // TODO perhaps we need a setParsingSequence method after all instead of then() here ... so that we are consistent with how we set up a SiteParse (allows only 1 sequence) ....
-                                                                                        .then(new ParseElementText().setCollector(Product::setTitle))
-                                                                                )
-                                                                                .then(getProductDescriptionElem
-                                                                                        .then(new ParseElementText().setCollector(Product::setDescription))
-                                                                                )
-                                                                                .then(GetElementsByAttribute.instance("id", "MwStInfoMO")
-                                                                                        .then(GetElementsByTag.instance("a")
-                                                                                                .then(ParseElementHRef.instance()
-                                                                                                        .setTransformation(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
-                                                                                                        .thenNavigate(new NavigateToParsedHRef()
-                                                                                                                .setSiteParser(new HtmlUnitSiteParser(driverManager))
-                                                                                                                .then(GetListedElementsByFirstElementXPath.instance("/html/body/table/tbody/tr[1]")
-                                                                                                                        .setCollector(ShippingCosts::new, (Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc))
-                                                                                                                        .then(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[1]")
-                                                                                                                                .then(new ParseElementText().setName("get-shipping-service").setCollector(ShippingCosts::setService))
-                                                                                                                        )
-                                                                                                                        .then(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[2]")
-                                                                                                                                .then(new ParseElementText().setName("get-shipping-price").setCollector(ShippingCosts::setPrice))
-                                                                                                                        )
+                                                )
+                                                .then(getProductPriceElemStep
+                                                        .then(ParseElement.getTextContent().setCollector(Product::setPrice))
+                                                )
+                                                .then(getProductCodeElemStep2
+                                                        .then(ParseElement.getHRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal).stepName("parse-product-href")
+                                                                .setCollector(Product::setDetailUrl)
+                                                                .thenNavigate(Actions.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
+                                                                        .then(getProductDetailTitleElem.stepName("get-product-detail-title") // TODO perhaps we need a setParsingSequence method after all instead of then() here ... so that we are consistent with how we set up a SiteParse (allows only 1 sequence) ....
+                                                                                .then(ParseElement.getTextContent().setCollector(Product::setTitle))
+                                                                        )
+                                                                        .then(getProductDescriptionElem
+                                                                                .then(ParseElement.getTextContent().setCollector(Product::setDescription))
+                                                                        )
+                                                                        .then(GetElements.ByAttribute.nameAndValue("id", "MwStInfoMO")
+                                                                                .then(GetElements.ByTag.anchor()
+                                                                                        .then(ParseElement.getHRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
+                                                                                                .thenNavigate(Actions.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
+                                                                                                        .then(GetListedElementsByFirstElementXPath.instance("/html/body/table/tbody/tr[1]")
+                                                                                                                .setCollector(ShippingCosts::new, (Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc))
+                                                                                                                .then(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[1]")
+                                                                                                                        .then(ParseElement.getTextContent().stepName("get-shipping-service").setCollector(ShippingCosts::setService))
+                                                                                                                )
+                                                                                                                .then(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[2]")
+                                                                                                                        .then(ParseElement.getTextContent().stepName("get-shipping-price").setCollector(ShippingCosts::setPrice))
                                                                                                                 )
                                                                                                         )
                                                                                                 )
@@ -134,7 +138,7 @@ public class TeleskopExpressDeDemo {
                                                         )
                                                 )
                                         )
-                        )
+                                )
                 );
 
 
@@ -142,12 +146,12 @@ public class TeleskopExpressDeDemo {
 
         String url = "https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html/page/2";
 //        String url = "https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html";
-        final EntryPoint entryPoint = new EntryPoint(url, productsCrawling);
-        final Crawler crawler = new Crawler();
+        final EntryPoint entryPoint = new EntryPoint(url, productsScraping);
+        final Scraper scraper = new Scraper();
 
-        crawler.scrape(entryPoint);
+        scraper.scrape(entryPoint);
 
-        crawler.awaitCompletion(Duration.ofSeconds(200)); // TODO await completion ...
+        scraper.awaitCompletion(Duration.ofSeconds(200)); // TODO await completion ...
 
     }
 

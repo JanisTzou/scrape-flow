@@ -32,19 +32,15 @@ import java.util.function.Supplier;
 
 // TODO maybe we should express better that we expect the next page here ... or maybe in a new step ...
 @Log4j2
-public class ClickElement extends HtmlUnitParsingStep<ClickElement>
-        implements HtmlUnitChainableStep<ClickElement> {
+public class FollowLink extends HtmlUnitParsingStep<FollowLink>
+        implements HtmlUnitChainableStep<FollowLink> {
 
-    public ClickElement(List<HtmlUnitParsingStep<?>> nextSteps) {
+    FollowLink(List<HtmlUnitParsingStep<?>> nextSteps) {
         super(nextSteps);
     }
 
-    public ClickElement() {
+    FollowLink() {
         this(null);
-    }
-
-    public static ClickElement instance() {
-        return new ClickElement();
     }
 
     @Override
@@ -92,7 +88,7 @@ public class ClickElement extends HtmlUnitParsingStep<ClickElement>
     }
 
     @Override
-    public ClickElement then(HtmlUnitParsingStep<?> nextStep) {
+    public FollowLink then(HtmlUnitParsingStep<?> nextStep) {
         this.nextSteps.add(nextStep);
         return this;
     }

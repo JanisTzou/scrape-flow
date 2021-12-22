@@ -17,7 +17,8 @@
 package com.github.web.scraping.lib;
 
 import com.github.web.scraping.lib.dom.data.parsing.SiteParserInternal;
-import com.github.web.scraping.lib.dom.data.parsing.steps.CrawlingServices;
+import com.github.web.scraping.lib.dom.data.parsing.steps.ScrapingServices;
+import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitParsingStep;
 import lombok.Getter;
 
 
@@ -25,30 +26,37 @@ import lombok.Getter;
  * Encapsulates settings of the next level to scrape data from
  */
 @Getter
-public class Crawling {
+public class Scraping {
 
     /**
-     * Should specific for one crawling
+     * Should specific for one scraping instance
      */
-    private final CrawlingServices services;
-    private SiteParserInternal<?> siteParser;
+    private final ScrapingServices services;
+    private SiteParserInternal<?> parser;
+    private HtmlUnitParsingStep<?> parsingSequence;
 
-    public Crawling() {
+    public Scraping() {
         this(null);
     }
 
-    public Crawling(SiteParserInternal<?> siteParser) {
-        this(new CrawlingServices(), siteParser);
+    public Scraping(SiteParserInternal<?> parser) {
+        this(new ScrapingServices(), parser);
     }
 
-    public Crawling(CrawlingServices services, SiteParserInternal<?> siteParser) {
+    public Scraping(ScrapingServices services, SiteParserInternal<?> parser) {
         this.services = services;
-        this.siteParser = siteParser;
+        this.parser = parser;
     }
 
-    public Crawling setSiteParser(SiteParserInternal<?> siteParser) {
-        this.siteParser = siteParser;
+    @Deprecated
+    public Scraping setParser(SiteParserInternal<?> siteParser) {
+        this.parser = siteParser;
         siteParser.setServicesInternal(services);
+        return this;
+    }
+
+    public Scraping setParsingSequence(HtmlUnitParsingStep<?> parsingSequence) {
+        this.parsingSequence = parsingSequence;
         return this;
     }
 }

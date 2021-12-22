@@ -33,7 +33,7 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
     protected Collecting<?, ?> collecting;
     // renlevant for steps that do scrape textual values
     protected Function<String, String> parsedTextTransformation = s -> s; // by default return the string as-is
-    protected CrawlingServices services;
+    protected ScrapingServices services;
     // for logging and debugging
     private String name = getClass().getSimpleName() + "-unnamed-step";
 
@@ -46,7 +46,7 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
     public abstract <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx);
 
     // internal usage only
-    protected void setServices(CrawlingServices services) {
+    protected void setServices(ScrapingServices services) {
         this.services = services;
     }
 
@@ -60,7 +60,7 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
     }
 
     @SuppressWarnings("unchecked")
-    public T setName(String name) {
+    public T stepName(String name) {
         this.name = name != null && !name.toLowerCase().contains("step") ? name + "-step" : name;
         return (T) this;
     }

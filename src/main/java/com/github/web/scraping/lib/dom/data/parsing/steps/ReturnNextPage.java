@@ -33,16 +33,12 @@ public class ReturnNextPage extends CommonOperationsStepBase<ReturnNextPage> {
 
     private boolean callbackStepSet = false;
 
-    public ReturnNextPage(@Nullable List<HtmlUnitParsingStep<?>> nextSteps) {
+    ReturnNextPage(@Nullable List<HtmlUnitParsingStep<?>> nextSteps) {
         super(nextSteps);
     }
 
-    public ReturnNextPage() {
+    ReturnNextPage() {
         this(null);
-    }
-
-    public static ReturnNextPage instance() {
-        return new ReturnNextPage();
     }
 
     /**

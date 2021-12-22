@@ -16,7 +16,7 @@
 
 package com.github.web.scraping.lib.dom.data.parsing;
 
-import com.github.web.scraping.lib.dom.data.parsing.steps.CrawlingServices;
+import com.github.web.scraping.lib.dom.data.parsing.steps.ScrapingServices;
 import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitParsingStep;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 
@@ -35,6 +35,6 @@ public interface SiteParserInternal<T> extends SiteParser<T> {
     /**
      * For internal lib uses only
      */
-    void setServicesInternal(CrawlingServices services);
+    void setServicesInternal(ScrapingServices services);
 
 }

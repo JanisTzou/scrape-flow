@@ -31,19 +31,19 @@ import java.util.function.Supplier;
 @Log4j2
 public class GetElementsByTextContent extends CommonOperationsStepBase<GetElementsByTextContent> {
 
-    private final String stringToSearch;
+    private final String searchString;
+    private final boolean matchWholeTextContent;
 
-    private boolean matchWholeTextContent = true;
 
-
-    GetElementsByTextContent(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String stringToSearch) {
+    GetElementsByTextContent(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String searchString, boolean matchWholeTextContent) {
         super(nextSteps);
-        Objects.requireNonNull(stringToSearch);
-        this.stringToSearch = stringToSearch;
+        Objects.requireNonNull(searchString);
+        this.searchString = searchString;
+        this.matchWholeTextContent = matchWholeTextContent;
     }
 
-    public GetElementsByTextContent(String stringToSearch) {
-        this(null, stringToSearch);
+    GetElementsByTextContent(String searchString, boolean matchWholeTextContent) {
+        this(null, searchString, matchWholeTextContent);
     }
 
 
@@ -57,12 +57,12 @@ public class GetElementsByTextContent extends CommonOperationsStepBase<GetElemen
                     if (domNode instanceof DomText textNode) {
                         boolean found;
                         if (matchWholeTextContent) {
-                            found = textNode.getTextContent().trim().equalsIgnoreCase(stringToSearch);
+                            found = textNode.getTextContent().trim().equalsIgnoreCase(searchString);
                         } else {
-                            found = textNode.getTextContent().trim().contains(stringToSearch);
+                            found = textNode.getTextContent().trim().contains(searchString);
                         }
                         if (found) {
-                            log.debug("Found element by textContent: {}", stringToSearch);
+                            log.debug("Found element by textContent: {}", searchString);
                             return Collections.singletonList(textNode.getParentNode());
                         }
                     }
@@ -80,12 +80,4 @@ public class GetElementsByTextContent extends CommonOperationsStepBase<GetElemen
         return stepExecOrder;
     }
 
-    /**
-     * set to true by default
-     * @return
-     */
-    public GetElementsByTextContent setMatchWholeTextContent(boolean matchWholeTextContent) {
-        this.matchWholeTextContent = matchWholeTextContent;
-        return this;
-    }
 }

@@ -35,38 +35,14 @@ public class GetElementsByTag extends CommonOperationsStepBase<GetElementsByTag>
      * @param tagName
      * @throws NullPointerException if tagName is null
      */
-    public GetElementsByTag(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String tagName) {
+    GetElementsByTag(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String tagName) {
         super(nextSteps);
         Objects.requireNonNull(tagName);
         this.tagName = tagName;
     }
 
-    public GetElementsByTag(String tagName) {
+    GetElementsByTag(String tagName) {
         this(null, tagName);
-    }
-
-    public static GetElementsByTag instance(String tagName) {
-        return new GetElementsByTag(tagName);
-    }
-
-    public static GetElementsByTag div() {
-        return new GetElementsByTag("div");
-    }
-
-    public static GetElementsByTag anchor() {
-        return new GetElementsByTag("a");
-    }
-
-    public static GetElementsByTag li() {
-        return new GetElementsByTag("li");
-    }
-
-    public static GetElementsByTag span() {
-        return new GetElementsByTag("span");
-    }
-
-    public static GetElementsByTag img() {
-        return new GetElementsByTag("img");
     }
 
 

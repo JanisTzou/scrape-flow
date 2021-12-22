@@ -16,8 +16,8 @@
 
 package com.github.web.scraping.lib.demos;
 
-import com.github.web.scraping.lib.Crawler;
-import com.github.web.scraping.lib.Crawling;
+import com.github.web.scraping.lib.Scraper;
+import com.github.web.scraping.lib.Scraping;
 import com.github.web.scraping.lib.EntryPoint;
 import com.github.web.scraping.lib.dom.data.parsing.JsonUtils;
 import com.github.web.scraping.lib.dom.data.parsing.steps.*;
@@ -40,80 +40,72 @@ import java.util.Optional;
 public class MaxEuroCzDemo {
 
     @Test
-    public void start() {
+    public void start() throws InterruptedException {
 
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
+        final HtmlUnitSiteParser siteParser = new HtmlUnitSiteParser(driverManager);
 
-        final Crawling productsCrawling = new Crawling()
-                .setSiteParser(new HtmlUnitSiteParser(driverManager)
-                                .setParsingSequence(
-                                        new GetHtmlBody()
-//                                        .then(GetListedElementByFirstElementXPath.instance("/html/body/div[2]/div[4]/div/ul/li[12]")
-//                                                .then(GetElementsByAttribute.id("menuleft")
-//                                                        .then(GetElementsByTag.li()
-                                                .then(new GetElementsByTextContent("Mozaika skleněná")
-                                                        .setMatchWholeTextContent(false)
-                                                        .then(new MapElements(anchor -> Optional.ofNullable(anchor.getParentNode()))
-                                                                .then(GetElementsByTag.anchor() // ... confusing that this is separate from the ParseHRef ...
-                                                                        .then(ParseElementText.instance().setCollector(Product::setCategory)) // ... TODO hmm interesting ... how to communicate the category down ?
-                                                                        .then(new ParseElementHRef()
-                                                                                .setTransformation(href -> "https://www.maxeuro.cz" + href)
-                                                                                .thenNavigate(new NavigateToParsedHRef()
-                                                                                        .setSiteParser(new HtmlUnitSiteParser(driverManager))
-                                                                                        .then(new Paginate()
-                                                                                                .setPaginationTrigger(
-                                                                                                        GetElementsByCssClass.instance("pagination")
-                                                                                                                .then(new GetElementsByTextContent("»")
-                                                                                                                        .then(new FilterElements(domNode -> {
-                                                                                                                                    return !HtmlUnitUtils.hasAttributeWithValue(domNode.getParentNode(), "class", "disabled", true);
-                                                                                                                                })
-                                                                                                                                        .then(new ClickElement()
-                                                                                                                                                .then(new ReturnNextPage())
-                                                                                                                                        )
-                                                                                                                        )
-                                                                                                                )
-                                                                                                )
-                                                                                                .thenForEachPage(GetElementsByCssClass.instance("product").setName("product-search")
-                                                                                                        .setCollector(Product::new, ProductsPage::new, ProductsPage::add, new ProductListenerParsed())
-                                                                                                        .then(GetElementsByCssClass.instance("product-name")
-                                                                                                                .then(GetElementsByTag.anchor()
-                                                                                                                        .then(ParseElementText.instance()
-                                                                                                                                .setCollector(Product::setName)
-                                                                                                                        )
-                                                                                                                )
-                                                                                                                .then(GetElementsByTag.anchor()
-                                                                                                                        .then(ParseElementHRef.instance()
-                                                                                                                                .setTransformation(href -> "https://www.maxeuro.cz" + href)
-                                                                                                                                .setCollector(Product::setDetailUrl)
-                                                                                                                        )
-                                                                                                                )
-                                                                                                        )
-                                                                                                        .then(GetElementsByCssClass.instance("cena")
-                                                                                                                .then(ParseElementText.instance()
-                                                                                                                        .setTransformation(txt -> txt.replace(" ", "").replace("Kč(m2)", "").replace(",", ".").replace("Kč(bm)", ""))
-                                                                                                                        .setCollector(Product::setPrice)
+        final Scraping productsScraping = new Scraping(siteParser)
+                .setParsingSequence(
+                        GetElements.ByTag.body()
+                                .then(GetElements.ByTextContent.searchString("Mozaika skleněná", false)
+                                        .then(Actions.mapElements(anchor -> Optional.ofNullable(anchor.getParentNode()))
+                                                .then(GetElements.ByTag.anchor()
+                                                        .then(ParseElement.getTextContent().setCollector(Product::setCategory)) // ... TODO hmm interesting ... how to communicate the category down ?
+                                                        .then(ParseElement.getHRef(href -> "https://www.maxeuro.cz" + href)
+                                                                .thenNavigate(Actions.navigateToParsedLink(siteParser)
+                                                                        .then(Actions.paginate()
+                                                                                .setPaginationTrigger(
+                                                                                        GetElements.ByCssClass.className("pagination")
+                                                                                                .then(GetElements.ByTextContent.searchString("»", false) // returns anchor
+                                                                                                        .then(Actions.filterElements(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode.getParentNode(), "class", "disabled", true))
+                                                                                                                .then(Actions.followLink()
+                                                                                                                        .then(Actions.returnNextPage())
                                                                                                                 )
                                                                                                         )
                                                                                                 )
-                                                                                        )
+                                                                                )
+                                                                                .thenForEachPage(
+                                                                                        GetElements.ByCssClass.className("product").stepName("product-search")
+                                                                                                .setCollector(Product::new, ProductsPage::new, ProductsPage::add, new ProductListenerParsed())
+                                                                                                .then(GetElements.ByCssClass.className("product-name")
+                                                                                                        .then(GetElements.ByTag.anchor()
+                                                                                                                .then(ParseElement.getTextContent()
+                                                                                                                        .setCollector(Product::setName)
+                                                                                                                )
+                                                                                                        )
+                                                                                                        .then(GetElements.ByTag.anchor()
+                                                                                                                .then(ParseElement.getHRef(href -> "https://www.maxeuro.cz" + href)
+                                                                                                                        .setCollector(Product::setDetailUrl)
+                                                                                                                )
+                                                                                                        )
+                                                                                                )
+                                                                                                .then(GetElements.ByCssClass.className("cena")
+                                                                                                        .then(ParseElement.getTextContent(txt -> txt.replace(" ", "").replace("Kč(m2)", "").replace(",", ".").replace("Kč(bm)", ""))
+                                                                                                                .setCollector(Product::setPrice)
+                                                                                                        )
+                                                                                                )
                                                                                 )
                                                                         )
                                                                 )
                                                         )
                                                 )
+                                        )
                                 )
                 );
 
 
         // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?
 
-        String url = "https://www.maxeuro.cz/obklady-dlazby-mozaika-kat_1010.html";
-        final EntryPoint entryPoint = new EntryPoint(url, productsCrawling);
-        final Crawler crawler = new Crawler();
+        final String url = "https://www.maxeuro.cz/obklady-dlazby-mozaika-kat_1010.html";
+        final EntryPoint entryPoint = new EntryPoint(url, productsScraping);
+        final Scraper scraper = new Scraper();
 
-        crawler.scrape(entryPoint);
+        scraper.scrape(entryPoint);
 
-        crawler.awaitCompletion(Duration.ofSeconds(200)); // TODO await completion ...
+        Thread.sleep(15000);
+
+        scraper.awaitCompletion(Duration.ofSeconds(200)); // TODO await completion ...
 
     }
 

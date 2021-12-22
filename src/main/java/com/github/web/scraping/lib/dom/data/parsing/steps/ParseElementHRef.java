@@ -35,13 +35,24 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
     private BiConsumer<Object, String> modelMutation;
     // TODO add some filtering logic for the hrefs parsed ...
 
+    // TODO this is basically a specialisation of ParseAttributeValue
 
-    protected ParseElementHRef(@Nullable List<HtmlUnitParsingStep<?>> nextSteps) {
+
+    ParseElementHRef(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, Function<String, String> parsedTextTransformation) {
         super(nextSteps);
+        this.parsedTextTransformation = parsedTextTransformation;
     }
 
-    public ParseElementHRef() {
-        this(null);
+    ParseElementHRef(Function<String, String> parsedTextTransformation) {
+        this(null, parsedTextTransformation);
+    }
+
+    ParseElementHRef(@Nullable List<HtmlUnitParsingStep<?>> nextSteps) {
+        this(nextSteps, null);
+    }
+
+    ParseElementHRef() {
+        this(null, null);
     }
 
     public static ParseElementHRef instance() {
@@ -91,7 +102,7 @@ public class ParseElementHRef extends HtmlUnitParsingStep<ParseElementHRef>
     }
 
     // TODO provide JavaDoc
-    public ParseElementHRef thenNavigate(NavigateToParsedHRef nextStep) {
+    public ParseElementHRef thenNavigate(NavigateToParsedLink nextStep) {
         this.nextSteps.add(nextStep);
         return this;
     }

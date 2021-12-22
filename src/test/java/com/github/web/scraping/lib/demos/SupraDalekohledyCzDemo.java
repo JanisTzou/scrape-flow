@@ -16,12 +16,10 @@
 
 package com.github.web.scraping.lib.demos;
 
-import com.github.web.scraping.lib.Crawler;
-import com.github.web.scraping.lib.Crawling;
+import com.github.web.scraping.lib.Scraper;
+import com.github.web.scraping.lib.Scraping;
 import com.github.web.scraping.lib.EntryPoint;
-import com.github.web.scraping.lib.dom.data.parsing.steps.ClickElement;
-import com.github.web.scraping.lib.dom.data.parsing.steps.GetElementsByXPath;
-import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitSiteParser;
+import com.github.web.scraping.lib.dom.data.parsing.steps.*;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
 import org.junit.Test;
@@ -37,21 +35,20 @@ public class SupraDalekohledyCzDemo {
         // TODO the parsing/scraping steps should be better named so it is clear what action they perform ... it might not be parsing exacly but also actions like button clicks etc ...
         //  maybe it is ok to have a "parsing ste" that is not exacly parsing enything but performing an action ... it's just something that needs to be performed to do the actual parsing ...
 
-        GetElementsByXPath getNextBtnLink = GetElementsByXPath.instance("/html/body/div[2]/div[1]/div[4]/div/div/div[2]/div[3]/div[1]/ul/li[4]/a");
+        GetElementsByXPath getNextBtnLink = GetElements.ByXPath.xPath("/html/body/div[2]/div[1]/div[4]/div/div/div[2]/div[3]/div[1]/ul/li[4]/a");
 
-        final Crawling productsCrawling = new Crawling()
-                .setSiteParser(new HtmlUnitSiteParser(driverManager)
-                        .setParsingSequence(getNextBtnLink
-                                .then(ClickElement.instance())
-                        )
+        final Scraping productsScraping = new Scraping()
+                .setParser(new HtmlUnitSiteParser(driverManager))
+                .setParsingSequence(getNextBtnLink
+                        .then(Actions.followLink())
                 );
 
         // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?
-        final EntryPoint entryPoint = new EntryPoint("http://www.supra-dalekohledy.cz/prislusenstvi4/okulary/tele-vue/", productsCrawling);
+        final EntryPoint entryPoint = new EntryPoint("http://www.supra-dalekohledy.cz/prislusenstvi4/okulary/tele-vue/", productsScraping);
 
-        final Crawler crawler = new Crawler();
+        final Scraper scraper = new Scraper();
 
-        crawler.scrape(entryPoint);
+        scraper.scrape(entryPoint);
 
     }
 

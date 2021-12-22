@@ -25,19 +25,22 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 @Log4j2
-public class NavigateToParsedHRef extends CommonOperationsStepBase<NavigateToParsedHRef>
-        implements HtmlUnitParserSwitchingStep<NavigateToParsedHRef> {
+public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToParsedLink>
+        implements HtmlUnitParserSwitchingStep<NavigateToParsedLink> {
 
     // TODp perhaps provide in the constructor as a mandatory thing ?
     private SiteParserInternal<?> siteParser;
 
-    private NavigateToParsedHRef(@Nullable List<HtmlUnitParsingStep<?>> nextSteps) {
+
+    private NavigateToParsedLink(List<HtmlUnitParsingStep<?>> nextSteps, SiteParserInternal<?> siteParser) {
         super(nextSteps);
+        this.siteParser = siteParser;
     }
 
-    public NavigateToParsedHRef() {
-        this(null);
+    NavigateToParsedLink(SiteParserInternal<?> siteParser) {
+        this(null, siteParser);
     }
+
 
     // the URL must come from the parsing context!!
     @Override
@@ -62,7 +65,7 @@ public class NavigateToParsedHRef extends CommonOperationsStepBase<NavigateToPar
 
 
     @Override
-    public NavigateToParsedHRef setSiteParser(SiteParserInternal<?> siteParser) {
+    public NavigateToParsedLink setParser(SiteParserInternal<?> siteParser) {
         this.siteParser = siteParser;
         this.siteParser.setServicesInternal(services);
         return this;
