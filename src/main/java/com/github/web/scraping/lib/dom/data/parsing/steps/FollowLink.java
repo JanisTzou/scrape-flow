@@ -73,8 +73,8 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
                         return Collections.emptyList();
                     }
                 };
-                HtmlUnitParsingStepHelper wrapper = new HtmlUnitParsingStepHelper(nextSteps, getName(), services, collectorSetups);
-                wrapper.execute(ctx, nodesSearch, stepExecOrder);
+                HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
+                helper.execute(ctx, nodesSearch, stepExecOrder);
 
             } else {
                 log.warn("{}: No HtmlAnchor element provided -> cannot click element! Check the steps sequence above step {} and maybe provide search step for an anchor tag", getName(), getName());

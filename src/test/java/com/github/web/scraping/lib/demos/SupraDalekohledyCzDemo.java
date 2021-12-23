@@ -34,7 +34,7 @@ public class SupraDalekohledyCzDemo {
         GetElementsByXPath getNextBtnLink = GetElements.ByXPath.xPath("/html/body/div[2]/div[1]/div[4]/div/div/div[2]/div[3]/div[1]/ul/li[4]/a");
 
         final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 1)
-                .setParsingSequence(getNextBtnLink
+                .setScrapingSequence(getNextBtnLink
                         .next(Actions.followLink())
                 );
 

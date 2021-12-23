@@ -16,6 +16,8 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
+import static com.github.web.scraping.lib.dom.data.parsing.steps.GetElementsByDomTraversal.*;
+
 public class GetElements {
 
     public static class ByTag {
@@ -60,10 +62,14 @@ public class GetElements {
     }
 
 
-    public static class ByCssClass {
+    public static class ByCss {
 
-        public static GetElementsByCssClass className(String className) {
+        public static GetElementsByCssClass byClassName(String className) {
             return new GetElementsByCssClass(className);
+        }
+
+        public static GetElementsByCssSelector bySelector(String selector) {
+            return new GetElementsByCssSelector(selector);
         }
 
     }
@@ -90,6 +96,55 @@ public class GetElements {
 
         public static GetElementsByXPath xPath(String xPath) {
             return new GetElementsByXPath(xPath);
+        }
+
+    }
+
+
+    public static class ByDomTraversal {
+
+        public static GetElementsByDomTraversal body() {
+            return new GetElementsByDomTraversal(Type.BODY);
+        }
+
+        public static GetElementsByDomTraversal parent() {
+            return new GetElementsByDomTraversal(Type.PARENT);
+        }
+
+        public static GetElementsByDomTraversal nthParent(int nth) {
+            return new GetElementsByDomTraversal(Type.NTH_PARENT, nth);
+        }
+
+        public static GetElementsByDomTraversal nextSiblingElem() {
+            return new GetElementsByDomTraversal(Type.NEXT_SIBLING_ELEMENT);
+        }
+
+        public static GetElementsByDomTraversal prevSiblingElem() {
+            return new GetElementsByDomTraversal(Type.PREV_SIBLING_ELEMENT);
+        }
+
+        public static GetElementsByDomTraversal firstChildElem() {
+            return new GetElementsByDomTraversal(Type.FIRST_CHILD_ELEMENT);
+        }
+
+        public static GetElementsByDomTraversal firstNChildElems(int n) {
+            return new GetElementsByDomTraversal(Type.FIRST_N_CHILD_ELEMENTS, n);
+        }
+
+        public static GetElementsByDomTraversal lastChildElem() {
+            return new GetElementsByDomTraversal(Type.LAST_CHILD_ELEMENT);
+        }
+
+        public static GetElementsByDomTraversal lastNChildElems(int n) {
+            return new GetElementsByDomTraversal(Type.LAST_N_CHILD_ELEMENTS, n);
+        }
+
+        public static GetElementsByDomTraversal nthChildElem(int nth) {
+            return new GetElementsByDomTraversal(Type.NTH_CHILD_ELEMENT, nth);
+        }
+
+        public static GetElementsByDomTraversal childElems() {
+            return new GetElementsByDomTraversal(Type.CHILD_ELEMENTS);
         }
 
     }

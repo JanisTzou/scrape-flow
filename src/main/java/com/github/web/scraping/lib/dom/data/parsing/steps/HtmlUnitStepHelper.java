@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Log4j2
-public class HtmlUnitParsingStepHelper {
+public class HtmlUnitStepHelper {
 
     private final List<HtmlUnitParsingStep<?>> nextSteps;
     private final CollectorSetups collectorSetups;
@@ -45,10 +45,10 @@ public class HtmlUnitParsingStepHelper {
     /**
      * @param stepName the delegating step name for debugging purposes
      */
-    public HtmlUnitParsingStepHelper(@Nullable List<HtmlUnitParsingStep<?>> nextSteps,
-                                     String stepName,
-                                     ScrapingServices services,
-                                     CollectorSetups collectorSetups) {
+    public HtmlUnitStepHelper(@Nullable List<HtmlUnitParsingStep<?>> nextSteps,
+                              String stepName,
+                              ScrapingServices services,
+                              CollectorSetups collectorSetups) {
         this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
         this.services = services;
         this.collectorSetups = collectorSetups;

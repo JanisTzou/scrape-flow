@@ -42,6 +42,9 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
         this(null);
     }
 
+    // TODO see if we can hande this kind of pagination ...
+    //  https://www.csfd.cz/zebricky/filmy/nejlepsi/
+
     /**
      * @param ctx must contain a reference to HtmlPage that might be paginated (contains some for of next link or button)
      */
@@ -69,12 +72,12 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
             if (page.isPresent()) {
                 // GENERAL
                 Supplier<List<DomNode>> nodesSearch = () -> List.of(page.get());
-                HtmlUnitParsingStepHelper wrapper = new HtmlUnitParsingStepHelper(nextSteps, getName(), services, collectorSetups);
+                HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
                 // important to set the recursiveRootStepExecOrder to null ... the general nextSteps and logic should not be affected by it ... it's only related to pagination
                 ParsingContext plainCtx = ctx.toBuilder()
                         .setRecursiveRootStepExecOrder(null)
                         .build();
-                wrapper.execute(plainCtx, nodesSearch, stepExecOrder);
+                helper.execute(plainCtx, nodesSearch, stepExecOrder);
 
                 // PAGINATION
                 ParsingContext paginatingCtx = ctx.toBuilder()

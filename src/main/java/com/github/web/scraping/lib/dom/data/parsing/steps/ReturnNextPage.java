@@ -53,8 +53,8 @@ public class ReturnNextPage extends CommonOperationsStepBase<ReturnNextPage> {
 
             if (page.isPresent()) {
                 Supplier<List<DomNode>> nodesSearch = () -> List.of(page.get());
-                HtmlUnitParsingStepHelper wrapper = new HtmlUnitParsingStepHelper(nextSteps, getName(), services, collectorSetups);
-                wrapper.execute(ctx, nodesSearch, stepExecOrder);
+                HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
+                helper.execute(ctx, nodesSearch, stepExecOrder);
             } else {
                 log.error("The previous step did not produce an HtmlPage! Cannot process next page data in step {}", getName());
             }

@@ -48,7 +48,7 @@ public class Scraping {
         this.parser = parser;
     }
 
-    public Scraping setParsingSequence(HtmlUnitParsingStep<?> parsingSequence) {
+    public Scraping setScrapingSequence(HtmlUnitParsingStep<?> parsingSequence) {
         this.parsingSequence = parsingSequence;
         return this;
     }

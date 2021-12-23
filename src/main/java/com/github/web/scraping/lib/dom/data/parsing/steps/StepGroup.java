@@ -44,8 +44,8 @@ public class StepGroup extends CommonOperationsStepBase<StepGroup>
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
-        HtmlUnitParsingStepHelper wrapper = new HtmlUnitParsingStepHelper(nextSteps, getName(), services, collectorSetups);
-        wrapper.execute(ctx, nodesSearch, stepExecOrder);
+        HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
+        helper.execute(ctx, nodesSearch, stepExecOrder);
 
         return stepExecOrder;
     }

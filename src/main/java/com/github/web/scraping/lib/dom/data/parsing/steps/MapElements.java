@@ -61,8 +61,8 @@ public class MapElements extends CommonOperationsStepBase<MapElements> {
                 return Collections.emptyList();
             };
 
-            HtmlUnitParsingStepHelper wrapper = new HtmlUnitParsingStepHelper(nextSteps, getName(), services, collectorSetups);
-            wrapper.execute(ctx, nodesSearch, stepExecOrder);
+            HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
+            helper.execute(ctx, nodesSearch, stepExecOrder);
         };
 
         handleExecution(stepExecOrder, runnable);

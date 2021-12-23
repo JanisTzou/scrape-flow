@@ -38,7 +38,7 @@ public class StepTaskExecutor {
     // TODO specialised thread pool for parsing / blocking operations  ...
 
     public static final Duration PERIODIC_EXEC_NEXT_TRIGGER_INTERVAL = Duration.ofMillis(100);
-    public static final long AWAIT_COMPLETION_TIMEOUT_CHECK_FREQUENCY_MILLIS = 10L;
+    public static final long COMPLETION_CHECK_FREQUENCY_MILLIS = 10L;
     private final Queue<QueuedStepTask> taskQueue;
     private final ThrottlingService throttlingService;
     private final Duration periodicExecNextTriggerInterval;
@@ -101,7 +101,9 @@ public class StepTaskExecutor {
     /**
      * must be synchronized -> is called from multiple threads and accesses data that is not thread-safe and operations on it need to be atomic
      */
-    private synchronized void enqueueTask(StepTask stepTask, Consumer<TaskResult> taskResultConsumer, Consumer<TaskError> taskErrorConsumer) {
+    private synchronized void enqueueTask(StepTask stepTask,
+                                          Consumer<TaskResult> taskResultConsumer,
+                                          Consumer<TaskError> taskErrorConsumer) {
         taskQueue.add(new QueuedStepTask(stepTask, taskResultConsumer, taskErrorConsumer, System.currentTimeMillis()));
         log.trace("New enqueued request info: {}", stepTask.loggingInfo());
         logEnqueuedRequestCount();
@@ -250,7 +252,7 @@ public class StepTaskExecutor {
      */
     public boolean awaitCompletion(Duration timeout) {
 
-        long checkFrequencyMillis = timeout.toMillis() > AWAIT_COMPLETION_TIMEOUT_CHECK_FREQUENCY_MILLIS ? AWAIT_COMPLETION_TIMEOUT_CHECK_FREQUENCY_MILLIS : 0L;
+        long checkFrequencyMillis = timeout.toMillis() > COMPLETION_CHECK_FREQUENCY_MILLIS ? COMPLETION_CHECK_FREQUENCY_MILLIS : 0L;
         Duration period = Duration.ofMillis(checkFrequencyMillis);
 
         AtomicBoolean withinTimeout = new AtomicBoolean(false);

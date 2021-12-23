@@ -43,8 +43,8 @@ public class GetElementsByCssClass extends CommonOperationsStepBase<GetElementsB
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsByClass(ctx.getNode(), cssClassName);
-            HtmlUnitParsingStepHelper wrapper = new HtmlUnitParsingStepHelper(nextSteps, getName(), services, collectorSetups);
-            wrapper.execute(ctx, nodesSearch, stepExecOrder);
+            HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
+            helper.execute(ctx, nodesSearch, stepExecOrder);
         };
 
         handleExecution(stepExecOrder, runnable);

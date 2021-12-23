@@ -41,7 +41,7 @@ import java.util.Optional;
 public class MaxEuroCzDemo {
 
     @Test
-    public void start() {
+    public void start() throws InterruptedException {
 
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
         final HtmlUnitSiteParser siteParser = new HtmlUnitSiteParser(driverManager);
@@ -50,9 +50,14 @@ public class MaxEuroCzDemo {
 
         // TODO capture the declaration order of the steps somehow ... so we can forget
 
-        productsScraping.setParsingSequence(
+        productsScraping.setScrapingSequence(
                 GetElements.ByTag.body()
                         .next(GetElements.ByTextContent.search("Mozaika skleněná", true)
+                                        // TODO how to parse just certain nth elements ...?
+//                        .next(GetElements.ByAttribute.id("menuleft")
+//                                .next(GetElements.ByCssClass.byClassName("level-1")
+//
+//                                )
                                 .next(Actions.mapElements(domNode -> Optional.ofNullable(domNode.getParentNode()))
                                         .next(GetElements.ByTag.anchor()
                                                 .setCollector(Category::new, Category.class)
@@ -63,7 +68,7 @@ public class MaxEuroCzDemo {
                                                         .nextNavigate(Actions.navigateToParsedLink(siteParser)
                                                                 .next(Actions.paginate()
                                                                         .setStepsLoadingNextPage(
-                                                                                GetElements.ByCssClass.className("pagination")
+                                                                                GetElements.ByCss.byClassName("pagination")
                                                                                         .next(GetElements.ByTextContent.search("»", true) // returns anchor
                                                                                                 .next(Actions.filterElements(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode.getParentNode(), "class", "disabled", true))
                                                                                                         .next(Actions.followLink()
@@ -73,10 +78,10 @@ public class MaxEuroCzDemo {
                                                                                         )
                                                                         )
                                                                         .nextForEachPage(
-                                                                                GetElements.ByCssClass.className("product").stepName("product-search")
+                                                                                GetElements.ByCss.byClassName("product").stepName("product-search")
                                                                                         .setCollector(Product::new, Product.class, new ProductListenerParsed())
                                                                                         .collect(Product::setCategory, Product.class, Category.class)
-                                                                                        .next(GetElements.ByCssClass.className("product-name")
+                                                                                        .next(GetElements.ByCss.byClassName("product-name")
                                                                                                 .next(GetElements.ByTag.anchor()
                                                                                                         .next(Parse.textContent()
                                                                                                                 .collect(Product::setName, Product.class)
@@ -95,7 +100,7 @@ public class MaxEuroCzDemo {
                                                                                                         )
                                                                                                 )
                                                                                         )
-                                                                                        .next(GetElements.ByCssClass.className("cena")
+                                                                                        .next(GetElements.ByCss.byClassName("cena")
                                                                                                 .next(Parse.textContent(txt -> txt.replace(" ", "").replace("Kč(m2)", "").replace(",", ".").replace("Kč(bm)", ""))
                                                                                                         .collect(Product::setPrice, Product.class)
                                                                                                 )
@@ -134,8 +139,17 @@ public class MaxEuroCzDemo {
     @Getter
     @NoArgsConstructor
     @ToString
+    public static class SubCategory {
+        private volatile String name;
+    }
+
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    @ToString
     public static class Product {
         private volatile Category category;
+        private volatile SubCategory subCategory;
         private volatile String name;
         private volatile String price;
         private volatile String detailUrl;

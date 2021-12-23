@@ -63,8 +63,8 @@ public class GetElementsByAttribute extends CommonOperationsStepBase<GetElements
                     return HtmlUnitUtils.getDescendantsByAttribute(ctx.getNode(), attributeName);
                 }
             };
-            HtmlUnitParsingStepHelper wrapper = new HtmlUnitParsingStepHelper(nextSteps, getName(), services, collectorSetups);
-            wrapper.execute(ctx, nodesSearch, stepExecOrder);
+            HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
+            helper.execute(ctx, nodesSearch, stepExecOrder);
         };
 
         handleExecution(stepExecOrder, runnable);

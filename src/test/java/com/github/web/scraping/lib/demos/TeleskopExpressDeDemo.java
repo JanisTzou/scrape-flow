@@ -53,17 +53,17 @@ public class TeleskopExpressDeDemo {
         GetElementsByAttribute getNextPageLinkElemStep = GetElements.ByAttribute.nameAndValue("title", " nächste Seite ").stepName("get-next-page-elem");
         // TODO here there are duplicates becase bellow the instances are mutated ... change this so that each call below in the sequence
         //  creates a new instance based on the previous one and only then it sets values ....
-        GetElementsByCssClass getProductTdElemsStep = GetElements.ByCssClass.className("main").stepName("get-product-elems"); // TODO add by tag ... filtering
-        GetElementsByCssClass getProductCodeElemStep = GetElements.ByCssClass.className("PRODUCTS_NAME").stepName("get-product-code-elem-1");
-        GetElementsByCssClass getProductCodeElemStep2 = GetElements.ByCssClass.className("PRODUCTS_NAME").stepName("get-product-code-elem-2");
-        GetElementsByCssClass getProductPriceElemStep = GetElements.ByCssClass.className("prod_preis").stepName("get-product-price-elem");
+        GetElementsByCssClass getProductTdElemsStep = GetElements.ByCss.byClassName("main").stepName("get-product-elems"); // TODO add by tag ... filtering
+        GetElementsByCssClass getProductCodeElemStep = GetElements.ByCss.byClassName("PRODUCTS_NAME").stepName("get-product-code-elem-1");
+        GetElementsByCssClass getProductCodeElemStep2 = GetElements.ByCss.byClassName("PRODUCTS_NAME").stepName("get-product-code-elem-2");
+        GetElementsByCssClass getProductPriceElemStep = GetElements.ByCss.byClassName("prod_preis").stepName("get-product-price-elem");
         GetElementsByAttribute getProductDetailHRefElemStep = GetElements.ByAttribute.nameAndValue("href", "product_info.php/info").setMatchEntireValue(false).stepName("get-product-detail-elem");
         FollowLink clickNextPageLinkElem = Actions.followLink().stepName("click-next-page-button");
         GetElementsByAttribute getProductDetailTitleElem = GetElements.ByAttribute.nameAndValue("itemprop", "name");
         GetElementsByAttribute getProductDescriptionElem = GetElements.ByAttribute.nameAndValue("id", "c0");
 
         final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 1)
-                .setParsingSequence(
+                .setScrapingSequence(
                         GetElements.ByTag.body()
                                 .next(new EmptyStep().stepName("before-pagination"))
                                 .next(Actions.paginate()
@@ -75,18 +75,18 @@ public class TeleskopExpressDeDemo {
                                         )
                                         .nextForEachPageExclusively(
                                                 StepFlow.asStepGroup() // no steps with higher order than this very step can be allowed to run before this whole thing finishes ... lower steps can continue running ... send an event that this step finished so normal parallelism can resume ... also there might be nested ordered steps ...
-                                                        .next(GetElements.ByCssClass.className("headerlinks").stepName("get-nav-position-elem-step")
+                                                        .next(GetElements.ByCss.byClassName("headerlinks").stepName("get-nav-position-elem-step")
                                                                 .next(Parse.textContent().stepName("pet-1")
                                                                         .collect(ProductsPage::setPosition, ProductsPage.class)
                                                                 )
                                                         )
-                                                        .next(GetElements.ByCssClass.className("headerlinks").stepName("get-nav-position-elem-step")
+                                                        .next(GetElements.ByCss.byClassName("headerlinks").stepName("get-nav-position-elem-step")
                                                                 .next(Parse.textContent().stepName("pet-1")
                                                                         .collect(ProductsPage::setPosition, ProductsPage.class)
                                                                 )
                                                         )
                                         )
-                                        .nextForEachPage(GetElements.ByCssClass.className("headerlinks").stepName("get-nav-position-elem-step")
+                                        .nextForEachPage(GetElements.ByCss.byClassName("headerlinks").stepName("get-nav-position-elem-step")
                                                 .next(Parse.textContent().stepName("pet-1")
                                                         .collect(ProductsPage::setPosition, ProductsPage.class)
                                                 )
@@ -111,7 +111,7 @@ public class TeleskopExpressDeDemo {
                                                         .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal).stepName("parse-product-href")
                                                                 .collect(Product::setDetailUrl, Product.class)
                                                                 .nextNavigate(Actions.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
-                                                                        .next(getProductDetailTitleElem.stepName("get-product-detail-title") // TODO perhaps we need a setParsingSequence method after all instead of then() here ... so that we are consistent with how we set up a SiteParse (allows only 1 sequence) ....
+                                                                        .next(getProductDetailTitleElem.stepName("get-product-detail-title") // TODO perhaps we need a setScrapingSequence method after all instead of then() here ... so that we are consistent with how we set up a SiteParse (allows only 1 sequence) ....
                                                                                 .next(Parse.textContent().collect(Product::setTitle, Product.class))
                                                                         )
                                                                         .next(getProductDescriptionElem
@@ -159,17 +159,6 @@ public class TeleskopExpressDeDemo {
     @Getter
     @NoArgsConstructor
     @ToString
-    public static class ProductsPages {
-        private final List<ProductsPage> pageList = new ArrayList<>();
-
-        public void add(ProductsPage products) {
-            this.pageList.add(products);
-        }
-    }
-
-    @Getter
-    @NoArgsConstructor
-    @ToString
     public static class ProductsPage {
         private final List<Product> products = new ArrayList<>();
         private volatile String position;
@@ -180,20 +169,6 @@ public class TeleskopExpressDeDemo {
 
         public void setPosition(String position) {
             this.position = position;
-        }
-    }
-
-
-    @Getter
-    @NoArgsConstructor
-    @ToString
-    @Deprecated
-    public static class Products {
-
-        private final List<Product> products = new ArrayList<>();
-
-        public void add(Product product) {
-            this.products.add(product);
         }
     }
 

@@ -34,11 +34,11 @@ public class AktualneCzDemo {
 
         final GetElementsByAttribute getArticleElements = GetElements.ByAttribute.nameAndValue("data-ga4-type", "article");
         final GetElementsByAttribute getArticleHeadlineElem = GetElements.ByAttribute.name("data-vr-headline");
-        final GetElementsByCssClass getArticleDescElem1 = GetElements.ByCssClass.className("section-opener__desc");
-        final GetElementsByCssClass getArticleDescElem2 = GetElements.ByCssClass.className("small-box__desc");
+        final GetElementsByCssClass getArticleDescElem1 = GetElements.ByCss.byClassName("section-opener__desc");
+        final GetElementsByCssClass getArticleDescElem2 = GetElements.ByCss.byClassName("small-box__desc");
 
         final Scraping articlesScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 5)
-                .setParsingSequence(getArticleElements
+                .setScrapingSequence(getArticleElements
                         .next(getArticleHeadlineElem
                                 .next(Parse.textContent())
                         )

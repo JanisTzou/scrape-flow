@@ -16,17 +16,11 @@
 
 package com.github.web.scraping.lib.scraping.utils;
 
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.gargoylesoftware.htmlunit.html.DomNodeList;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.gargoylesoftware.htmlunit.html.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -119,6 +113,11 @@ public class HtmlUnitUtils {
         });
     }
 
+    public static List<DomNode> getDescendantsBySccSelector(DomNode parentElement, String selector) {
+        DomNodeList<DomNode> domNodes = parentElement.querySelectorAll(selector);
+        return domNodes;
+    }
+
     // TODO there is a big problem here that some elements are being searched but only for descendants and in fact we want those same "parents" returned ... somehow express this in the
     //  steps that go for elements ... so that their filtering function is clear ...
     public static List<DomNode> getDescendantsByTagName(DomNode parentElement, String tagName) {
@@ -151,4 +150,67 @@ public class HtmlUnitUtils {
             return element.hasAttribute(attribute) && element.getAttribute(attribute).contains(value);
         }
     }
+
+
+    public static Optional<DomNode> findNthParent(DomNode domNode, int nth) {
+        if (nth < 0) {
+            throw new IllegalArgumentException("Cannot return nth child element for n = " + nth + " - nth must be a non-negative integer!");
+        }
+        return findNthParentHelper(domNode, nth, 0);
+    }
+
+    private static Optional<DomNode> findNthParentHelper(DomNode domNode, int nth, int count) {
+        if (count == nth) {
+            return Optional.of(domNode);
+        } else {
+            if (domNode.getParentNode() != null) {
+                return findNthParentHelper(domNode.getParentNode(), nth, ++count);
+            } else {
+                return Optional.empty();
+            }
+        }
+    }
+
+    public static Optional<DomNode> findNextSiblingElement(DomNode domNode) {
+        return Optional.ofNullable(domNode.getNextElementSibling());
+    }
+
+    public static Optional<DomNode> findPrevSiblingElement(DomNode domNode) {
+        return Optional.ofNullable(domNode.getPreviousElementSibling());
+    }
+
+    public static Optional<DomNode> findFirstChildElement(DomNode domNode) {
+        return findNthChildElement(domNode, 1);
+    }
+
+    public static Optional<DomNode> findLastChildElement(DomNode domNode) {
+        return findLastNChildElements(domNode, 1).stream().findFirst();
+    }
+
+    public static Optional<DomNode> findNthChildElement(DomNode domNode, int nth) {
+        if (nth <= 0) {
+            throw new IllegalArgumentException("Cannot return nth child element for nth = " + nth + " - nth must be a positive integer!");
+        }
+        return domNode.getChildNodes().stream().filter(node -> node instanceof HtmlElement)
+                .skip(nth - 1)
+                .limit(1)
+                .findFirst();
+    }
+
+    public static List<DomNode> findFirstNChildElements(DomNode domNode, int n) {
+        return domNode.getChildNodes().stream().filter(node -> node instanceof HtmlElement).limit(n).collect(Collectors.toList());
+    }
+
+    public static List<DomNode> findLastNChildElements(DomNode domNode, int n) {
+        List<HtmlElement> elements = domNode.getChildNodes().stream().filter(node -> node instanceof HtmlElement).map(node -> (HtmlElement) node).collect(Collectors.toList());
+        List<HtmlElement> elementsMutCopy = new ArrayList<>(elements);
+        Collections.reverse(elementsMutCopy);
+        return elementsMutCopy.stream().limit(n).collect(Collectors.toList());
+    }
+
+    public static List<DomNode> findChildElements(DomNode domNode) {
+        return domNode.getChildNodes().stream().filter(node -> node instanceof HtmlElement).map(node -> (HtmlElement) node).collect(Collectors.toList());
+    }
+
+
 }

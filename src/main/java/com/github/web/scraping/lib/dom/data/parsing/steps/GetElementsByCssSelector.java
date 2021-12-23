@@ -18,29 +18,23 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
-import lombok.extern.log4j.Log4j2;
+import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-/**
- * Filters nodes acquired in the previous steps by custom conditions
- */
-@Log4j2
-public class FilterElements extends CommonOperationsStepBase<FilterElements> {
+public class GetElementsByCssSelector extends CommonOperationsStepBase<GetElementsByCssSelector> {
 
-    private final Predicate<DomNode> domNodePredicate;
+    private final String sccSelector;
 
-    FilterElements(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, Predicate<DomNode> domNodePredicate) {
+    GetElementsByCssSelector(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, String sccSelector) {
         super(nextSteps);
-        this.domNodePredicate = domNodePredicate;
+        this.sccSelector = sccSelector;
     }
 
-    FilterElements(Predicate<DomNode> domNodePredicate) {
-        this(null, domNodePredicate);
+    GetElementsByCssSelector(String sccSelector) {
+        this(null, sccSelector);
     }
 
     @Override
@@ -48,16 +42,7 @@ public class FilterElements extends CommonOperationsStepBase<FilterElements> {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<DomNode>> nodesSearch = () -> {
-                if (domNodePredicate.test(ctx.getNode())) {
-                    log.debug("{} element passed filter: {}", getName(), ctx.getNode());
-                    return List.of(ctx.getNode());
-                } else {
-                    log.debug("{} element filtered away: {}", getName(), ctx.getNode());
-                }
-                return Collections.emptyList();
-            };
-
+            Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsBySccSelector(ctx.getNode(), sccSelector);
             HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
             helper.execute(ctx, nodesSearch, stepExecOrder);
         };

@@ -49,7 +49,7 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
     }
 
 
-    public abstract StepExecOrder execute(ParsingContext ctx);
+    protected abstract StepExecOrder execute(ParsingContext ctx);
 
     // internal usage only
     protected void setServices(ScrapingServices services) {
@@ -61,7 +61,7 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
         step.setServices(this.services);
     }
 
-    public String getName() {
+    protected String getName() {
         return name;
     }
 
@@ -76,7 +76,6 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
     }
 
     /**
-     * @param stepExecOrder
      * @param runnable      task can be executed immediately or at some later point based on the given mode
      */
     protected void handleExecution(StepExecOrder stepExecOrder, Runnable runnable) {

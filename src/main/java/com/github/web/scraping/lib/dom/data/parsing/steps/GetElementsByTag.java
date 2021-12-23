@@ -49,8 +49,8 @@ public class GetElementsByTag extends CommonOperationsStepBase<GetElementsByTag>
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsByTagName(ctx.getNode(), tagName);
-            HtmlUnitParsingStepHelper wrapper = new HtmlUnitParsingStepHelper(nextSteps, getName(), services, collectorSetups);
-            wrapper.execute(ctx, nodesSearch, stepExecOrder);
+            HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
+            helper.execute(ctx, nodesSearch, stepExecOrder);
         };
 
         handleExecution(stepExecOrder, runnable);

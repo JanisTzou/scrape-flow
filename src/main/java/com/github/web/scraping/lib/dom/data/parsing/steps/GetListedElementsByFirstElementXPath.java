@@ -82,8 +82,8 @@ public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBa
                         .collect(Collectors.toList());
             };
 
-            HtmlUnitParsingStepHelper wrapper = new HtmlUnitParsingStepHelper(nextSteps, getName(), services, collectorSetups);
-            wrapper.execute(ctx, nodesSearch, stepExecOrder);
+            HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
+            helper.execute(ctx, nodesSearch, stepExecOrder);
         };
 
         handleExecution(stepExecOrder, runnable);
