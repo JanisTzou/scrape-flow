@@ -69,7 +69,7 @@ public class TeleskopExpressDeDemo {
                                 .setCollector(ProductsPage::new, ProductsPages::new, ProductsPages::add)
                                 .next(new EmptyStep().stepName("before-pagination"))
                                 .next(Actions.paginate()
-                                        .setPaginationTrigger(
+                                        .setStepsLoadingNextPage(
                                                 getNextPageLinkElemStep
                                                         .next(clickNextPageLinkElem
                                                                 .next(Actions.returnNextPage())
@@ -78,18 +78,18 @@ public class TeleskopExpressDeDemo {
                                         .nextForEachPageExclusively(
                                                 StepFlow.asStepGroup() // no steps with higher order than this very step can be allowed to run before this whole thing finishes ... lower steps can continue running ... send an event that this step finished so normal parallelism can resume ... also there might be nested ordered steps ...
                                                         .next(getNavigationPositionElemStep
-                                                                .next(ParseData.parseTextContent().stepName("pet-1")
+                                                                .next(Parse.textContent().stepName("pet-1")
                                                                         .setCollector(ProductsPage::setPosition)
                                                                 )
                                                         )
                                                         .next(getNavigationPositionElemStep
-                                                                .next(ParseData.parseTextContent().stepName("pet-1")
+                                                                .next(Parse.textContent().stepName("pet-1")
                                                                         .setCollector(ProductsPage::setPosition)
                                                                 )
                                                         )
                                         )
                                         .nextForEachPage(getNavigationPositionElemStep
-                                                .next(ParseData.parseTextContent().stepName("pet-1")
+                                                .next(Parse.textContent().stepName("pet-1")
                                                         .setCollector(ProductsPage::setPosition)
                                                 )
                                         )
@@ -102,33 +102,33 @@ public class TeleskopExpressDeDemo {
                                                 .next(getProductCodeElemStep
                                                         .next(new EmptyStep().stepName("before-product-code-collection")
                                                                 .setCollector(ProductCode::new, Product::setProductCode)
-                                                                .next(ParseData.parseTextContent().stepName("pet-2").setCollector(ProductCode::setValue))
+                                                                .next(Parse.textContent().stepName("pet-2").setCollector(ProductCode::setValue))
                                                         )
                                                 )
                                                 .next(getProductPriceElemStep
-                                                        .next(ParseData.parseTextContent().setCollector(Product::setPrice))
+                                                        .next(Parse.textContent().setCollector(Product::setPrice))
                                                 )
                                                 .next(getProductCodeElemStep2
-                                                        .next(ParseData.parseHRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal).stepName("parse-product-href")
+                                                        .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal).stepName("parse-product-href")
                                                                 .setCollector(Product::setDetailUrl)
                                                                 .nextNavigate(Actions.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
                                                                         .next(getProductDetailTitleElem.stepName("get-product-detail-title") // TODO perhaps we need a setParsingSequence method after all instead of then() here ... so that we are consistent with how we set up a SiteParse (allows only 1 sequence) ....
-                                                                                .next(ParseData.parseTextContent().setCollector(Product::setTitle))
+                                                                                .next(Parse.textContent().setCollector(Product::setTitle))
                                                                         )
                                                                         .next(getProductDescriptionElem
-                                                                                .next(ParseData.parseTextContent().setCollector(Product::setDescription))
+                                                                                .next(Parse.textContent().setCollector(Product::setDescription))
                                                                         )
                                                                         .next(GetElements.ByAttribute.nameAndValue("id", "MwStInfoMO")
                                                                                 .next(GetElements.ByTag.anchor()
-                                                                                        .next(ParseData.parseHRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
+                                                                                        .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
                                                                                                 .nextNavigate(Actions.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
                                                                                                         .next(GetListedElementsByFirstElementXPath.instance("/html/body/table/tbody/tr[1]")
                                                                                                                 .setCollector(ShippingCosts::new, (Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc))
                                                                                                                 .next(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[1]")
-                                                                                                                        .next(ParseData.parseTextContent().stepName("get-shipping-service").setCollector(ShippingCosts::setService))
+                                                                                                                        .next(Parse.textContent().stepName("get-shipping-service").setCollector(ShippingCosts::setService))
                                                                                                                 )
                                                                                                                 .next(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[2]")
-                                                                                                                        .next(ParseData.parseTextContent().stepName("get-shipping-price").setCollector(ShippingCosts::setPrice))
+                                                                                                                        .next(Parse.textContent().stepName("get-shipping-price").setCollector(ShippingCosts::setPrice))
                                                                                                                 )
                                                                                                         )
                                                                                                 )

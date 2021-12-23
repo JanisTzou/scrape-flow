@@ -42,7 +42,7 @@ public class Actions {
     }
 
     /**
-     * Can be used to load the page after a link has been parsed e.g. after {@link ParseData#parseHRef()}.
+     * Can be used to load the page after a link has been parsed e.g. after {@link Parse#hRef()}.
      * <br>
      * Loads the site into a new page instance - this is important e.g. when we are in the middle of pagination, and we need the original page left intact.
      */

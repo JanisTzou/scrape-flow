@@ -32,9 +32,6 @@ public class AktualneCzDemo {
         // TODO any way for these to be accessible globally? So they do not need to be specified explicitly in every stage definition?
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
 
-        // TODO the parsing/scraping steps should be better named so it is clear what action they perform ... it might not be parsing exacly but also actions like button clicks etc ...
-        //  maybe it is ok to have a "parsing ste" that is not exacly parsing enything but performing an action ... it's just something that needs to be performed to do the actual parsing ...
-
         final GetElementsByAttribute getArticleElements = GetElements.ByAttribute.nameAndValue("data-ga4-type", "article");
         final GetElementsByAttribute getArticleHeadlineElem = GetElements.ByAttribute.name("data-vr-headline");
         final GetElementsByCssClass getArticleDescElem1 = GetElements.ByCssClass.className("section-opener__desc");
@@ -43,18 +40,17 @@ public class AktualneCzDemo {
         final Scraping articlesScraping = new Scraping(new HtmlUnitSiteParser(driverManager))
                 .setParsingSequence(getArticleElements
                         .next(getArticleHeadlineElem
-                                .next(ParseData.parseTextContent())
+                                .next(Parse.textContent())
                         )
                         .next(getArticleDescElem1
-                                .next(ParseData.parseTextContent())
+                                .next(Parse.textContent())
                         )
                         .next(getArticleDescElem2
-                                .next(ParseData.parseTextContent())
+                                .next(Parse.textContent())
                         )
                 );
 
 
-        // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?
         final EntryPoint entryPoint = new EntryPoint("https://zpravy.aktualne.cz/zahranici/", articlesScraping);
 
         final Scraper scraper = new Scraper();

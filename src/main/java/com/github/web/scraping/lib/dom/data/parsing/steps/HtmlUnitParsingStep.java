@@ -95,10 +95,7 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
     }
 
     protected StepExecOrder genNextOrderAfter(StepExecOrder stepAtPrevLevel) {
-        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(stepAtPrevLevel);
-        return stepExecOrder;
+        return services.getStepExecOrderGenerator().genNextOrderAfter(stepAtPrevLevel);
     }
-
-    // TODO methid failSilently() ???
 
 }

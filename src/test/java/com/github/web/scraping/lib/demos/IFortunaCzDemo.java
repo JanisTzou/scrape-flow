@@ -29,11 +29,7 @@ public class IFortunaCzDemo {
     @Test
     public void start() {
 
-        // TODO any way for these to be accessible globally? So they do not need to be specified explicitly in every stage definition?
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
-
-        // TODO the parsing/scraping steps should be better named so it is clear what action they perform ... it might not be parsing exacly but also actions like button clicks etc ...
-        //  maybe it is ok to have a "parsing ste" that is not exacly parsing enything but performing an action ... it's just something that needs to be performed to do the actual parsing ...
 
         final GetListedElementsByFirstElementXPath getEventsListElements = GetListedElementsByFirstElementXPath.instance("/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]");
         final GetListedElementByFirstElementXPath getEventDetailLinkElem = GetListedElementByFirstElementXPath.instance("/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[1]/a");
@@ -48,17 +44,16 @@ public class IFortunaCzDemo {
         // TODO step examples:
         //  search x execute x paginate x click x wait ...
 
-        final Scraping matchesScraping = new Scraping()
-                .setParser(new HtmlUnitSiteParser(driverManager))
+        final Scraping matchesScraping = new Scraping(new HtmlUnitSiteParser(driverManager))
                 .setParsingSequence(getEventsListElements
                         .next(getEventDetailLinkElem  // TODO perhaps we can express it better that the next step is going for the children ?
-                                .next(ParseData.parseHRef())
+                                .next(Parse.hRef())
                         )
                         .next(getEventTitleElem
-                                .next(ParseData.parseTextContent())
+                                .next(Parse.textContent())
                         )
                         .next(getEventDateElem
-                                .next(ParseData.parseTextContent())
+                                .next(Parse.textContent())
                         )
                 );
 

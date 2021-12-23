@@ -28,7 +28,6 @@ public class StepExecOrderGenerator {
      *                        ... so has kind of a parent relationship to the next one to be generated
      */
     public StepExecOrder genNextOrderAfter(StepExecOrder stepAtPrevLevel) {
-        // TODO immediately track by StepOrderTracker? Here or on the caller side?
         return this.parentToLastGeneratedChild.compute(stepAtPrevLevel, (parent0, prevLastStep) -> {
             if (prevLastStep == null) {
                 return stepAtPrevLevel.nextAsChild();

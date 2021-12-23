@@ -99,12 +99,11 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
         return stepExecOrder;
     }
 
-    // TODO rename? To stepsReturningNextPage ? or something like that ...
     /**
      * Steps that trigger the pagination - that is loading the next content.
      * In practice this is most often the action finding the "NEXT" button element and clicking it.
      */
-    public Paginate setPaginationTrigger(HtmlUnitParsingStep<?> paginatingSequence) {
+    public Paginate setStepsLoadingNextPage(HtmlUnitParsingStep<?> paginatingSequence) {
         this.paginationTrigger = paginatingSequence;
         return this;
     }

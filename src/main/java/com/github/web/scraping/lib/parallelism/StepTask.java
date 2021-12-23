@@ -61,7 +61,7 @@ public class StepTask implements Comparable<StepTask> {
     }
 
     public String loggingInfo() {
-        return toString(); // TODO make nicer and shorter ...
+        return toString();
     }
 
     public long getNumOfRetries() {

@@ -51,11 +51,11 @@ public class MaxEuroCzDemo {
                                 .next(GetElements.ByTextContent.searchByString("Mozaika skleněná", true)
                                         .next(Actions.mapElements(domNode -> Optional.ofNullable(domNode.getParentNode()))
                                                 .next(GetElements.ByTag.anchor()
-                                                        .next(ParseData.parseTextContent().setCollector(Product::setCategory)) // ... TODO hmm interesting ... how to communicate the category downstream ?
-                                                        .next(ParseData.parseHRef(href -> "https://www.maxeuro.cz" + href)
+                                                        .next(Parse.textContent().setCollector(Product::setCategory)) // ... TODO hmm interesting ... how to communicate the category downstream ?
+                                                        .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href)
                                                                 .nextNavigate(Actions.navigateToParsedLink(siteParser)
                                                                         .next(Actions.paginate()
-                                                                                .setPaginationTrigger(
+                                                                                .setStepsLoadingNextPage(
                                                                                         GetElements.ByCssClass.className("pagination")
                                                                                                 .next(GetElements.ByTextContent.searchByString("»", true) // returns anchor
                                                                                                         .next(Actions.filterElements(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode.getParentNode(), "class", "disabled", true))
@@ -70,16 +70,16 @@ public class MaxEuroCzDemo {
                                                                                                 .setCollector(Product::new, ProductsPage::new, ProductsPage::add, new ProductListenerParsed())
                                                                                                 .next(GetElements.ByCssClass.className("product-name")
                                                                                                         .next(GetElements.ByTag.anchor()
-                                                                                                                .next(ParseData.parseTextContent()
+                                                                                                                .next(Parse.textContent()
                                                                                                                         .setCollector(Product::setName)
                                                                                                                 )
                                                                                                         )
                                                                                                         .next(GetElements.ByTag.anchor()
-                                                                                                                .next(ParseData.parseHRef(href -> "https://www.maxeuro.cz" + href)
+                                                                                                                .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href)
                                                                                                                         .setCollector(Product::setDetailUrl)
                                                                                                                         .nextNavigate(Actions.navigateToParsedLink(siteParser)
                                                                                                                                 .next(GetElements.ByAttribute.id("productDescription1")
-                                                                                                                                        .next(ParseData.parseTextContent()
+                                                                                                                                        .next(Parse.textContent()
                                                                                                                                                 .setCollector(Product::setDescription)
                                                                                                                                         )
                                                                                                                                 )
@@ -88,7 +88,7 @@ public class MaxEuroCzDemo {
                                                                                                         )
                                                                                                 )
                                                                                                 .next(GetElements.ByCssClass.className("cena")
-                                                                                                        .next(ParseData.parseTextContent(txt -> txt.replace(" ", "").replace("Kč(m2)", "").replace(",", ".").replace("Kč(bm)", ""))
+                                                                                                        .next(Parse.textContent(txt -> txt.replace(" ", "").replace("Kč(m2)", "").replace(",", ".").replace("Kč(bm)", ""))
                                                                                                                 .setCollector(Product::setPrice)
                                                                                                         )
                                                                                                 )
@@ -104,7 +104,6 @@ public class MaxEuroCzDemo {
                 );
 
 
-        // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?
         final String url = "https://www.maxeuro.cz/obklady-dlazby-mozaika-kat_1010.html";
         final EntryPoint entryPoint = new EntryPoint(url, productsScraping);
         final Scraper scraper = new Scraper();

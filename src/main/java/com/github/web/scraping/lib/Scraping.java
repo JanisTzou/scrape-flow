@@ -48,13 +48,6 @@ public class Scraping {
         this.parser = parser;
     }
 
-    @Deprecated
-    public Scraping setParser(SiteParserInternal<?> siteParser) {
-        this.parser = siteParser;
-        siteParser.setServicesInternal(services);
-        return this;
-    }
-
     public Scraping setParsingSequence(HtmlUnitParsingStep<?> parsingSequence) {
         this.parsingSequence = parsingSequence;
         return this;
