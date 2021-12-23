@@ -22,7 +22,7 @@ public class ThrottlingService {
     // TODO gather metrics by web domain
 
     // throttlable
-    private final int maxTasks = 1;
+    private final int maxTasks = 10;
 
     public boolean canProceed(int executingThrottlableTasksCount) {
         return executingThrottlableTasksCount < maxTasks;

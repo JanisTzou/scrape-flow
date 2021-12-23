@@ -19,7 +19,10 @@ package com.github.web.scraping.lib;
 import com.github.web.scraping.lib.dom.data.parsing.SiteParserInternal;
 import com.github.web.scraping.lib.dom.data.parsing.steps.ScrapingServices;
 import com.github.web.scraping.lib.dom.data.parsing.steps.HtmlUnitParsingStep;
+import com.github.web.scraping.lib.throttling.ScrapingRateLimiterImpl;
 import lombok.Getter;
+
+import java.time.Duration;
 
 
 /**
@@ -35,12 +38,9 @@ public class Scraping {
     private SiteParserInternal<?> parser;
     private HtmlUnitParsingStep<?> parsingSequence;
 
-    public Scraping() {
-        this(null);
-    }
 
-    public Scraping(SiteParserInternal<?> parser) {
-        this(new ScrapingServices(), parser);
+    public Scraping(SiteParserInternal<?> parser, int maxRequestRatePerSec) {
+        this(new ScrapingServices(new ScrapingRateLimiterImpl(maxRequestRatePerSec)), parser);
     }
 
     public Scraping(ScrapingServices services, SiteParserInternal<?> parser) {
@@ -51,5 +51,10 @@ public class Scraping {
     public Scraping setParsingSequence(HtmlUnitParsingStep<?> parsingSequence) {
         this.parsingSequence = parsingSequence;
         return this;
+    }
+
+    // should be only exposed to the scraper responsible for running this Scraping instance
+    boolean awaitCompletion(Duration timeout) {
+        return services.getStepTaskExecutor().awaitCompletion(timeout);
     }
 }

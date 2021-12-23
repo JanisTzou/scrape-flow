@@ -17,7 +17,6 @@
 package com.github.web.scraping.lib.parallelism;
 
 import com.github.web.scraping.lib.throttling.ScrapingRateLimiter;
-import com.github.web.scraping.lib.throttling.ScrapingRateLimiterImpl;
 import com.github.web.scraping.lib.throttling.ThrottlingService;
 import lombok.extern.log4j.Log4j2;
 import reactor.core.publisher.Flux;
@@ -29,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.Queue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -38,20 +38,24 @@ public class StepTaskExecutor {
     // TODO specialised thread pool for parsing / blocking operations  ...
 
     public static final Duration PERIODIC_EXEC_NEXT_TRIGGER_INTERVAL = Duration.ofMillis(100);
+    public static final long AWAIT_COMPLETION_TIMEOUT_CHECK_FREQUENCY_MILLIS = 10L;
     private final Queue<QueuedStepTask> taskQueue;
     private final ThrottlingService throttlingService;
     private final Duration periodicExecNextTriggerInterval;
     private final ExecutingTasksTracker executingTasksTracker;
     private volatile Supplier<LocalDateTime> nowSupplier;
     private final ExclusiveExecutionTracker exclusiveExecutionTracker;
-    private final ScrapingRateLimiter scrapingRateLimiter = new ScrapingRateLimiterImpl(1);
+    private final ScrapingRateLimiter scrapingRateLimiter;
+    private final AtomicInteger activeTaskCount = new AtomicInteger(0);
 
-    public StepTaskExecutor(ThrottlingService throttlingService, ExclusiveExecutionTracker exclusiveExecutionTracker) {
+    public StepTaskExecutor(ThrottlingService throttlingService,
+                            ExclusiveExecutionTracker exclusiveExecutionTracker,
+                            ScrapingRateLimiter scrapingRateLimiter) {
         this(throttlingService,
                 PERIODIC_EXEC_NEXT_TRIGGER_INTERVAL, // sensible default
                 LocalDateTime::now,
                 new ExecutingTasksTracker(),
-                exclusiveExecutionTracker);
+                exclusiveExecutionTracker, scrapingRateLimiter);
     }
 
     /**
@@ -60,11 +64,14 @@ public class StepTaskExecutor {
      */
     StepTaskExecutor(ThrottlingService requestsPerSecondCounter,
                      Duration periodicExecNextTriggerInterval,
-                     Supplier<LocalDateTime> nowSupplier, ExecutingTasksTracker executingTasksTracker,
-                     ExclusiveExecutionTracker exclusiveExecutionTracker) {
+                     Supplier<LocalDateTime> nowSupplier,
+                     ExecutingTasksTracker executingTasksTracker,
+                     ExclusiveExecutionTracker exclusiveExecutionTracker,
+                     ScrapingRateLimiter scrapingRateLimiter) {
         this.throttlingService = requestsPerSecondCounter;
         this.executingTasksTracker = executingTasksTracker;
         this.exclusiveExecutionTracker = exclusiveExecutionTracker;
+        this.scrapingRateLimiter = scrapingRateLimiter;
         this.taskQueue = new PriorityBlockingQueue<>(100, QueuedStepTask.NATURAL_COMPARATOR);
         this.periodicExecNextTriggerInterval = periodicExecNextTriggerInterval;
         this.nowSupplier = nowSupplier;
@@ -105,15 +112,6 @@ public class StepTaskExecutor {
      */
     private synchronized void dequeueNextAndExecute() {
         try {
-            /*
-            when can we execute?
-            - ... we want to preserve the order the tasks came in ...
-            - if ordered steps are executing, nothing else can if it comes After them (this is evaluated based on their root step order)
-                - child steps can execute
-            - take the longest step order and execute that first if there is a situation where we have order -> not ordered -> ordered step chaining ...
-
-             */
-
             // how to manage the number of executing tasks?
 
             QueuedStepTask next = taskQueue.peek();
@@ -155,11 +153,12 @@ public class StepTaskExecutor {
                     log.debug("{} - ... executing ...", task.loggingInfo());
                 })
                 .map(task0 -> handleTaskIfRetried(isRetry, task0))
+                // TODO if task make HttpRequerst then use a different thread pool ...
                 .flatMap(canProceed ->
-                    Mono.fromCallable(() -> {
-                        task.getStepRunnable().run();
-                        return task;
-                    }) // if we got her eit means that the previous step passed and emmited 'true'
+                        Mono.fromCallable(() -> {
+                            task.getStepRunnable().run();
+                            return task;
+                        }) // if we got her eit means that the previous step passed and emmited 'true'
                 )
                 .onErrorMap(error -> {
                     logRequestError(task, error);
@@ -199,11 +198,16 @@ public class StepTaskExecutor {
                             }
                         }
                 );
+
+        this.activeTaskCount.incrementAndGet();
     }
 
 
     private Runnable taskFinishedHook() {
-        return this::dequeueNextAndExecute;
+        return () -> {
+            this.activeTaskCount.decrementAndGet();
+            this.dequeueNextAndExecute();
+        };
     }
 
 
@@ -239,6 +243,37 @@ public class StepTaskExecutor {
         } catch (Exception e) {
             log.error("Error in taskErrorConsumer callback: ", e);
         }
+    }
+
+    /**
+     * @return true if all tasks finished within the specified timeout
+     */
+    public boolean awaitCompletion(Duration timeout) {
+
+        long checkFrequencyMillis = timeout.toMillis() > AWAIT_COMPLETION_TIMEOUT_CHECK_FREQUENCY_MILLIS ? AWAIT_COMPLETION_TIMEOUT_CHECK_FREQUENCY_MILLIS : 0L;
+        Duration period = Duration.ofMillis(checkFrequencyMillis);
+
+        AtomicBoolean withinTimeout = new AtomicBoolean(false);
+
+        try {
+            Flux.interval(period, period)
+                    .doOnNext(checkNo -> {
+                        if (activeTaskCount.get() == 0 && taskQueue.size() == 0) {
+                            log.info(">>> Finished scraping <<<");
+                            withinTimeout.set(true);
+                            throw new TerminateFluxException();
+                        }
+                    })
+                    .blockLast(timeout);
+        } catch (TerminateFluxException e) {
+            // ok - we terminate the flux with this ...
+        }
+
+        return withinTimeout.get(); // if this was set to true we made it within the given timeout
+    }
+
+    // used only to terminate a blocking flux from within (no other way to "cancel" it)
+    private static class TerminateFluxException extends RuntimeException {
     }
 
     private void logRequestError(StepTask request, Throwable error) {

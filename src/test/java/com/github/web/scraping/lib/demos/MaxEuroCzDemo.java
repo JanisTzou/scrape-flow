@@ -40,12 +40,12 @@ import java.util.Optional;
 public class MaxEuroCzDemo {
 
     @Test
-    public void start() throws InterruptedException {
+    public void start() {
 
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
         final HtmlUnitSiteParser siteParser = new HtmlUnitSiteParser(driverManager);
 
-        final Scraping productsScraping = new Scraping(siteParser)
+        final Scraping productsScraping = new Scraping(siteParser, 10)
                 .setParsingSequence(
                         GetElements.ByTag.body()
                                 .next(GetElements.ByTextContent.searchByString("Mozaika skleněná", true)
@@ -110,10 +110,7 @@ public class MaxEuroCzDemo {
 
         scraper.scrape(entryPoint);
 
-        Thread.sleep(15000);
-
-        scraper.awaitCompletion(Duration.ofSeconds(200)); // TODO await completion ...
-
+        scraper.awaitCompletion(Duration.ofSeconds(200));
     }
 
 

@@ -37,7 +37,7 @@ public class AktualneCzDemo {
         final GetElementsByCssClass getArticleDescElem1 = GetElements.ByCssClass.className("section-opener__desc");
         final GetElementsByCssClass getArticleDescElem2 = GetElements.ByCssClass.className("small-box__desc");
 
-        final Scraping articlesScraping = new Scraping(new HtmlUnitSiteParser(driverManager))
+        final Scraping articlesScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 5)
                 .setParsingSequence(getArticleElements
                         .next(getArticleHeadlineElem
                                 .next(Parse.textContent())

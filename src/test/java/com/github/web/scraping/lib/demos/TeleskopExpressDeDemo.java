@@ -62,7 +62,7 @@ public class TeleskopExpressDeDemo {
         GetElementsByAttribute getProductDetailTitleElem = GetElements.ByAttribute.nameAndValue("itemprop", "name");
         GetElementsByAttribute getProductDescriptionElem = GetElements.ByAttribute.nameAndValue("id", "c0");
 
-        final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager))
+        final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 1)
                 .setParsingSequence(
                         GetElements.ByTag.body()
                                 .setCollector(ProductsPage::new, ProductsPages::new, ProductsPages::add)

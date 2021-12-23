@@ -44,7 +44,7 @@ public class IFortunaCzDemo {
         // TODO step examples:
         //  search x execute x paginate x click x wait ...
 
-        final Scraping matchesScraping = new Scraping(new HtmlUnitSiteParser(driverManager))
+        final Scraping matchesScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 5)
                 .setParsingSequence(getEventsListElements
                         .next(getEventDetailLinkElem  // TODO perhaps we can express it better that the next step is going for the children ?
                                 .next(Parse.hRef())

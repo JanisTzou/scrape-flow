@@ -20,12 +20,18 @@ import com.github.web.scraping.lib.dom.data.parsing.SiteParserInternal;
 import lombok.extern.log4j.Log4j2;
 
 import java.time.Duration;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Log4j2
 public class Scraper {
 
+    // TODO preserve insertion order?
     // can the parsing here be from both selenium and htmlunit?
+    private final Set<Scraping> scrapings = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     public void scrape(List<EntryPoint> entryPoints) {
         for (EntryPoint entryPoint : entryPoints) {
@@ -36,6 +42,7 @@ public class Scraper {
     }
 
     private void doScrape(String url, Scraping scraping) {
+        this.scrapings.add(scraping);
         SiteParserInternal<?> parser = scraping.getParser();
         parser.setServicesInternal(scraping.getServices());
         parser.parse(url, scraping.getParsingSequence());
@@ -46,11 +53,8 @@ public class Scraper {
     }
 
     public void awaitCompletion(Duration timeout) {
-        // TODO ... delegate to taskqueue ... and await based on running tasks ...
-        try {
-            Thread.sleep(timeout.toMillis());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        for (Scraping scraping : scrapings) {
+            scraping.awaitCompletion(timeout);
         }
     }
 
