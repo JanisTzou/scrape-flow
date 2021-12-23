@@ -16,6 +16,7 @@
 
 package com.github.web.scraping.lib.parallelism;
 
+import com.github.web.scraping.lib.dom.data.parsing.steps.ModelToPublish;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -28,8 +29,8 @@ public class StepAndDataRelationshipTrackerTest {
 
     ParsedDataListener<Object> listener = Mockito.mock(ParsedDataListener.class);
 
-    Object model1 = new Object();
-    Object model2 = new Object();
+    String model1 = "model1";
+    String model2 = "model2";
 
     StepExecOrder step_1 = StepExecOrder.from(1);
     StepExecOrder step_1_1 = StepExecOrder.from(1, 1);
@@ -49,13 +50,13 @@ public class StepAndDataRelationshipTrackerTest {
     @Test
     public void shouldReturnRelatedSteps() {
 
-        sdrTracker.track(step_1, List.of(step_1_1, step_1_2), model1, listener);
+        sdrTracker.track(step_1, List.of(step_1_1, step_1_2), List.of(new ModelToPublish(model1, model1.getClass(), listener)));
 
         List<StepAndDataRelationshipTracker.RelatedSteps> relatedSteps = sdrTracker.getAllRelatedStepsTo(step_1_2_1);
 
         assertEquals(1, relatedSteps.size());
         StepAndDataRelationshipTracker.Spawned spawned = relatedSteps.get(0).getSpawned();
-        assertEquals(model1, spawned.getModel());
+        assertEquals(model1, spawned.getModelToPublishList().get(0).getModel());
 
         assertEquals(2, spawned.getSteps().size());
         assertTrue(spawned.getSteps().containsKey(step_1_1));
@@ -68,11 +69,11 @@ public class StepAndDataRelationshipTrackerTest {
         asTracker.track(step_1, "");
         asTracker.track(step_1_1, "");
         asTracker.track(step_1_2, "");
-        sdrTracker.track(step_1, List.of(step_1_1, step_1_2), model1, listener);
+        sdrTracker.track(step_1, List.of(step_1_1, step_1_2), List.of(new ModelToPublish(model1, model1.getClass(), listener)));
 
         asTracker.track(step_1_2_1, "");
         asTracker.track(step_1_2_2, "");
-        sdrTracker.track(step_1_2, List.of(step_1_2_1, step_1_2_2), model2, listener);
+        sdrTracker.track(step_1_2, List.of(step_1_2_1, step_1_2_2), List.of(new ModelToPublish(model2, model2.getClass(), listener)));
 
         List<StepAndDataRelationshipTracker.FinalizedModel> data;
         data = sdrTracker.getModelsWithNoActiveSteps(step_1_2_1);
@@ -97,11 +98,11 @@ public class StepAndDataRelationshipTrackerTest {
         asTracker.track(step_1, "");
         asTracker.track(step_1_1, "");
         asTracker.track(step_1_2, "");
-        sdrTracker.track(step_1, List.of(step_1_1, step_1_2), model1, listener);
+        sdrTracker.track(step_1, List.of(step_1_1, step_1_2), List.of(new ModelToPublish(model1, model1.getClass(), listener)));
 
         asTracker.track(step_1_2_1, "");
         asTracker.track(step_1_2_2, "");
-        sdrTracker.track(step_1_2, List.of(step_1_2_1, step_1_2_2), model2, listener);
+        sdrTracker.track(step_1_2, List.of(step_1_2_1, step_1_2_2), List.of(new ModelToPublish(model2, model2.getClass(), listener)));
 
         List<StepAndDataRelationshipTracker.FinalizedModel> data;
 
@@ -128,7 +129,6 @@ public class StepAndDataRelationshipTrackerTest {
         assertEquals(model1, data.get(1).getModel());
 
     }
-
 
 
 }

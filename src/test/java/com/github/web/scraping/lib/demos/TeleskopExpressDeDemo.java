@@ -16,9 +16,9 @@
 
 package com.github.web.scraping.lib.demos;
 
+import com.github.web.scraping.lib.EntryPoint;
 import com.github.web.scraping.lib.Scraper;
 import com.github.web.scraping.lib.Scraping;
-import com.github.web.scraping.lib.EntryPoint;
 import com.github.web.scraping.lib.dom.data.parsing.JsonUtils;
 import com.github.web.scraping.lib.dom.data.parsing.steps.*;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
@@ -65,7 +65,6 @@ public class TeleskopExpressDeDemo {
         final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 1)
                 .setParsingSequence(
                         GetElements.ByTag.body()
-                                .setCollector(ProductsPage::new, ProductsPages::new, ProductsPages::add)
                                 .next(new EmptyStep().stepName("before-pagination"))
                                 .next(Actions.paginate()
                                         .setStepsLoadingNextPage(
@@ -78,56 +77,58 @@ public class TeleskopExpressDeDemo {
                                                 StepFlow.asStepGroup() // no steps with higher order than this very step can be allowed to run before this whole thing finishes ... lower steps can continue running ... send an event that this step finished so normal parallelism can resume ... also there might be nested ordered steps ...
                                                         .next(GetElements.ByCssClass.className("headerlinks").stepName("get-nav-position-elem-step")
                                                                 .next(Parse.textContent().stepName("pet-1")
-                                                                        .setCollector(ProductsPage::setPosition)
+                                                                        .collect(ProductsPage::setPosition, ProductsPage.class)
                                                                 )
                                                         )
                                                         .next(GetElements.ByCssClass.className("headerlinks").stepName("get-nav-position-elem-step")
                                                                 .next(Parse.textContent().stepName("pet-1")
-                                                                        .setCollector(ProductsPage::setPosition)
+                                                                        .collect(ProductsPage::setPosition, ProductsPage.class)
                                                                 )
                                                         )
                                         )
                                         .nextForEachPage(GetElements.ByCssClass.className("headerlinks").stepName("get-nav-position-elem-step")
                                                 .next(Parse.textContent().stepName("pet-1")
-                                                        .setCollector(ProductsPage::setPosition)
+                                                        .collect(ProductsPage::setPosition, ProductsPage.class)
                                                 )
                                         )
                                         .nextForEachPage(getProductTdElemsStep
-                                                .setCollector(Product::new, ProductsPage::add, new ProductListenerParsed())// this step generates the Product model and does not modify it ... all the child steps need to finish
+                                                .setCollector(Product::new, Product.class, new ProductParsedListener())// this step generates the Product model and does not modify it ... all the child steps need to finish
                                                 // this can register the step order of this parent step with NotificationOrderingService ...
                                                 // set parsed data listener ?
                                                 //  ... we might wanna listen for simple String values that were parsed ... not just complex models ...
                                                 // when should data be eligible to notify listeners?
                                                 .next(getProductCodeElemStep
                                                         .next(new EmptyStep().stepName("before-product-code-collection")
-                                                                .setCollector(ProductCode::new, Product::setProductCode)
-                                                                .next(Parse.textContent().stepName("pet-2").setCollector(ProductCode::setValue))
+                                                                .setCollector(ProductCode::new, ProductCode.class)
+                                                                .collect(Product::setProductCode, Product.class, ProductCode.class)
+                                                                .next(Parse.textContent().stepName("pet-2").collect(ProductCode::setValue, ProductCode.class))
                                                         )
                                                 )
                                                 .next(getProductPriceElemStep
-                                                        .next(Parse.textContent().setCollector(Product::setPrice))
+                                                        .next(Parse.textContent().collect(Product::setPrice, Product.class))
                                                 )
                                                 .next(getProductCodeElemStep2
                                                         .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal).stepName("parse-product-href")
-                                                                .setCollector(Product::setDetailUrl)
+                                                                .collect(Product::setDetailUrl, Product.class)
                                                                 .nextNavigate(Actions.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
                                                                         .next(getProductDetailTitleElem.stepName("get-product-detail-title") // TODO perhaps we need a setParsingSequence method after all instead of then() here ... so that we are consistent with how we set up a SiteParse (allows only 1 sequence) ....
-                                                                                .next(Parse.textContent().setCollector(Product::setTitle))
+                                                                                .next(Parse.textContent().collect(Product::setTitle, Product.class))
                                                                         )
                                                                         .next(getProductDescriptionElem
-                                                                                .next(Parse.textContent().setCollector(Product::setDescription))
+                                                                                .next(Parse.textContent().collect(Product::setDescription, Product.class))
                                                                         )
                                                                         .next(GetElements.ByAttribute.nameAndValue("id", "MwStInfoMO")
                                                                                 .next(GetElements.ByTag.anchor()
                                                                                         .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
                                                                                                 .nextNavigate(Actions.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
                                                                                                         .next(GetListedElementsByFirstElementXPath.instance("/html/body/table/tbody/tr[1]")
-                                                                                                                .setCollector(ShippingCosts::new, (Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc))
+                                                                                                                .setCollector(ShippingCosts::new, ShippingCosts.class)
+                                                                                                                .collect((Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc), Product.class, ShippingCosts.class)
                                                                                                                 .next(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[1]")
-                                                                                                                        .next(Parse.textContent().stepName("get-shipping-service").setCollector(ShippingCosts::setService))
+                                                                                                                        .next(Parse.textContent().stepName("get-shipping-service").collect(ShippingCosts::setService, ShippingCosts.class))
                                                                                                                 )
                                                                                                                 .next(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[2]")
-                                                                                                                        .next(Parse.textContent().stepName("get-shipping-price").setCollector(ShippingCosts::setPrice))
+                                                                                                                        .next(Parse.textContent().stepName("get-shipping-price").collect(ShippingCosts::setPrice, ShippingCosts.class))
                                                                                                                 )
                                                                                                         )
                                                                                                 )
@@ -225,7 +226,7 @@ public class TeleskopExpressDeDemo {
     }
 
     @Log4j2
-    public static class ProductListenerParsed implements ParsedDataListener<Product> {
+    public static class ProductParsedListener implements ParsedDataListener<Product> {
 
         @Override
         public void onParsingFinished(Product data) {

@@ -18,7 +18,6 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 
 import javax.annotation.Nullable;
@@ -28,10 +27,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
-        implements HtmlUnitCollectingToModelStep<ParseElementHRef>,
+        implements HtmlUnitStepCollectingParsedValuesToModel<ParseElementHRef>,
         HtmlUnitStringTransformingStep<ParseElementHRef> {
 
-    private BiConsumer<Object, String> modelMutation;
     // TODO add some filtering logic for the hrefs parsed ...
 
     // TODO this is basically a specialisation of ParseAttributeValue
@@ -51,7 +49,7 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
     }
 
     @Override
-    public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {
+    public StepExecOrder execute(ParsingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
@@ -61,11 +59,12 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
                     String transformed = transformParsedText(href);
                     log.debug("{} - {}: Parsed href: {}", stepExecOrder, getName(), transformed);
                     // TODO actually have another transformation that will say something like "transformToFullURL ... and put that one to the context below)
-                    setParsedStringToModel(modelMutation, ctx, transformed, getName());
-                    Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ... // TODO actually think if this is best ...
-                    @SuppressWarnings("unchecked")
-                    HtmlUnitParsingStepHelper<ModelT, ContainerT> wrapper = new HtmlUnitParsingStepHelper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
-                    ParsingContext<ModelT, ContainerT> ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
+
+                    setParsedStringToModel(this.collectorSetups, ctx, transformed, getName()); // TODO let this be handled by the helper?
+
+                    Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
+                    HtmlUnitParsingStepHelper wrapper = new HtmlUnitParsingStepHelper(nextSteps, getName(), services, collectorSetups);
+                    ParsingContext ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
                     wrapper.execute(ctxCopy, nodesSearch, stepExecOrder);
                 }
             } else {
@@ -78,10 +77,9 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
         return stepExecOrder;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> ParseElementHRef setCollector(BiConsumer<T, String> modelMutation) {
-        this.modelMutation = (BiConsumer<Object, String>) modelMutation;
+    public <T> ParseElementHRef collect(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+        this.collectorSetups.add(new CollectorSetup(modelMutation, String.class, containerType));
         return this;
     }
 

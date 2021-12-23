@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing;
+package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.github.web.scraping.lib.dom.data.parsing.steps.ModelWrapper;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -35,7 +33,7 @@ import java.util.Optional;
 @Getter
 @Setter
 @ToString
-public class ParsingContext<ModelT, ContainerT> {
+public class ParsingContext { // TODO remove type parameters ...
 
     /**
      * StepOrder value at the previous level of step hierarchy (so the step calling this step)
@@ -45,11 +43,9 @@ public class ParsingContext<ModelT, ContainerT> {
 
     private DomNode node;
 
-    @Nullable
-    private ModelWrapper<ModelT> modelWrapper;
-
-    @Nullable
-    private ContainerT container;
+    // TODO very careful how this is shared and populated (needs to be copied always when going from one step to next ...)
+    @Nonnull
+    private ContextModels contextModels;
 
     private String parsedText;
 
@@ -62,24 +58,22 @@ public class ParsingContext<ModelT, ContainerT> {
 
 
     public ParsingContext(StepExecOrder prevStepExecOrder, DomNode node) {
-        this(prevStepExecOrder, node, null, null);
+        this(prevStepExecOrder, node, new ContextModels());
     }
 
-    public ParsingContext(StepExecOrder prevStepExecOrder, DomNode node, @Nullable ModelWrapper<ModelT> modelWrapper, @Nullable ContainerT container) {
-        this(prevStepExecOrder, node, modelWrapper, container, null, null, null);
+    public ParsingContext(StepExecOrder prevStepExecOrder, DomNode node, ContextModels contextModels) {
+        this(prevStepExecOrder, node, contextModels, null, null, null);
     }
 
     public ParsingContext(@Nonnull StepExecOrder prevStepExecOrder,
                           DomNode node,
-                          @Nullable ModelWrapper<ModelT> modelWrapper,
-                          @Nullable ContainerT container,
+                          @Nonnull ContextModels contextModels,
                           String parsedText,
                           String parsedURL,
                           StepExecOrder recursiveRootStepExecOrder) {
         this.prevStepExecOrder = Objects.requireNonNull(prevStepExecOrder);
         this.node = node;
-        this.modelWrapper = modelWrapper;
-        this.container = container;
+        this.contextModels = Objects.requireNonNull(contextModels);
         this.parsedText = parsedText;
         this.parsedURL = parsedURL;
         this.recursiveRootStepExecOrder = recursiveRootStepExecOrder;
@@ -90,72 +84,65 @@ public class ParsingContext<ModelT, ContainerT> {
         return Optional.ofNullable(page);
     }
 
-    public Builder<ModelT, ContainerT> toBuilder() {
-        return new Builder<>(this);
+    public Builder toBuilder() {
+        return new Builder(this);
     }
 
-    public static class Builder<ModelT, ContainerT> {
+    public static class Builder {
 
         private StepExecOrder prevStepExecOrder;
         private DomNode node;
-        private ModelWrapper<ModelT> modelWrapper;
-        private ContainerT container;
+        private final ContextModels contextModelsCopy;
         private String parsedText;
         private String parsedURL;
         private StepExecOrder recursiveRootStepExecOrder;
 
-        public Builder(StepExecOrder prevStepExecOrder, DomNode node, ModelWrapper<ModelT> modelWrapper, ContainerT container, String parsedText, String parsedURL,
+        public Builder(StepExecOrder prevStepExecOrder, DomNode node, ContextModels contextModelsCopy, String parsedText, String parsedURL,
                        StepExecOrder recursiveRootStepExecOrder) {
             this.prevStepExecOrder = prevStepExecOrder;
             this.node = node;
-            this.modelWrapper = modelWrapper;
-            this.container = container;
+            this.contextModelsCopy = contextModelsCopy;
             this.parsedText = parsedText;
             this.parsedURL = parsedURL;
             this.recursiveRootStepExecOrder = recursiveRootStepExecOrder;
         }
 
-        public Builder(ParsingContext<ModelT, ContainerT> ctx) {
-            this(ctx.prevStepExecOrder, ctx.node, ctx.modelWrapper, ctx.container, ctx.parsedText, ctx.parsedURL, ctx.recursiveRootStepExecOrder);
+        public Builder(ParsingContext ctx) {
+            this(ctx.prevStepExecOrder, ctx.node, ctx.contextModels.copy(), ctx.parsedText, ctx.parsedURL, ctx.recursiveRootStepExecOrder);
         }
 
-        public Builder<ModelT, ContainerT> setPrevStepOrder(StepExecOrder stepExecOrder) {
+        public Builder setPrevStepOrder(StepExecOrder stepExecOrder) {
             this.prevStepExecOrder = stepExecOrder;
             return this;
         }
 
-        public Builder<ModelT, ContainerT> setNode(DomNode node) {
+        public Builder setNode(DomNode node) {
             this.node = node;
             return this;
         }
 
-        public Builder<ModelT, ContainerT> setModelProxy(ModelWrapper<ModelT> modelWrapper) {
-            this.modelWrapper = modelWrapper;
+        public Builder addModel(Object model, Class<?> modelClass) {
+            this.contextModelsCopy.push(model, modelClass);
             return this;
         }
 
-        public Builder<ModelT, ContainerT> setContainer(ContainerT container) {
-            this.container = container;
-            return this;
-        }
-
-        public Builder<ModelT, ContainerT> setParsedText(String parsedText) {
+        public Builder setParsedText(String parsedText) {
             this.parsedText = parsedText;
             return this;
         }
 
-        public Builder<ModelT, ContainerT> setParsedURL(String parsedURL) {
+        public Builder setParsedURL(String parsedURL) {
             this.parsedURL = parsedURL;
             return this;
         }
 
-        public Builder<ModelT, ContainerT> setRecursiveRootStepExecOrder(StepExecOrder stepExecOrder) {
+        public Builder setRecursiveRootStepExecOrder(StepExecOrder stepExecOrder) {
             this.recursiveRootStepExecOrder = stepExecOrder;
             return this;
         }
 
-        public ParsingContext<ModelT, ContainerT> build() {
-            return new ParsingContext<>(prevStepExecOrder, node, modelWrapper, container, parsedText, parsedURL, recursiveRootStepExecOrder);
+        public ParsingContext build() {
+            return new ParsingContext(prevStepExecOrder, node, contextModelsCopy, parsedText, parsedURL, recursiveRootStepExecOrder);
         }
     }
 }

@@ -17,7 +17,6 @@
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.Collections;
@@ -28,14 +27,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * Wrapper around the model object that ensures that when the model returns populated with data
  * it is collected only once (thus avoiding duplicates in resulting collections od data)
  */
-@RequiredArgsConstructor
 @Getter
 @Setter
-public class ModelWrapper<ModelT> {
+public class ModelWrapper {
 
-    private final ModelT model;
+    private final Object model;
+    private final Class<?> modelClass;
 
-    private boolean accumulated;
+    public ModelWrapper(Object model, Class<?> modelClass) {
+        this.model = model;
+        this.modelClass = modelClass;
+    }
 
     /**
      * Stores all methods used to store parsed data into the model object, so we can provide warnings that a model field is overwritten multiple times.

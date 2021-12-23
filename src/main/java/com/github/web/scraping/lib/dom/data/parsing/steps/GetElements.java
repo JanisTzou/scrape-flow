@@ -16,16 +16,6 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
-import com.github.web.scraping.lib.parallelism.StepExecOrder;
-import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
-
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Supplier;
-
 public class GetElements {
 
     public static class ByTag {
@@ -63,7 +53,7 @@ public class GetElements {
 
     public static class ByTextContent {
 
-        public static GetElementsByTextContent searchByString(String searchString, boolean matchWholeTextContent) {
+        public static GetElementsByTextContent search(String searchString, boolean matchWholeTextContent) {
             return new GetElementsByTextContent(searchString, matchWholeTextContent);
         }
 

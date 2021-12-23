@@ -17,7 +17,6 @@
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
 
@@ -45,7 +44,7 @@ public class FilterElements extends CommonOperationsStepBase<FilterElements> {
     }
 
     @Override
-    public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {
+    public StepExecOrder execute(ParsingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
@@ -59,8 +58,7 @@ public class FilterElements extends CommonOperationsStepBase<FilterElements> {
                 return Collections.emptyList();
             };
 
-            @SuppressWarnings("unchecked")
-            HtmlUnitParsingStepHelper<ModelT, ContainerT> wrapper = new HtmlUnitParsingStepHelper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+            HtmlUnitParsingStepHelper wrapper = new HtmlUnitParsingStepHelper(nextSteps, getName(), services, collectorSetups);
             wrapper.execute(ctx, nodesSearch, stepExecOrder);
         };
 

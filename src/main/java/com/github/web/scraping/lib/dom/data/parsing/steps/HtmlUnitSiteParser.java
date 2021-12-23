@@ -20,7 +20,6 @@ import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.SiteParserBase;
 import com.github.web.scraping.lib.drivers.DriverManager;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
@@ -28,7 +27,9 @@ import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import java.net.URL;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
 @Log4j2
 public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
@@ -47,9 +48,9 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
     }
 
     @Override
-    public void parseInternal(String url, ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequences, StepExecOrder currStepExecOrder) {
+    public void parseInternal(String url, ParsingContext ctx, List<HtmlUnitParsingStep<?>> parsingSequences, StepExecOrder currStepExecOrder) {
         loadPage(url, currStepExecOrder).ifPresent(page1 -> {
-            ParsingContext<?, ?> nextCtx = ctx.toBuilder().setNode(page1).setPrevStepOrder(currStepExecOrder).build();
+            ParsingContext nextCtx = ctx.toBuilder().setNode(page1).setPrevStepOrder(currStepExecOrder).build();
             executeNextSteps(nextCtx, parsingSequences);
         });
     }
@@ -60,10 +61,10 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
     }
 
     private void parsePageAndFilterDataResults(HtmlPage page, List<HtmlUnitParsingStep<?>> parsingSequences) {
-        executeNextSteps(new ParsingContext<>(StepExecOrder.INITIAL, page), parsingSequences);
+        executeNextSteps(new ParsingContext(StepExecOrder.INITIAL, page), parsingSequences);
     }
 
-    private void executeNextSteps(ParsingContext<?, ?> ctx, List<HtmlUnitParsingStep<?>> parsingSequences) {
+    private void executeNextSteps(ParsingContext ctx, List<HtmlUnitParsingStep<?>> parsingSequences) {
         parsingSequences.forEach(s -> s.execute(ctx));
     }
 

@@ -16,7 +16,6 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.dom.data.parsing.SiteParserInternal;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
@@ -25,7 +24,7 @@ import java.util.List;
 
 @Log4j2
 public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToParsedLink>
-        implements HtmlUnitParserSwitchingStep<NavigateToParsedLink>, LoadingNewPage {
+        implements HtmlUnitStepChangingUsedParser<NavigateToParsedLink>, LoadingNewPage {
 
     // TODp perhaps provide in the constructor as a mandatory thing ?
     private SiteParserInternal<?> siteParser;
@@ -43,7 +42,7 @@ public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToPar
 
     // the URL must come from the parsing context!!
     @Override
-    public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {
+    public StepExecOrder execute(ParsingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         // TODO problem ... this does not track steps for us and also the data ...

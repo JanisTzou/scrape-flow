@@ -103,7 +103,7 @@ public class StepExecOrderTest {
 
     @Test
     public void asString() {
-        assertEquals("1-1-1", new StepExecOrder(1, 1, 1).asString());
+        assertEquals("1-1-1-", new StepExecOrder(1, 1, 1).asString());
     }
 
     @Test

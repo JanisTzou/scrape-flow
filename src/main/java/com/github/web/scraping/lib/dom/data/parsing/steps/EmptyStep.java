@@ -17,7 +17,6 @@
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 
 import javax.annotation.Nullable;
@@ -28,15 +27,14 @@ import java.util.function.Supplier;
  * Used just to test context propagation
  */
 public class EmptyStep extends CommonOperationsStepBase<EmptyStep>
-        implements HtmlUnitSupportingNextStep<EmptyStep>, HtmlUnitCollectorSetupStep<EmptyStep> {
+        implements HtmlUnitSupportingNextStep<EmptyStep>, HtmlUnitStepSupportingCollection<EmptyStep> {
 
-    protected EmptyStep(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, Collecting<?, ?> collecting) {
+    protected EmptyStep(@Nullable List<HtmlUnitParsingStep<?>> nextSteps) {
         super(nextSteps);
-        this.collecting = collecting;
     }
 
     public EmptyStep() {
-        this(null, null);
+        this(null);
     }
 
     public static EmptyStep instance() {
@@ -44,12 +42,11 @@ public class EmptyStep extends CommonOperationsStepBase<EmptyStep>
     }
 
     @Override
-    public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {
+    public StepExecOrder execute(ParsingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
-        @SuppressWarnings("unchecked")
-        HtmlUnitParsingStepHelper<ModelT, ContainerT> wrapper = new HtmlUnitParsingStepHelper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+        HtmlUnitParsingStepHelper wrapper = new HtmlUnitParsingStepHelper(nextSteps, getName(), services, collectorSetups);
         wrapper.execute(ctx, nodesSearch, stepExecOrder);
 
         return stepExecOrder;

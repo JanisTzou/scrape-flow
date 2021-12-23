@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>ret</groupId>
-  <artifactId>scrapin-flow</artifactId>
+  <artifactId>scrape-flow</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
@@ -44,6 +44,20 @@
     <maven.compiler.target>1.9</maven.compiler.target>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>maven-central</id>
+      <name>maven-central-repo</name>
+      <url>https://repo1.maven.org/maven2/</url>
+    </repository>
+
+<!--    for github releases-->
+<!--    <repository>-->
+<!--      <id>jitpack.io</id>-->
+<!--      <url>https://jitpack.io</url>-->
+<!--    </repository>-->
+
+  </repositories>
 
   <dependencies>
 
@@ -60,14 +74,12 @@
       <optional>true</optional>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-core -->
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-core</artifactId>
       <version>3.3.2.RELEASE</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-test -->
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-test</artifactId>

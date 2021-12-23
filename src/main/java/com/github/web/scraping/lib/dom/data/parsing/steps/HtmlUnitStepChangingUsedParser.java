@@ -19,7 +19,7 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 import com.github.web.scraping.lib.dom.data.parsing.SiteParserInternal;
 
 // internal usage
-public interface HtmlUnitParserSwitchingStep<C>  {
+public interface HtmlUnitStepChangingUsedParser<C>  {
 
     /**
      * Implementors must make sure that Services are set to the new parser as part of the services propagation ...

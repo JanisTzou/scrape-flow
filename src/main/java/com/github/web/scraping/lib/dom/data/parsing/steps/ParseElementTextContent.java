@@ -18,7 +18,6 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -28,7 +27,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class ParseElementTextContent extends HtmlUnitParsingStep<ParseElementTextContent>
-        implements HtmlUnitCollectingToModelStep<ParseElementTextContent>,
+        implements HtmlUnitStepCollectingParsedValuesToModel<ParseElementTextContent>,
         HtmlUnitStringTransformingStep<ParseElementTextContent> {
 
     // TODO provide a set of options to transform/sanitize text ... \n \t .. etc ...
@@ -53,9 +52,8 @@ public class ParseElementTextContent extends HtmlUnitParsingStep<ParseElementTex
     //  how to communicate the parsed text to next steps? What to put in the context?
 
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {
+    public StepExecOrder execute(ParsingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
@@ -76,7 +74,7 @@ public class ParseElementTextContent extends HtmlUnitParsingStep<ParseElementTex
 
             String transformed = transformParsedText(tc);
 
-            setParsedStringToModel(modelMutation, ctx, transformed, getName());
+            setParsedStringToModel(this.collectorSetups, ctx, transformed, getName());
 
             // TODO how to populate the following context?
         };
@@ -103,10 +101,9 @@ public class ParseElementTextContent extends HtmlUnitParsingStep<ParseElementTex
         return this;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> ParseElementTextContent setCollector(BiConsumer<T, String> modelMutation) {
-        this.modelMutation = (BiConsumer<Object, String>) modelMutation;
+    public <T> ParseElementTextContent collect(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+        this.collectorSetups.add(new CollectorSetup(modelMutation, String.class, containerType));
         return this;
     }
 

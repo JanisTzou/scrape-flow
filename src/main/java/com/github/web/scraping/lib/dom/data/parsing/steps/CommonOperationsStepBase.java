@@ -24,43 +24,27 @@ import java.util.function.Supplier;
 
 
 public abstract class CommonOperationsStepBase<C> extends HtmlUnitParsingStep<C>
-    implements HtmlUnitSupportingNextStep<C>, HtmlUnitCollectorSetupStep<C>{
+        implements HtmlUnitSupportingNextStep<C>, HtmlUnitStepSupportingCollection<C> {
 
     public CommonOperationsStepBase(List<HtmlUnitParsingStep<?>> nextSteps) {
         super(nextSteps);
     }
 
-    @Deprecated // TODO do not expose the container to the outside, work with it only internally ... instead of supplying a container with an accumulator here we should expect a listener ...
-                // TODO or actually ... this might be still relevant for SYNC execution ... or not if we return a plain list of stuff in SYNC execution ...
-    @SuppressWarnings("unchecked")
     @Override
-    public <R, T> C setCollector(Supplier<T> modelSupplier, Supplier<R> containerSupplier, BiConsumer<R, T> accumulator) {
-        mustBeNull(this.collecting);
-        this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator, null);
+    public <R, T> C collect(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType) {
+        this.collectorSetups.add(new CollectorSetup(accumulator, modelType, containerType));
         return (C) this;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <R, T> C setCollector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator) {
-        mustBeNull(this.collecting);
-        this.collecting = new Collecting<>(modelSupplier, null, accumulator, null);
+    public <T> C setCollector(Supplier<T> modelSupplier, Class<T> modelType) {
+        this.collectorSetups.add(new CollectorSetup(modelSupplier, modelType));
         return (C) this;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <R, T> C setCollector(Supplier<T> modelSupplier, BiConsumer<R, T> accumulator, ParsedDataListener<T> parsedDataListener) {
-        mustBeNull(this.collecting);
-        this.collecting = new Collecting<>(modelSupplier, null, accumulator, parsedDataListener);
-        return (C) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <R, T> C setCollector(Supplier<T> modelSupplier,  Supplier<R> containerSupplier, BiConsumer<R, T> accumulator, ParsedDataListener<T> parsedDataListener) {
-        mustBeNull(this.collecting);
-        this.collecting = new Collecting<>(modelSupplier, containerSupplier, accumulator, parsedDataListener);
+    public <T> C setCollector(Supplier<T> modelSupplier, Class<T> modelType, ParsedDataListener<T> parsedDataListener) {
+        this.collectorSetups.add(new CollectorSetup(modelSupplier, modelType, parsedDataListener));
         return (C) this;
     }
 
@@ -78,6 +62,8 @@ public abstract class CommonOperationsStepBase<C> extends HtmlUnitParsingStep<C>
         this.nextSteps.add(nextStep);
         return (C) this;
     }
+
+    // TODO create nextAsGroup(StepGroup)
 
     // TODO think about these ...
 //    public C expectFindingNone();

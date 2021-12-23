@@ -17,7 +17,6 @@
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.scraping.utils.HtmlUnitUtils;
 
@@ -28,24 +27,22 @@ import java.util.function.Supplier;
 
 public class GetElementsByAttribute extends CommonOperationsStepBase<GetElementsByAttribute> {
 
+    private static final boolean MATCH_ENTIRE_VALUE_DEFAULT = true;
     private final String attributeName;
     private final String attributeValue;
     private boolean matchEntireValue;
 
-    private static final boolean MATCH_ENTIRE_VALUE_DEFAULT = true;
-
-    protected GetElementsByAttribute(@Nullable List<HtmlUnitParsingStep<?>> nextSteps,
-                                     String attributeName,
-                                     @Nullable String attributeValue,
-                                     boolean matchEntireValue) {
+    GetElementsByAttribute(@Nullable List<HtmlUnitParsingStep<?>> nextSteps,
+                           String attributeName,
+                           @Nullable String attributeValue,
+                           boolean matchEntireValue) {
         super(nextSteps);
         this.attributeName = attributeName;
         this.attributeValue = attributeValue;
         this.matchEntireValue = matchEntireValue;
     }
 
-    GetElementsByAttribute(String attributeName,
-                                     @Nullable String attributeValue) {
+    GetElementsByAttribute(String attributeName, @Nullable String attributeValue) {
         this(null, attributeName, attributeValue, MATCH_ENTIRE_VALUE_DEFAULT);
     }
 
@@ -53,22 +50,9 @@ public class GetElementsByAttribute extends CommonOperationsStepBase<GetElements
         this(null, attributeName, null, MATCH_ENTIRE_VALUE_DEFAULT);
     }
 
-    @Deprecated
-    public static GetElementsByAttribute instance(String attributeName, String attributeValue) {
-        return new GetElementsByAttribute(attributeName, attributeValue);
-    }
-
-    public static GetElementsByAttribute id(String idValue) {
-        return new GetElementsByAttribute("id", idValue);
-    }
-
-
-    public static GetElementsByAttribute instance(String attributeName) {
-        return new GetElementsByAttribute(attributeName);
-    }
 
     @Override
-    public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {
+    public StepExecOrder execute(ParsingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
@@ -79,8 +63,7 @@ public class GetElementsByAttribute extends CommonOperationsStepBase<GetElements
                     return HtmlUnitUtils.getDescendantsByAttribute(ctx.getNode(), attributeName);
                 }
             };
-            @SuppressWarnings("unchecked")
-            HtmlUnitParsingStepHelper<ModelT, ContainerT> wrapper = new HtmlUnitParsingStepHelper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+            HtmlUnitParsingStepHelper wrapper = new HtmlUnitParsingStepHelper(nextSteps, getName(), services, collectorSetups);
             wrapper.execute(ctx, nodesSearch, stepExecOrder);
         };
 

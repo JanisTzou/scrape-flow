@@ -16,10 +16,27 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.github.web.scraping.lib.parallelism.StepExecOrder;
+import org.junit.Test;
 
-public interface OnOrderGenerated {
+import java.util.Optional;
 
-    void accept(StepExecOrder order);
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+public class ContextModelsTest {
+
+    @Test
+    public void getModelFor() {
+
+        ContextModels models = new ContextModels();
+
+        String model = "test";
+        models.push(model, String.class);
+
+        Optional<ModelWrapper> modelWrapper = models.getModelFor(String.class);
+
+        assertTrue(modelWrapper.isPresent());
+        assertEquals(model, modelWrapper.get().getModel());
+
+    }
 }

@@ -16,6 +16,7 @@
 
 package com.github.web.scraping.lib.parallelism;
 
+import com.github.web.scraping.lib.dom.data.parsing.steps.ModelToPublish;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Tracks the stepOrder of steps whose child step sequence needs tp finish so that the data models can be published to registered listeners
@@ -58,12 +60,12 @@ public class StepAndDataRelationshipTracker {
     /**
      * Call this only when the spawnedModel instance was just instantiated (-> do not call this from places where the data model was readily propagated ...)
      *
-     * @param parent       step that created the instance of the data model and propagated it downstream to spawned child steps whose job it is to populate it (the spawned steps)
-     * @param spawnedSteps steps created by the parent
-     * @param spawnedModel object to which parsed data is bound as the parsing steps proceed doing their job
+     * @param parent             step that created the instance of the data model and propagated it downstream to spawned child steps whose job it is to populate it (the spawned steps)
+     * @param spawnedSteps       steps created by the parent
+     * @param modelToPublishList encapsulates the model object to which parsing steps assign acquired data
      */
-    public void track(StepExecOrder parent, List<StepExecOrder> spawnedSteps, Object spawnedModel, ParsedDataListener<Object> parsedDataListener) {
-        Spawned s = new Spawned(spawnedModel, parsedDataListener, spawnedSteps);
+    public void track(StepExecOrder parent, List<StepExecOrder> spawnedSteps, List<ModelToPublish> modelToPublishList) {
+        Spawned s = new Spawned(spawnedSteps, modelToPublishList);
         spawnedByParentStep.compute(parent, (parent0, sl) -> {
             if (sl == null) {
                 sl = new SpawnedList(new CopyOnWriteArrayList<>()); // TODO hmm ... think about this ...
@@ -75,6 +77,7 @@ public class StepAndDataRelationshipTracker {
 
 
     // TODO this method or something similar belongs to NotificationService probably ...
+
     /**
      * Useful after a step has finished executing
      *
@@ -134,12 +137,17 @@ public class StepAndDataRelationshipTracker {
                 // cannot publish this data
                 log.debug("Cannot publish related data for finished step yet: {}", finishedStep);
             } else {
-                FinalizedModel fm = new FinalizedModel(
-                        relatedSteps.spawned.model,
-                        relatedSteps.spawned.modelListener,
-                        relatedSteps.spawned.steps.values().stream().toList()
-                );
-                dtpList.add(fm);
+                List<StepExecOrder> execOrders = relatedSteps.spawned.steps.values().stream().toList();
+                List<FinalizedModel> fms = relatedSteps.spawned.modelToPublishList.stream()
+                        .map(mtp -> new FinalizedModel(
+                                        mtp.getModel(),
+                                        mtp.getModelClass(),
+                                        mtp.getParsedDataListener(),
+                                        execOrders
+                                )
+                        )
+                        .collect(Collectors.toList());
+                dtpList.addAll(fms);
             }
         }
 
@@ -154,6 +162,7 @@ public class StepAndDataRelationshipTracker {
     @Getter
     public static class FinalizedModel {
         private final Object model;
+        private final Class<?> modelClass;
 
         // listener associated with the given model so that it can be published
         private final ParsedDataListener<Object> modelListener;
@@ -167,22 +176,19 @@ public class StepAndDataRelationshipTracker {
     @Getter
     static class Spawned {
 
-        /**
-         * Data modified by the activeSteps
-         */
-        private final Object model;
-
         // listener associated with the given model so that it can be published
-        private final ParsedDataListener<Object> modelListener;
         private final Map<StepExecOrder, StepExecOrder> steps = new ConcurrentHashMap<>();
 
-        public Spawned(Object model, ParsedDataListener<Object> modelListener, List<StepExecOrder> steps) {
-            this.model = model;
-            this.modelListener = modelListener;
+        /**
+         * Data modified by the active steps which we wanna publish to registered listeners when all the steps finish
+         */
+        private final List<ModelToPublish> modelToPublishList;
+
+        public Spawned(List<StepExecOrder> steps, List<ModelToPublish> modelToPublishList) {
             for (StepExecOrder step : steps) {
                 this.steps.put(step, step);
             }
-
+            this.modelToPublishList = modelToPublishList;
         }
 
     }

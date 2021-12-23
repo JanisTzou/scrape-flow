@@ -18,7 +18,6 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
 
@@ -47,7 +46,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
      * @param ctx must contain a reference to HtmlPage that might be paginated (contains some for of next link or button)
      */
     @Override
-    public <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx) {
+    public StepExecOrder execute(ParsingContext ctx) {
 
         StepExecOrder prevStepExecOrder = ctx.getRecursiveRootStepExecOrder() == null
                 ? ctx.getPrevStepExecOrder()
@@ -70,16 +69,15 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
             if (page.isPresent()) {
                 // GENERAL
                 Supplier<List<DomNode>> nodesSearch = () -> List.of(page.get());
-                @SuppressWarnings("unchecked")
-                HtmlUnitParsingStepHelper<ModelT, ContainerT> wrapper = new HtmlUnitParsingStepHelper<>(nextSteps, (Collecting<ModelT, ContainerT>) collecting, getName(), services);
+                HtmlUnitParsingStepHelper wrapper = new HtmlUnitParsingStepHelper(nextSteps, getName(), services, collectorSetups);
                 // important to set the recursiveRootStepExecOrder to null ... the general nextSteps and logic should not be affected by it ... it's only related to pagination
-                ParsingContext<ModelT, ContainerT> plainCtx = ctx.toBuilder()
+                ParsingContext plainCtx = ctx.toBuilder()
                         .setRecursiveRootStepExecOrder(null)
                         .build();
                 wrapper.execute(plainCtx, nodesSearch, stepExecOrder);
 
                 // PAGINATION
-                ParsingContext<ModelT, ContainerT> paginatingCtx = ctx.toBuilder()
+                ParsingContext paginatingCtx = ctx.toBuilder()
                         .setPrevStepOrder(stepExecOrder)
                         .setRecursiveRootStepExecOrder(prevStepExecOrder)
                         .setNode(page.get())
@@ -87,8 +85,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
                 // TODO the pagination sequence does not support models currently ... if it does (e.g. for internal data propagation purposes) it will need to implement some for of data tracking ...
                 //  but it is questionably if we would like to design the data propagation as models if it's just for internal purposes ...
 //                services.getStepAndDataRelationshipTracker().track(stepExecOrder, generatedSteps, model, (ParsedDataListener<Object>) collecting.getDataListener());
-                OnOrderGenerated onOrderGenerated1 = so -> {
-                };
+
                 paginationTrigger.execute(paginatingCtx);
 
             }

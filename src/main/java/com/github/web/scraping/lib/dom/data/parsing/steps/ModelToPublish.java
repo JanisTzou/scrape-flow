@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing;
+package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-public interface SitePaginator<T> {
+import com.github.web.scraping.lib.parallelism.ParsedDataListener;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-    // encapsulates logic to go to the next page when everything is scraped from current site ...
+// models that are mean to be published to registered listeners ...
+@RequiredArgsConstructor
+@Getter
+public class ModelToPublish {
 
-    // this is driver specific ... something like parser ....
-
+    private final Object model;
+    private final Class<?> modelClass;
+    private final ParsedDataListener<Object> parsedDataListener;
 
 }

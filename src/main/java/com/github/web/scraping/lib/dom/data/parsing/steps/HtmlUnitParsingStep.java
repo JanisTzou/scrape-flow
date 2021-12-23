@@ -16,7 +16,6 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-import com.github.web.scraping.lib.dom.data.parsing.ParsingContext;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.parallelism.StepTask;
 import lombok.Getter;
@@ -33,10 +32,11 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
 
     protected final List<HtmlUnitParsingStep<?>> nextSteps;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     protected boolean exclusiveExecution = false;
 
-    protected Collecting<?, ?> collecting;
+    protected CollectorSetups collectorSetups = new CollectorSetups();
     // renlevant for steps that do scrape textual values
     protected Function<String, String> parsedTextTransformation = s -> s; // by default return the string as-is
     protected ScrapingServices services;
@@ -49,7 +49,7 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
     }
 
 
-    public abstract <ModelT, ContainerT> StepExecOrder execute(ParsingContext<ModelT, ContainerT> ctx);
+    public abstract StepExecOrder execute(ParsingContext ctx);
 
     // internal usage only
     protected void setServices(ScrapingServices services) {
@@ -77,16 +77,16 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
 
     /**
      * @param stepExecOrder
-     * @param runnable  task can be executed immediately or at some later point based on the given mode
+     * @param runnable      task can be executed immediately or at some later point based on the given mode
      */
     protected void handleExecution(StepExecOrder stepExecOrder, Runnable runnable) {
-            StepTask stepTask = new StepTask(stepExecOrder, exclusiveExecution, getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests);
-            services.getActiveStepsTracker().track(stepExecOrder, getName());
-            services.getStepTaskExecutor().submit(
-                    stepTask,
-                    r -> handleFinishedStep(stepExecOrder),
-                    e -> handleFinishedStep(stepExecOrder) // even when we finish in error there might be successfully parsed other data that might be waiting to get published outside
-            );
+        StepTask stepTask = new StepTask(stepExecOrder, exclusiveExecution, getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests);
+        services.getActiveStepsTracker().track(stepExecOrder, getName());
+        services.getStepTaskExecutor().submit(
+                stepTask,
+                r -> handleFinishedStep(stepExecOrder),
+                e -> handleFinishedStep(stepExecOrder) // even when we finish in error there might be successfully parsed other data that might be waiting to get published outside
+        );
     }
 
     private void handleFinishedStep(StepExecOrder stepExecOrder) {
