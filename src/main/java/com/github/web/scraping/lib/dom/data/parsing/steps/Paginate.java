@@ -106,14 +106,16 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
     }
 
     /**
-     * Performs the specified step sequence for content loaded in pagination
-     * Same as calling {@link com.github.web.scraping.lib.dom.data.parsing.steps.CommonOperationsStepBase#next(HtmlUnitParsingStep)}
+     * Same as calling {@link com.github.web.scraping.lib.dom.data.parsing.steps.CommonOperationsStepBase#next(HtmlUnitParsingStep)}  - see that for more details
      */
     public Paginate nextForEachPage(HtmlUnitParsingStep<?> stepsForPaginatedContent) {
         next(stepsForPaginatedContent);
         return this;
     }
 
+    /**
+     * Same as calling {@link com.github.web.scraping.lib.dom.data.parsing.steps.CommonOperationsStepBase#nextExclusively(HtmlUnitParsingStep)} - see that for more details
+     */
     public Paginate nextForEachPageExclusively(HtmlUnitParsingStep<?> stepsForPaginatedContent) {
         stepsForPaginatedContent.setExclusiveExecution(true);
         next(stepsForPaginatedContent);

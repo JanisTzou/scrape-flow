@@ -23,12 +23,12 @@ public interface HtmlUnitSupportingNextStep<C>  {
      *
      * @return reference to the same object on which the method was called - this allows chaining multiple following steps to execute when that step finishes.
      * <p>
-     * <b>Importantly</b>, this type of chaining does not mean that the declared steps will execute sequentially in the order of declaration in the <code>next()</code> method calls.
+     * <b>Importantly</b>, this type of chaining does not mean that the declared steps will execute sequentially in the order of declaration of <code>next()</code> method calls.
      * The declared steps will execute asynchronously, and they will interleave. Nonetheless, ordering is still handled internally and the order of parsed data
      * is guaranteed when the client code publishes the output to registered listeners.
      * <br>
      * <br>
-     * <p>To enforce order on multiple next steps use {@link HtmlUnitSupportingNextStep#nextExclusively(HtmlUnitParsingStep)}
+     * <p>To enforce the execution order to be the same as the order of step declaration use {@link HtmlUnitSupportingNextStep#nextExclusively(HtmlUnitParsingStep)} - this can be used for  any steps needed.
      *
      */
     C next(HtmlUnitParsingStep<?> nextStep);
@@ -37,8 +37,8 @@ public interface HtmlUnitSupportingNextStep<C>  {
      * This method guarantees that the step sequence specified as a parameter will fully finish before any other steps declared below this step start being executed.
      * <br>
      * <br>
-     * This is useful in specific situations e.g. when we need to collect parsed data that we then want to propagate to the following parsing steps.
-     * If this method is not used, then in the context of parallel execution the propagated data might not be fully populated with parsed data.
+     * This is useful in specific situations e.g. when we need to ensure that all data is parsed in certain steps because the data gets propagated to following parsing steps.
+     * If this method is not used, then in the context of parallel execution the propagated data might not be fully populated with parsed data at the moment they are published to clients via register listeners.
      * <br>
      * <br>
      * Note that this method reduces the achieved parallelism.
