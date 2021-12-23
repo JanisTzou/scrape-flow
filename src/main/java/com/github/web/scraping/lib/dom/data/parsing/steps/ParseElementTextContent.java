@@ -27,24 +27,21 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class ParseElementTextContent extends HtmlUnitParsingStep<ParseElementTextContent>
-        implements HtmlUnitStepCollectingParsedValuesToModel<ParseElementTextContent>,
+        implements HtmlUnitStepCollectingParsedStringToModel<ParseElementTextContent>,
         HtmlUnitStringTransformingStep<ParseElementTextContent> {
 
     // TODO provide a set of options to transform/sanitize text ... \n \t .. etc ...
 
-    private BiConsumer<Object, String> modelMutation;
     private boolean excludeChildElementsTextContent;
 
     ParseElementTextContent() {
-        this(null, null, false);
+        this(null, false);
     }
 
     ParseElementTextContent(@Nullable List<HtmlUnitParsingStep<?>> nextSteps,
-                            @Nullable BiConsumer<Object, String> modelMutation,
                             boolean excludeChildElementsTextContent) {
         super(nextSteps);
         this.excludeChildElementsTextContent = excludeChildElementsTextContent;
-        this.modelMutation = modelMutation;
     }
 
 
@@ -74,7 +71,7 @@ public class ParseElementTextContent extends HtmlUnitParsingStep<ParseElementTex
 
             String transformed = transformParsedText(tc);
 
-            setParsedStringToModel(this.collectorSetups, ctx, transformed, getName());
+            setParsedValueToModel(this.collectorSetups, ctx, transformed, getName());
 
             // TODO how to populate the following context?
         };

@@ -50,6 +50,10 @@ public class GetElements {
             return new GetElementsByTag("img");
         }
 
+        public static GetElementsByTag article() {
+            return new GetElementsByTag("article");
+        }
+
     }
 
 

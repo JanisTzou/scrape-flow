@@ -31,6 +31,7 @@ import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Test;
 
+import java.awt.image.BufferedImage;
 import java.time.Duration;
 
 public class CsfdCzDemo {
@@ -44,26 +45,37 @@ public class CsfdCzDemo {
                 .setScrapingSequence(
                         GetElements.ByTag.body()
                                 .next(GetElements.ByCss.bySelector("header.box-header")
-                                        .setCollector(Category::new, Category.class, new CategoryListener())
-                                        .next(Parse.textContent()
-                                                .collect(Category::setValue, Category.class)
-                                        )
-                                        .next(GetElements.ByDomTraversal.parent()
-                                                .next(GetElements.ByCss.bySelector("div.box-content")
-                                                        .next(GetElements.ByCss.bySelector("header.article-header")
-                                                                .setCollector(Article::new, Article.class, new ArticleListener())
-                                                                .collect(Article::setCategory, Article.class, Category.class)
-                                                                .next(GetElements.ByDomTraversal.firstChildElem()
-                                                                        .next(Parse.textContent()
-                                                                                .setTransformation(str -> str.replace("\t", "").replace("\n", " "))
-                                                                                .collect(Article::setTitle, Article.class)
-                                                                        )
-                                                                )
-
-                                                        )
-
+                                                .setCollector(Category::new, Category.class, new CategoryListener())
+                                                .next(Parse.textContent()
+                                                        .collect(Category::setValue, Category.class)
                                                 )
-                                        )
+                                                .next(GetElements.ByDomTraversal.parent()
+                                                                .next(GetElements.ByCss.bySelector("div.box-content")
+                                                                                .next(GetElements.ByTag.article()
+                                                                                                .setCollector(Article::new, Article.class, new ArticleListener())
+                                                                                                .collect(Article::setCategory, Article.class, Category.class)
+                                                                                                .next(GetElements.ByTag.tagName("figure")
+                                                                                                                .next(GetElements.ByDomTraversal.firstChildElem()
+                                                                                                                                .next(Parse.hRef(href -> "https:" + href)
+                                                                                                                                        .next(Download.image()
+                                                                                                                                                .collect(Article::setImage, Article.class)
+                                                                                                                                        )
+                                                                                                                                )
+                                                                                                                )
+                                                                                                )
+                                                                                                .next(GetElements.ByCss.bySelector("header.article-header")
+                                                                                                        .next(GetElements.ByDomTraversal.firstChildElem()
+                                                                                                                .next(Parse.textContent()
+                                                                                                                        .setTransformation(str -> str.replace("\t", "").replace("\n", " "))
+                                                                                                                        .collect(Article::setTitle, Article.class)
+                                                                                                                )
+                                                                                                        )
+
+                                                                                                )
+
+                                                                                )
+                                                                )
+                                                )
                                 )
                 );
 
@@ -95,6 +107,7 @@ public class CsfdCzDemo {
     public static class Article {
         private volatile String title;
         private volatile Category category;
+        private volatile BufferedImage image;
     }
 
     @Setter
@@ -118,6 +131,7 @@ public class CsfdCzDemo {
     public static class ArticleListener implements ParsedDataListener<Article> {
         @Override
         public void onParsingFinished(Article data) {
+            data.setImage(null); //  throws exceptions ...
             log.info(JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
         }
     }

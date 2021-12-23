@@ -38,7 +38,8 @@ public abstract class HtmlUnitParsingStep<T> implements StepThrottling {
 
     protected CollectorSetups collectorSetups = new CollectorSetups();
     // renlevant for steps that do scrape textual values
-    protected Function<String, String> parsedTextTransformation = s -> s; // by default return the string as-is
+    protected static Function<String, String> NO_TEXT_TRANSFORMATION = s -> s;
+    protected Function<String, String> parsedTextTransformation = NO_TEXT_TRANSFORMATION; // by default return the string as-is
     protected ScrapingServices services;
     // for logging and debugging
     private String name = getClass().getSimpleName() + "-unnamed-step";

@@ -22,12 +22,13 @@ import com.github.web.scraping.lib.parallelism.StepExecOrder;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
-        implements HtmlUnitStepCollectingParsedValuesToModel<ParseElementHRef>,
+        implements HtmlUnitStepCollectingParsedStringToModel<ParseElementHRef>,
         HtmlUnitStringTransformingStep<ParseElementHRef> {
 
     // TODO add some filtering logic for the hrefs parsed ...
@@ -37,7 +38,7 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
 
     ParseElementHRef(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, Function<String, String> parsedTextTransformation) {
         super(nextSteps);
-        this.parsedTextTransformation = parsedTextTransformation;
+        this.parsedTextTransformation = Objects.requireNonNullElse(parsedTextTransformation, NO_TEXT_TRANSFORMATION);
     }
 
     ParseElementHRef(Function<String, String> parsedTextTransformation) {
@@ -60,7 +61,7 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
                     log.debug("{} - {}: Parsed href: {}", stepExecOrder, getName(), transformed);
                     // TODO actually have another transformation that will say something like "transformToFullURL ... and put that one to the context below)
 
-                    setParsedStringToModel(this.collectorSetups, ctx, transformed, getName()); // TODO let this be handled by the helper?
+                    setParsedValueToModel(this.collectorSetups, ctx, transformed, getName()); // TODO let this be handled by the helper?
 
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
                     HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
