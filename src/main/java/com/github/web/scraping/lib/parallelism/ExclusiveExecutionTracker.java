@@ -23,11 +23,11 @@ import java.util.Stack;
 
 // not thread safe! Client code's responsibility ...
 @Log4j2
-public class ExclusiveExecutionStack {
+public class ExclusiveExecutionTracker {
 
     private final ActiveStepsTracker activeStepsTracker;
 
-    public ExclusiveExecutionStack(ActiveStepsTracker activeStepsTracker) {
+    public ExclusiveExecutionTracker(ActiveStepsTracker activeStepsTracker) {
         this.activeStepsTracker = activeStepsTracker;
     }
 

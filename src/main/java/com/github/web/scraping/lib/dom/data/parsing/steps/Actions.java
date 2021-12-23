@@ -32,10 +32,20 @@ public class Actions {
         return new MapElements(mapper);
     }
 
+    /**
+     * <p>Replaces the current page with a new one that is loaded after the link is followed.
+     * <p><b>IMPORTANT</b>: use this only when there are no other steps working with the page.
+     * If not sure, use {@link Actions#navigateToParsedLink(HtmlUnitSiteParser)}
+     */
     public static FollowLink followLink() {
         return new FollowLink();
     }
 
+    /**
+     * Can be used to load the page after a link has been parsed e.g. after {@link ParseData#parseHRef()}.
+     * <br>
+     * Loads the site into a new page instance - this is important e.g. when we are in the middle of pagination, and we need the original page left intact.
+     */
     public static NavigateToParsedLink navigateToParsedLink(HtmlUnitSiteParser siteParser) {
         return new NavigateToParsedLink(siteParser);
     }

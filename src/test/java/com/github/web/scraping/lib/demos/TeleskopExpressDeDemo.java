@@ -67,68 +67,68 @@ public class TeleskopExpressDeDemo {
                 .setParsingSequence(
                         GetElements.ByTag.body()
                                 .setCollector(ProductsPage::new, ProductsPages::new, ProductsPages::add)
-                                .then(new EmptyStep().stepName("before-pagination"))
-                                .then(Actions.paginate()
+                                .next(new EmptyStep().stepName("before-pagination"))
+                                .next(Actions.paginate()
                                         .setPaginationTrigger(
                                                 getNextPageLinkElemStep
-                                                        .then(clickNextPageLinkElem
-                                                                .then(Actions.returnNextPage())
+                                                        .next(clickNextPageLinkElem
+                                                                .next(Actions.returnNextPage())
                                                         )
                                         )
-                                        .thenForEachPageExclusively(
+                                        .nextForEachPageExclusively(
                                                 StepFlow.asStepGroup() // no steps with higher order than this very step can be allowed to run before this whole thing finishes ... lower steps can continue running ... send an event that this step finished so normal parallelism can resume ... also there might be nested ordered steps ...
-                                                        .then(getNavigationPositionElemStep
-                                                                .then(ParseElement.getTextContent().stepName("pet-1")
+                                                        .next(getNavigationPositionElemStep
+                                                                .next(ParseData.parseTextContent().stepName("pet-1")
                                                                         .setCollector(ProductsPage::setPosition)
                                                                 )
                                                         )
-                                                        .then(getNavigationPositionElemStep
-                                                                .then(ParseElement.getTextContent().stepName("pet-1")
+                                                        .next(getNavigationPositionElemStep
+                                                                .next(ParseData.parseTextContent().stepName("pet-1")
                                                                         .setCollector(ProductsPage::setPosition)
                                                                 )
                                                         )
                                         )
-                                        .thenForEachPage(getNavigationPositionElemStep
-                                                .then(ParseElement.getTextContent().stepName("pet-1")
+                                        .nextForEachPage(getNavigationPositionElemStep
+                                                .next(ParseData.parseTextContent().stepName("pet-1")
                                                         .setCollector(ProductsPage::setPosition)
                                                 )
                                         )
-                                        .thenForEachPage(getProductTdElemsStep
+                                        .nextForEachPage(getProductTdElemsStep
                                                 .setCollector(Product::new, ProductsPage::add, new ProductListenerParsed())// this step generates the Product model and does not modify it ... all the child steps need to finish
                                                 // this can register the step order of this parent step with NotificationOrderingService ...
                                                 // set parsed data listener ?
                                                 //  ... we might wanna listen for simple String values that were parsed ... not just complex models ...
                                                 // when should data be eligible to notify listeners?
-                                                .then(getProductCodeElemStep
-                                                        .then(new EmptyStep().stepName("before-product-code-collection")
+                                                .next(getProductCodeElemStep
+                                                        .next(new EmptyStep().stepName("before-product-code-collection")
                                                                 .setCollector(ProductCode::new, Product::setProductCode)
-                                                                .then(ParseElement.getTextContent().stepName("pet-2").setCollector(ProductCode::setValue))
+                                                                .next(ParseData.parseTextContent().stepName("pet-2").setCollector(ProductCode::setValue))
                                                         )
                                                 )
-                                                .then(getProductPriceElemStep
-                                                        .then(ParseElement.getTextContent().setCollector(Product::setPrice))
+                                                .next(getProductPriceElemStep
+                                                        .next(ParseData.parseTextContent().setCollector(Product::setPrice))
                                                 )
-                                                .then(getProductCodeElemStep2
-                                                        .then(ParseElement.getHRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal).stepName("parse-product-href")
+                                                .next(getProductCodeElemStep2
+                                                        .next(ParseData.parseHRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal).stepName("parse-product-href")
                                                                 .setCollector(Product::setDetailUrl)
-                                                                .thenNavigate(Actions.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
-                                                                        .then(getProductDetailTitleElem.stepName("get-product-detail-title") // TODO perhaps we need a setParsingSequence method after all instead of then() here ... so that we are consistent with how we set up a SiteParse (allows only 1 sequence) ....
-                                                                                .then(ParseElement.getTextContent().setCollector(Product::setTitle))
+                                                                .nextNavigate(Actions.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
+                                                                        .next(getProductDetailTitleElem.stepName("get-product-detail-title") // TODO perhaps we need a setParsingSequence method after all instead of then() here ... so that we are consistent with how we set up a SiteParse (allows only 1 sequence) ....
+                                                                                .next(ParseData.parseTextContent().setCollector(Product::setTitle))
                                                                         )
-                                                                        .then(getProductDescriptionElem
-                                                                                .then(ParseElement.getTextContent().setCollector(Product::setDescription))
+                                                                        .next(getProductDescriptionElem
+                                                                                .next(ParseData.parseTextContent().setCollector(Product::setDescription))
                                                                         )
-                                                                        .then(GetElements.ByAttribute.nameAndValue("id", "MwStInfoMO")
-                                                                                .then(GetElements.ByTag.anchor()
-                                                                                        .then(ParseElement.getHRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
-                                                                                                .thenNavigate(Actions.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
-                                                                                                        .then(GetListedElementsByFirstElementXPath.instance("/html/body/table/tbody/tr[1]")
+                                                                        .next(GetElements.ByAttribute.nameAndValue("id", "MwStInfoMO")
+                                                                                .next(GetElements.ByTag.anchor()
+                                                                                        .next(ParseData.parseHRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
+                                                                                                .nextNavigate(Actions.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
+                                                                                                        .next(GetListedElementsByFirstElementXPath.instance("/html/body/table/tbody/tr[1]")
                                                                                                                 .setCollector(ShippingCosts::new, (Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc))
-                                                                                                                .then(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[1]")
-                                                                                                                        .then(ParseElement.getTextContent().stepName("get-shipping-service").setCollector(ShippingCosts::setService))
+                                                                                                                .next(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[1]")
+                                                                                                                        .next(ParseData.parseTextContent().stepName("get-shipping-service").setCollector(ShippingCosts::setService))
                                                                                                                 )
-                                                                                                                .then(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[2]")
-                                                                                                                        .then(ParseElement.getTextContent().stepName("get-shipping-price").setCollector(ShippingCosts::setPrice))
+                                                                                                                .next(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[2]")
+                                                                                                                        .next(ParseData.parseTextContent().stepName("get-shipping-price").setCollector(ShippingCosts::setPrice))
                                                                                                                 )
                                                                                                         )
                                                                                                 )

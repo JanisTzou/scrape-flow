@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 
 
 public abstract class CommonOperationsStepBase<C> extends HtmlUnitParsingStep<C>
-    implements HtmlUnitChainableStep<C>, HtmlUnitCollectorSetupStep<C> {
+    implements HtmlUnitSupportingNextStep<C>, HtmlUnitCollectorSetupStep<C>{
 
     public CommonOperationsStepBase(List<HtmlUnitParsingStep<?>> nextSteps) {
         super(nextSteps);
@@ -66,14 +66,14 @@ public abstract class CommonOperationsStepBase<C> extends HtmlUnitParsingStep<C>
 
     @SuppressWarnings("unchecked")
     @Override
-    public C then(HtmlUnitParsingStep<?> nextStep) {
+    public C next(HtmlUnitParsingStep<?> nextStep) {
         this.nextSteps.add(nextStep);
         return (C) this;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public C thenExclusively(HtmlUnitParsingStep<?> nextStep) {
+    public C nextExclusively(HtmlUnitParsingStep<?> nextStep) {
         nextStep.setExclusiveExecution(true);
         this.nextSteps.add(nextStep);
         return (C) this;

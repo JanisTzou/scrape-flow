@@ -88,7 +88,7 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
     /**
      * Same as then() but with a more meaningful name for the purpose
      */
-    public ParseElementHRef thenNavigate(NavigateToParsedLink nextStep) {
+    public ParseElementHRef nextNavigate(NavigateToParsedLink nextStep) {
         this.nextSteps.add(nextStep);
         return this;
     }

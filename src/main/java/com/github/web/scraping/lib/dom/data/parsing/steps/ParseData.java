@@ -18,21 +18,21 @@ package com.github.web.scraping.lib.dom.data.parsing.steps;
 
 import java.util.function.Function;
 
-public class ParseElement {
+public class ParseData {
 
-    public static ParseElementTextContent getTextContent() {
+    public static ParseElementTextContent parseTextContent() {
         return new ParseElementTextContent();
     }
 
-    public static ParseElementTextContent getTextContent(Function<String, String> parsedTextTransformation) {
+    public static ParseElementTextContent parseTextContent(Function<String, String> parsedTextTransformation) {
         return new ParseElementTextContent().setTransformation(parsedTextTransformation);
     }
 
-    public static ParseElementHRef getHRef() {
+    public static ParseElementHRef parseHRef() {
         return new ParseElementHRef();
     }
 
-    public static ParseElementHRef getHRef(Function<String, String> parsedTextTransformation) {
+    public static ParseElementHRef parseHRef(Function<String, String> parsedTextTransformation) {
         return new ParseElementHRef(parsedTextTransformation);
     }
 

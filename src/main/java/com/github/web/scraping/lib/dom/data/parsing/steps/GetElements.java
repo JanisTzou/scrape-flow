@@ -63,7 +63,7 @@ public class GetElements {
 
     public static class ByTextContent {
 
-        public static GetElementsByTextContent searchString(String searchString, boolean matchWholeTextContent) {
+        public static GetElementsByTextContent searchByString(String searchString, boolean matchWholeTextContent) {
             return new GetElementsByTextContent(searchString, matchWholeTextContent);
         }
 

@@ -27,7 +27,7 @@ public class StepsUtilsTest {
     @Test
     public void findStepOfTypeInSequence() {
 
-        Paginate sequence = new Paginate().then(new ReturnNextPage());
+        Paginate sequence = new Paginate().next(new ReturnNextPage());
 
         Optional<ReturnNextPage> returnNextPageStep = StepsUtils.findStepOfTypeInSequence(sequence, ReturnNextPage.class);
 

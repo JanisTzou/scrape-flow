@@ -28,7 +28,7 @@ import java.util.function.Supplier;
  * Used just to test context propagation
  */
 public class StepGroup extends CommonOperationsStepBase<StepGroup>
-        implements HtmlUnitChainableStep<StepGroup>, HtmlUnitCollectorSetupStep<StepGroup> {
+        implements HtmlUnitSupportingNextStep<StepGroup>, HtmlUnitCollectorSetupStep<StepGroup> {
 
     StepGroup(@Nullable List<HtmlUnitParsingStep<?>> nextSteps, Collecting<?, ?> collecting) {
         super(nextSteps);

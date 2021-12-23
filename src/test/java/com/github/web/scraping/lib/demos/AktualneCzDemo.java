@@ -42,14 +42,14 @@ public class AktualneCzDemo {
 
         final Scraping articlesScraping = new Scraping(new HtmlUnitSiteParser(driverManager))
                 .setParsingSequence(getArticleElements
-                        .then(getArticleHeadlineElem
-                                .then(ParseElement.getTextContent())
+                        .next(getArticleHeadlineElem
+                                .next(ParseData.parseTextContent())
                         )
-                        .then(getArticleDescElem1
-                                .then(ParseElement.getTextContent())
+                        .next(getArticleDescElem1
+                                .next(ParseData.parseTextContent())
                         )
-                        .then(getArticleDescElem2
-                                .then(ParseElement.getTextContent())
+                        .next(getArticleDescElem2
+                                .next(ParseData.parseTextContent())
                         )
                 );
 

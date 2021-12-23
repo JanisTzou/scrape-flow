@@ -40,7 +40,7 @@ public class SupraDalekohledyCzDemo {
         final Scraping productsScraping = new Scraping()
                 .setParser(new HtmlUnitSiteParser(driverManager))
                 .setParsingSequence(getNextBtnLink
-                        .then(Actions.followLink())
+                        .next(Actions.followLink())
                 );
 
         // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?

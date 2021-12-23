@@ -51,14 +51,14 @@ public class IFortunaCzDemo {
         final Scraping matchesScraping = new Scraping()
                 .setParser(new HtmlUnitSiteParser(driverManager))
                 .setParsingSequence(getEventsListElements
-                        .then(getEventDetailLinkElem  // TODO perhaps we can express it better that the next step is going for the children ?
-                                .then(ParseElement.getHRef())
+                        .next(getEventDetailLinkElem  // TODO perhaps we can express it better that the next step is going for the children ?
+                                .next(ParseData.parseHRef())
                         )
-                        .then(getEventTitleElem
-                                .then(ParseElement.getTextContent())
+                        .next(getEventTitleElem
+                                .next(ParseData.parseTextContent())
                         )
-                        .then(getEventDateElem
-                                .then(ParseElement.getTextContent())
+                        .next(getEventDateElem
+                                .next(ParseData.parseTextContent())
                         )
                 );
 

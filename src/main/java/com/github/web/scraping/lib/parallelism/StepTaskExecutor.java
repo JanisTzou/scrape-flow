@@ -41,14 +41,14 @@ public class StepTaskExecutor {
     private final Duration periodicExecNextTriggerInterval;
     private final ExecutingTasksTracker executingTasksTracker;
     private volatile Supplier<LocalDateTime> nowSupplier;
-    private final ExclusiveExecutionStack exclusiveExecutionStack;
+    private final ExclusiveExecutionTracker exclusiveExecutionTracker;
 
-    public StepTaskExecutor(ThrottlingService throttlingService, ExclusiveExecutionStack exclusiveExecutionStack) {
+    public StepTaskExecutor(ThrottlingService throttlingService, ExclusiveExecutionTracker exclusiveExecutionTracker) {
         this(throttlingService,
                 PERIODIC_EXEC_NEXT_TRIGGER_INTERVAL, // sensible default
                 LocalDateTime::now,
                 new ExecutingTasksTracker(),
-                exclusiveExecutionStack);
+                exclusiveExecutionTracker);
     }
 
     /**
@@ -58,10 +58,10 @@ public class StepTaskExecutor {
     StepTaskExecutor(ThrottlingService requestsPerSecondCounter,
                      Duration periodicExecNextTriggerInterval,
                      Supplier<LocalDateTime> nowSupplier, ExecutingTasksTracker executingTasksTracker,
-                     ExclusiveExecutionStack exclusiveExecutionStack) {
+                     ExclusiveExecutionTracker exclusiveExecutionTracker) {
         this.throttlingService = requestsPerSecondCounter;
         this.executingTasksTracker = executingTasksTracker;
-        this.exclusiveExecutionStack = exclusiveExecutionStack;
+        this.exclusiveExecutionTracker = exclusiveExecutionTracker;
         this.taskQueue = new PriorityBlockingQueue<>(100, QueuedStepTask.NATURAL_COMPARATOR);
         this.periodicExecNextTriggerInterval = periodicExecNextTriggerInterval;
         this.nowSupplier = nowSupplier;
@@ -135,7 +135,7 @@ public class StepTaskExecutor {
      */
     private boolean canExecute(QueuedStepTask next) {
         return next != null
-                && exclusiveExecutionStack.canExecute(next)
+                && exclusiveExecutionTracker.canExecute(next)
                 && (!next.getStepTask().isThrottlingAllowed() || throttlingService.canProceed(executingTasksTracker.countOfExecutingThrottlableTasks()));
     }
 
