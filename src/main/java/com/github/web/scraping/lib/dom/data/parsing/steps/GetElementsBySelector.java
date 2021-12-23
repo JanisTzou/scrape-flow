@@ -16,7 +16,8 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
-// marker interface for steps that are expected to lod a new page and that (optionally - depending on implementation)
-// pass it to the following step via the ParsingContext
-public interface LoadingNewPage extends MakingHttpRequests {
+public class GetElementsBySelector {
+
+    // TODO ...
+
 }

@@ -59,7 +59,6 @@ public class TeleskopExpressDeDemo {
         GetElementsByCssClass getProductPriceElemStep = GetElements.ByCssClass.className("prod_preis").stepName("get-product-price-elem");
         GetElementsByAttribute getProductDetailHRefElemStep = GetElements.ByAttribute.nameAndValue("href", "product_info.php/info").setMatchEntireValue(false).stepName("get-product-detail-elem");
         FollowLink clickNextPageLinkElem = Actions.followLink().stepName("click-next-page-button");
-        GetElementsByCssClass getNavigationPositionElemStep = GetElements.ByCssClass.className("headerlinks").stepName("headerlinks").stepName("get-nav-position-elem-step");
         GetElementsByAttribute getProductDetailTitleElem = GetElements.ByAttribute.nameAndValue("itemprop", "name");
         GetElementsByAttribute getProductDescriptionElem = GetElements.ByAttribute.nameAndValue("id", "c0");
 
@@ -77,18 +76,18 @@ public class TeleskopExpressDeDemo {
                                         )
                                         .nextForEachPageExclusively(
                                                 StepFlow.asStepGroup() // no steps with higher order than this very step can be allowed to run before this whole thing finishes ... lower steps can continue running ... send an event that this step finished so normal parallelism can resume ... also there might be nested ordered steps ...
-                                                        .next(getNavigationPositionElemStep
+                                                        .next(GetElements.ByCssClass.className("headerlinks").stepName("get-nav-position-elem-step")
                                                                 .next(Parse.textContent().stepName("pet-1")
                                                                         .setCollector(ProductsPage::setPosition)
                                                                 )
                                                         )
-                                                        .next(getNavigationPositionElemStep
+                                                        .next(GetElements.ByCssClass.className("headerlinks").stepName("get-nav-position-elem-step")
                                                                 .next(Parse.textContent().stepName("pet-1")
                                                                         .setCollector(ProductsPage::setPosition)
                                                                 )
                                                         )
                                         )
-                                        .nextForEachPage(getNavigationPositionElemStep
+                                        .nextForEachPage(GetElements.ByCssClass.className("headerlinks").stepName("get-nav-position-elem-step")
                                                 .next(Parse.textContent().stepName("pet-1")
                                                         .setCollector(ProductsPage::setPosition)
                                                 )

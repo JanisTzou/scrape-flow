@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.dom.data.parsing.steps;
+package com.github.web.scraping.lib.throttling;
 
-// marker interface for steps that are expected to lod a new page and that (optionally - depending on implementation)
-// pass it to the following step via the ParsingContext
-public interface LoadingNewPage extends MakingHttpRequests {
+import java.time.LocalDateTime;
+
+public interface ScrapingRateLimiter {
+
+    boolean incrementIfRequestWithinLimitAndGet(LocalDateTime now);
+
 }

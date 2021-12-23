@@ -16,6 +16,8 @@
 
 package com.github.web.scraping.lib.parallelism;
 
+import com.github.web.scraping.lib.throttling.ScrapingRateLimiter;
+import com.github.web.scraping.lib.throttling.ScrapingRateLimiterImpl;
 import com.github.web.scraping.lib.throttling.ThrottlingService;
 import lombok.extern.log4j.Log4j2;
 import reactor.core.publisher.Flux;
@@ -42,6 +44,7 @@ public class StepTaskExecutor {
     private final ExecutingTasksTracker executingTasksTracker;
     private volatile Supplier<LocalDateTime> nowSupplier;
     private final ExclusiveExecutionTracker exclusiveExecutionTracker;
+    private final ScrapingRateLimiter scrapingRateLimiter = new ScrapingRateLimiterImpl(1);
 
     public StepTaskExecutor(ThrottlingService throttlingService, ExclusiveExecutionTracker exclusiveExecutionTracker) {
         this(throttlingService,
@@ -136,6 +139,7 @@ public class StepTaskExecutor {
     private boolean canExecute(QueuedStepTask next) {
         return next != null
                 && exclusiveExecutionTracker.canExecute(next)
+                && (!next.getStepTask().isMakesHttpRequests() || scrapingRateLimiter.incrementIfRequestWithinLimitAndGet(nowSupplier.get()))
                 && (!next.getStepTask().isThrottlingAllowed() || throttlingService.canProceed(executingTasksTracker.countOfExecutingThrottlableTasks()));
     }
 
@@ -211,6 +215,7 @@ public class StepTaskExecutor {
         // the retry because it happens at some later point and we might have run out of rqs / sec for that moment
         // ->>> WE NEED TO MAKE SURE THAT RETRIED REQUEST ALSO RESPECT THE RQs/SEC LIMIT + THAT THEY ARE TRACKED CORRECTLY
         if (isRetry.get()) {
+            // TODO call to requestsPerSecondCounter.incrementIfRequestWithinLimitAndGet(nowSupplier.get())
             if (throttlingService.canProceed(executingTasksTracker.countOfExecutingThrottlableTasks())) {
                 logRetry(stepTask);
                 return Mono.just(true);
