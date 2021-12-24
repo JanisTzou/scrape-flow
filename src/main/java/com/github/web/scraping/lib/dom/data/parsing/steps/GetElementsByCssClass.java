@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class GetElementsByCssClass extends CommonOperationsStepBase<GetElementsByCssClass> {
+public class GetElementsByCssClass extends GetElementsStepBase<GetElementsByCssClass> {
 
     private final String cssClassName;
 
@@ -42,7 +42,7 @@ public class GetElementsByCssClass extends CommonOperationsStepBase<GetElementsB
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsByClass(ctx.getNode(), cssClassName);
+            Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(HtmlUnitUtils.getDescendantsByClass(ctx.getNode(), cssClassName));
             HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
             helper.execute(ctx, nodesSearch, stepExecOrder);
         };

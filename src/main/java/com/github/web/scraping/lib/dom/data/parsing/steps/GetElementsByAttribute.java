@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 
-public class GetElementsByAttribute extends CommonOperationsStepBase<GetElementsByAttribute> {
+public class GetElementsByAttribute extends GetElementsStepBase<GetElementsByAttribute> {
 
     private static final boolean MATCH_ENTIRE_VALUE_DEFAULT = true;
     private final String attributeName;
@@ -58,9 +58,9 @@ public class GetElementsByAttribute extends CommonOperationsStepBase<GetElements
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> {
                 if (attributeValue != null) {
-                    return HtmlUnitUtils.getDescendantsByAttributeValue(ctx.getNode(), attributeName, attributeValue, this.matchEntireValue);
+                    return filterByTraverseOption(HtmlUnitUtils.getDescendantsByAttributeValue(ctx.getNode(), attributeName, attributeValue, this.matchEntireValue));
                 } else {
-                    return HtmlUnitUtils.getDescendantsByAttribute(ctx.getNode(), attributeName);
+                    return filterByTraverseOption(HtmlUnitUtils.getDescendantsByAttribute(ctx.getNode(), attributeName));
                 }
             };
             HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);

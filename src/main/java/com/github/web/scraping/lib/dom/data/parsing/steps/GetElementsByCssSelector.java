@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class GetElementsByCssSelector extends CommonOperationsStepBase<GetElementsByCssSelector> {
+public class GetElementsByCssSelector extends GetElementsStepBase<GetElementsByCssSelector> {
 
     private final String sccSelector;
 
@@ -42,7 +42,7 @@ public class GetElementsByCssSelector extends CommonOperationsStepBase<GetElemen
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsBySccSelector(ctx.getNode(), sccSelector);
+            Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(HtmlUnitUtils.getDescendantsBySccSelector(ctx.getNode(), sccSelector));
             HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
             helper.execute(ctx, nodesSearch, stepExecOrder);
         };

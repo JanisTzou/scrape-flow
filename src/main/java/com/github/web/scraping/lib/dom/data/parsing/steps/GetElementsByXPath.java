@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class GetElementsByXPath extends CommonOperationsStepBase<GetElementsByXPath> {
+public class GetElementsByXPath extends GetElementsStepBase<GetElementsByXPath> {
 
     private final String xPath;
 
@@ -43,7 +43,7 @@ public class GetElementsByXPath extends CommonOperationsStepBase<GetElementsByXP
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<DomNode>> nodesSearch = () -> ctx.getNode().getByXPath(xPath);
+            Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(ctx.getNode().getByXPath(xPath));
             HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
             helper.execute(ctx, nodesSearch, stepExecOrder);
         };

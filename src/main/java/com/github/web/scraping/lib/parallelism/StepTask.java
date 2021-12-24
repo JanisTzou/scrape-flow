@@ -44,7 +44,7 @@ public class StepTask implements Comparable<StepTask> {
     private final Runnable stepRunnable;
     private final LocalDateTime created = LocalDateTime.now();
     private final boolean throttlingAllowed;
-    private final boolean makesHttpRequests;
+    private final boolean makingHttpRequests;
 
     @Override
     public int compareTo(StepTask o) {

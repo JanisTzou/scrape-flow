@@ -103,7 +103,10 @@ public class HtmlUnitStepHelper {
                 List<StepExecOrder> generatedSteps = executeNextSteps(currStepExecOrder, node, ctx, nextContextModels);
 
                 // TODO this step is what is missing when we call HtmlUnitSiteParser or NavigateToPage step ... from another step ... if it has a collector set to it ...
-                services.getStepAndDataRelationshipTracker().track(currStepExecOrder, generatedSteps, modelToPublishList);
+                if (!modelToPublishList.isEmpty()) { // important
+                    services.getStepAndDataRelationshipTracker().track(currStepExecOrder, generatedSteps, modelToPublishList);
+                    services.getNotificationService().track(generatedSteps);
+                }
             });
 
         } catch (Exception e) {

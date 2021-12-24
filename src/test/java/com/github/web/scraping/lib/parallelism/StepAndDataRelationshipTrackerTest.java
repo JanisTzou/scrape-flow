@@ -59,8 +59,8 @@ public class StepAndDataRelationshipTrackerTest {
         assertEquals(model1, spawned.getModelToPublishList().get(0).getModel());
 
         assertEquals(2, spawned.getSteps().size());
-        assertTrue(spawned.getSteps().containsKey(step_1_1));
-        assertTrue(spawned.getSteps().containsKey(step_1_2));
+        assertTrue(spawned.getSteps().contains(step_1_1));
+        assertTrue(spawned.getSteps().contains(step_1_2));
     }
 
     @Test
@@ -75,7 +75,7 @@ public class StepAndDataRelationshipTrackerTest {
         asTracker.track(step_1_2_2, "");
         sdrTracker.track(step_1_2, List.of(step_1_2_1, step_1_2_2), List.of(new ModelToPublish(model2, model2.getClass(), listener)));
 
-        List<StepAndDataRelationshipTracker.FinalizedModel> data;
+        List<StepAndDataRelationshipTracker.FinalizedModels> data;
         data = sdrTracker.getModelsWithNoActiveSteps(step_1_2_1);
         assertTrue(data.isEmpty());
 
@@ -87,8 +87,8 @@ public class StepAndDataRelationshipTrackerTest {
         asTracker.untrack(step_1_2_2);
         data = sdrTracker.getModelsWithNoActiveSteps(step_1_2_2);
         assertFalse(data.isEmpty());
-        assertEquals(List.of(step_1_2_1, step_1_2_2), data.get(0).getSteps());
-        assertEquals(model2, data.get(0).getModel());
+        assertEquals(List.of(step_1_2_1, step_1_2_2), data.get(0).getSpawned().getSteps().stream().toList());
+        assertEquals(model2, data.get(0).getSpawned().getModelToPublishList().get(0).getModel());
 
     }
 
@@ -104,7 +104,7 @@ public class StepAndDataRelationshipTrackerTest {
         asTracker.track(step_1_2_2, "");
         sdrTracker.track(step_1_2, List.of(step_1_2_1, step_1_2_2), List.of(new ModelToPublish(model2, model2.getClass(), listener)));
 
-        List<StepAndDataRelationshipTracker.FinalizedModel> data;
+        List<StepAndDataRelationshipTracker.FinalizedModels> data;
 
         data = sdrTracker.getModelsWithNoActiveSteps(step_1_1);
         assertTrue(data.isEmpty());
@@ -125,8 +125,8 @@ public class StepAndDataRelationshipTrackerTest {
         data = sdrTracker.getModelsWithNoActiveSteps(step_1_2_1);
         assertFalse(data.isEmpty());
         assertEquals(2, data.size());
-        assertEquals(model2, data.get(0).getModel());
-        assertEquals(model1, data.get(1).getModel());
+        assertEquals(model2, data.get(0).getSpawned().getModelToPublishList().get(0).getModel());
+        assertEquals(model1, data.get(1).getSpawned().getModelToPublishList().get(0).getModel());
 
     }
 

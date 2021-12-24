@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class GetListedElementByFirstElementXPath extends CommonOperationsStepBase<GetListedElementByFirstElementXPath> {
+public class GetListedElementByFirstElementXPath extends GetElementsStepBase<GetListedElementByFirstElementXPath> {
 
     // the xPath of the first child
     private final String xPath;
@@ -66,10 +66,11 @@ public class GetListedElementByFirstElementXPath extends CommonOperationsStepBas
                 String childStaticPartXPath = XPathUtils.getXPathSubstrTailFromStart(xPathDiff.get(), 1);
                 String childXPath = XPathUtils.concat(parentXPath, childStaticPartXPath);
 
-                return ctx.getNode().getByXPath(childXPath).stream()
+                List<DomNode> domNodes = ctx.getNode().getByXPath(childXPath).stream()
                         .filter(o -> o instanceof DomNode)
                         .map(o -> (DomNode) o)
                         .collect(Collectors.toList());
+                return filterByTraverseOption(domNodes);
             };
 
             HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);

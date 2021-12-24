@@ -20,91 +20,95 @@ import static com.github.web.scraping.lib.dom.data.parsing.steps.GetElementsByDo
 
 public class GetElements {
 
-    public static class ByTag {
+    public static class Descendants {
 
-        public static GetElementsByTag tagName(String tagName) {
-            return new GetElementsByTag(tagName);
+        public static class ByTag {
+
+            public static GetElementsByTag tagName(String tagName) {
+                return new GetElementsByTag(tagName);
+            }
+
+            public static GetElementsByTag body() {
+                return new GetElementsByTag("body");
+            }
+
+            public static GetElementsByTag anchor() {
+                return new GetElementsByTag("a");
+            }
+
+            public static GetElementsByTag div() {
+                return new GetElementsByTag("div");
+            }
+
+            public static GetElementsByTag li() {
+                return new GetElementsByTag("li");
+            }
+
+            public static GetElementsByTag span() {
+                return new GetElementsByTag("span");
+            }
+
+            public static GetElementsByTag img() {
+                return new GetElementsByTag("img");
+            }
+
+            public static GetElementsByTag article() {
+                return new GetElementsByTag("article");
+            }
+
         }
 
-        public static GetElementsByTag body() {
-            return new GetElementsByTag("body");
+
+        public static class ByTextContent {
+
+            public static GetElementsByTextContent search(String searchString, boolean matchWholeTextContent) {
+                return new GetElementsByTextContent(searchString, matchWholeTextContent);
+            }
+
         }
 
-        public static GetElementsByTag anchor() {
-            return new GetElementsByTag("a");
+
+        public static class ByCss {
+
+            public static GetElementsByCssClass byClassName(String className) {
+                return new GetElementsByCssClass(className);
+            }
+
+            public static GetElementsByCssSelector bySelector(String selector) {
+                return new GetElementsByCssSelector(selector);
+            }
+
         }
 
-        public static GetElementsByTag div() {
-            return new GetElementsByTag("div");
+
+        public static class ByAttribute {
+
+            public static GetElementsByAttribute id(String idValue) {
+                return new GetElementsByAttribute("id", idValue);
+            }
+
+            public static GetElementsByAttribute nameAndValue(String attrName, String attrValue) {
+                return new GetElementsByAttribute(attrName, attrValue);
+            }
+
+            public static GetElementsByAttribute name(String attrName) {
+                return new GetElementsByAttribute(attrName);
+            }
+
         }
 
-        public static GetElementsByTag li() {
-            return new GetElementsByTag("li");
-        }
 
-        public static GetElementsByTag span() {
-            return new GetElementsByTag("span");
-        }
+        public static class ByXPath {
 
-        public static GetElementsByTag img() {
-            return new GetElementsByTag("img");
-        }
+            public static GetElementsByXPath xPath(String xPath) {
+                return new GetElementsByXPath(xPath);
+            }
 
-        public static GetElementsByTag article() {
-            return new GetElementsByTag("article");
         }
-
     }
 
 
-    public static class ByTextContent {
-
-        public static GetElementsByTextContent search(String searchString, boolean matchWholeTextContent) {
-            return new GetElementsByTextContent(searchString, matchWholeTextContent);
-        }
-
-    }
-
-
-    public static class ByCss {
-
-        public static GetElementsByCssClass byClassName(String className) {
-            return new GetElementsByCssClass(className);
-        }
-
-        public static GetElementsByCssSelector bySelector(String selector) {
-            return new GetElementsByCssSelector(selector);
-        }
-
-    }
-
-
-    public static class ByAttribute {
-
-        public static GetElementsByAttribute id(String idValue) {
-            return new GetElementsByAttribute("id", idValue);
-        }
-
-        public static GetElementsByAttribute nameAndValue(String attrName, String attrValue) {
-            return new GetElementsByAttribute(attrName, attrValue);
-        }
-
-        public static GetElementsByAttribute name(String attrName) {
-            return new GetElementsByAttribute(attrName);
-        }
-
-    }
-
-
-    public static class ByXPath {
-
-        public static GetElementsByXPath xPath(String xPath) {
-            return new GetElementsByXPath(xPath);
-        }
-
-    }
-
-
+    // TODO rename class to Traversal and the method prefix with getXXX ?
     public static class ByDomTraversal {
 
         public static GetElementsByDomTraversal body() {

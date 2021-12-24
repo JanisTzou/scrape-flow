@@ -54,6 +54,26 @@ public class StepExecOrderTest {
     }
 
     @Test
+    public void testSortingByNaturalComparator3() {
+        StepExecOrder so1 = new StepExecOrder(0, 1, 1, 2, 1, 1, 3);
+        StepExecOrder so2 = new StepExecOrder(0, 1, 1, 2, 1, 1, 2);
+        StepExecOrder so3 = new StepExecOrder(0, 1, 1);
+        StepExecOrder so4 = new StepExecOrder(0, 1, 2, 2);
+
+        Queue<StepExecOrder> publishingOrder = new PriorityQueue<>(100, StepExecOrder.NATURAL_COMPARATOR);
+
+        publishingOrder.add(so4);
+        publishingOrder.add(so3);
+        publishingOrder.add(so2);
+        publishingOrder.add(so1);
+
+        assertEquals(so3, publishingOrder.poll());
+        assertEquals(so2, publishingOrder.poll());
+        assertEquals(so1, publishingOrder.poll());
+        assertEquals(so4, publishingOrder.poll());
+    }
+
+    @Test
     public void nextAtNewLevel() {
         StepExecOrder so1 = new StepExecOrder(1, 1, 1);
         assertEquals(new StepExecOrder(1, 1, 1, 1), so1.nextAsChild());

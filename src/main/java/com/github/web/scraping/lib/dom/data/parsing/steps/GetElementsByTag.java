@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public class GetElementsByTag extends CommonOperationsStepBase<GetElementsByTag> {
+public class GetElementsByTag extends GetElementsStepBase<GetElementsByTag> {
 
     private final String tagName;
 
@@ -48,7 +48,7 @@ public class GetElementsByTag extends CommonOperationsStepBase<GetElementsByTag>
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsByTagName(ctx.getNode(), tagName);
+            Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(HtmlUnitUtils.getDescendantsByTagName(ctx.getNode(), tagName));
             HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
             helper.execute(ctx, nodesSearch, stepExecOrder);
         };

@@ -16,6 +16,7 @@
 
 package com.github.web.scraping.lib.dom.data.parsing.steps;
 
+import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.web.scraping.lib.dom.data.parsing.XPathUtils;
@@ -30,7 +31,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @Log4j2
-public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBase<GetListedElementsByFirstElementXPath> {
+public class GetListedElementsByFirstElementXPath extends GetElementsStepBase<GetListedElementsByFirstElementXPath> {
 
     private final String xPath;
 
@@ -61,7 +62,7 @@ public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBa
 
                 List<Object> nodes = ctx.getNode().getByXPath(parentXPath);
                 log.debug("{} - {} Found {} nodes in {}", stepExecOrder, getName(), nodes.size(), ctx.getNode());
-                return nodes
+                List<DomNode> domElements = nodes
                         .stream()
                         .flatMap(el -> {
                             // child elements ...
@@ -80,6 +81,8 @@ public class GetListedElementsByFirstElementXPath extends CommonOperationsStepBa
                             return false;
                         })
                         .collect(Collectors.toList());
+
+                return filterByTraverseOption(domElements);
             };
 
             HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);

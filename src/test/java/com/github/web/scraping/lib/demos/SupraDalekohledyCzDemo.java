@@ -24,14 +24,16 @@ import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
 import org.junit.Test;
 
+import java.time.Duration;
+
 public class SupraDalekohledyCzDemo {
 
     @Test
-    public void start() {
+    public void start() throws InterruptedException {
 
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
 
-        GetElementsByXPath getNextBtnLink = GetElements.ByXPath.xPath("/html/body/div[2]/div[1]/div[4]/div/div/div[2]/div[3]/div[1]/ul/li[4]/a");
+        GetElementsByXPath getNextBtnLink = GetElements.Descendants.ByXPath.xPath("/html/body/div[2]/div[1]/div[4]/div/div/div[2]/div[3]/div[1]/ul/li[4]/a");
 
         final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 1)
                 .setScrapingSequence(getNextBtnLink
@@ -41,6 +43,9 @@ public class SupraDalekohledyCzDemo {
         final EntryPoint entryPoint = new EntryPoint("http://www.supra-dalekohledy.cz/prislusenstvi4/okulary/tele-vue/", productsScraping);
         final Scraper scraper = new Scraper();
         scraper.scrape(entryPoint);
+
+        scraper.awaitCompletion(Duration.ofMinutes(5));
+        Thread.sleep(2000); // let logging finish ...
 
     }
 

@@ -38,7 +38,7 @@ public class StepTaskExecutor {
     // TODO specialised thread pool for parsing / blocking operations  ...
 
     public static final Duration PERIODIC_EXEC_NEXT_TRIGGER_INTERVAL = Duration.ofMillis(100);
-    public static final long COMPLETION_CHECK_FREQUENCY_MILLIS = 10L;
+    public static final long COMPLETION_CHECK_FREQUENCY_MILLIS = 100L;
     private final Queue<QueuedStepTask> taskQueue;
     private final ThrottlingService throttlingService;
     private final Duration periodicExecNextTriggerInterval;
@@ -139,7 +139,7 @@ public class StepTaskExecutor {
     private boolean canExecute(QueuedStepTask next) {
         return next != null
                 && exclusiveExecutionTracker.canExecute(next)
-                && (!next.getStepTask().isMakesHttpRequests() || scrapingRateLimiter.incrementIfRequestWithinLimitAndGet(nowSupplier.get()))
+                && (!next.getStepTask().isMakingHttpRequests() || scrapingRateLimiter.incrementIfRequestWithinLimitAndGet(nowSupplier.get()))
                 && (!next.getStepTask().isThrottlingAllowed() || throttlingService.canProceed(executingTasksTracker.countOfExecutingThrottlableTasks()));
     }
 
@@ -160,7 +160,7 @@ public class StepTaskExecutor {
                         Mono.fromCallable(() -> {
                             task.getStepRunnable().run();
                             return task;
-                        }) // if we got her eit means that the previous step passed and emmited 'true'
+                        }) // if we got here it means that the previous step passed and emitted 'true'
                 )
                 .onErrorMap(error -> {
                     logRequestError(task, error);
@@ -181,10 +181,9 @@ public class StepTaskExecutor {
                     logRequestProcessed(task, enqueuedTimestamp);
                 })
                 .map(stepResults -> new TaskResult(task))
-                .doOnCancel(taskFinishedHook())
-                .doOnTerminate(taskFinishedHook())
+                .doOnCancel(taskFinishedHook(task))
+                .doOnTerminate(taskFinishedHook(task))
                 .subscribeOn(Schedulers.parallel())
-//                .subscribeOn(Schedulers.single())
                 .subscribe(taskResult -> {
                             try {
                                 taskResultConsumer.accept(taskResult);
@@ -204,9 +203,9 @@ public class StepTaskExecutor {
         this.activeTaskCount.incrementAndGet();
     }
 
-
-    private Runnable taskFinishedHook() {
+    private Runnable taskFinishedHook(StepTask task) {
         return () -> {
+            log.debug("Finished step {}", task.loggingInfo());
             this.activeTaskCount.decrementAndGet();
             this.dequeueNextAndExecute();
         };
@@ -252,7 +251,7 @@ public class StepTaskExecutor {
      */
     public boolean awaitCompletion(Duration timeout) {
 
-        long checkFrequencyMillis = timeout.toMillis() > COMPLETION_CHECK_FREQUENCY_MILLIS ? COMPLETION_CHECK_FREQUENCY_MILLIS : 0L;
+        long checkFrequencyMillis = timeout.toMillis() > COMPLETION_CHECK_FREQUENCY_MILLIS ? COMPLETION_CHECK_FREQUENCY_MILLIS : 1L;
         Duration period = Duration.ofMillis(checkFrequencyMillis);
 
         AtomicBoolean withinTimeout = new AtomicBoolean(false);
@@ -279,7 +278,7 @@ public class StepTaskExecutor {
     }
 
     private void logRequestError(StepTask request, Throwable error) {
-        log.warn("Error for request: {}", request.loggingInfo(), error);
+        log.warn("Error for task: {}", request.loggingInfo(), error);
     }
 
     private void logRetry(StepTask request) {

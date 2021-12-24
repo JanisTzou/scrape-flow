@@ -28,7 +28,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 @Log4j2
-public class GetElementsByTextContent extends CommonOperationsStepBase<GetElementsByTextContent> {
+public class GetElementsByTextContent extends GetElementsStepBase<GetElementsByTextContent> {
 
     private final String searchString;
     private final boolean matchWholeTextContent;
@@ -49,6 +49,8 @@ public class GetElementsByTextContent extends CommonOperationsStepBase<GetElemen
     @Override
     public StepExecOrder execute(ParsingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
+
+        // TODO hmm .. this only returns one item ... we need to return all ... and apply traverse options filtering ...
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> {

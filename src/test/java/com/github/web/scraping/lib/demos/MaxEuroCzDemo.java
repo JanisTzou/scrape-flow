@@ -51,65 +51,58 @@ public class MaxEuroCzDemo {
         // TODO capture the declaration order of the steps somehow ... so we can forget
 
         productsScraping.setScrapingSequence(
-                GetElements.ByTag.body()
-                        .next(GetElements.ByTextContent.search("Mozaika skleněná", true)
-                                        // TODO how to parse just certain nth elements ...?
-//                        .next(GetElements.ByAttribute.id("menuleft")
-//                                .next(GetElements.ByCssClass.byClassName("level-1")
-//
-//                                )
-                                .next(Actions.mapElements(domNode -> Optional.ofNullable(domNode.getParentNode()))
-                                        .next(GetElements.ByTag.anchor()
-                                                .setCollector(Category::new, Category.class)
-                                                .next(Parse.textContent()
-                                                        .collect(Category::setName, Category.class)
-                                                )
-                                                .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href)
-                                                        .nextNavigate(Actions.navigateToParsedLink(siteParser)
-                                                                .next(Actions.paginate()
-                                                                        .setStepsLoadingNextPage(
-                                                                                GetElements.ByCss.byClassName("pagination")
-                                                                                        .next(GetElements.ByTextContent.search("»", true) // returns anchor
-                                                                                                .next(Actions.filterElements(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode.getParentNode(), "class", "disabled", true))
-                                                                                                        .next(Actions.followLink()
-                                                                                                                .next(Actions.returnNextPage())
-                                                                                                        )
+                GetElements.Descendants.ByTextContent.search("Mozaika skleněná", true)
+                        .next(Actions.mapElements(domNode -> Optional.ofNullable(domNode.getParentNode()))
+                                .next(GetElements.Descendants.ByTag.anchor()
+                                        .setCollector(Category::new, Category.class)
+                                        .next(Parse.textContent()
+                                                .collect(Category::setName, Category.class)
+                                        )
+                                        .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href)
+                                                .nextNavigate(Actions.navigateToParsedLink(siteParser)
+                                                        .next(Actions.paginate()
+                                                                .setStepsLoadingNextPage(
+                                                                        GetElements.Descendants.ByCss.byClassName("pagination")
+                                                                                .next(GetElements.Descendants.ByTextContent.search("»", true) // returns anchor
+                                                                                        .next(Actions.filterElements(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode.getParentNode(), "class", "disabled", true))
+                                                                                                .next(Actions.followLink()
+                                                                                                        .next(Actions.returnNextPage())
                                                                                                 )
                                                                                         )
-                                                                        )
-                                                                        .nextForEachPage(
-                                                                                GetElements.ByCss.byClassName("product").stepName("product-search")
-                                                                                        .setCollector(Product::new, Product.class, new ProductListenerParsed())
-                                                                                        .collect(Product::setCategory, Product.class, Category.class)
-                                                                                        .next(GetElements.ByCss.byClassName("product-name")
-                                                                                                .next(GetElements.ByTag.anchor()
-                                                                                                        .next(Parse.textContent()
-                                                                                                                .collect(Product::setName, Product.class)
-                                                                                                        )
+                                                                                )
+                                                                )
+                                                                .nextForEachPage(
+                                                                        GetElements.Descendants.ByCss.byClassName("product").stepName("product-search")
+                                                                                .setCollector(Product::new, Product.class, new ProductListenerParsed())
+                                                                                .collect(Product::setCategory, Product.class, Category.class)
+                                                                                .next(GetElements.Descendants.ByCss.byClassName("product-name")
+                                                                                        .next(GetElements.Descendants.ByTag.anchor()
+                                                                                                .next(Parse.textContent()
+                                                                                                        .collect(Product::setName, Product.class)
                                                                                                 )
-                                                                                                .next(GetElements.ByTag.anchor()
-                                                                                                        .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href).stepName("get-product-detail-url")
-                                                                                                                .collect(Product::setDetailUrl, Product.class)
-                                                                                                                .nextNavigate(Actions.navigateToParsedLink(siteParser)
-                                                                                                                        .next(GetElements.ByAttribute.id("productDescription1")
-                                                                                                                                .next(Parse.textContent()
-                                                                                                                                        .collect(Product::setDescription, Product.class)
-                                                                                                                                )
+                                                                                        )
+                                                                                        .next(GetElements.Descendants.ByTag.anchor()
+                                                                                                .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href).stepName("get-product-detail-url")
+                                                                                                        .collect(Product::setDetailUrl, Product.class)
+                                                                                                        .nextNavigate(Actions.navigateToParsedLink(siteParser)
+                                                                                                                .next(GetElements.Descendants.ByAttribute.id("productDescription1")
+                                                                                                                        .next(Parse.textContent()
+                                                                                                                                .collect(Product::setDescription, Product.class)
                                                                                                                         )
                                                                                                                 )
                                                                                                         )
                                                                                                 )
                                                                                         )
-                                                                                        .next(GetElements.ByCss.byClassName("cena")
-                                                                                                .next(Parse.textContent(txt -> txt.replace(" ", "").replace("Kč(m2)", "").replace(",", ".").replace("Kč(bm)", ""))
-                                                                                                        .collect(Product::setPrice, Product.class)
-                                                                                                )
+                                                                                )
+                                                                                .next(GetElements.Descendants.ByCss.byClassName("cena")
+                                                                                        .next(Parse.textContent(txt -> txt.replace(" ", "").replace("Kč(m2)", "").replace(",", ".").replace("Kč(bm)", ""))
+                                                                                                .collect(Product::setPrice, Product.class)
                                                                                         )
+                                                                                )
 
-                                                                        )
                                                                 )
-
                                                         )
+
                                                 )
                                         )
                                 )
@@ -124,6 +117,7 @@ public class MaxEuroCzDemo {
         scraper.scrape(entryPoint);
 
         scraper.awaitCompletion(Duration.ofSeconds(200));
+        Thread.sleep(2000); // let logging finish ...
     }
 
 

@@ -41,53 +41,48 @@ public class CsfdCzDemo {
 
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
 
-        final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 1)
+        final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 3)
                 .setScrapingSequence(
-                        GetElements.ByTag.body()
-                                .next(GetElements.ByCss.bySelector("header.box-header")
-                                                .setCollector(Category::new, Category.class, new CategoryListener())
-                                                .next(Parse.textContent()
-                                                        .collect(Category::setValue, Category.class)
-                                                )
-                                                .next(GetElements.ByDomTraversal.parent()
-                                                                .next(GetElements.ByCss.bySelector("div.box-content")
-                                                                                .next(GetElements.ByTag.article()
-                                                                                                .setCollector(Article::new, Article.class, new ArticleListener())
-                                                                                                .collect(Article::setCategory, Article.class, Category.class)
-                                                                                                .next(GetElements.ByTag.tagName("figure")
-                                                                                                                .next(GetElements.ByDomTraversal.firstChildElem()
-                                                                                                                                .next(Parse.hRef(href -> "https:" + href)
-                                                                                                                                        .next(Download.image()
-                                                                                                                                                .collect(Article::setImage, Article.class)
-                                                                                                                                        )
-                                                                                                                                )
-                                                                                                                )
-                                                                                                )
-                                                                                                .next(GetElements.ByCss.bySelector("header.article-header")
-                                                                                                        .next(GetElements.ByDomTraversal.firstChildElem()
-                                                                                                                .next(Parse.textContent()
-                                                                                                                        .setTransformation(str -> str.replace("\t", "").replace("\n", " "))
-                                                                                                                        .collect(Article::setTitle, Article.class)
-                                                                                                                )
-                                                                                                        )
-
-                                                                                                )
-
-                                                                                )
-                                                                )
-                                                )
+                        GetElements.Descendants.ByCss.bySelector("header.box-header").getFirst()
+                                .setCollector(Category::new, Category.class, new CategoryListener())
+                                .next(Parse.textContent()
+                                        .collect(Category::setValue, Category.class)
                                 )
+                                .next(GetElements.ByDomTraversal.parent()
+                                        .next(GetElements.Descendants.ByCss.bySelector("div.box-content")
+                                                .next(GetElements.Descendants.ByTag.article()
+                                                        .setCollector(Article::new, Article.class, new ArticleListener())
+                                                        .collect(Article::setCategory, Article.class, Category.class)
+                                                        .next(GetElements.Descendants.ByTag.tagName("figure")
+                                                                .next(GetElements.ByDomTraversal.firstChildElem()
+                                                                        .next(Parse.hRef(href -> "https:" + href)
+                                                                                .next(Download.image()
+                                                                                        .collect(Article::setImage, Article.class)
+                                                                                )
+                                                                        )
+                                                                )
+                                                        )
+                                                        .next(GetElements.Descendants.ByCss.bySelector("header.article-header")
+                                                                .next(GetElements.ByDomTraversal.firstChildElem()
+                                                                        .next(Parse.textContent()
+                                                                                .setTransformation(str -> str.replace("\t", "").replace("\n", " "))
+                                                                                .collect(Article::setTitle, Article.class)
+                                                                        )
+                                                                )
+
+                                                        ))
+                                        )
+                                )
+
                 );
 
 
-        String url = "https://www.csfd.cz/novinky/";
-        final EntryPoint entryPoint = new EntryPoint(url, productsScraping);
+        final EntryPoint entryPoint = new EntryPoint("https://www.csfd.cz/novinky/", productsScraping);
         final Scraper scraper = new Scraper();
-
         scraper.scrape(entryPoint);
 
-        scraper.awaitCompletion(Duration.ofSeconds(200));
-        Thread.sleep(1000);
+        scraper.awaitCompletion(Duration.ofMinutes(5));
+        Thread.sleep(2000); // let logging finish ...
     }
 
 
