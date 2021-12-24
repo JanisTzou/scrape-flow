@@ -16,12 +16,15 @@
 
 package com.github.web.scraping.lib.demos;
 
-import com.github.web.scraping.lib.Scraper;
-import com.github.web.scraping.lib.Scraping;
-import com.github.web.scraping.lib.EntryPoint;
-import com.github.web.scraping.lib.dom.data.parsing.steps.*;
+import com.github.web.scraping.lib.scraping.Scraper;
+import com.github.web.scraping.lib.scraping.Scraping;
+import com.github.web.scraping.lib.scraping.EntryPoint;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
+import com.github.web.scraping.lib.scraping.htmlunit.Actions;
+import com.github.web.scraping.lib.scraping.htmlunit.GetElements;
+import com.github.web.scraping.lib.scraping.htmlunit.GetElementsByXPath;
+import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitSiteParser;
 import org.junit.Test;
 
 import java.time.Duration;

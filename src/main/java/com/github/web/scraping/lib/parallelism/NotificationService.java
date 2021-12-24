@@ -16,7 +16,7 @@
 
 package com.github.web.scraping.lib.parallelism;
 
-import com.github.web.scraping.lib.dom.data.parsing.steps.ModelToPublish;
+import com.github.web.scraping.lib.scraping.htmlunit.ModelToPublish;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.*;

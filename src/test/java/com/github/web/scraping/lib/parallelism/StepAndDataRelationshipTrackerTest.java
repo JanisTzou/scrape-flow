@@ -16,7 +16,7 @@
 
 package com.github.web.scraping.lib.parallelism;
 
-import com.github.web.scraping.lib.dom.data.parsing.steps.ModelToPublish;
+import com.github.web.scraping.lib.scraping.htmlunit.ModelToPublish;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
