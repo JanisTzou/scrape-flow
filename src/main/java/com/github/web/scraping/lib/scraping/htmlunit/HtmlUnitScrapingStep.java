@@ -196,7 +196,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
      * @param runnable task can be executed immediately or at some later point based on the given mode
      */
     protected void handleExecution(StepExecOrder stepExecOrder, Runnable runnable) {
-        StepTask stepTask = new StepTask(stepExecOrder, exclusiveExecution, getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests);
+        StepTask stepTask = new StepTask(stepExecOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests);
         services.getActiveStepsTracker().track(stepExecOrder, getName());
         services.getStepTaskExecutor().submit(
                 stepTask,

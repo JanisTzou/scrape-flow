@@ -21,17 +21,25 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-// TODO is this needed ?
+import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.*;
+
 interface HtmlUnitStepCollectingParsedValueToModel<C, V> {
 
     org.apache.logging.log4j.Logger log = org.apache.logging.log4j.LogManager.getLogger(HtmlUnitStepCollectingParsedValueToModel.class);
 
     /**
-     * specialisation of {@link HtmlUnitStepSupportingCollection#collect(BiConsumer, Class, Class)}
+     * specialisation of {@link HtmlUnitStepSupportingCollection#collectOne(BiConsumer, Class, Class)}
      *
      * @return a copy of this step
      */
-    <T> C collect(BiConsumer<T, V> modelMutation, Class<T> containerType);
+    <T> C collectOne(BiConsumer<T, V> modelMutation, Class<T> containerType);
+
+    /**
+     * specialisation of {@link HtmlUnitStepSupportingCollection#collectMany(BiConsumer, Class, Class)}
+     *
+     * @return a copy of this step
+     */
+    <T> C collectMany(BiConsumer<T, V> modelMutation, Class<T> containerType);
 
 
     default <T> void setParsedValueToModel(CollectorSetups collectorSetups, ScrapingContext ctx, T parsedValue, String stepName) {
@@ -42,16 +50,17 @@ interface HtmlUnitStepCollectingParsedValueToModel<C, V> {
 
             for (CollectorSetup collectorSetup : stringCollectors) {
                 Class<?> contCls = collectorSetup.getContainerClass();
+                AccumulatorType accumulatorType = collectorSetup.getAccumulatorType();
                 Optional<ModelWrapper> model = ctx.getContextModels().getModelFor(contCls);
                 if (model.isPresent()) {
-                    // TODO when the field is a collection then we should allow multiple writes ...
-//                    if (model.get().isAlreadyApplied(collectorSetups)) {
-//                        log.error("Wrong parsed data collector setup detected in the step sequence related to model of class type '{}' and somewhere around step {}! " +
-//                                " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided", model.get().getModel().getClass().getSimpleName(), stepName);
-//                    } else {
-                    collectorSetup.getAccumulator().accept(model.get().getModel(), parsedValue);
-                    model.get().addAppliedAccumulator(collectorSetups);
-//                    }
+                    boolean valueIllegallySetMultipleTimes = accumulatorType.equals(AccumulatorType.ONE) && model.get().isAlreadyApplied(collectorSetups);
+                    if (valueIllegallySetMultipleTimes) {
+                        log.error("Wrong parsed data collector setup detected in the step sequence related to model of class type '{}' and somewhere around step {}! " +
+                                " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided", model.get().getModel().getClass().getSimpleName(), stepName);
+                    } else {
+                        collectorSetup.getAccumulator().accept(model.get().getModel(), parsedValue);
+                        model.get().addAppliedAccumulator(collectorSetups);
+                    }
                 } else {
                     log.error("No model is set up for parsed value in step {}! Cannot collect parsed data to it!", stepName);
                 }

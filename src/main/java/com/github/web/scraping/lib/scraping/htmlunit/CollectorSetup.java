@@ -28,6 +28,7 @@ public class CollectorSetup {
     private final Supplier<?> modelSupplier;
     private final Class<?> modelClass;
 
+    private final AccumulatorType accumulatorType;
     private final BiConsumer<Object, Object> accumulator; // <containerType, modelType>
     private final Class<?> containerClass;
 
@@ -38,10 +39,12 @@ public class CollectorSetup {
     @SuppressWarnings("unchecked")
     public CollectorSetup(Supplier<?> modelSupplier,
                           Class<?> modelClass,
+                          AccumulatorType accumulatorType,
                           BiConsumer<?, ?> accumulator,
                           Class<?> containerClass,
                           ParsedDataListener<?> parsedDataListener) {
         this.modelSupplier = modelSupplier;
+        this.accumulatorType = accumulatorType;
         this.accumulator = (BiConsumer<Object, Object>) accumulator;
         this.modelClass = modelClass;
         this.containerClass = containerClass;
@@ -49,15 +52,20 @@ public class CollectorSetup {
     }
 
     public CollectorSetup(Supplier<?> modelSupplier, Class<?> modelClass) {
-        this(modelSupplier, modelClass, null, null, null);
+        this(modelSupplier, modelClass, null, null, null, null);
     }
 
     public CollectorSetup(Supplier<?> modelSupplier, Class<?> modelClass, ParsedDataListener<?> parsedDataListener) {
-        this(modelSupplier, modelClass, null, null, parsedDataListener);
+        this(modelSupplier, modelClass, null, null, null, parsedDataListener);
     }
 
-    public CollectorSetup(BiConsumer<?, ?> accumulator, Class<?> modelClass, Class<?> containerClass) {
-        this(null, modelClass, accumulator, containerClass, null);
+    public CollectorSetup(BiConsumer<?, ?> accumulator, Class<?> modelClass, Class<?> containerClass, AccumulatorType accumulatorType) {
+        this(null, modelClass, accumulatorType, accumulator, containerClass, null);
+    }
+
+    public enum AccumulatorType {
+        ONE,
+        MANY;
     }
 
 }

@@ -27,6 +27,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.*;
+
 public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
         implements HtmlUnitStepCollectingParsedStringToModel<ParseElementHRef>,
         HtmlUnitParsingStep<ParseElementHRef> {
@@ -85,8 +87,13 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
     }
 
     @Override
-    public <T> ParseElementHRef collect(BiConsumer<T, String> modelMutation, Class<T> containerType) {
-        return addCollectorSetup(new CollectorSetup(modelMutation, String.class, containerType));
+    public <T> ParseElementHRef collectOne(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+        return addCollectorSetup(new CollectorSetup(modelMutation, String.class, containerType, AccumulatorType.ONE));
+    }
+
+    @Override
+    public <T> ParseElementHRef collectMany(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+        return addCollectorSetup(new CollectorSetup(modelMutation, String.class, containerType, AccumulatorType.MANY));
     }
 
     /**

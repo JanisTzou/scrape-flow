@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.*;
+
 @Log4j2
 public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
         implements HtmlUnitStepCollectingParsedBufferedImageToModel<DownloadImage>,
@@ -75,7 +77,13 @@ public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
     }
 
     @Override
-    public <T> DownloadImage collect(BiConsumer<T, BufferedImage> modelMutation, Class<T> containerType) {
-        return addCollectorSetup(new CollectorSetup(modelMutation, BufferedImage.class, containerType));
+    public <T> DownloadImage collectOne(BiConsumer<T, BufferedImage> modelMutation, Class<T> containerType) {
+        return addCollectorSetup(new CollectorSetup(modelMutation, BufferedImage.class, containerType, AccumulatorType.ONE));
     }
+
+    @Override
+    public <T> DownloadImage collectMany(BiConsumer<T, BufferedImage> modelMutation, Class<T> containerType) {
+        return addCollectorSetup(new CollectorSetup(modelMutation, BufferedImage.class, containerType, AccumulatorType.MANY));
+    }
+
 }

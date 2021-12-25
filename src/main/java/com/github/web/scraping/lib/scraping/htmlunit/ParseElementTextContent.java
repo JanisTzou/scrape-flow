@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.*;
+
 public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTextContent>
         implements HtmlUnitStepCollectingParsedStringToModel<ParseElementTextContent>,
         HtmlUnitParsingStep<ParseElementTextContent> {
@@ -107,9 +109,15 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
     }
 
     @Override
-    public <T> ParseElementTextContent collect(BiConsumer<T, String> modelMutation, Class<T> containerType) {
-        return addCollectorSetup(new CollectorSetup(modelMutation, String.class, containerType));
+    public <T> ParseElementTextContent collectOne(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+        return addCollectorSetup(new CollectorSetup(modelMutation, String.class, containerType, AccumulatorType.ONE));
     }
+
+    @Override
+    public <T> ParseElementTextContent collectMany(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+        return addCollectorSetup(new CollectorSetup(modelMutation, String.class, containerType, AccumulatorType.MANY));
+    }
+
 
     @Override
     public ParseElementTextContent setTransformation(Function<String, String> parsedTextTransformation) {

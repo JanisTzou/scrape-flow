@@ -23,6 +23,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.*;
+
 
 public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>> extends HtmlUnitScrapingStep<C>
         implements HtmlUnitStepSupportingNext<C>, HtmlUnitStepSupportingCollection<C> {
@@ -32,8 +34,13 @@ public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>
     }
 
     @Override
-    public <R, T> C collect(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType) {
-        return addCollectorSetup(new CollectorSetup(accumulator, modelType, containerType));
+    public <R, T> C collectOne(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType) {
+        return addCollectorSetup(new CollectorSetup(accumulator, modelType, containerType, AccumulatorType.ONE));
+    }
+
+    @Override
+    public <R, T> C collectMany(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType) {
+        return addCollectorSetup(new CollectorSetup(accumulator, modelType, containerType, AccumulatorType.MANY));
     }
 
     @Override

@@ -24,12 +24,22 @@ import java.util.function.Supplier;
 public interface HtmlUnitStepSupportingCollection<C> {
 
     /**
+     * Defines a data collecting operation that expects a single object containing parsed data and sets it on another object
+     * @param accumulator   operation that sets a model instance on the container
+     * @param containerType type of model to insert into
+     * @param modelType     type of model to insert
+     * @return a copy of this step
+     */
+    <R, T> C collectOne(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType);
+
+    /**
+     * Defines a data collecting operation that expects a multiple object containing parsed data and adds it to another object
      * @param accumulator   operation that inserts a model instance into the container
      * @param containerType type of model to insert into
      * @param modelType     type of model to insert
      * @return a copy of this step
      */
-    <R, T> C collect(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType);
+    <R, T> C collectMany(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType);
 
     /**
      * Sets up custom models that will be used to store the scraped data
@@ -44,7 +54,7 @@ public interface HtmlUnitStepSupportingCollection<C> {
      * Sets up custom models that will be used to store the scraped data
      *
      * @param modelSupplier      a factory for new model instances that parsed data can be set to in the steps following this one.
-     *                           Use method {@link HtmlUnitStepSupportingCollection#collect(BiConsumer, Class, Class)}
+     *                           Use method {@link HtmlUnitStepSupportingCollection#collectOne(BiConsumer, Class, Class)}
      *                           to achieve composition of various models of parsed data.
      * @param modelType          type of generated model
      * @param parsedDataListener registration of listener that will be notified when all scraping has finished for an instance of
