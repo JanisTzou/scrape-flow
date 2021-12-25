@@ -232,6 +232,9 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         return (C) other;
     }
 
+    // TODO make possible to print the element's code for debugging ... on a targeted step basis ...
+
+
     @Getter
     protected static class ExecutionCondition {
         protected final Predicate<Object> predicate;

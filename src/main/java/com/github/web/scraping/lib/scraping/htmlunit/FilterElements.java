@@ -49,11 +49,11 @@ public class FilterElements extends CommonOperationsStepBase<FilterElements> {
     }
 
     @Override
-    public StepExecOrder execute(ScrapingContext ctx) {
+    protected StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<DomNode>> nodesSearch = () -> {
+            Supplier<List<DomNode>> nodesFilter = () -> {
                 if (domNodePredicate.test(ctx.getNode())) {
                     log.debug("{} element passed filter: {}", getName(), ctx.getNode());
                     return List.of(ctx.getNode());
@@ -63,7 +63,7 @@ public class FilterElements extends CommonOperationsStepBase<FilterElements> {
                 return Collections.emptyList();
             };
 
-            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesFilter, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

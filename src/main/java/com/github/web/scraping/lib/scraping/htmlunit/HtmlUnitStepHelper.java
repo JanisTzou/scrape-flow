@@ -63,7 +63,9 @@ public class HtmlUnitStepHelper {
             }
 
             final List<DomNode> foundNodes = nodesSearch.get();
-            log.info("{} - {}: found {} nodes", currStepExecOrder, getStepName(), foundNodes.size());
+            // TODO make it possible to log XML if logging turned on for it ...
+//            log.debug("{} - {}: found {} nodes based on {}", currStepExecOrder, getStepName(), foundNodes.size(), ctx.getNode().asXml());
+            log.debug("{} - {}: found {} nodes", currStepExecOrder, getStepName(), foundNodes.size());
 
             foundNodes.forEach(node -> {
 

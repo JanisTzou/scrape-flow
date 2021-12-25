@@ -61,7 +61,7 @@ public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
             try {
                 imageURL = new URL(ctx.getParsedURL());
                 BufferedImage bufferedImage = ImageIO.read(imageURL);
-                setParsedValueToModel(this.getCollectorSetups(), ctx, bufferedImage, getName());
+                setParsedValueToModel(this.getCollectorSetups(), ctx, bufferedImage, getName(), stepDeclarationLine);
 
                 log.debug("Success downloading image");
             } catch (Exception e) {

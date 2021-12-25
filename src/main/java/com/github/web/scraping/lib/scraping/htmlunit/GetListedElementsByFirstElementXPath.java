@@ -68,7 +68,7 @@ public class GetListedElementsByFirstElementXPath extends GetElementsStepBase<Ge
                 String pattern = XPathUtils.regexEscape(XPathUtils.concat(parentXPath, xPathTail));
 
                 List<Object> nodes = ctx.getNode().getByXPath(parentXPath);
-                log.debug("{} - {} Found {} nodes in {}", stepExecOrder, getName(), nodes.size(), ctx.getNode());
+                log.debug("{} - {} Found {} nodes in {} and element", stepExecOrder, getName(), nodes.size(), ctx.getNode());
                 List<DomNode> domElements = nodes
                         .stream()
                         .flatMap(el -> {

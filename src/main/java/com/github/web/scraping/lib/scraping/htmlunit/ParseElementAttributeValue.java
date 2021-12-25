@@ -27,33 +27,33 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.*;
+import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.AccumulatorType;
 
-public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
-        implements HtmlUnitStepCollectingParsedStringToModel<ParseElementHRef>,
-        HtmlUnitParsingStep<ParseElementHRef> {
+public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseElementAttributeValue>
+        implements HtmlUnitStepCollectingParsedStringToModel<ParseElementAttributeValue>,
+        HtmlUnitParsingStep<ParseElementAttributeValue> {
 
     // TODO add some filtering logic for the hrefs parsed ...
 
     // TODO this is basically a specialisation of ParseAttributeValue
 
 
-    ParseElementHRef(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, Function<String, String> parsedTextTransformation) {
+    ParseElementAttributeValue(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, Function<String, String> parsedTextTransformation) {
         super(nextSteps);
         this.parsedTextTransformation = Objects.requireNonNullElse(parsedTextTransformation, NO_TEXT_TRANSFORMATION);
     }
 
-    ParseElementHRef(Function<String, String> parsedTextTransformation) {
+    ParseElementAttributeValue(Function<String, String> parsedTextTransformation) {
         this(null, parsedTextTransformation);
     }
 
-    ParseElementHRef() {
+    ParseElementAttributeValue() {
         this(null, null);
     }
 
     @Override
-    protected ParseElementHRef copy() {
-        return copyFieldValuesTo(new ParseElementHRef(parsedTextTransformation));
+    protected ParseElementAttributeValue copy() {
+        return copyFieldValuesTo(new ParseElementAttributeValue(parsedTextTransformation));
     }
 
 
@@ -67,14 +67,12 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
                 if (href != null) {
                     String transformed = transformParsedText(href);
                     log.debug("{} - {}: Parsed href: {}", stepExecOrder, getName(), transformed);
-                    // TODO actually have another transformation that will say something like "transformToFullURL ... and put that one to the context below)
 
                     setParsedValueToModel(this.getCollectorSetups(), ctx, transformed, getName(), stepDeclarationLine); // TODO let this be handled by the helper?
 
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
-                    HtmlUnitStepHelper helper = new HtmlUnitStepHelper(getNextSteps(), getName(), services, getCollectorSetups());
                     ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
-                    helper.execute(ctxCopy, nodesSearch, stepExecOrder, getExecuteIf());
+                    getHelper().execute(ctxCopy, nodesSearch, stepExecOrder, getExecuteIf());
                 }
             } else {
                 log.warn("No HtmlAnchor element provided -> cannot parse href value! Check the steps sequence above step {}", getName());
@@ -87,12 +85,12 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
     }
 
     @Override
-    public <T> ParseElementHRef collectOne(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> ParseElementAttributeValue collectOne(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollectorSetup(new CollectorSetup(modelMutation, String.class, containerType, AccumulatorType.ONE));
     }
 
     @Override
-    public <T> ParseElementHRef collectMany(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> ParseElementAttributeValue collectMany(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollectorSetup(new CollectorSetup(modelMutation, String.class, containerType, AccumulatorType.MANY));
     }
 
@@ -102,12 +100,12 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
      *
      * @return copy of this step
      */
-    public ParseElementHRef nextNavigate(NavigateToParsedLink nextStep) {
+    public ParseElementAttributeValue nextNavigate(NavigateToParsedLink nextStep) {
         return addNextStep(nextStep);
     }
 
     @Override
-    public ParseElementHRef setTransformation(Function<String, String> parsedTextToNewText) {
+    public ParseElementAttributeValue setTransformation(Function<String, String> parsedTextToNewText) {
         return setParsedTextTransformation(parsedTextToNewText);
     }
 

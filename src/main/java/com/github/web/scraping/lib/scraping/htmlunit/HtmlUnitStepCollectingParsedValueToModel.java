@@ -42,7 +42,7 @@ interface HtmlUnitStepCollectingParsedValueToModel<C, V> {
     <T> C collectMany(BiConsumer<T, V> modelMutation, Class<T> containerType);
 
 
-    default <T> void setParsedValueToModel(CollectorSetups collectorSetups, ScrapingContext ctx, T parsedValue, String stepName) {
+    default <T> void setParsedValueToModel(CollectorSetups collectorSetups, ScrapingContext ctx, T parsedValue, String stepName, StackTraceElement stepDeclarationLine) {
         try {
             List<CollectorSetup> stringCollectors = collectorSetups.getAccumulators().stream()
                     .filter(co -> co.getModelClass().equals(parsedValue.getClass()))
@@ -55,8 +55,8 @@ interface HtmlUnitStepCollectingParsedValueToModel<C, V> {
                 if (model.isPresent()) {
                     boolean valueIllegallySetMultipleTimes = accumulatorType.equals(AccumulatorType.ONE) && model.get().isAlreadyApplied(collectorSetups);
                     if (valueIllegallySetMultipleTimes) {
-                        log.error("Wrong parsed data collector setup detected in the step sequence related to model of class type '{}' and somewhere around step {}! " +
-                                " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided", model.get().getModel().getClass().getSimpleName(), stepName);
+                        log.error("Wrong parsed data collector setup detected in the step sequence related to model of class type '{}' related to line: {}! " +
+                                " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided", model.get().getModel().getClass().getSimpleName(), stepDeclarationLine);
                     } else {
                         collectorSetup.getAccumulator().accept(model.get().getModel(), parsedValue);
                         model.get().addAppliedAccumulator(collectorSetups);

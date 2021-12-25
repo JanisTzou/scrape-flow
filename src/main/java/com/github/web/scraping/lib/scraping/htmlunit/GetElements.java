@@ -80,6 +80,22 @@ public class GetElements {
                 return new GetElementsByTag("span");
             }
 
+            public static GetElementsByTag thead() {
+                return new GetElementsByTag("thead");
+            }
+
+            public static GetElementsByTag tbody() {
+                return new GetElementsByTag("tbody");
+            }
+
+            public static GetElementsByTag tr() {
+                return new GetElementsByTag("tr");
+            }
+
+            public static GetElementsByTag td() {
+                return new GetElementsByTag("td");
+            }
+
             public static GetElementsByTag ul() {
                 return new GetElementsByTag("ul");
             }

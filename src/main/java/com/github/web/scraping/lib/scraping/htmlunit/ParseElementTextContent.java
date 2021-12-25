@@ -77,7 +77,7 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
 
             String transformed = transformParsedText(tc);
 
-            setParsedValueToModel(this.getCollectorSetups(), ctx, transformed, getName());
+            setParsedValueToModel(this.getCollectorSetups(), ctx, transformed, getName(), stepDeclarationLine);
 
             // TODO how to populate the following context?
         };

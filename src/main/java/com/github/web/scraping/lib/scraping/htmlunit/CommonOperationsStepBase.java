@@ -87,7 +87,7 @@ public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>
     }
 
     private StackTraceElement getStepDeclarationStackTraceEl() {
-        return Thread.currentThread().getStackTrace()[2];
+        return Thread.currentThread().getStackTrace()[3];
     }
 
     // TODO create method nextSequentially() useful when we want to visit different urls one by one and many other ... possibly?
