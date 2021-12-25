@@ -66,7 +66,7 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
                     HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
                     ParsingContext ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
-                    helper.execute(ctxCopy, nodesSearch, stepExecOrder);
+                    helper.execute(ctxCopy, nodesSearch, stepExecOrder, getExecuteIf());
                 }
             } else {
                 log.warn("No HtmlAnchor element provided -> cannot parse href value! Check the steps sequence above step {}", getName());

@@ -22,6 +22,7 @@ import com.github.web.scraping.lib.scraping.MakingHttpRequests;
 import com.github.web.scraping.lib.scraping.ScrapingServices;
 import com.github.web.scraping.lib.scraping.StepThrottling;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 
@@ -29,24 +30,44 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Log4j2
 public abstract class HtmlUnitScrapingStep<T> implements StepThrottling {
 
     protected final List<HtmlUnitScrapingStep<?>> nextSteps;
 
-    @Getter
-    @Setter
+    @Getter @Setter
     protected boolean exclusiveExecution = false;
 
+    /**
+     * condition for the execution of this step
+     */
+    @Getter @Setter
+    protected ExecutionCondition executeIf = null;
+
     protected CollectorSetups collectorSetups = new CollectorSetups();
-    // renlevant for steps that do scrape textual values
+
     protected static Function<String, String> NO_TEXT_TRANSFORMATION = s -> s;
+
+    /**
+     * relevant for steps that do scrape textual values
+     */
     protected Function<String, String> parsedTextTransformation = NO_TEXT_TRANSFORMATION; // by default return the string as-is
+
     protected ScrapingServices services;
-    // for logging and debugging
+
+    /**
+     * for logging and debugging
+     */
     private String name = getClass().getSimpleName() + "-unnamed-step";
 
+    // TODO actually use in logging ...
+    /**
+     * To be used on logging to give the user an accurate location of a problematic step
+     */
+    @Getter @Setter
+    protected StackTraceElement stepDeclarationLine;
 
     public HtmlUnitScrapingStep(List<HtmlUnitScrapingStep<?>> nextSteps) {
         this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
@@ -99,6 +120,18 @@ public abstract class HtmlUnitScrapingStep<T> implements StepThrottling {
 
     protected StepExecOrder genNextOrderAfter(StepExecOrder stepAtPrevLevel) {
         return services.getStepExecOrderGenerator().genNextOrderAfter(stepAtPrevLevel);
+    }
+
+    @Getter
+    protected static class ExecutionCondition {
+        protected final Predicate<Object> predicate;
+        protected final Class<?> modelType;
+
+        @SuppressWarnings("unchecked")
+        public ExecutionCondition(Predicate<?> predicate, Class<?> modelType) {
+            this.predicate = (Predicate<Object>) predicate;
+            this.modelType = modelType;
+        }
     }
 
 }

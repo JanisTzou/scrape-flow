@@ -43,7 +43,7 @@ public class GetElementsByCssClass extends GetElementsStepBase<GetElementsByCssC
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(HtmlUnitUtils.getDescendantsByClass(ctx.getNode(), cssClassName));
             HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-            helper.execute(ctx, nodesSearch, stepExecOrder);
+            helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

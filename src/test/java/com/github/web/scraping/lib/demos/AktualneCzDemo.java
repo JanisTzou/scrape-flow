@@ -24,10 +24,12 @@ import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
 import com.github.web.scraping.lib.scraping.htmlunit.*;
 import org.junit.Test;
 
+import java.time.Duration;
+
 public class AktualneCzDemo {
 
     @Test
-    public void start() {
+    public void start() throws InterruptedException {
 
         // TODO any way for these to be accessible globally? So they do not need to be specified explicitly in every stage definition?
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
@@ -54,12 +56,9 @@ public class AktualneCzDemo {
         final EntryPoint entryPoint = new EntryPoint("https://zpravy.aktualne.cz/zahranici/", articlesScraping);
 
         final Scraper scraper = new Scraper();
-
         scraper.scrape(entryPoint);
-
-    }
-
-    public enum Identifiers {
+        scraper.awaitCompletion(Duration.ofMinutes(2));
+        Thread.sleep(1000); // let logging finish
     }
 
 }

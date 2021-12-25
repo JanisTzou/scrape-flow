@@ -56,10 +56,14 @@ public class HtmlUnitStepHelper {
         setStepName(stepName);
     }
 
-    public void execute(ParsingContext ctx, Supplier<List<DomNode>> nodesSearch, StepExecOrder currStepExecOrder) {
+    public void execute(ParsingContext ctx, Supplier<List<DomNode>> nodesSearch, StepExecOrder currStepExecOrder, HtmlUnitScrapingStep.ExecutionCondition executeIf) {
         try {
+            if (!canExecute(ctx, executeIf)) {
+                return;
+            }
+
             final List<DomNode> foundNodes = nodesSearch.get();
-            log.debug("{} - {}: found {} nodes", currStepExecOrder, getStepName(), foundNodes.size());
+            log.info("{} - {}: found {} nodes", currStepExecOrder, getStepName(), foundNodes.size());
 
             foundNodes.forEach(node -> {
 
@@ -112,6 +116,28 @@ public class HtmlUnitStepHelper {
 
         } catch (Exception e) {
             log.error("{} - {}: Error executing step", currStepExecOrder, getStepName(), e);
+        }
+    }
+
+    private boolean canExecute(ParsingContext ctx, HtmlUnitScrapingStep.ExecutionCondition executeIf) {
+        try {
+            if (executeIf != null) {
+                Optional<ModelWrapper> model = ctx.getContextModels().getModelFor(executeIf.getModelType());
+                if (model.isPresent()) {
+                    log.debug("{}: Found model and will execute condition", stepName);
+                    boolean canExecute = executeIf.getPredicate().test(model.get().getModel());
+                    if (canExecute) {
+                        return true;
+                    }
+                } else {
+                    log.error("No model is set up for parsed value in step {}! Cannot execute step conditionally based on it!", stepName);
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            log.error("Error evaluating execution condition for step: {} - step will not run", getStepName(), e);
+            return false;
         }
     }
 

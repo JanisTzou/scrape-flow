@@ -3,3 +3,6 @@ https://stackoverflow.com/questions/49731830/is-it-good-to-build-library-or-api-
 
 TODO how to make data that is not structured hierarchically hierarchical?
  e.g. here the categoies are structured as simple table rows ...:  https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html/page/1
+
+// TODO log duplicated URLs found ? e.g. with BBC there was some problem like that ... for no obvious reason ...
+// TODO all public facing stuff should throw ex if passes param must not be nul and is null ...

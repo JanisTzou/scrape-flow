@@ -77,7 +77,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
                 ParsingContext plainCtx = ctx.toBuilder()
                         .setRecursiveRootStepExecOrder(null)
                         .build();
-                helper.execute(plainCtx, nodesSearch, stepExecOrder);
+                helper.execute(plainCtx, nodesSearch, stepExecOrder, getExecuteIf());
 
                 // PAGINATION
                 ParsingContext paginatingCtx = ctx.toBuilder()

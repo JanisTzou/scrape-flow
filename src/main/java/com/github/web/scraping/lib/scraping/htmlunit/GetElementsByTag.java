@@ -49,7 +49,7 @@ public class GetElementsByTag extends GetElementsStepBase<GetElementsByTag> {
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(HtmlUnitUtils.getDescendantsByTagName(ctx.getNode(), tagName));
             HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-            helper.execute(ctx, nodesSearch, stepExecOrder);
+            helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

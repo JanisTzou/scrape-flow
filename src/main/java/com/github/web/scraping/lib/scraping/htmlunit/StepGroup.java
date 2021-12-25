@@ -45,7 +45,7 @@ public class StepGroup extends CommonOperationsStepBase<StepGroup>
 
         Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
         HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-        helper.execute(ctx, nodesSearch, stepExecOrder);
+        helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
 
         return stepExecOrder;
     }

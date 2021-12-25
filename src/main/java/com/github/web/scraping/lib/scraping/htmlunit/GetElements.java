@@ -28,33 +28,62 @@ public class GetElements {
                 return new GetElementsByTag(tagName);
             }
 
-            public static GetElementsByTag body() {
-                return new GetElementsByTag("body");
+            public static GetElementsByTag article() {
+                return new GetElementsByTag("article");
             }
 
             public static GetElementsByTag anchor() {
                 return new GetElementsByTag("a");
             }
 
+            public static GetElementsByTag body() {
+                return new GetElementsByTag("body");
+            }
+
             public static GetElementsByTag div() {
                 return new GetElementsByTag("div");
             }
 
-            public static GetElementsByTag li() {
-                return new GetElementsByTag("li");
+            public static GetElementsByTag h1() {
+                return new GetElementsByTag("h1");
             }
 
-            public static GetElementsByTag span() {
-                return new GetElementsByTag("span");
+            public static GetElementsByTag h2() {
+                return new GetElementsByTag("h2");
+            }
+
+            public static GetElementsByTag h3() {
+                return new GetElementsByTag("h3");
+            }
+
+            public static GetElementsByTag h4() {
+                return new GetElementsByTag("h4");
+            }
+
+            public static GetElementsByTag h5() {
+                return new GetElementsByTag("h5");
             }
 
             public static GetElementsByTag img() {
                 return new GetElementsByTag("img");
             }
 
-            public static GetElementsByTag article() {
-                return new GetElementsByTag("article");
+            public static GetElementsByTag li() {
+                return new GetElementsByTag("li");
             }
+
+            public static GetElementsByTag p() {
+                return new GetElementsByTag("p");
+            }
+
+            public static GetElementsByTag span() {
+                return new GetElementsByTag("span");
+            }
+
+            public static GetElementsByTag ul() {
+                return new GetElementsByTag("ul");
+            }
+
 
         }
 

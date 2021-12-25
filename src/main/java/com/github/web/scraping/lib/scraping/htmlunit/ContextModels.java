@@ -41,13 +41,13 @@ public class ContextModels {
         return new ContextModels(this.deque.clone());
     }
 
-    public synchronized void push(Object model, Class<?> modelClass) {
-        deque.push(new ModelWrapper(model, modelClass));
+    public synchronized void push(Object model, Class<?> modelType) {
+        deque.push(new ModelWrapper(model, modelType));
     }
 
-    public synchronized  <T> Optional<ModelWrapper> getModelFor(Class<T> modelClazz) {
+    public synchronized  <T> Optional<ModelWrapper> getModelFor(Class<T> modelType) {
         return deque.stream()
-                .filter(mw -> mw.getModelClass().equals(modelClazz))
+                .filter(mw -> mw.getModelClass().equals(modelType))
                 .findFirst();
     }
 

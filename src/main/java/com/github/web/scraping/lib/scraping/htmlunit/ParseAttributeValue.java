@@ -18,6 +18,8 @@ package com.github.web.scraping.lib.scraping.htmlunit;
 
 public class ParseAttributeValue {
 
+//    <img src="https://ichef.bbci.co.uk/news/380/cpsprodpb/CD1E/production/_122501525_gettyimages-585863210.jpg" class="lazyloaded" alt="Nelson Mandela revisits the cell at Robben Island prison in 1994" data-src="https://ichef.bbci.co.uk/news/{width}/cpsprodpb/CD1E/production/_122501525_gettyimages-585863210.jpg">
+
     // TODO ... similar to ParseHref ...
 
 }

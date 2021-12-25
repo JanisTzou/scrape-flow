@@ -72,7 +72,7 @@ public class GetElementsByTextContent extends GetElementsStepBase<GetElementsByT
             };
 
             HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-            helper.execute(ctx, nodesSearch, stepExecOrder);
+            helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

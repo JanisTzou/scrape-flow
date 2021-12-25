@@ -16,6 +16,8 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
+import java.util.function.Predicate;
+
 public interface HtmlUnitStepSupportingNext<C>  {
 
     /**
@@ -34,7 +36,7 @@ public interface HtmlUnitStepSupportingNext<C>  {
     C next(HtmlUnitScrapingStep<?> nextStep);
 
     /**
-     * This method guarantees that the step sequence specified as a parameter will fully finish before any other steps declared below this step start being executed.
+     * This method guarantees that the step sequence specified as a parameter will fully finish before any other steps declared after this step (at the same level) start being executed.
      * <br>
      * <br>
      * This is useful in specific situations e.g. when we need to ensure that all data is parsed in certain steps because the data gets propagated to following parsing steps.
@@ -46,5 +48,21 @@ public interface HtmlUnitStepSupportingNext<C>  {
      * @return reference to the same object on which the method was called - this allows chaining multiple following steps to execute when that step finishes.
      */
     C nextExclusively(HtmlUnitScrapingStep<?> nextStep);
+
+    /**
+     * @param condition accept an object that is expected to contain previously parsed data
+     * @param nextStep step to execute if condition passes
+     * @return reference to the same object on which the method was called - this allows chaining multiple following steps to execute when that step finishes.
+     */
+    <T> C nextIf(Predicate<T> condition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep);
+
+    /**
+     * Combines the behaviours of {@link HtmlUnitStepSupportingNext#nextIf(Predicate, Class, HtmlUnitScrapingStep)}
+     * and {@link HtmlUnitStepSupportingNext#nextExclusively(HtmlUnitScrapingStep)} - see there for more details
+     * @param condition condition accept an object that is expected to contain previously parsed data
+     * @param nextStep step to execute if condition passes
+     * @return reference to the same object on which the method was called - this allows chaining multiple following steps to execute when that step finishes.
+     */
+    <T> C nextIfExclusively(Predicate<T> condition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep);
 
 }

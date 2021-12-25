@@ -42,13 +42,14 @@ interface HtmlUnitStepCollectingParsedValueToModel<C, V> {
                 Class<?> contCls = collectorSetup.getContainerClass();
                 Optional<ModelWrapper> model = ctx.getContextModels().getModelFor(contCls);
                 if (model.isPresent()) {
-                    if (model.get().isAlreadyApplied(collectorSetups)) {
-                        log.error("Wrong parsed data collector setup detected in the step sequence related to model of class type '{}' and somewhere around step {}! " +
-                                " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided", model.get().getModel().getClass().getSimpleName(), stepName);
-                    } else {
+                    // TODO when the field is a collection then we should allow multiple writes ...
+//                    if (model.get().isAlreadyApplied(collectorSetups)) {
+//                        log.error("Wrong parsed data collector setup detected in the step sequence related to model of class type '{}' and somewhere around step {}! " +
+//                                " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided", model.get().getModel().getClass().getSimpleName(), stepName);
+//                    } else {
                         collectorSetup.getAccumulator().accept(model.get().getModel(), parsedValue);
                         model.get().addAppliedAccumulator(collectorSetups);
-                    }
+//                    }
                 } else {
                     log.error("No model is set up for parsed value in step {}! Cannot collect parsed data to it!", stepName);
                 }
