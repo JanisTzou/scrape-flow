@@ -42,9 +42,10 @@ public class Actions {
     }
 
     /**
-     * Can be used to load the page after a link has been parsed e.g. after {@link Parse#hRef()}.
+     * Can be used to load a new page after a link has been parsed e.g. after {@link Parse#hRef()}.
      * <br>
-     * Loads the site into a new page instance - this is important e.g. when we are in the middle of pagination, and we need the original page left intact.
+     * Loads the site into a new page instance - this is important e.g. when we are scraping additional data from the same page.
+     * If you are sure that parsing is finished at current page you at that point, use {@link Actions#followLink()}
      */
     public static NavigateToParsedLink navigateToParsedLink(HtmlUnitSiteParser siteParser) {
         return new NavigateToParsedLink(siteParser);

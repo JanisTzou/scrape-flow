@@ -71,8 +71,7 @@ public class MaxEuroCzDemo {
                                                                                         )
                                                                                 )
                                                                 )
-                                                                .nextForEachPage(
-                                                                        GetElements.Descendants.ByCss.byClassName("product").stepName("product-search")
+                                                                .next(GetElements.Descendants.ByCss.byClassName("product").stepName("product-search")
                                                                                 .setCollector(Product::new, Product.class, new ProductListenerParsed())
                                                                                 .collect(Product::setCategory, Product.class, Category.class)
                                                                                 .next(GetElements.Descendants.ByCss.byClassName("product-name")

@@ -73,8 +73,7 @@ public class TeleskopExpressDeDemo {
                                                                 .next(Actions.returnNextPage())
                                                         )
                                         )
-                                        .nextForEachPageExclusively(
-                                                StepFlow.asStepGroup() // no steps with higher order than this very step can be allowed to run before this whole thing finishes ... lower steps can continue running ... send an event that this step finished so normal parallelism can resume ... also there might be nested ordered steps ...
+                                        .nextExclusively(StepFlow.asStepGroup() // no steps with higher order than this very step can be allowed to run before this whole thing finishes ... lower steps can continue running ... send an event that this step finished so normal parallelism can resume ... also there might be nested ordered steps ...
                                                         .next(GetElements.Descendants.ByCss.byClassName("headerlinks").stepName("get-nav-position-elem-step")
                                                                 .next(Parse.textContent().stepName("pet-1")
                                                                         .collect(ProductsPage::setPosition, ProductsPage.class)
@@ -86,12 +85,12 @@ public class TeleskopExpressDeDemo {
                                                                 )
                                                         )
                                         )
-                                        .nextForEachPage(GetElements.Descendants.ByCss.byClassName("headerlinks").stepName("get-nav-position-elem-step")
+                                        .next(GetElements.Descendants.ByCss.byClassName("headerlinks").stepName("get-nav-position-elem-step")
                                                 .next(Parse.textContent().stepName("pet-1")
                                                         .collect(ProductsPage::setPosition, ProductsPage.class)
                                                 )
                                         )
-                                        .nextForEachPage(getProductTdElemsStep
+                                        .next(getProductTdElemsStep
                                                 .setCollector(Product::new, Product.class, new ProductParsedListener())// this step generates the Product model and does not modify it ... all the child steps need to finish
                                                 // this can register the step order of this parent step with NotificationOrderingService ...
                                                 // set parsed data listener ?

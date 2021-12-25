@@ -108,22 +108,6 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
         return this;
     }
 
-    /**
-     * Same as calling {@link CommonOperationsStepBase#next(HtmlUnitScrapingStep)}  - see that for more details
-     */
-    public Paginate nextForEachPage(HtmlUnitScrapingStep<?> stepsForPaginatedContent) {
-        next(stepsForPaginatedContent);
-        return this;
-    }
-
-    /**
-     * Same as calling {@link CommonOperationsStepBase#nextExclusively(HtmlUnitScrapingStep)} - see that for more details
-     */
-    public Paginate nextForEachPageExclusively(HtmlUnitScrapingStep<?> stepsForPaginatedContent) {
-        stepsForPaginatedContent.setExclusiveExecution(true);
-        next(stepsForPaginatedContent);
-        return this;
-    }
 
     private void checkPaginationTriggerAndLinkItToThisStep() {
         if (paginationTrigger == null) {
