@@ -40,11 +40,18 @@ public class ReturnNextPage extends CommonOperationsStepBase<ReturnNextPage> {
         this(null);
     }
 
+    @Override
+    protected ReturnNextPage copy() {
+        ReturnNextPage copy = new ReturnNextPage();
+        copy.callbackStepSet = this.callbackStepSet;
+        return copyFieldValuesTo(copy);
+    }
+
     /**
      * @param ctx must contain a reference to HtmlPage that might be paginated (contains some for of next link or button)
      */
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    public StepExecOrder execute(ScrapingContext ctx) {
 
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
@@ -53,8 +60,7 @@ public class ReturnNextPage extends CommonOperationsStepBase<ReturnNextPage> {
 
             if (page.isPresent()) {
                 Supplier<List<DomNode>> nodesSearch = () -> List.of(page.get());
-                HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-                helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+                getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
             } else {
                 log.error("The previous step did not produce an HtmlPage! Cannot process next page data in step {}", getName());
             }
@@ -65,9 +71,13 @@ public class ReturnNextPage extends CommonOperationsStepBase<ReturnNextPage> {
         return stepExecOrder;
     }
 
+    // TODO remove this and somehow communicate this via the ScrapingContext ... we can have a callback step there ... thet can be utlized by some steps
+    /**
+     * Must be called at runtime - mutates this instance.
+     */
     void setCallbackToPageDataProcessingStep(HtmlUnitScrapingStep<?> processingStep) {
         if (!this.callbackStepSet) {
-            this.nextSteps.add(processingStep);
+            this.addNextStepMutably(processingStep);
             this.callbackStepSet = true;
         }
     }

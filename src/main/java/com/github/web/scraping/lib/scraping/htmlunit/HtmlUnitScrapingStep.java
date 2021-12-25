@@ -22,78 +22,170 @@ import com.github.web.scraping.lib.scraping.MakingHttpRequests;
 import com.github.web.scraping.lib.scraping.ScrapingServices;
 import com.github.web.scraping.lib.scraping.StepThrottling;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 @Log4j2
-public abstract class HtmlUnitScrapingStep<T> implements StepThrottling {
+public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> implements StepThrottling {
 
-    protected final List<HtmlUnitScrapingStep<?>> nextSteps;
-
-    @Getter @Setter
+    protected static Function<String, String> NO_TEXT_TRANSFORMATION = s -> s;
+    private final List<HtmlUnitScrapingStep<?>> nextSteps;
+    @Getter
     protected boolean exclusiveExecution = false;
-
     /**
      * condition for the execution of this step
      */
-    @Getter @Setter
+    @Getter
     protected ExecutionCondition executeIf = null;
-
-    protected CollectorSetups collectorSetups = new CollectorSetups();
-
-    protected static Function<String, String> NO_TEXT_TRANSFORMATION = s -> s;
-
     /**
      * relevant for steps that do scrape textual values
      */
     protected Function<String, String> parsedTextTransformation = NO_TEXT_TRANSFORMATION; // by default return the string as-is
-
     protected ScrapingServices services;
+    /**
+     * To be used on logging to give the user an accurate location of a problematic step
+     */
+    @Getter
+    protected StackTraceElement stepDeclarationLine;
+    private CollectorSetups collectorSetups = new CollectorSetups();
 
+    // TODO actually use in logging ...
     /**
      * for logging and debugging
      */
     private String name = getClass().getSimpleName() + "-unnamed-step";
 
-    // TODO actually use in logging ...
-    /**
-     * To be used on logging to give the user an accurate location of a problematic step
-     */
-    @Getter @Setter
-    protected StackTraceElement stepDeclarationLine;
-
     public HtmlUnitScrapingStep(List<HtmlUnitScrapingStep<?>> nextSteps) {
-        this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
+        this.nextSteps = new ArrayList<>(Objects.requireNonNullElse(nextSteps, Collections.emptyList()));
     }
 
+    protected abstract StepExecOrder execute(ScrapingContext ctx);
 
-    protected abstract StepExecOrder execute(ParsingContext ctx);
+    protected HtmlUnitStepHelper getHelper() {
+        return new HtmlUnitStepHelper(getNextSteps(), getName(), services, getCollectorSetups());
+    }
 
-    // internal usage only
-    protected void setServices(ScrapingServices services) {
+    /**
+     * @return copy of this step
+     */
+    protected C setExclusiveExecution(boolean exclusiveExecution) {
+        return copyThisMutateAndGet(copy -> {
+            copy.exclusiveExecution = exclusiveExecution;
+            return copy;
+        });
+    }
+
+    /**
+     * @return copy of this step
+     */
+    protected C setStepDeclarationLine(StackTraceElement stepDeclarationLine) {
+        return copyThisMutateAndGet(copy -> {
+            copy.stepDeclarationLine = stepDeclarationLine;
+            return copy;
+        });
+    }
+
+    /**
+     * @return copy of this step
+     */
+    protected C setExecuteIf(ExecutionCondition executeIf) {
+        return copyThisMutateAndGet(copy -> {
+            copy.executeIf = executeIf;
+            return copy;
+        });
+    }
+
+    /**
+     * @return copy of this step
+     */
+    protected C setParsedTextTransformation(Function<String, String> transformation) {
+        return copyThisMutateAndGet(copy -> {
+            copy.parsedTextTransformation = transformation;
+            return copy;
+        });
+    }
+
+    protected CollectorSetups getCollectorSetups() {
+        return collectorSetups;
+    }
+
+    /**
+     * mutating - internal usage only
+     */
+    void setCollectorSetups(CollectorSetups collectorSetups) {
+        this.collectorSetups = collectorSetups;
+    }
+
+    /**
+     * @return copy of this step
+     */
+    protected C addCollectorSetup(CollectorSetup cs) {
+        return copyThisMutateAndGet(copy -> {
+            CollectorSetups csCopy = getCollectorSetups().copy();
+            csCopy.add(cs);
+            copy.setCollectorSetups(csCopy);
+            return copy;
+        });
+    }
+
+    protected List<HtmlUnitScrapingStep<?>> getNextSteps() {
+        return nextSteps;
+    }
+
+    /**
+     * @return copy of this step
+     */
+    protected C addNextStep(HtmlUnitScrapingStep<?> nextStep) {
+        HtmlUnitScrapingStep<?> nsCopy = nextStep.copy();
+        return copyThisMutateAndGet(copy -> {
+            copy.addNextStepMutably(nsCopy);
+            return copy;
+        });
+    }
+
+    /**
+     * Internal usage only
+     * Mutates this instance by adding the specific <code>nextStep</code>.
+     * Does not create a copy of either <code>this</code> step or <code>nextStep</code>.
+     * Should only be used at runtime (not at Assembly time)
+     */
+    protected void addNextStepMutably(HtmlUnitScrapingStep<?> nextStep) {
+        this.nextSteps.add(nextStep);
+    }
+
+    /**
+     * Internal usage only
+     * Mutates this instance by adding the specific <code>services</code>.
+     * Does not create a copy of either <code>this</code> step or <code>nextStep</code>.
+     * Should only be used at runtime (not at Assembly time)
+     */
+    protected void setServicesMutably(ScrapingServices services) {
         this.services = services;
     }
 
-    // internal usage only for propagating the Service instance down the step call hierarchy
-    protected void propagateServicesTo(HtmlUnitScrapingStep<?> step) {
-        step.setServices(this.services);
-    }
-
-    protected String getName() {
+    public String getName() {
         return name;
     }
 
-    @SuppressWarnings("unchecked")
-    public T stepName(String name) {
-        this.name = name != null && !name.toLowerCase().contains("step") ? name + "-step" : name;
-        return (T) this;
+    void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return a copy of this step with the given <code>name</code> set
+     */
+    public C stepName(String name) {
+        return copyThisMutateAndGet(copy -> {
+            copy.setName(name != null && !name.toLowerCase().contains("step") ? name + "-step" : name);
+            return copy;
+        });
     }
 
     protected String transformParsedText(String text) {
@@ -101,7 +193,7 @@ public abstract class HtmlUnitScrapingStep<T> implements StepThrottling {
     }
 
     /**
-     * @param runnable      task can be executed immediately or at some later point based on the given mode
+     * @param runnable task can be executed immediately or at some later point based on the given mode
      */
     protected void handleExecution(StepExecOrder stepExecOrder, Runnable runnable) {
         StepTask stepTask = new StepTask(stepExecOrder, exclusiveExecution, getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests);
@@ -120,6 +212,24 @@ public abstract class HtmlUnitScrapingStep<T> implements StepThrottling {
 
     protected StepExecOrder genNextOrderAfter(StepExecOrder stepAtPrevLevel) {
         return services.getStepExecOrderGenerator().genNextOrderAfter(stepAtPrevLevel);
+    }
+
+    protected abstract C copy();
+
+    protected C copyThisMutateAndGet(UnaryOperator<C> copyMutation) {
+        return copyMutation.apply(this.copy());
+    }
+
+    @SuppressWarnings("unchecked")
+    protected C copyFieldValuesTo(HtmlUnitScrapingStep<?> other) {
+        other.executeIf = this.executeIf;
+        other.collectorSetups = this.collectorSetups.copy();
+        other.parsedTextTransformation = this.parsedTextTransformation;
+        other.name = this.name;
+        other.stepDeclarationLine = this.stepDeclarationLine;
+        other.nextSteps.addAll(this.nextSteps);
+        other.services = this.services;
+        return (C) other;
     }
 
     @Getter

@@ -17,7 +17,7 @@
 package com.github.web.scraping.lib.scraping;
 
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitScrapingStep;
-import com.github.web.scraping.lib.scraping.htmlunit.ParsingContext;
+import com.github.web.scraping.lib.scraping.htmlunit.ScrapingContext;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public interface SiteParserInternal<T> extends SiteParser<T> {
     /**
      * For internal lib uses only
      */
-    void parseInternal(String url, ParsingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequence, StepExecOrder currStepExecOrder);
+    void parseInternal(String url, ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequence, StepExecOrder currStepExecOrder);
 
     /**
      * For internal lib uses only

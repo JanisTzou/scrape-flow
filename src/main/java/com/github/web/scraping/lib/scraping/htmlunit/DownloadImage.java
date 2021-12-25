@@ -44,7 +44,12 @@ public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
     }
 
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    protected DownloadImage copy() {
+        return copyFieldValuesTo(new DownloadImage());
+    }
+
+    @Override
+    public StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
@@ -54,15 +59,14 @@ public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
             try {
                 imageURL = new URL(ctx.getParsedURL());
                 BufferedImage bufferedImage = ImageIO.read(imageURL);
-                setParsedValueToModel(this.collectorSetups, ctx, bufferedImage, getName());
+                setParsedValueToModel(this.getCollectorSetups(), ctx, bufferedImage, getName());
 
                 log.debug("Success downloading image");
             } catch (Exception e) {
                 log.error("Error downloading image from URL {}", ctx.getParsedURL());
             }
 
-            HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-            helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);
@@ -72,7 +76,6 @@ public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
 
     @Override
     public <T> DownloadImage collect(BiConsumer<T, BufferedImage> modelMutation, Class<T> containerType) {
-        this.collectorSetups.add(new CollectorSetup(modelMutation, BufferedImage.class, containerType));
-        return this;
+        return addCollectorSetup(new CollectorSetup(modelMutation, BufferedImage.class, containerType));
     }
 }

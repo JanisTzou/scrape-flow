@@ -27,12 +27,14 @@ interface HtmlUnitStepCollectingParsedValueToModel<C, V> {
     org.apache.logging.log4j.Logger log = org.apache.logging.log4j.LogManager.getLogger(HtmlUnitStepCollectingParsedValueToModel.class);
 
     /**
-     * Sets up the operation that will set the actual scraped data to model object
+     * specialisation of {@link HtmlUnitStepSupportingCollection#collect(BiConsumer, Class, Class)}
+     *
+     * @return a copy of this step
      */
     <T> C collect(BiConsumer<T, V> modelMutation, Class<T> containerType);
 
 
-    default <T> void setParsedValueToModel(CollectorSetups collectorSetups, ParsingContext ctx, T parsedValue, String stepName) {
+    default <T> void setParsedValueToModel(CollectorSetups collectorSetups, ScrapingContext ctx, T parsedValue, String stepName) {
         try {
             List<CollectorSetup> stringCollectors = collectorSetups.getAccumulators().stream()
                     .filter(co -> co.getModelClass().equals(parsedValue.getClass()))
@@ -47,8 +49,8 @@ interface HtmlUnitStepCollectingParsedValueToModel<C, V> {
 //                        log.error("Wrong parsed data collector setup detected in the step sequence related to model of class type '{}' and somewhere around step {}! " +
 //                                " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided", model.get().getModel().getClass().getSimpleName(), stepName);
 //                    } else {
-                        collectorSetup.getAccumulator().accept(model.get().getModel(), parsedValue);
-                        model.get().addAppliedAccumulator(collectorSetups);
+                    collectorSetup.getAccumulator().accept(model.get().getModel(), parsedValue);
+                    model.get().addAppliedAccumulator(collectorSetups);
 //                    }
                 } else {
                     log.error("No model is set up for parsed value in step {}! Cannot collect parsed data to it!", stepName);

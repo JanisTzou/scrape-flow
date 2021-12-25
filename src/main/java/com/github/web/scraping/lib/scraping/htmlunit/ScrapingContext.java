@@ -33,7 +33,7 @@ import java.util.Optional;
 @Getter
 @Setter
 @ToString
-public class ParsingContext { // TODO remove type parameters ...
+public class ScrapingContext {
 
     /**
      * StepOrder value at the previous level of step hierarchy (so the step calling this step)
@@ -57,20 +57,20 @@ public class ParsingContext { // TODO remove type parameters ...
 
 
 
-    public ParsingContext(StepExecOrder prevStepExecOrder, DomNode node) {
+    public ScrapingContext(StepExecOrder prevStepExecOrder, DomNode node) {
         this(prevStepExecOrder, node, new ContextModels());
     }
 
-    public ParsingContext(StepExecOrder prevStepExecOrder, DomNode node, ContextModels contextModels) {
+    public ScrapingContext(StepExecOrder prevStepExecOrder, DomNode node, ContextModels contextModels) {
         this(prevStepExecOrder, node, contextModels, null, null, null);
     }
 
-    public ParsingContext(@Nonnull StepExecOrder prevStepExecOrder,
-                          DomNode node,
-                          @Nonnull ContextModels contextModels,
-                          String parsedText,
-                          String parsedURL,
-                          StepExecOrder recursiveRootStepExecOrder) {
+    public ScrapingContext(@Nonnull StepExecOrder prevStepExecOrder,
+                           DomNode node,
+                           @Nonnull ContextModels contextModels,
+                           String parsedText,
+                           String parsedURL,
+                           StepExecOrder recursiveRootStepExecOrder) {
         this.prevStepExecOrder = Objects.requireNonNull(prevStepExecOrder);
         this.node = node;
         this.contextModels = Objects.requireNonNull(contextModels);
@@ -107,7 +107,7 @@ public class ParsingContext { // TODO remove type parameters ...
             this.recursiveRootStepExecOrder = recursiveRootStepExecOrder;
         }
 
-        public Builder(ParsingContext ctx) {
+        public Builder(ScrapingContext ctx) {
             this(ctx.prevStepExecOrder, ctx.node, ctx.contextModels.copy(), ctx.parsedText, ctx.parsedURL, ctx.recursiveRootStepExecOrder);
         }
 
@@ -141,8 +141,8 @@ public class ParsingContext { // TODO remove type parameters ...
             return this;
         }
 
-        public ParsingContext build() {
-            return new ParsingContext(prevStepExecOrder, node, contextModelsCopy, parsedText, parsedURL, recursiveRootStepExecOrder);
+        public ScrapingContext build() {
+            return new ScrapingContext(prevStepExecOrder, node, contextModelsCopy, parsedText, parsedURL, recursiveRootStepExecOrder);
         }
     }
 }

@@ -44,7 +44,12 @@ public class FilterElements extends CommonOperationsStepBase<FilterElements> {
     }
 
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    protected FilterElements copy() {
+        return copyFieldValuesTo(new FilterElements(domNodePredicate));
+    }
+
+    @Override
+    public StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
@@ -58,8 +63,7 @@ public class FilterElements extends CommonOperationsStepBase<FilterElements> {
                 return Collections.emptyList();
             };
 
-            HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-            helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

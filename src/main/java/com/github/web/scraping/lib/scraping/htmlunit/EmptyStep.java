@@ -42,12 +42,16 @@ public class EmptyStep extends CommonOperationsStepBase<EmptyStep>
     }
 
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    protected EmptyStep copy() {
+        return copyFieldValuesTo(new EmptyStep());
+    }
+
+    @Override
+    public StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
-        HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-        helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+        getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
 
         return stepExecOrder;
     }

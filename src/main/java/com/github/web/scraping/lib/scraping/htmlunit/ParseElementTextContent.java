@@ -34,23 +34,27 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
 
     private boolean excludeChildElementsTextContent;
 
-    ParseElementTextContent() {
-        this(null, false);
-    }
-
     ParseElementTextContent(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps,
                             boolean excludeChildElementsTextContent) {
         super(nextSteps);
         this.excludeChildElementsTextContent = excludeChildElementsTextContent;
     }
 
+    ParseElementTextContent(boolean excludeChildElementsTextContent) {
+        this(null, excludeChildElementsTextContent);
+    }
 
-    // TODO we need to be able to scrape another thing based on this parsed value ...
-    //  how to communicate the parsed text to next steps? What to put in the context?
-
+    ParseElementTextContent() {
+        this(null, false);
+    }
 
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    protected ParseElementTextContent copy() {
+        return copyFieldValuesTo(new ParseElementTextContent(excludeChildElementsTextContent));
+    }
+
+    @Override
+    public StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
@@ -71,7 +75,7 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
 
             String transformed = transformParsedText(tc);
 
-            setParsedValueToModel(this.collectorSetups, ctx, transformed, getName());
+            setParsedValueToModel(this.getCollectorSetups(), ctx, transformed, getName());
 
             // TODO how to populate the following context?
         };
@@ -92,22 +96,27 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
     /**
      * Determines if the text of child elements should be part of the resulting parsed text content
      * set to false by default
+     *
+     * @return copy of this step
      */
     public ParseElementTextContent excludeChildElements() {
-        this.excludeChildElementsTextContent = true;
-        return this;
+        return copyThisMutateAndGet(copy -> {
+            copy.excludeChildElementsTextContent = true;
+            return copy;
+        });
     }
 
     @Override
     public <T> ParseElementTextContent collect(BiConsumer<T, String> modelMutation, Class<T> containerType) {
-        this.collectorSetups.add(new CollectorSetup(modelMutation, String.class, containerType));
-        return this;
+        return addCollectorSetup(new CollectorSetup(modelMutation, String.class, containerType));
     }
 
     @Override
     public ParseElementTextContent setTransformation(Function<String, String> parsedTextTransformation) {
-        this.parsedTextTransformation = parsedTextTransformation;
-        return this;
+        return copyThisMutateAndGet(copy -> {
+            copy.parsedTextTransformation = parsedTextTransformation;
+            return copy;
+        });
     }
 
 }

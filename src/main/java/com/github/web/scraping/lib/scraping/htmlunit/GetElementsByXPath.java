@@ -37,15 +37,19 @@ public class GetElementsByXPath extends GetElementsStepBase<GetElementsByXPath> 
         this(null, xPath);
     }
 
+    @Override
+    protected GetElementsByXPath copy() {
+        return copyFieldValuesTo(new GetElementsByXPath(xPath));
+    }
+
 
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    public StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(ctx.getNode().getByXPath(xPath));
-            HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-            helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

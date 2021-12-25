@@ -19,14 +19,12 @@ package com.github.web.scraping.lib.scraping.htmlunit;
 import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 
-public abstract class CommonOperationsStepBase<C> extends HtmlUnitScrapingStep<C>
+public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>> extends HtmlUnitScrapingStep<C>
         implements HtmlUnitStepSupportingNext<C>, HtmlUnitStepSupportingCollection<C> {
 
     public CommonOperationsStepBase(List<HtmlUnitScrapingStep<?>> nextSteps) {
@@ -35,57 +33,53 @@ public abstract class CommonOperationsStepBase<C> extends HtmlUnitScrapingStep<C
 
     @Override
     public <R, T> C collect(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType) {
-        this.collectorSetups.add(new CollectorSetup(accumulator, modelType, containerType));
-        return (C) this;
+        return addCollectorSetup(new CollectorSetup(accumulator, modelType, containerType));
     }
 
     @Override
     public <T> C setCollector(Supplier<T> modelSupplier, Class<T> modelType) {
-        this.collectorSetups.add(new CollectorSetup(modelSupplier, modelType));
-        return (C) this;
+        return addCollectorSetup(new CollectorSetup(modelSupplier, modelType));
     }
 
     @Override
     public <T> C setCollector(Supplier<T> modelSupplier, Class<T> modelType, ParsedDataListener<T> parsedDataListener) {
-        this.collectorSetups.add(new CollectorSetup(modelSupplier, modelType, parsedDataListener));
-        return (C) this;
+        return addCollectorSetup(new CollectorSetup(modelSupplier, modelType, parsedDataListener));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public C next(HtmlUnitScrapingStep<?> nextStep) {
-        nextStep.setStepDeclarationLine(getStepDeclarationStacTraceEl());
-        this.nextSteps.add(nextStep);
-        return (C) this;
+        HtmlUnitScrapingStep<?> nextCopy = nextStep.copy()
+                .setStepDeclarationLine(getStepDeclarationStackTraceEl());
+        return addNextStep(nextCopy);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public C nextExclusively(HtmlUnitScrapingStep<?> nextStep) {
-        nextStep.setStepDeclarationLine(getStepDeclarationStacTraceEl());
-        nextStep.setExclusiveExecution(true);
-        this.nextSteps.add(nextStep);
-        return (C) this;
+        HtmlUnitScrapingStep<?> nextCopy = nextStep.copy()
+                .setStepDeclarationLine(getStepDeclarationStackTraceEl())
+                .setExclusiveExecution(true);
+        return addNextStep(nextCopy);
     }
 
     @Override
     public <T> C nextIf(Predicate<T> condition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep) {
-        nextStep.setStepDeclarationLine(getStepDeclarationStacTraceEl());
-        nextStep.setExecuteIf(new ExecutionCondition(condition, modelType));
-        this.nextSteps.add(nextStep);
-        return (C) this;
+        HtmlUnitScrapingStep<?> nextCopy = nextStep.copy()
+                .setStepDeclarationLine(getStepDeclarationStackTraceEl())
+                .setExecuteIf(new ExecutionCondition(condition, modelType));
+        return addNextStep(nextCopy);
     }
 
     @Override
     public <T> C nextIfExclusively(Predicate<T> condition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep) {
-        nextStep.setStepDeclarationLine(getStepDeclarationStacTraceEl());
-        nextStep.setExecuteIf(new ExecutionCondition(condition, modelType));
-        nextStep.setExclusiveExecution(true);
-        this.nextSteps.add(nextStep);
-        return (C) this;
+        HtmlUnitScrapingStep<?> nextCopy = nextStep.copy()
+                .setStepDeclarationLine(getStepDeclarationStackTraceEl())
+                .setExecuteIf(new ExecutionCondition(condition, modelType))
+                .setExclusiveExecution(true);
+        return addNextStep(nextCopy);
+
     }
 
-    private StackTraceElement getStepDeclarationStacTraceEl() {
+    private StackTraceElement getStepDeclarationStackTraceEl() {
         return Thread.currentThread().getStackTrace()[2];
     }
 

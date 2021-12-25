@@ -25,15 +25,16 @@ import java.util.Set;
 @Log4j2
 public class StepsUtils {
 
+    // TODO this doe snot exactly find sircular dependencies but repeated dependencies ...
     // TODO not ideal ... especially that it has to be called repeatedly when e.g. in class Paginate
     //  ... if steps have reference to parents then we do not have to do this ... we can propagate it upwards to parents ...
     public static void propagateServicesRecursively(HtmlUnitScrapingStep<?> nextStep, ScrapingServices services, Set<HtmlUnitScrapingStep<?>> visited) {
         if (visited.contains(nextStep)) {
             throw new IllegalStateException("Circular step dependencies detected for step: " + nextStep.getName());
         }
-        nextStep.setServices(services);
+        nextStep.setServicesMutably(services);
         visited.add(nextStep);
-        for (HtmlUnitScrapingStep<?> ns : nextStep.nextSteps) {
+        for (HtmlUnitScrapingStep<?> ns : nextStep.getNextSteps()) {
             propagateServicesRecursively(ns, services, visited);
         }
     }
@@ -43,7 +44,7 @@ public class StepsUtils {
         if (stepType.isAssignableFrom(sequence.getClass())) {
             return Optional.of((T) sequence);
         } else {
-            for (HtmlUnitScrapingStep<?> nextStep : sequence.nextSteps) {
+            for (HtmlUnitScrapingStep<?> nextStep : sequence.getNextSteps()) {
                 return findStepOfTypeInSequence(nextStep, stepType);
             }
         }

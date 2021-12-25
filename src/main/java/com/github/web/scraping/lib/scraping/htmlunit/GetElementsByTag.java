@@ -41,15 +41,18 @@ public class GetElementsByTag extends GetElementsStepBase<GetElementsByTag> {
         this(null, tagName);
     }
 
+    @Override
+    protected GetElementsByTag copy() {
+        return copyFieldValuesTo(new GetElementsByTag(tagName));
+    }
 
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    public StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(HtmlUnitUtils.getDescendantsByTagName(ctx.getNode(), tagName));
-            HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-            helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

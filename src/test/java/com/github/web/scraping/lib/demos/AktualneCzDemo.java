@@ -40,16 +40,20 @@ public class AktualneCzDemo {
         final GetElementsByCssClass getArticleDescElem2 = GetElements.Descendants.ByCss.byClassName("small-box__desc");
 
         final Scraping articlesScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 5)
-                .setScrapingSequence(getArticleElements
-                        .next(getArticleHeadlineElem
-                                .next(Parse.textContent())
-                        )
-                        .next(getArticleDescElem1
-                                .next(Parse.textContent())
-                        )
-                        .next(getArticleDescElem2
-                                .next(Parse.textContent())
-                        )
+                .setScrapingSequence(
+                        getArticleElements
+                                .next(getArticleHeadlineElem.stepName("step-1")
+                                        .next(Parse.textContent())
+                                )
+                                .next(getArticleHeadlineElem.stepName("step-2")
+                                        .next(Parse.textContent())
+                                )
+                                .next(getArticleDescElem1
+                                        .next(Parse.textContent())
+                                )
+                                .next(getArticleDescElem2
+                                        .next(Parse.textContent())
+                                )
                 );
 
 

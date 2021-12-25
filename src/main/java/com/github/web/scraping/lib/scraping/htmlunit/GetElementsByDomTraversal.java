@@ -43,7 +43,12 @@ public class GetElementsByDomTraversal extends CommonOperationsStepBase<GetEleme
     }
 
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    protected GetElementsByDomTraversal copy() {
+        return copyFieldValuesTo(new GetElementsByDomTraversal(type, param));
+    }
+
+    @Override
+    public StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
@@ -63,8 +68,7 @@ public class GetElementsByDomTraversal extends CommonOperationsStepBase<GetEleme
                     case CHILD_ELEMENTS -> HtmlUnitUtils.findChildElements(node).stream().toList();
                 };
             };
-            HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-            helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

@@ -37,15 +37,17 @@ public class StepGroup extends CommonOperationsStepBase<StepGroup>
         this(null);
     }
 
-
+    @Override
+    protected StepGroup copy() {
+        return copyFieldValuesTo(new StepGroup());
+    }
 
     @Override
-    public  StepExecOrder execute(ParsingContext ctx) {
+    public  StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
-        HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-        helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+        getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
 
         return stepExecOrder;
     }

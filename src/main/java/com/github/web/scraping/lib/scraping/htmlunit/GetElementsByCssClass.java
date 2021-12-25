@@ -37,13 +37,17 @@ public class GetElementsByCssClass extends GetElementsStepBase<GetElementsByCssC
     }
 
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    protected GetElementsByCssClass copy() {
+        return copyFieldValuesTo(new GetElementsByCssClass(cssClassName));
+    }
+
+    @Override
+    public StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(HtmlUnitUtils.getDescendantsByClass(ctx.getNode(), cssClassName));
-            HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-            helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

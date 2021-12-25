@@ -18,10 +18,11 @@ package com.github.web.scraping.lib.scraping.htmlunit;
 
 import java.util.function.Function;
 
-public interface HtmlUnitParsingStep<C>  {
+public interface HtmlUnitParsingStep<C> {
 
     /**
      * @param parsedTextToNewText transformation the parsed string
+     * @return copy of this step
      */
     C setTransformation(Function<String, String> parsedTextToNewText);
 

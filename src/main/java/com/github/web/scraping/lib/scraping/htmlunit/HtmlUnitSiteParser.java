@@ -48,9 +48,9 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
     }
 
     @Override
-    public void parseInternal(String url, ParsingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequences, StepExecOrder currStepExecOrder) {
+    public void parseInternal(String url, ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequences, StepExecOrder currStepExecOrder) {
         loadPage(url, currStepExecOrder).ifPresent(page1 -> {
-            ParsingContext nextCtx = ctx.toBuilder().setNode(page1).setPrevStepOrder(currStepExecOrder).build();
+            ScrapingContext nextCtx = ctx.toBuilder().setNode(page1).setPrevStepOrder(currStepExecOrder).build();
             executeNextSteps(nextCtx, parsingSequences);
         });
     }
@@ -61,10 +61,10 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
     }
 
     private void parsePageAndFilterDataResults(HtmlPage page, List<HtmlUnitScrapingStep<?>> parsingSequences) {
-        executeNextSteps(new ParsingContext(StepExecOrder.INITIAL, page), parsingSequences);
+        executeNextSteps(new ScrapingContext(StepExecOrder.INITIAL, page), parsingSequences);
     }
 
-    private void executeNextSteps(ParsingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequences) {
+    private void executeNextSteps(ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequences) {
         parsingSequences.forEach(s -> s.execute(ctx));
     }
 

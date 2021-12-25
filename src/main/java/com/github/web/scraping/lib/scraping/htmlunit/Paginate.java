@@ -32,7 +32,16 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
 
     private HtmlUnitScrapingStep<?> paginationTrigger;
 
-    private boolean servicesPropagatedToTrigger = false;
+    private boolean servicesPropagatedToTrigger;
+
+    Paginate(List<HtmlUnitScrapingStep<?>> nextSteps, boolean servicesPropagatedToTrigger) {
+        super(nextSteps);
+        this.servicesPropagatedToTrigger = servicesPropagatedToTrigger;
+    }
+
+    public Paginate(boolean servicesPropagatedToTrigger) {
+        this(null, servicesPropagatedToTrigger);
+    }
 
     Paginate(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
         super(nextSteps);
@@ -42,14 +51,20 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
         this(null);
     }
 
-    // TODO see if we can hande this kind of pagination ...
-    //  https://www.csfd.cz/zebricky/filmy/nejlepsi/
+    @Override
+    protected Paginate copy() {
+        Paginate copy = new Paginate(servicesPropagatedToTrigger);
+        if (this.paginationTrigger != null) {
+            copy.paginationTrigger = this.paginationTrigger.copy();
+        }
+        return copyFieldValuesTo(copy);
+    }
 
     /**
      * @param ctx must contain a reference to HtmlPage that might be paginated (contains some for of next link or button)
      */
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    public StepExecOrder execute(ScrapingContext ctx) {
 
         StepExecOrder prevStepExecOrder = ctx.getRecursiveRootStepExecOrder() == null
                 ? ctx.getPrevStepExecOrder()
@@ -72,15 +87,14 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
             if (page.isPresent()) {
                 // GENERAL
                 Supplier<List<DomNode>> nodesSearch = () -> List.of(page.get());
-                HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
                 // important to set the recursiveRootStepExecOrder to null ... the general nextSteps and logic should not be affected by it ... it's only related to pagination
-                ParsingContext plainCtx = ctx.toBuilder()
+                ScrapingContext plainCtx = ctx.toBuilder()
                         .setRecursiveRootStepExecOrder(null)
                         .build();
-                helper.execute(plainCtx, nodesSearch, stepExecOrder, getExecuteIf());
+                getHelper().execute(plainCtx, nodesSearch, stepExecOrder, getExecuteIf());
 
                 // PAGINATION
-                ParsingContext paginatingCtx = ctx.toBuilder()
+                ScrapingContext paginatingCtx = ctx.toBuilder()
                         .setPrevStepOrder(stepExecOrder)
                         .setRecursiveRootStepExecOrder(prevStepExecOrder)
                         .setNode(page.get())

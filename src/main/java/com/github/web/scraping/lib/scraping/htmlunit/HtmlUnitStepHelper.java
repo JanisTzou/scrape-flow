@@ -56,7 +56,7 @@ public class HtmlUnitStepHelper {
         setStepName(stepName);
     }
 
-    public void execute(ParsingContext ctx, Supplier<List<DomNode>> nodesSearch, StepExecOrder currStepExecOrder, HtmlUnitScrapingStep.ExecutionCondition executeIf) {
+    public void execute(ScrapingContext ctx, Supplier<List<DomNode>> nodesSearch, StepExecOrder currStepExecOrder, HtmlUnitScrapingStep.ExecutionCondition executeIf) {
         try {
             if (!canExecute(ctx, executeIf)) {
                 return;
@@ -119,7 +119,7 @@ public class HtmlUnitStepHelper {
         }
     }
 
-    private boolean canExecute(ParsingContext ctx, HtmlUnitScrapingStep.ExecutionCondition executeIf) {
+    private boolean canExecute(ScrapingContext ctx, HtmlUnitScrapingStep.ExecutionCondition executeIf) {
         try {
             if (executeIf != null) {
                 Optional<ModelWrapper> model = ctx.getContextModels().getModelFor(executeIf.getModelType());
@@ -142,10 +142,10 @@ public class HtmlUnitStepHelper {
     }
 
 
-    private <M, T> List<StepExecOrder> executeNextSteps(StepExecOrder currStepExecOrder, DomNode node, ParsingContext ctx, ContextModels nextContextModels) {
+    private List<StepExecOrder> executeNextSteps(StepExecOrder currStepExecOrder, DomNode node, ScrapingContext ctx, ContextModels nextContextModels) {
         return nextSteps.stream()
                 .map(step -> {
-                    ParsingContext nextCtx = new ParsingContext(
+                    ScrapingContext nextCtx = new ScrapingContext(
                             currStepExecOrder,
                             node,
                             nextContextModels.copy(),

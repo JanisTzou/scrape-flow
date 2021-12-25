@@ -45,9 +45,14 @@ public class GetElementsByTextContent extends GetElementsStepBase<GetElementsByT
         this(null, searchString, matchWholeTextContent);
     }
 
+    @Override
+    protected GetElementsByTextContent copy() {
+        return copyFieldValuesTo(new GetElementsByTextContent(searchString, matchWholeTextContent));
+    }
+
 
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    public StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         // TODO hmm .. this only returns one item ... we need to return all ... and apply traverse options filtering ...
@@ -71,8 +76,7 @@ public class GetElementsByTextContent extends GetElementsStepBase<GetElementsByT
                 return Collections.emptyList();
             };
 
-            HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-            helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

@@ -43,7 +43,12 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
     }
 
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    protected FollowLink copy() {
+        return copyFieldValuesTo(new FollowLink());
+    }
+
+    @Override
+    public StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
@@ -74,8 +79,7 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
                         return Collections.emptyList();
                     }
                 };
-                HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-                helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+                getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
 
             } else {
                 log.warn("{}: No HtmlAnchor element provided -> cannot click element! Check the steps sequence above step {} and maybe provide search step for an anchor tag", getName(), getName());

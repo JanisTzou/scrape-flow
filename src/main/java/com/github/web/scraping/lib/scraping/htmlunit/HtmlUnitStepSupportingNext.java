@@ -23,7 +23,7 @@ public interface HtmlUnitStepSupportingNext<C>  {
     /**
      * <p>Specifies the next step to execute after the step that the method is called on finishes.
      *
-     * @return reference to the same object on which the method was called - this allows chaining multiple following steps to execute when that step finishes.
+     * @return a copy of this step - this allows chaining multiple following steps to execute when that step finishes.
      * <p>
      * <b>Importantly</b>, this type of chaining does not mean that the declared steps will execute sequentially in the order of declaration of <code>next()</code> method calls.
      * The declared steps will execute asynchronously, and they will interleave. Nonetheless, ordering is still handled internally and the order of parsed data
@@ -45,14 +45,14 @@ public interface HtmlUnitStepSupportingNext<C>  {
      * <br>
      * Note that this method reduces the achieved parallelism.
      *
-     * @return reference to the same object on which the method was called - this allows chaining multiple following steps to execute when that step finishes.
+     * @return a copy of this step - this allows chaining multiple following steps to execute when that step finishes.
      */
     C nextExclusively(HtmlUnitScrapingStep<?> nextStep);
 
     /**
      * @param condition accept an object that is expected to contain previously parsed data
      * @param nextStep step to execute if condition passes
-     * @return reference to the same object on which the method was called - this allows chaining multiple following steps to execute when that step finishes.
+     * @return a copy of this step - this allows chaining multiple following steps to execute when that step finishes.
      */
     <T> C nextIf(Predicate<T> condition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep);
 
@@ -61,7 +61,7 @@ public interface HtmlUnitStepSupportingNext<C>  {
      * and {@link HtmlUnitStepSupportingNext#nextExclusively(HtmlUnitScrapingStep)} - see there for more details
      * @param condition condition accept an object that is expected to contain previously parsed data
      * @param nextStep step to execute if condition passes
-     * @return reference to the same object on which the method was called - this allows chaining multiple following steps to execute when that step finishes.
+     * @return a copy of this step - this allows chaining multiple following steps to execute when that step finishes.
      */
     <T> C nextIfExclusively(Predicate<T> condition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep);
 

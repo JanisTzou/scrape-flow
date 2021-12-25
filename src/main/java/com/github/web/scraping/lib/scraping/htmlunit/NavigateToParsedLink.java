@@ -31,7 +31,7 @@ public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToPar
     private SiteParserInternal<?> siteParser;
 
 
-    private NavigateToParsedLink(List<HtmlUnitScrapingStep<?>> nextSteps, SiteParserInternal<?> siteParser) {
+    NavigateToParsedLink(List<HtmlUnitScrapingStep<?>> nextSteps, SiteParserInternal<?> siteParser) {
         super(nextSteps);
         this.siteParser = siteParser;
     }
@@ -40,17 +40,21 @@ public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToPar
         this(null, siteParser);
     }
 
+    @Override
+    protected NavigateToParsedLink copy() {
+        return copyFieldValuesTo(new NavigateToParsedLink(siteParser));
+    }
 
     // the URL must come from the parsing context!!
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    public StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         // TODO problem ... this does not track steps for us and also the data ...
         Runnable runnable = () -> {
             if (ctx.getParsedURL() != null) {
                 // TODO if this step type has collectors then we need similar logic as in Wrapper ...
-                siteParser.parseInternal(ctx.getParsedURL(), ctx, this.nextSteps, stepExecOrder);
+                siteParser.parseInternal(ctx.getParsedURL(), ctx, this.getNextSteps(), stepExecOrder);
 
             } else {
                 log.error("{}: Cannot parse next site - the parsed URL is null!", getName());
@@ -62,12 +66,16 @@ public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToPar
         return stepExecOrder;
     }
 
-
+    /**
+     * @return copy of this step
+     */
     @Override
     public NavigateToParsedLink setParser(SiteParserInternal<?> siteParser) {
-        this.siteParser = siteParser;
-        this.siteParser.setServicesInternal(services);
-        return this;
+        return copyThisMutateAndGet(copy -> {
+            copy.siteParser = siteParser;
+            copy.siteParser.setServicesInternal(services);
+            return copy;
+        });
     }
 
     @Override

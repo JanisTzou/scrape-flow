@@ -50,7 +50,13 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
     }
 
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    protected ParseElementHRef copy() {
+        return copyFieldValuesTo(new ParseElementHRef(parsedTextTransformation));
+    }
+
+
+    @Override
+    public StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
@@ -61,11 +67,11 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
                     log.debug("{} - {}: Parsed href: {}", stepExecOrder, getName(), transformed);
                     // TODO actually have another transformation that will say something like "transformToFullURL ... and put that one to the context below)
 
-                    setParsedValueToModel(this.collectorSetups, ctx, transformed, getName()); // TODO let this be handled by the helper?
+                    setParsedValueToModel(this.getCollectorSetups(), ctx, transformed, getName()); // TODO let this be handled by the helper?
 
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
-                    HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-                    ParsingContext ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
+                    HtmlUnitStepHelper helper = new HtmlUnitStepHelper(getNextSteps(), getName(), services, getCollectorSetups());
+                    ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
                     helper.execute(ctxCopy, nodesSearch, stepExecOrder, getExecuteIf());
                 }
             } else {
@@ -80,22 +86,22 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
 
     @Override
     public <T> ParseElementHRef collect(BiConsumer<T, String> modelMutation, Class<T> containerType) {
-        this.collectorSetups.add(new CollectorSetup(modelMutation, String.class, containerType));
-        return this;
+        return addCollectorSetup(new CollectorSetup(modelMutation, String.class, containerType));
     }
 
     /**
-     * Same as then() but with a more meaningful name for the purpose
+     * Same as {@link HtmlUnitStepSupportingNext#next(HtmlUnitScrapingStep)} but with a more meaningful name for the purpose.
+     * For more specialised versions of <code>next()</code> see and use these the ones defined here {@link HtmlUnitStepSupportingNext}
+     *
+     * @return copy of this step
      */
     public ParseElementHRef nextNavigate(NavigateToParsedLink nextStep) {
-        this.nextSteps.add(nextStep);
-        return this;
+        return addNextStep(nextStep);
     }
 
     @Override
     public ParseElementHRef setTransformation(Function<String, String> parsedTextToNewText) {
-        this.parsedTextTransformation = parsedTextToNewText;
-        return this;
+        return setParsedTextTransformation(parsedTextToNewText);
     }
 
 }

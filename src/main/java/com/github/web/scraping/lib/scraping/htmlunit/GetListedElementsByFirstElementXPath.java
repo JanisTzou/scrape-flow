@@ -33,9 +33,18 @@ public class GetListedElementsByFirstElementXPath extends GetElementsStepBase<Ge
 
     private final String xPath;
 
-    protected GetListedElementsByFirstElementXPath(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, String xPath) {
+    GetListedElementsByFirstElementXPath(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, String xPath) {
         super(nextSteps);
         this.xPath = xPath;
+    }
+
+    GetListedElementsByFirstElementXPath(String xPath) {
+        this(null, xPath);
+    }
+
+    @Override
+    protected GetListedElementsByFirstElementXPath copy() {
+        return copyFieldValuesTo(new GetListedElementsByFirstElementXPath(xPath));
     }
 
     @Deprecated
@@ -44,7 +53,7 @@ public class GetListedElementsByFirstElementXPath extends GetElementsStepBase<Ge
     }
 
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    public StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
@@ -83,8 +92,7 @@ public class GetListedElementsByFirstElementXPath extends GetElementsStepBase<Ge
                 return filterByTraverseOption(domElements);
             };
 
-            HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-            helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

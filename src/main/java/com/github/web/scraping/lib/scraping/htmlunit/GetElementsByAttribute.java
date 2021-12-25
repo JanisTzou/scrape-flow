@@ -41,6 +41,10 @@ public class GetElementsByAttribute extends GetElementsStepBase<GetElementsByAtt
         this.matchEntireValue = matchEntireValue;
     }
 
+    public GetElementsByAttribute(String attributeName, String attributeValue, boolean matchEntireValue) {
+        this(null, attributeName, attributeValue, matchEntireValue);
+    }
+
     GetElementsByAttribute(String attributeName, @Nullable String attributeValue) {
         this(null, attributeName, attributeValue, MATCH_ENTIRE_VALUE_DEFAULT);
     }
@@ -49,9 +53,13 @@ public class GetElementsByAttribute extends GetElementsStepBase<GetElementsByAtt
         this(null, attributeName, null, MATCH_ENTIRE_VALUE_DEFAULT);
     }
 
+    @Override
+    protected GetElementsByAttribute copy() {
+        return copyFieldValuesTo(new GetElementsByAttribute(attributeName, attributeValue, matchEntireValue));
+    }
 
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    public StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
@@ -62,8 +70,7 @@ public class GetElementsByAttribute extends GetElementsStepBase<GetElementsByAtt
                     return filterByTraverseOption(HtmlUnitUtils.getDescendantsByAttribute(ctx.getNode(), attributeName));
                 }
             };
-            HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-            helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);
@@ -72,9 +79,14 @@ public class GetElementsByAttribute extends GetElementsStepBase<GetElementsByAtt
     }
 
 
+    /**
+     * @return copy of this step
+     */
     public GetElementsByAttribute setMatchEntireValue(boolean matchEntireValue) {
-        this.matchEntireValue = matchEntireValue;
-        return this;
+        return copyThisMutateAndGet(copy -> {
+            copy.matchEntireValue = matchEntireValue;
+            return copy;
+        });
     }
 
 

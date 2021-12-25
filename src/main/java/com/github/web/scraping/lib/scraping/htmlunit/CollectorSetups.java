@@ -25,6 +25,15 @@ public class CollectorSetups {
 
     private final List<CollectorSetup> operations = new CopyOnWriteArrayList<>();
 
+    CollectorSetups() {
+    }
+
+    public CollectorSetups copy() {
+        CollectorSetups copy = new CollectorSetups();
+        copy.operations.addAll(this.operations);
+        return copy;
+    }
+
     public void add(CollectorSetup operation) {
         operations.add(operation);
     }

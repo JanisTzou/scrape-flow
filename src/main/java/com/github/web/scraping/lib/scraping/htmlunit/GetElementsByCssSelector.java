@@ -37,13 +37,17 @@ public class GetElementsByCssSelector extends GetElementsStepBase<GetElementsByC
     }
 
     @Override
-    public StepExecOrder execute(ParsingContext ctx) {
+    protected GetElementsByCssSelector copy() {
+        return copyFieldValuesTo(new GetElementsByCssSelector(sccSelector));
+    }
+
+    @Override
+    public StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(HtmlUnitUtils.getDescendantsBySccSelector(ctx.getNode(), sccSelector));
-            HtmlUnitStepHelper helper = new HtmlUnitStepHelper(nextSteps, getName(), services, collectorSetups);
-            helper.execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);
