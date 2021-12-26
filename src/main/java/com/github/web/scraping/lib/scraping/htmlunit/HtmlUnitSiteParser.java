@@ -43,12 +43,11 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
         if (parsingSequence == null) {
             throw new IllegalStateException("parsingSequence not set for SiteParser!");
         }
-        StepsUtils.propagateServicesRecursively(parsingSequence, services, new HashSet<>());
         loadPage(url, null).ifPresent(page -> parsePageAndFilterDataResults(page, List.of(parsingSequence)));
     }
 
     @Override
-    public void parseInternal(String url, ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequences, StepExecOrder currStepExecOrder) {
+    public void parse(String url, ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequences, StepExecOrder currStepExecOrder) {
         loadPage(url, currStepExecOrder).ifPresent(page1 -> {
             ScrapingContext nextCtx = ctx.toBuilder().setNode(page1).setPrevStepOrder(currStepExecOrder).build();
             executeNextSteps(nextCtx, parsingSequences);

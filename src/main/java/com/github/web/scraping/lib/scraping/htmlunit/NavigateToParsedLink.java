@@ -18,7 +18,7 @@ package com.github.web.scraping.lib.scraping.htmlunit;
 
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.scraping.LoadingNewPage;
-import com.github.web.scraping.lib.scraping.SiteParserInternal;
+import com.github.web.scraping.lib.scraping.SiteParser;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.List;
@@ -28,15 +28,15 @@ public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToPar
         implements HtmlUnitStepChangingUsedParser<NavigateToParsedLink>, LoadingNewPage {
 
     // TODp perhaps provide in the constructor as a mandatory thing ?
-    private SiteParserInternal<?> siteParser;
+    private SiteParser siteParser;
 
 
-    NavigateToParsedLink(List<HtmlUnitScrapingStep<?>> nextSteps, SiteParserInternal<?> siteParser) {
+    NavigateToParsedLink(List<HtmlUnitScrapingStep<?>> nextSteps, SiteParser siteParser) {
         super(nextSteps);
         this.siteParser = siteParser;
     }
 
-    NavigateToParsedLink(SiteParserInternal<?> siteParser) {
+    NavigateToParsedLink(SiteParser siteParser) {
         this(null, siteParser);
     }
 
@@ -54,7 +54,7 @@ public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToPar
         Runnable runnable = () -> {
             if (ctx.getParsedURL() != null) {
                 // TODO if this step type has collectors then we need similar logic as in Wrapper ...
-                siteParser.parseInternal(ctx.getParsedURL(), ctx, this.getNextSteps(), stepExecOrder);
+                siteParser.parse(ctx.getParsedURL(), ctx, this.getNextSteps(), stepExecOrder);
 
             } else {
                 log.error("{}: Cannot parse next site - the parsed URL is null!", getName());
@@ -66,17 +66,6 @@ public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToPar
         return stepExecOrder;
     }
 
-    /**
-     * @return copy of this step
-     */
-    @Override
-    public NavigateToParsedLink setParser(SiteParserInternal<?> siteParser) {
-        return copyThisMutateAndGet(copy -> {
-            copy.siteParser = siteParser;
-            copy.siteParser.setServicesInternal(services);
-            return copy;
-        });
-    }
 
     @Override
     public boolean throttlingAllowed() {

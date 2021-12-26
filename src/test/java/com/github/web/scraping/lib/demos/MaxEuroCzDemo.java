@@ -50,7 +50,7 @@ public class MaxEuroCzDemo {
         // TODO capture the declaration order of the steps somehow ... so we can forget
 
         productsScraping
-                .debug().onlyScrapeFirstElements(true)
+                .debug().onlyScrapeFirstElements(false)
                 .debug().logSourceCodeOfFoundElements(false)
                 .setScrapingSequence(
                         Get.Descendants.ByTextContent.search("Mozaika skleněná", true)

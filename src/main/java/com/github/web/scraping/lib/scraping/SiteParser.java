@@ -16,12 +16,21 @@
 
 package com.github.web.scraping.lib.scraping;
 
+import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitScrapingStep;
+import com.github.web.scraping.lib.scraping.htmlunit.ScrapingContext;
 
-public interface SiteParser<T> {
-    // TODO how to organize the results? we might have tabular data and need to distinguish between different rows ...
-    //  also there might be some shared data ...
-    //  we should be able to assign group numbers
+import java.util.List;
+
+public interface SiteParser {
+
+    // TODO this looks pretty HtmlUnit-specific ...
+
     void parse(String url, HtmlUnitScrapingStep<?> parsingSequence);
+
+    /**
+     * For internal lib uses only
+     */
+    void parse(String url, ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequence, StepExecOrder currStepExecOrder);
 
 }

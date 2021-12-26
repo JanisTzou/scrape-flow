@@ -23,17 +23,8 @@ import lombok.RequiredArgsConstructor;
  * Parses data from a given site/URL based on provided parsingStrategies
  */
 @RequiredArgsConstructor
-public abstract class SiteParserBase<T> implements SiteParserInternal<T> {
+public abstract class SiteParserBase<T> implements SiteParser {
 
     protected final DriverManager<T> driverManager;
-
-    protected ScrapingServices services;
-
-    // only for internal uses ...
-    public void setServicesInternal(ScrapingServices services) {
-        this.services = services;
-    }
-
-    // TODO create specific implementations for HtmlUnit and Selenium ...
 
 }

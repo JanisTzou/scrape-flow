@@ -35,18 +35,18 @@ public class Scraping {
      * Should specific for one scraping instance
      */
     private final ScrapingServices services;
-    private SiteParserInternal<?> parser;
+    private SiteParser parser;
     // TODO the parsing sequence needs to be something generic - not HtmlUnit-specific ...
     private HtmlUnitScrapingStep<?> scrapingSequence;
 
     // TODO add option to not crawl duplicate URLS ...
 
 
-    public Scraping(SiteParserInternal<?> parser, int maxRequestRatePerSec) {
+    public Scraping(SiteParser parser, int maxRequestRatePerSec) {
         this(new ScrapingServices(new ScrapingRateLimiterImpl(maxRequestRatePerSec)), parser);
     }
 
-    Scraping(ScrapingServices services, SiteParserInternal<?> parser) {
+    Scraping(ScrapingServices services, SiteParser parser) {
         this.services = services;
         this.parser = parser;
     }

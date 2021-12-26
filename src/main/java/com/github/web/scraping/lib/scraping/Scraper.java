@@ -16,10 +16,12 @@
 
 package com.github.web.scraping.lib.scraping;
 
+import com.github.web.scraping.lib.scraping.htmlunit.StepsUtils;
 import lombok.extern.log4j.Log4j2;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,8 +43,8 @@ public class Scraper {
 
     private void doScrape(String url, Scraping scraping) {
         this.scrapings.add(scraping);
-        SiteParserInternal<?> parser = scraping.getParser();
-        parser.setServicesInternal(scraping.getServices());
+        SiteParser parser = scraping.getParser();
+        StepsUtils.propagateServicesRecursively(scraping.getScrapingSequence(), scraping.getServices(), new HashSet<>());
         parser.parse(url, scraping.getScrapingSequence());
     }
 

@@ -53,8 +53,11 @@ public class BbcComDemo {
 
         final Scraping articlesScraping = new Scraping(parser, 10)
                 .setScrapingSequence(
-                        Get.Descendants.ByAttribute.nameAndValue("aria-label", "World").getFirst()
-                                .next(Get.Descendants.ByTag.ul().getFirst()
+                        Get.Descendants.ByAttribute.nameAndValue("aria-label", "World")
+                                .getFirst()
+
+                                .next(Get.Descendants.ByTag.ul()
+                                        .getFirst()
                                         .next(Get.Descendants.ByTag.li()
                                                 .next(Do.filterElements(domNode -> domNode.getTextContent().contains("Africa"))
                                                         .setCollector(Section::new, Section.class, new SectionListener())
