@@ -52,8 +52,7 @@ public class HtmlUnitStepHelper {
             }
 
             final List<DomNode> foundNodes = nodesSearch.get();
-            // TODO make it possible to log XML if logging turned on for it ...
-//            log.debug("{} - {}: found {} nodes based on {}", currStepExecOrder, step.getName(), foundNodes.size(), ctx.getNode().asXml());
+
             log.debug("{} - {}: found {} nodes", currStepExecOrder, step.getName(), foundNodes.size());
 
             final List<DomNode> filteredNodes = filter(nodesSearch.get(), nodesFilter);
@@ -67,7 +66,7 @@ public class HtmlUnitStepHelper {
                 List<ModelToPublish> modelToPublishList = new ArrayList<>();
 
                 // generate models
-                step.getCollectorSetups().getModelSuppliers().stream()
+                step.getCollectorSetups().getModelSuppliers()
                         .forEach(co -> {
                             Object model = co.getModelSupplier().get();
                             Class<?> modelClass = co.getModelClass();
@@ -78,9 +77,8 @@ public class HtmlUnitStepHelper {
                             nextContextModels.push(model, modelClass);
                         });
 
-                // populate containers ...
-                step.getCollectorSetups().getAccumulators().stream()
-                        // TODO only custom clases allowed here ...
+                // populate containers with generated models ...
+                step.getCollectorSetups().getAccumulators()
                         .forEach(op -> {
                             BiConsumer<Object, Object> accumulator = op.getAccumulator();
 
@@ -93,7 +91,7 @@ public class HtmlUnitStepHelper {
 
                             if (container.isPresent() && accumulatedModel.isPresent()) {
                                 accumulator.accept(container.get().getModel(), accumulatedModel.get().getModel());
-                            } else {
+                            } else if (container.isPresent()) {
                                 if (this instanceof HtmlUnitStepCollectingParsedValueToModel) { // TODO this will not work as 'this' is the helper ... make this work ...
                                     // has its own handling ...
                                 } else {
@@ -107,6 +105,7 @@ public class HtmlUnitStepHelper {
                 List<StepExecOrder> generatedSteps = executeNextSteps(currStepExecOrder, node, ctx, nextContextModels);
 
                 // TODO this step is what is missing when we call HtmlUnitSiteParser or NavigateToPage step ... from another step ... if it has a collector set to it ...
+                //  decide which category of steps absolutely must use this and make it somehow nicely available ...
                 if (!modelToPublishList.isEmpty()) { // important
                     step.getServices().getStepAndDataRelationshipTracker().track(currStepExecOrder, generatedSteps, modelToPublishList);
                     step.getServices().getNotificationService().track(generatedSteps);
@@ -117,6 +116,7 @@ public class HtmlUnitStepHelper {
             log.error("{} - {}: Error executing step", currStepExecOrder, step.getName(), e);
         }
     }
+
 
     private void logNodeSourceCode(DomNode node) {
         if (!(node instanceof Page)

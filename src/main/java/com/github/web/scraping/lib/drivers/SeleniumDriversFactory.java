@@ -41,7 +41,7 @@ public class SeleniumDriversFactory implements DriversFactory<WebDriver> {
         ChromeOptions options = new ChromeOptions();
         options.setHeadless(isHeadless);
         options.addArguments("--disable-notifications");
-        WebDriver driverObj = new ChromeDriver(options); // TODO this here kills the app if VPN not on ... -> handle this ...
+        WebDriver driverObj = new ChromeDriver(options);
 
         driverObj.manage().timeouts().implicitlyWait(10000, TimeUnit.MICROSECONDS);
         return driverObj;

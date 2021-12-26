@@ -38,7 +38,7 @@ public class ScrapingServices {
     private final Debugging globalDebugging = new Debugging();
 
     public ScrapingServices(ScrapingRateLimiter scrapingRateLimiter) {
-        stepTaskExecutor = new StepTaskExecutor(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter);
+        stepTaskExecutor = new StepTaskExecutor(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker);
     }
 
 }

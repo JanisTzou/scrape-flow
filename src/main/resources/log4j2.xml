@@ -2,7 +2,7 @@
 <Configuration>
 
     <Properties>
-        <Property name="level">info</Property>
+        <Property name="level">debug</Property>
         <Property name="layoutPattern">$${sys:app-name} %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-20thread %-30c{1.}:  %msg%n
         </Property>
         <Property name="app-name">Scrapers</Property>

@@ -47,8 +47,6 @@ public class MaxEuroCzDemo {
 
         final Scraping productsScraping = new Scraping(siteParser, 10);
 
-        // TODO capture the declaration order of the steps somehow ... so we can forget
-
         productsScraping
                 .debug().onlyScrapeFirstElements(false)
                 .debug().logSourceCodeOfFoundElements(false)

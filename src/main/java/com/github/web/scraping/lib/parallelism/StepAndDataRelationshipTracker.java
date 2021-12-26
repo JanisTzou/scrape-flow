@@ -35,8 +35,6 @@ import java.util.stream.Collectors;
 @Log4j2
 public class StepAndDataRelationshipTracker {
 
-    // TODO guard by read write locks!
-
 
     /**
      * The owning step order is the step that generated the data model object
@@ -126,6 +124,7 @@ public class StepAndDataRelationshipTracker {
             prevParent = parent.get();
             parent = parent.get().getParent();
         }
+        log.debug("relatedSteps for {} are : {}", step, relatedSteps);
         return relatedSteps;
     }
 
@@ -218,6 +217,7 @@ public class StepAndDataRelationshipTracker {
 
     @RequiredArgsConstructor
     @Getter
+    @ToString
     static class RelatedSteps {
 
         private final StepExecOrder parent;

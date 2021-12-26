@@ -25,13 +25,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Log4j2
 public class Scraper {
 
-    // TODO preserve insertion order?
-    // can the parsing here be from both selenium and htmlunit?
-    private final Set<Scraping> scrapings = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    // TODO can the parsing here be from both selenium and htmlunit?
+    private final List<Scraping> scrapings = new CopyOnWriteArrayList<>();
+
+    public void scrape(EntryPoint entryPoint) {
+        this.scrape(List.of(entryPoint));
+    }
 
     public void scrape(List<EntryPoint> entryPoints) {
         for (EntryPoint entryPoint : entryPoints) {
@@ -46,10 +50,6 @@ public class Scraper {
         SiteParser parser = scraping.getParser();
         StepsUtils.propagateServicesRecursively(scraping.getScrapingSequence(), scraping.getServices(), new HashSet<>());
         parser.parse(url, scraping.getScrapingSequence());
-    }
-
-    public void scrape(EntryPoint entryPoint) {
-        this.scrape(List.of(entryPoint));
     }
 
     public void awaitCompletion(Duration timeout) {

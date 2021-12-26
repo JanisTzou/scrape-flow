@@ -28,8 +28,6 @@ import static com.github.web.scraping.lib.parallelism.StepAndDataRelationshipTra
 @Log4j2
 public class NotificationService {
 
-    // TODO support enforced data model 'flushing' if we know by that point that the data model has been populated but the following steps are too long to wait to finish ...
-
     private final StepAndDataRelationshipTracker stepAndDataRelationshipTracker;
 
     private final Queue<StepExecOrder> publishingOrderQueue = new PriorityQueue<>(100, StepExecOrder.NATURAL_COMPARATOR);
@@ -41,6 +39,8 @@ public class NotificationService {
         this.stepAndDataRelationshipTracker = stepAndDataRelationshipTracker;
     }
 
+
+    // TODO fix this better ... potential deadlocks ...
 
     /**
      * Call this only when the spawnedModel instance was just instantiated (-> do not call this from places where the data model was readily propagated ...)

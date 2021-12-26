@@ -52,10 +52,11 @@ public class BbcComDemo {
         final HtmlUnitSiteParser parser = new HtmlUnitSiteParser(driverManager);
 
         final Scraping articlesScraping = new Scraping(parser, 10)
+                .debug().logSourceCodeOfFoundElements(false)
+                .debug().onlyScrapeFirstElements(true)
                 .setScrapingSequence(
                         Get.Descendants.ByAttribute.nameAndValue("aria-label", "World")
                                 .getFirst()
-
                                 .next(Get.Descendants.ByTag.ul()
                                         .getFirst()
                                         .next(Get.Descendants.ByTag.li()

@@ -36,6 +36,10 @@ public class ActiveStepsTracker {
         return patriciaTrie.prefixMap(stepOrder.asString()).size() > 0;
     }
 
+    public synchronized boolean isActive(StepExecOrder stepOrder) {
+        return patriciaTrie.get(stepOrder.asString()) != null;
+    }
+
     public synchronized void track(StepExecOrder stepExecOrder, String name) {
         log.debug("tracking {} - {}", stepExecOrder, name);
         patriciaTrie.put(stepExecOrder.asString(), new TrackedStepOrder(stepExecOrder, name));

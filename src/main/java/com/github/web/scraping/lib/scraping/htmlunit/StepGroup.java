@@ -46,8 +46,12 @@ public class StepGroup extends CommonOperationsStepBase<StepGroup>
     public  StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
-        Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
-        getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
+        Runnable runnable = () -> {
+            Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
+            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
+        };
+
+        handleExecution(stepExecOrder, runnable);
 
         return stepExecOrder;
     }

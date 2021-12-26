@@ -19,9 +19,6 @@ package com.github.web.scraping.lib.parallelism;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * TODO explain notions of sibling, parent and child ...
- */
 public class StepExecOrder {
 
     public static final StepExecOrder INITIAL = new StepExecOrder(List.of(0));

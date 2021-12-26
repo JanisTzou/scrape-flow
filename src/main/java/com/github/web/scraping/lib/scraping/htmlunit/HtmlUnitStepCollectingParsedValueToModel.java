@@ -16,6 +16,7 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -44,36 +45,34 @@ interface HtmlUnitStepCollectingParsedValueToModel<C, V> {
 
     default <T> void setParsedValueToModel(CollectorSetups collectorSetups, ScrapingContext ctx, T parsedValue, String stepName, StackTraceElement stepDeclarationLine) {
         try {
-            List<CollectorSetup> stringCollectors = collectorSetups.getAccumulators().stream()
-                    .filter(co -> co.getModelClass().equals(parsedValue.getClass()))
-                    .collect(Collectors.toList());
+            List<CollectorSetup> cols = getCollectorsWithAccumulatorsForParsedValueType(collectorSetups, parsedValue);
 
-            for (CollectorSetup collectorSetup : stringCollectors) {
-                Class<?> contCls = collectorSetup.getContainerClass();
-                AccumulatorType accumulatorType = collectorSetup.getAccumulatorType();
-                Optional<ModelWrapper> model = ctx.getContextModels().getModelFor(contCls);
-                if (model.isPresent()) {
-                    boolean valueIllegallySetMultipleTimes = accumulatorType.equals(AccumulatorType.ONE) && model.get().isAlreadyApplied(collectorSetups);
+            for (CollectorSetup col : cols) {
+                Optional<ModelWrapper> mw = ctx.getContextModels().getModelFor(col.getContainerClass());
+                if (mw.isPresent()) {
+                    boolean valueIllegallySetMultipleTimes = col.getAccumulatorType().equals(AccumulatorType.ONE) && mw.get().isAlreadyApplied(collectorSetups);
                     if (valueIllegallySetMultipleTimes) {
                         log.error("Wrong parsed data collector setup detected in the step sequence related to model of class type '{}' related to line: {}! " +
-                                " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided", model.get().getModel().getClass().getSimpleName(), stepDeclarationLine);
+                                " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided", mw.get().getModel().getClass().getSimpleName(), stepDeclarationLine);
                     } else {
-                        collectorSetup.getAccumulator().accept(model.get().getModel(), parsedValue);
-                        model.get().addAppliedAccumulator(collectorSetups);
+                        col.getAccumulator().accept(mw.get().getModel(), parsedValue);
+                        mw.get().addAppliedAccumulator(collectorSetups);
                     }
                 } else {
                     log.error("No model is set up for parsed value in step {}! Cannot collect parsed data to it!", stepName);
                 }
             }
 
-            if (stringCollectors.isEmpty()) {
-                // this is ok ... when we e.g. parse HRef but do not put it here ...
-                log.debug("No collecting operation is set up for parsed value in step {}! Cannot collect parsed data!", stepName);
-            }
-
         } catch (Exception e) {
             log.error("{}: failed to set parsed value to model", stepName, e);
         }
+    }
+
+    @Nonnull
+    private <T> List<CollectorSetup> getCollectorsWithAccumulatorsForParsedValueType(CollectorSetups collectorSetups, T parsedValue) {
+        return collectorSetups.getAccumulators().stream()
+                .filter(co -> co.getModelClass().equals(parsedValue.getClass()))
+                .collect(Collectors.toList());
     }
 
 }

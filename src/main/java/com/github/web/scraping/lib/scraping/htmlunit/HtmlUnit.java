@@ -265,6 +265,11 @@ public class HtmlUnit {
             return new Paginate();
         }
 
+
+        public static DownloadImage downloadImage() {
+            return new DownloadImage();
+            // TODO other types of files?
+        }
     }
 
     public static class Flow {
@@ -281,6 +286,6 @@ public class HtmlUnit {
         // TODO define sets of conditions that we can use in next() ... to avoid dealing with DomNode ...
 
         // HasAnyDescendats of
-
     }
+
 }

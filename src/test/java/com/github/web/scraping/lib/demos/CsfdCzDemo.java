@@ -22,7 +22,7 @@ import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import com.github.web.scraping.lib.scraping.EntryPoint;
 import com.github.web.scraping.lib.scraping.Scraper;
 import com.github.web.scraping.lib.scraping.Scraping;
-import com.github.web.scraping.lib.scraping.htmlunit.Download;
+import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.utils.JsonUtils;
 import lombok.Getter;
@@ -60,7 +60,7 @@ public class CsfdCzDemo {
                                                         .next(Get.Descendants.ByTag.tagName("figure")
                                                                 .next(Get.firstChildElem()
                                                                         .next(Parse.hRef(href -> "https:" + href)
-                                                                                .next(Download.image()
+                                                                                .next(HtmlUnit.Do.downloadImage()
                                                                                         .collectOne(Article::setImage, Article.class)
                                                                                 )
                                                                         )

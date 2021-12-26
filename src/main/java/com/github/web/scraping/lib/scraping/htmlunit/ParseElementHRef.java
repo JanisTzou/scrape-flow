@@ -67,9 +67,8 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
                 if (href != null) {
                     String transformed = transformParsedText(href);
                     log.debug("{} - {}: Parsed href: {}", stepExecOrder, getName(), transformed);
-                    // TODO actually have another transformation that will say something like "transformToFullURL ... and put that one to the context below)
 
-                    setParsedValueToModel(this.getCollectorSetups(), ctx, transformed, getName(), stepDeclarationLine); // TODO let this be handled by the helper?
+                    setParsedValueToModel(this.getCollectorSetups(), ctx, transformed, getName(), stepDeclarationLine);
 
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
                     ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();

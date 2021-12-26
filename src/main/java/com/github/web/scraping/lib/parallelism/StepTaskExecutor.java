@@ -25,6 +25,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,8 +36,6 @@ import java.util.function.Supplier;
 @Log4j2
 public class StepTaskExecutor {
 
-    // TODO specialised thread pool for parsing / blocking operations  ...
-
     public static final Duration PERIODIC_EXEC_NEXT_TRIGGER_INTERVAL = Duration.ofMillis(100);
     public static final long COMPLETION_CHECK_FREQUENCY_MILLIS = 100L;
     private final Queue<QueuedStepTask> taskQueue;
@@ -45,17 +44,21 @@ public class StepTaskExecutor {
     private final ExecutingTasksTracker executingTasksTracker;
     private volatile Supplier<LocalDateTime> nowSupplier;
     private final ExclusiveExecutionTracker exclusiveExecutionTracker;
+    private final ActiveStepsTracker activeStepsTracker;
     private final ScrapingRateLimiter scrapingRateLimiter;
     private final AtomicInteger activeTaskCount = new AtomicInteger(0);
 
     public StepTaskExecutor(ThrottlingService throttlingService,
                             ExclusiveExecutionTracker exclusiveExecutionTracker,
-                            ScrapingRateLimiter scrapingRateLimiter) {
+                            ScrapingRateLimiter scrapingRateLimiter,
+                            ActiveStepsTracker activeStepsTracker) {
         this(throttlingService,
                 PERIODIC_EXEC_NEXT_TRIGGER_INTERVAL, // sensible default
                 LocalDateTime::now,
                 new ExecutingTasksTracker(),
-                exclusiveExecutionTracker, scrapingRateLimiter);
+                exclusiveExecutionTracker,
+                activeStepsTracker,
+                scrapingRateLimiter);
     }
 
     /**
@@ -67,10 +70,11 @@ public class StepTaskExecutor {
                      Supplier<LocalDateTime> nowSupplier,
                      ExecutingTasksTracker executingTasksTracker,
                      ExclusiveExecutionTracker exclusiveExecutionTracker,
-                     ScrapingRateLimiter scrapingRateLimiter) {
+                     ActiveStepsTracker activeStepsTracker, ScrapingRateLimiter scrapingRateLimiter) {
         this.throttlingService = requestsPerSecondCounter;
         this.executingTasksTracker = executingTasksTracker;
         this.exclusiveExecutionTracker = exclusiveExecutionTracker;
+        this.activeStepsTracker = activeStepsTracker;
         this.scrapingRateLimiter = scrapingRateLimiter;
         this.taskQueue = new PriorityBlockingQueue<>(100, QueuedStepTask.NATURAL_COMPARATOR);
         this.periodicExecNextTriggerInterval = periodicExecNextTriggerInterval;
@@ -118,7 +122,7 @@ public class StepTaskExecutor {
 
             QueuedStepTask next = taskQueue.peek();
 
-            while (canExecute(next)) { // TODO maybe we are processing too much ? ... we should only take as many as there are threads in the pool ... at most ...
+            while (canExecute(next)) {
                 executingTasksTracker.track(next.getStepTask());
                 taskQueue.poll(); // remove from queue head
                 executeTask(next.getStepTask(),
@@ -137,7 +141,12 @@ public class StepTaskExecutor {
      * Non-throttlable tasks can proceed without limits. Throttlable tasks need to be limited in terms of how many are executed in parallel
      */
     private boolean canExecute(QueuedStepTask next) {
-        return next != null
+        if (next == null) {
+            return false;
+        }
+        Optional<StepExecOrder> parentTask = next.getStepTask().getStepExecOrder().getParent();
+        boolean parentTaskFinished = parentTask.map(pt ->  !activeStepsTracker.isActive(pt)).orElse(true); // super important that children do not skip parent tasks ... issues that are hard to debug ...
+        return parentTaskFinished
                 && exclusiveExecutionTracker.canExecute(next)
                 && (!next.getStepTask().isMakingHttpRequests() || scrapingRateLimiter.incrementIfRequestWithinLimitAndGet(nowSupplier.get()))
                 && (!next.getStepTask().isThrottlingAllowed() || throttlingService.canProceed(executingTasksTracker.countOfExecutingThrottlableTasks()));
@@ -188,14 +197,14 @@ public class StepTaskExecutor {
                             try {
                                 taskResultConsumer.accept(taskResult);
                             } catch (Exception e) {
-                                log.error("Error consuming result for task: {}", task.loggingInfo());
+                                log.error("Error consuming result for task: {}", task.loggingInfo(), e);
                             }
                         },
                         throwable -> {
                             try {
                                 taskErrorConsumer.accept(new TaskError(task, throwable));
                             } catch (Exception e) {
-                                log.error("Error consuming error result for execution of task: {}", task.loggingInfo());
+                                log.error("Error consuming error result for execution of task: {}", task.loggingInfo(), e);
                             }
                         }
                 );

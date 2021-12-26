@@ -62,7 +62,6 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
 
     protected Debugging stepDebugging = new Debugging();
 
-    // TODO actually use in logging ...
     /**
      * for logging and debugging
      */
@@ -90,7 +89,6 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         });
     }
 
-    // TODO having this public is a problem ... we will need a builder to be able to have clean interfaces ...
     /**
      * @return copy of this step
      */
