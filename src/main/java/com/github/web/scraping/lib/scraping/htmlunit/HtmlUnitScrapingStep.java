@@ -20,7 +20,6 @@ import com.github.web.scraping.lib.debugging.Debugging;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.parallelism.StepTask;
 import com.github.web.scraping.lib.scraping.MakingHttpRequests;
-import com.github.web.scraping.lib.scraping.Scraping;
 import com.github.web.scraping.lib.scraping.ScrapingServices;
 import com.github.web.scraping.lib.scraping.StepThrottling;
 import lombok.Getter;
@@ -33,31 +32,31 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Log4j2
 public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> implements StepThrottling {
 
     protected static Function<String, String> NO_TEXT_TRANSFORMATION = s -> s;
+
     private final List<HtmlUnitScrapingStep<?>> nextSteps;
 
-    @Getter
     protected boolean exclusiveExecution = false;
+
     /**
      * condition for the execution of this step
      */
-    @Getter
     protected ExecutionCondition executeIf = null;
+
     /**
      * relevant for steps that do scrape textual values
      */
     protected Function<String, String> parsedTextTransformation = NO_TEXT_TRANSFORMATION; // by default return the string as-is
+
     protected ScrapingServices services;
+
     /**
      * To be used on logging to give the user an accurate location of a problematic step
      */
-    @Getter
     protected StackTraceElement stepDeclarationLine;
     private CollectorSetups collectorSetups = new CollectorSetups();
 
@@ -69,9 +68,11 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
      */
     private String name = getClass().getSimpleName() + "-unnamed-step";
 
-    public HtmlUnitScrapingStep(List<HtmlUnitScrapingStep<?>> nextSteps) {
+
+    protected HtmlUnitScrapingStep(List<HtmlUnitScrapingStep<?>> nextSteps) {
         this.nextSteps = new ArrayList<>(Objects.requireNonNullElse(nextSteps, Collections.emptyList()));
     }
+
 
     protected abstract StepExecOrder execute(ScrapingContext ctx);
 
@@ -93,7 +94,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     /**
      * @return copy of this step
      */
-    public C setStepDeclarationLine(StackTraceElement stepDeclarationLine) {
+    protected C setStepDeclarationLine(StackTraceElement stepDeclarationLine) {
         return copyThisMutateAndGet(copy -> {
             copy.stepDeclarationLine = stepDeclarationLine;
             return copy;
@@ -127,7 +128,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     /**
      * mutating - internal usage only
      */
-    void setCollectorSetups(CollectorSetups collectorSetups) {
+    protected void setCollectorSetupsMutably(CollectorSetups collectorSetups) {
         this.collectorSetups = collectorSetups;
     }
 
@@ -138,7 +139,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         return copyThisMutateAndGet(copy -> {
             CollectorSetups csCopy = getCollectorSetups().copy();
             csCopy.add(cs);
-            copy.setCollectorSetups(csCopy);
+            copy.setCollectorSetupsMutably(csCopy);
             return copy;
         });
     }
@@ -182,11 +183,23 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         return services;
     }
 
+    protected boolean isExclusiveExecution() {
+        return exclusiveExecution;
+    }
+
+    protected ExecutionCondition getExecuteIf() {
+        return executeIf;
+    }
+
+    protected StackTraceElement getStepDeclarationLine() {
+        return stepDeclarationLine;
+    }
+
     public String getName() {
         return name;
     }
 
-    void setName(String name) {
+    protected void setName(String name) {
         this.name = name;
     }
 
@@ -235,7 +248,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     }
 
     // TODO having this public is a problem ... we will need a builder to be able to have clean interfaces ...
-    public abstract C copy();
+    protected abstract C copy();
 
     protected C copyThisMutateAndGet(UnaryOperator<C> copyMutation) {
         return copyMutation.apply(this.copy());

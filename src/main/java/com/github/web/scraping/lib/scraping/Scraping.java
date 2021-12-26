@@ -18,6 +18,7 @@ package com.github.web.scraping.lib.scraping;
 
 import com.github.web.scraping.lib.debugging.Debugging;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitScrapingStep;
+import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitScrapingStepUpdater;
 import com.github.web.scraping.lib.scraping.htmlunit.StepsUtils;
 import com.github.web.scraping.lib.throttling.ScrapingRateLimiterImpl;
 import lombok.Getter;
@@ -51,9 +52,8 @@ public class Scraping {
         this.parser = parser;
     }
 
-    public Scraping setScrapingSequence(HtmlUnitScrapingStep<?> scrapingSequence) {
-        this.scrapingSequence = scrapingSequence.copy()
-                .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(2));
+    public <T extends HtmlUnitScrapingStep<T>> Scraping setScrapingSequence(T sequence) {
+        this.scrapingSequence = new HtmlUnitScrapingStepUpdater<>(sequence).setScrapingSequence(StepsUtils.getStackTraceElementAt(2));
         return this;
     }
 
