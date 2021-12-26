@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.*;
+import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.AccumulatorType;
 
 
 public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>> extends HtmlUnitScrapingStep<C>

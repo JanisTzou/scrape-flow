@@ -16,9 +16,9 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-import com.github.web.scraping.lib.scraping.SiteParserInternal;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.scraping.LoadingNewPage;
+import com.github.web.scraping.lib.scraping.SiteParserInternal;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.List;

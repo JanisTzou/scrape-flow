@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.GetElementsByDomTraversal.*;
+import static com.github.web.scraping.lib.scraping.htmlunit.GetElementsByDomTraversal.Type;
 
 public class HtmlUnit {
 

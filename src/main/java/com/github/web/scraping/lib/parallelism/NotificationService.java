@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static com.github.web.scraping.lib.parallelism.StepAndDataRelationshipTracker.*;
+import static com.github.web.scraping.lib.parallelism.StepAndDataRelationshipTracker.FinalizedModels;
 
 @Log4j2
 public class NotificationService {

@@ -16,8 +16,6 @@
 
 package com.github.web.scraping.lib.scraping;
 
-import com.github.web.scraping.lib.debugging.Debugging;
-
 public class DebuggableScraping {
 
     private final Scraping scraping;

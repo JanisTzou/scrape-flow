@@ -20,9 +20,9 @@ import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.github.web.scraping.lib.scraping.SiteParserBase;
 import com.github.web.scraping.lib.drivers.DriverManager;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
+import com.github.web.scraping.lib.scraping.SiteParserBase;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;

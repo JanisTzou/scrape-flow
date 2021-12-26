@@ -27,7 +27,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.*;
+import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.AccumulatorType;
 
 public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
         implements HtmlUnitStepCollectingParsedStringToModel<ParseElementHRef>,

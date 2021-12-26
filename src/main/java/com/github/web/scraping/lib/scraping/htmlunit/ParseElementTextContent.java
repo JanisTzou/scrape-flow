@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.*;
+import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.AccumulatorType;
 
 public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTextContent>
         implements HtmlUnitStepCollectingParsedStringToModel<ParseElementTextContent>,

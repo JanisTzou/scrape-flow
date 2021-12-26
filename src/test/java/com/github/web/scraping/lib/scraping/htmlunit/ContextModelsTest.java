@@ -16,8 +16,6 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-import com.github.web.scraping.lib.scraping.htmlunit.ContextModels;
-import com.github.web.scraping.lib.scraping.htmlunit.ModelWrapper;
 import org.junit.Test;
 
 import java.util.Optional;

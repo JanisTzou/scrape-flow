@@ -21,14 +21,10 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.web.scraping.lib.debugging.GetFirstNItemsStatefulPredicate;
 import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
-import com.github.web.scraping.lib.scraping.ScrapingServices;
-import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;

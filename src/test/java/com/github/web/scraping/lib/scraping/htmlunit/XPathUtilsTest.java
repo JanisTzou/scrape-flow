@@ -16,7 +16,6 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-import com.github.web.scraping.lib.scraping.htmlunit.XPathUtils;
 import junit.framework.TestCase;
 
 public class XPathUtilsTest extends TestCase {

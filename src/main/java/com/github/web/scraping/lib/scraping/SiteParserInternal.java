@@ -16,9 +16,9 @@
 
 package com.github.web.scraping.lib.scraping;
 
+import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitScrapingStep;
 import com.github.web.scraping.lib.scraping.htmlunit.ScrapingContext;
-import com.github.web.scraping.lib.parallelism.StepExecOrder;
 
 import java.util.List;
 

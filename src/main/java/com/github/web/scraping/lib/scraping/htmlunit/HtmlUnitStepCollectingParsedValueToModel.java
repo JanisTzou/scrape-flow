@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.*;
+import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.AccumulatorType;
 
 interface HtmlUnitStepCollectingParsedValueToModel<C, V> {
 

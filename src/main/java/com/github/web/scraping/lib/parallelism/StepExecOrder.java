@@ -18,7 +18,6 @@ package com.github.web.scraping.lib.parallelism;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * TODO explain notions of sibling, parent and child ...

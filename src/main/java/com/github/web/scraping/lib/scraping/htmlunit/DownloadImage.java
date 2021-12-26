@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.*;
+import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.AccumulatorType;
 
 @Log4j2
 public class DownloadImage extends CommonOperationsStepBase<DownloadImage>

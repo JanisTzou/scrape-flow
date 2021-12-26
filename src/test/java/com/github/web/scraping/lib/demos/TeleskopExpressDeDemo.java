@@ -16,14 +16,14 @@
 
 package com.github.web.scraping.lib.demos;
 
+import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
+import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
+import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import com.github.web.scraping.lib.scraping.EntryPoint;
 import com.github.web.scraping.lib.scraping.Scraper;
 import com.github.web.scraping.lib.scraping.Scraping;
 import com.github.web.scraping.lib.scraping.htmlunit.*;
 import com.github.web.scraping.lib.utils.JsonUtils;
-import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
-import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
-import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

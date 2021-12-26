@@ -16,15 +16,15 @@
 
 package com.github.web.scraping.lib.demos;
 
+import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
+import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
+import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import com.github.web.scraping.lib.scraping.EntryPoint;
 import com.github.web.scraping.lib.scraping.Scraper;
 import com.github.web.scraping.lib.scraping.Scraping;
 import com.github.web.scraping.lib.scraping.htmlunit.Download;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.utils.JsonUtils;
-import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
-import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
-import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -35,7 +35,8 @@ import org.junit.Test;
 import java.awt.image.BufferedImage;
 import java.time.Duration;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
+import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.Get;
+import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.Parse;
 
 public class CsfdCzDemo {
 

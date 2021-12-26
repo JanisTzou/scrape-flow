@@ -16,9 +16,6 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-import com.github.web.scraping.lib.scraping.htmlunit.Paginate;
-import com.github.web.scraping.lib.scraping.htmlunit.ReturnNextPage;
-import com.github.web.scraping.lib.scraping.htmlunit.StepsUtils;
 import org.junit.Test;
 
 import java.util.Optional;

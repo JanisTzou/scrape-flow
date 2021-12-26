@@ -23,7 +23,8 @@ import java.time.LocalDateTime;
 import java.util.Random;
 
 import static java.time.temporal.ChronoUnit.MILLIS;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ScrapingRateLimiterTest {
 
