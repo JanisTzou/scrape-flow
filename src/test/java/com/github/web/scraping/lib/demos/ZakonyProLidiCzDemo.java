@@ -54,13 +54,39 @@ public class ZakonyProLidiCzDemo {
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
         final HtmlUnitSiteParser parser = new HtmlUnitSiteParser(driverManager);
 
-        final Scraping productsScraping = new Scraping(parser, 3)
-                .debug().onlyScrapeFirstElements(true)
+
+        /*
+             <div class="BranchTree" id="__Page">
+
+                <div class="Node" data-groupid="15567490">
+                    <a class="Icon" title="Nemá podřízené">
+                        <img src="/res/tree-none.png" alt="nochildren">
+                    </a>
+                    <a class="Name" href="/obor/koronavirus">Koronavirus!</a>
+                    <span class="Note">(336)</span>
+                </div>
+
+                <div class="Node" data-groupid="1320807">
+                    <a class="Icon" title="Rozbalit">
+                        <img src="/res/tree-plus0.png" alt="unpack">
+                    </a>
+                    <a class="Name" href="/obor/finance-a-financni-pravo">Finance</a>
+                    <span class="Note">(5349)</span>
+                </div>
+                <!--   ...   -->
+            </div>
+
+         */
+
+        final Scraping scraping = new Scraping(parser, 5)
+                .debug().onlyScrapeFirstElements(false)
                 .setScrapingSequence(
                         Get.Descendants.ByAttribute.id("__Page")
                                 .next(Get.Descendants.ByCss.byClassName("Name")
-                                        .setCollector(Kategorie::new, Kategorie.class)
-                                        .next(Parse.textContent().collectOne(Kategorie::setJmeno, Kategorie.class))
+                                        .addCollector(Kategorie::new, Kategorie.class, new KategorieListener())
+                                        .next(Parse.textContent()
+                                                .collectOne(Kategorie::setJmeno, Kategorie.class)
+                                        )
                                         .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
                                                 .collectOne(Kategorie::setUrl, Kategorie.class)
                                                 .nextNavigate(toKategorie(parser)
@@ -71,18 +97,41 @@ public class ZakonyProLidiCzDemo {
                 );
 
 
-        start(productsScraping);
+        start(scraping);
     }
 
     private NavigateToParsedLink toKategorie(HtmlUnitSiteParser parser) {
+
+        /*
+            <div class="BranchNodes">
+                <div class="Node">
+                    <a class="Selected" href="/obor/finance-a-financni-pravo">
+                        <i class="ai ai-beak-right"></i><span>Finance</span></a><span class="Count">(5349)</span>
+                </div>
+                <div class="Body">
+                    <div class="Node">
+                        <a href="/obor/bankovnictvi-peneznictvi"><i class="ai ai-beak-right"></i><span>Bankovnictví, peněžnictví</span></a>
+                        <span class="Count">(1382)</span>
+                    </div>
+                    <div class="Node">
+                        <a href="/obor/celni-pravo"><i class="ai ai-beak-right"></i><span>Celní právo</span></a>
+                        <span class="Count">(582)</span>
+                    </div>
+                    <!--  ...-->
+                </div>
+            </div>
+         */
+
         return Do.navigateToParsedLink(parser)
                 .next(Get.Descendants.ByCss.byClassName("BranchNodes")
-                        .getFirst() // the first section
+                        .getFirst() // the first section - there are multiple BranchNodes ...
                         .next(Get.nthChildElem(2) // subcategory list is 2nd DIV
                                 // TODO it 2nd child does not exist then do something else ... add special handling for Koronavirus ...
                                 .next(Get.Descendants.ByTag.anchor()
-                                        .setCollector(PodKategorie::new, PodKategorie.class, new PodKategorieListener())
-                                        .next(Parse.textContent().collectOne(PodKategorie::setJmeno, PodKategorie.class))
+                                        .addCollector(PodKategorie::new, PodKategorie.class, new PodKategorieListener())
+                                        .next(Parse.textContent()
+                                                .collectOne(PodKategorie::setJmeno, PodKategorie.class)
+                                        )
                                         .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
                                                 .collectOne(PodKategorie::setUrl, PodKategorie.class)
                                                 .nextNavigate(toPredpisy(parser)
@@ -106,14 +155,37 @@ public class ZakonyProLidiCzDemo {
 //
 //                        )
 
+
+
     private NavigateToParsedLink toPredpisy(HtmlUnitSiteParser parser) {
+
+            /*
+                <table class="DocGrid">
+                    <thead>
+                        <tr>
+                            <th class="c1">Číslo</th>
+                            <th class="c2">Název předpisu</th>
+                            <th class="c3">Účinnost od</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="c1"><a class="TT REF_OK" href="/cs/2001-120">120/2001 Sb.</a></td>
+                            <td class="c2">Exekuční řád</td>
+                            <td class="c3">01.05.2001</td>
+                        </tr>
+                        <!--...-->
+                    </tbody>
+                </table>
+             */
+
         return Do.navigateToParsedLink(parser)
                 .next(Get.Descendants.ByCss.byClassName("DocGrid")
                         .getFirst()
                         .next(Get.Descendants.ByTag.tbody()
                                 .next(Get.Descendants.ByTag.tr()
-                                        .setCollector(PredpisInfo::new, PredpisInfo.class)
-                                        .setCollector(Predpis::new, Predpis.class)
+                                        .addCollector(PredpisInfo::new, PredpisInfo.class, new PredpisInfoListener())
+                                        .addCollector(Predpis::new, Predpis.class)
                                         .collectOne(Predpis::setInfo, Predpis.class, PredpisInfo.class)
                                         .collectOne(PredpisInfo::setKategorie, PredpisInfo.class, Kategorie.class)
                                         .collectOne(PredpisInfo::setPodKategorie, PredpisInfo.class, PodKategorie.class)
@@ -121,8 +193,8 @@ public class ZakonyProLidiCzDemo {
                                                 .next(Get.Descendants.ByTag.anchor()
                                                         .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
                                                                 .collectOne(PredpisInfo::setUrl, PredpisInfo.class)
-//                                                                        .nextNavigate(toPredpisDetail(parser) // TODO uncomment ...
-//                                                                        )
+                                                                        .nextNavigate(toPredpisDetail(parser)
+                                                                        )
                                                         )
                                                 )
                                                 .next(Parse.textContent().collectOne(PredpisInfo::setCislo, PredpisInfo.class))
@@ -144,10 +216,30 @@ public class ZakonyProLidiCzDemo {
 
 
     private NavigateToParsedLink toPredpisDetail(HtmlUnitSiteParser parser) {
+
+        /*
+            <div class="Frags"><p class="L1 Intro"><a id="f2184409"></a>120</p>
+                <p class="L1 Intro"><a id="f2184410"></a>ZÁKON</p>
+                <p class="L1 Intro"><a id="f2184411"></a>ze dne 28. února 2001</p>
+                <p class="L1 Intro"><a id="f2184412"></a>o soudních exekutorech a exekuční činnosti (exekuční řád) a o změně dalších zákonů</p>
+                <p class="L1 Intro"><a id="f2184413"></a>Parlament se usnesl na tomto zákoně České republiky:</p>
+                <div class="L0 Intro"><a id="f2184414"><i id="norma"></i></a>
+                    <hr>
+                </div>
+                <p class="L1 CAST"><a id="f2184415"><i id="cast1"></i></a>ČÁST PRVNÍ</p>
+                <h3 class="L2 NADPIS"><a id="f2184416"></a>EXEKUČNÍ ŘÁD</h3>
+                <p class="L2 HLAVA"><a id="f2184417"><i id="cast1-hlava1"></i></a>HLAVA I</p>
+                <h3 class="L3 NADPIS"><a id="f2184418"></a>ZÁKLADNÍ USTANOVENÍ</h3>
+                <p class="L3 PARA"><a id="f2184419"><i id="p1"></i></a>§ 1</p>
+                <p class="L4"><a id="f2184420"><i id="p1-1"></i></a><var>(1)</var> Soudní exekutor (dále jen "exekutor") je fyzická osoba splňující předpoklady podle tohoto zákona, kterou stát pověřil exekutorským úřadem.</p>
+                ....
+            </div>
+         */
+
         return Do.navigateToParsedLink(parser)
                 .next(Get.Descendants.ByCss.byClassName("Frags")
                         .next(Get.childElems()
-                                        .setCollector(Radek::new, Radek.class)
+                                        .addCollector(Radek::new, Radek.class)
                                         .collectMany((Predpis p, Radek r) -> p.getText().add(r), Predpis.class, Radek.class)
                                         .next(Parse.textContent()
                                                 .collectOne(Radek::setText, Radek.class)
@@ -162,7 +254,7 @@ public class ZakonyProLidiCzDemo {
         final Scraper scraper = new Scraper();
         scraper.scrape(entryPoint);
 
-        scraper.awaitCompletion(Duration.ofMinutes(5));
+        scraper.awaitCompletion(Duration.ofMinutes(15));
         Thread.sleep(2000); // let logging finish ...
     }
 

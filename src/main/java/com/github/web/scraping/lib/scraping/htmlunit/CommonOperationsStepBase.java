@@ -44,12 +44,12 @@ public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>
     }
 
     @Override
-    public <T> C setCollector(Supplier<T> modelSupplier, Class<T> modelType) {
+    public <T> C addCollector(Supplier<T> modelSupplier, Class<T> modelType) {
         return addCollectorSetup(new CollectorSetup(modelSupplier, modelType));
     }
 
     @Override
-    public <T> C setCollector(Supplier<T> modelSupplier, Class<T> modelType, ParsedDataListener<T> parsedDataListener) {
+    public <T> C addCollector(Supplier<T> modelSupplier, Class<T> modelType, ParsedDataListener<T> parsedDataListener) {
         return addCollectorSetup(new CollectorSetup(modelSupplier, modelType, parsedDataListener));
     }
 

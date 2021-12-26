@@ -67,9 +67,9 @@ public class TeleskopExpressDeDemo {
                                                 )
                                 )
                                 .next(getProductTdElemsStep
-                                        .setCollector(Product::new, Product.class, new ProductParsedListener())
+                                        .addCollector(Product::new, Product.class, new ProductParsedListener())
                                         .next(getProductCodeElemStep
-                                                .setCollector(ProductCode::new, ProductCode.class)
+                                                .addCollector(ProductCode::new, ProductCode.class)
                                                 .collectOne(Product::setProductCode, Product.class, ProductCode.class)
                                                 .next(Parse.textContent().stepName("pet-2").collectOne(ProductCode::setValue, ProductCode.class))
                                         )
@@ -91,7 +91,7 @@ public class TeleskopExpressDeDemo {
                                                                                 .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
                                                                                         .nextNavigate(Do.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
                                                                                                 .next(GetListedElementsByFirstElementXPath.instance("/html/body/table/tbody/tr[1]")
-                                                                                                        .setCollector(ShippingCosts::new, ShippingCosts.class)
+                                                                                                        .addCollector(ShippingCosts::new, ShippingCosts.class)
                                                                                                         .collectMany((Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc), Product.class, ShippingCosts.class)
                                                                                                         .next(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[1]")
                                                                                                                 .next(Parse.textContent().stepName("get-shipping-service").collectOne(ShippingCosts::setService, ShippingCosts.class))
