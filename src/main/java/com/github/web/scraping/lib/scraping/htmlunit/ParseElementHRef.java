@@ -52,7 +52,7 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
     }
 
     @Override
-    protected ParseElementHRef copy() {
+    public ParseElementHRef copy() {
         return copyFieldValuesTo(new ParseElementHRef(parsedTextTransformation));
     }
 
@@ -72,9 +72,8 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
                     setParsedValueToModel(this.getCollectorSetups(), ctx, transformed, getName(), stepDeclarationLine); // TODO let this be handled by the helper?
 
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
-                    HtmlUnitStepHelper helper = new HtmlUnitStepHelper(getNextSteps(), getName(), services, getCollectorSetups());
                     ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
-                    helper.execute(ctxCopy, nodesSearch, stepExecOrder, getExecuteIf());
+                    getHelper().execute(ctxCopy, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
                 }
             } else {
                 log.warn("No HtmlAnchor element provided -> cannot parse href value! Check the steps sequence above step {}", getName());

@@ -268,6 +268,10 @@ public class StepTaskExecutor {
                     .blockLast(timeout);
         } catch (TerminateFluxException e) {
             // ok - we terminate the flux with this ...
+        } catch (Exception e) {
+            // TODO we need a way to cancel the running tasks ... and kill all the scraping here ...
+            log.warn("Scraping did not manage to finish within the specified timeout {}", timeout);
+            return false;
         }
 
         return withinTimeout.get(); // if this was set to true we made it within the given timeout

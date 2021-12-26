@@ -16,7 +16,9 @@
 
 package com.github.web.scraping.lib.scraping;
 
+import com.github.web.scraping.lib.debugging.Debugging;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitScrapingStep;
+import com.github.web.scraping.lib.scraping.htmlunit.StepsUtils;
 import com.github.web.scraping.lib.throttling.ScrapingRateLimiterImpl;
 import lombok.Getter;
 
@@ -35,7 +37,7 @@ public class Scraping {
     private final ScrapingServices services;
     private SiteParserInternal<?> parser;
     // TODO the parsing sequence needs to be something generic - not HtmlUnit-specific ...
-    private HtmlUnitScrapingStep<?> parsingSequence;
+    private HtmlUnitScrapingStep<?> scrapingSequence;
 
     // TODO add option to not crawl duplicate URLS ...
 
@@ -44,18 +46,24 @@ public class Scraping {
         this(new ScrapingServices(new ScrapingRateLimiterImpl(maxRequestRatePerSec)), parser);
     }
 
-    public Scraping(ScrapingServices services, SiteParserInternal<?> parser) {
+    Scraping(ScrapingServices services, SiteParserInternal<?> parser) {
         this.services = services;
         this.parser = parser;
     }
 
-    public Scraping setScrapingSequence(HtmlUnitScrapingStep<?> parsingSequence) {
-        this.parsingSequence = parsingSequence;
+    public Scraping setScrapingSequence(HtmlUnitScrapingStep<?> scrapingSequence) {
+        this.scrapingSequence = scrapingSequence.copy()
+                .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(2));
         return this;
     }
 
     // should be only exposed to the scraper responsible for running this Scraping instance
-    boolean awaitCompletion(Duration timeout) {
+    public boolean awaitCompletion(Duration timeout) {
         return services.getStepTaskExecutor().awaitCompletion(timeout);
     }
+
+    public DebuggableScraping debug() {
+        return new DebuggableScraping(this);
+    }
+
 }

@@ -38,7 +38,7 @@ public class GetElementsByXPath extends GetElementsStepBase<GetElementsByXPath> 
     }
 
     @Override
-    protected GetElementsByXPath copy() {
+    public GetElementsByXPath copy() {
         return copyFieldValuesTo(new GetElementsByXPath(xPath));
     }
 
@@ -48,8 +48,9 @@ public class GetElementsByXPath extends GetElementsStepBase<GetElementsByXPath> 
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
+            // TODO how to use this as a filter ...
             Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(ctx.getNode().getByXPath(xPath));
-            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

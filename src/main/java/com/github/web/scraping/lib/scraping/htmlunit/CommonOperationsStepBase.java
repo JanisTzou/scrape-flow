@@ -56,14 +56,14 @@ public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>
     @Override
     public C next(HtmlUnitScrapingStep<?> nextStep) {
         HtmlUnitScrapingStep<?> nextCopy = nextStep.copy()
-                .setStepDeclarationLine(getStepDeclarationStackTraceEl());
+                .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3));
         return addNextStep(nextCopy);
     }
 
     @Override
     public C nextExclusively(HtmlUnitScrapingStep<?> nextStep) {
         HtmlUnitScrapingStep<?> nextCopy = nextStep.copy()
-                .setStepDeclarationLine(getStepDeclarationStackTraceEl())
+                .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3))
                 .setExclusiveExecution(true);
         return addNextStep(nextCopy);
     }
@@ -71,7 +71,7 @@ public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>
     @Override
     public <T> C nextIf(Predicate<T> condition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep) {
         HtmlUnitScrapingStep<?> nextCopy = nextStep.copy()
-                .setStepDeclarationLine(getStepDeclarationStackTraceEl())
+                .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3))
                 .setExecuteIf(new ExecutionCondition(condition, modelType));
         return addNextStep(nextCopy);
     }
@@ -79,15 +79,11 @@ public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>
     @Override
     public <T> C nextIfExclusively(Predicate<T> condition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep) {
         HtmlUnitScrapingStep<?> nextCopy = nextStep.copy()
-                .setStepDeclarationLine(getStepDeclarationStackTraceEl())
+                .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3))
                 .setExecuteIf(new ExecutionCondition(condition, modelType))
                 .setExclusiveExecution(true);
         return addNextStep(nextCopy);
 
-    }
-
-    private StackTraceElement getStepDeclarationStackTraceEl() {
-        return Thread.currentThread().getStackTrace()[3];
     }
 
     // TODO create method nextSequentially() useful when we want to visit different urls one by one and many other ... possibly?

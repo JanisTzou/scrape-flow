@@ -43,7 +43,7 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
     }
 
     @Override
-    protected FollowLink copy() {
+    public FollowLink copy() {
         return copyFieldValuesTo(new FollowLink());
     }
 
@@ -79,7 +79,7 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
                         return Collections.emptyList();
                     }
                 };
-                getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+                getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
 
             } else {
                 log.warn("{}: No HtmlAnchor element provided -> cannot click element! Check the steps sequence above step {} and maybe provide search step for an anchor tag", getName(), getName());

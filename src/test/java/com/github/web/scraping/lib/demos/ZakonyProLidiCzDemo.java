@@ -54,6 +54,7 @@ public class ZakonyProLidiCzDemo {
         final HtmlUnitSiteParser parser = new HtmlUnitSiteParser(driverManager);
 
         final Scraping productsScraping = new Scraping(parser, 3)
+                .debug().onlyScrapeFirstElements(true)
                 .setScrapingSequence(
                         Get.Descendants.ByAttribute.id("__Page")
                                 .next(Get.Descendants.ByCss.byClassName("Name")
@@ -79,7 +80,6 @@ public class ZakonyProLidiCzDemo {
                         .next(Get.nthChildElem(2) // subcategory list is 2nd DIV
                                 // TODO it 2nd child does not exist then do something else ... add special handling for Koronavirus ...
                                 .next(Get.Descendants.ByTag.anchor()
-//                                        .getFirst() // TODO remove ...
                                         .setCollector(PodKategorie::new, PodKategorie.class, new PodKategorieListener())
                                         .next(Parse.textContent().collectOne(PodKategorie::setJmeno, PodKategorie.class))
                                         .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
@@ -219,7 +219,7 @@ public class ZakonyProLidiCzDemo {
         @Override
         public void onParsingFinished(Kategorie data) {
             printLine();
-            log.info(JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
+            log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
             printLine();
         }
     }
@@ -229,7 +229,7 @@ public class ZakonyProLidiCzDemo {
         @Override
         public void onParsingFinished(PodKategorie data) {
             printLine();
-            log.info(JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
+            log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
             printLine();
         }
     }
@@ -239,7 +239,7 @@ public class ZakonyProLidiCzDemo {
         @Override
         public void onParsingFinished(PredpisInfo data) {
             printLine();
-            log.info(JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
+            log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
             printLine();
         }
     }
@@ -249,7 +249,7 @@ public class ZakonyProLidiCzDemo {
         @Override
         public void onParsingFinished(Predpis data) {
             printLine();
-            log.info(JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
+            log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
             printLine();
         }
     }

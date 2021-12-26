@@ -46,7 +46,7 @@ public class GetElementsByTextContent extends GetElementsStepBase<GetElementsByT
     }
 
     @Override
-    protected GetElementsByTextContent copy() {
+    public GetElementsByTextContent copy() {
         return copyFieldValuesTo(new GetElementsByTextContent(searchString, matchWholeTextContent));
     }
 
@@ -76,7 +76,7 @@ public class GetElementsByTextContent extends GetElementsStepBase<GetElementsByT
                 return Collections.emptyList();
             };
 
-            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

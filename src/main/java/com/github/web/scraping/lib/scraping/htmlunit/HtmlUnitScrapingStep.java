@@ -16,9 +16,11 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
+import com.github.web.scraping.lib.debugging.Debugging;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.parallelism.StepTask;
 import com.github.web.scraping.lib.scraping.MakingHttpRequests;
+import com.github.web.scraping.lib.scraping.Scraping;
 import com.github.web.scraping.lib.scraping.ScrapingServices;
 import com.github.web.scraping.lib.scraping.StepThrottling;
 import lombok.Getter;
@@ -31,12 +33,15 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Log4j2
 public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> implements StepThrottling {
 
     protected static Function<String, String> NO_TEXT_TRANSFORMATION = s -> s;
     private final List<HtmlUnitScrapingStep<?>> nextSteps;
+
     @Getter
     protected boolean exclusiveExecution = false;
     /**
@@ -56,6 +61,8 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     protected StackTraceElement stepDeclarationLine;
     private CollectorSetups collectorSetups = new CollectorSetups();
 
+    protected Debugging stepDebugging = new Debugging();
+
     // TODO actually use in logging ...
     /**
      * for logging and debugging
@@ -69,7 +76,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     protected abstract StepExecOrder execute(ScrapingContext ctx);
 
     protected HtmlUnitStepHelper getHelper() {
-        return new HtmlUnitStepHelper(getNextSteps(), getName(), services, getCollectorSetups());
+        return new HtmlUnitStepHelper(this);
     }
 
     /**
@@ -82,10 +89,11 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         });
     }
 
+    // TODO having this public is a problem ... we will need a builder to be able to have clean interfaces ...
     /**
      * @return copy of this step
      */
-    protected C setStepDeclarationLine(StackTraceElement stepDeclarationLine) {
+    public C setStepDeclarationLine(StackTraceElement stepDeclarationLine) {
         return copyThisMutateAndGet(copy -> {
             copy.stepDeclarationLine = stepDeclarationLine;
             return copy;
@@ -170,6 +178,10 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         this.services = services;
     }
 
+    protected ScrapingServices getServices() {
+        return services;
+    }
+
     public String getName() {
         return name;
     }
@@ -214,7 +226,16 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         return services.getStepExecOrderGenerator().genNextOrderAfter(stepAtPrevLevel);
     }
 
-    protected abstract C copy();
+    /**
+     * Enables logging the source codes if all the elements found by this step and processed.
+     */
+    @SuppressWarnings("unchecked")
+    public DebuggableStep<C> debug() {
+        return new DebuggableStep<C>((C) this);
+    }
+
+    // TODO having this public is a problem ... we will need a builder to be able to have clean interfaces ...
+    public abstract C copy();
 
     protected C copyThisMutateAndGet(UnaryOperator<C> copyMutation) {
         return copyMutation.apply(this.copy());
@@ -229,6 +250,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         other.stepDeclarationLine = this.stepDeclarationLine;
         other.nextSteps.addAll(this.nextSteps);
         other.services = this.services;
+        other.stepDebugging = stepDebugging.copy();
         return (C) other;
     }
 

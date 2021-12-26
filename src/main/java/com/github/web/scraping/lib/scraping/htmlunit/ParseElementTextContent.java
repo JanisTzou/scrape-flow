@@ -51,7 +51,7 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
     }
 
     @Override
-    protected ParseElementTextContent copy() {
+    public ParseElementTextContent copy() {
         return copyFieldValuesTo(new ParseElementTextContent(excludeChildElementsTextContent));
     }
 

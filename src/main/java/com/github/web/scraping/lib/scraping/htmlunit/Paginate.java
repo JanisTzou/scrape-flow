@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 @Log4j2
 public class Paginate extends CommonOperationsStepBase<Paginate> {
 
-    private HtmlUnitScrapingStep<?> paginationTrigger;
+    private HtmlUnitScrapingStep<?> paginatingSequence;
 
     private boolean servicesPropagatedToTrigger;
 
@@ -52,10 +52,10 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
     }
 
     @Override
-    protected Paginate copy() {
+    public Paginate copy() {
         Paginate copy = new Paginate(servicesPropagatedToTrigger);
-        if (this.paginationTrigger != null) {
-            copy.paginationTrigger = this.paginationTrigger.copy();
+        if (this.paginatingSequence != null) {
+            copy.paginatingSequence = this.paginatingSequence.copy();
         }
         return copyFieldValuesTo(copy);
     }
@@ -91,7 +91,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
                 ScrapingContext plainCtx = ctx.toBuilder()
                         .setRecursiveRootStepExecOrder(null)
                         .build();
-                getHelper().execute(plainCtx, nodesSearch, stepExecOrder, getExecuteIf());
+                getHelper().execute(plainCtx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
 
                 // PAGINATION
                 ScrapingContext paginatingCtx = ctx.toBuilder()
@@ -103,7 +103,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
                 //  but it is questionably if we would like to design the data propagation as models if it's just for internal purposes ...
 //                services.getStepAndDataRelationshipTracker().track(stepExecOrder, generatedSteps, model, (ParsedDataListener<Object>) collecting.getDataListener());
 
-                paginationTrigger.execute(paginatingCtx);
+                paginatingSequence.execute(paginatingCtx);
 
             }
         };
@@ -118,21 +118,22 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
      * In practice this is most often the action finding the "NEXT" button element and clicking it.
      */
     public Paginate setStepsLoadingNextPage(HtmlUnitScrapingStep<?> paginatingSequence) {
-        this.paginationTrigger = paginatingSequence;
+        this.paginatingSequence = paginatingSequence.copy()
+                .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3));
         return this;
     }
 
 
     private void checkPaginationTriggerAndLinkItToThisStep() {
-        if (paginationTrigger == null) {
+        if (paginatingSequence == null) {
             throw new IllegalStateException("paginationTrigger must be set for pagination to work!");
         } else {
-            Optional<ReturnNextPage> returnNextPageStep = StepsUtils.findStepOfTypeInSequence(paginationTrigger, ReturnNextPage.class);
+            Optional<ReturnNextPage> returnNextPageStep = StepsUtils.findStepOfTypeInSequence(paginatingSequence, ReturnNextPage.class);
             if (returnNextPageStep.isEmpty()) {
                 throw new IllegalStateException("the paginationTrigger step sequence must contain the step ReturnNextPage to work properly. Cannot execute pagination in this step: " + getName());
             } else {
                 if (!servicesPropagatedToTrigger) {
-                    StepsUtils.propagateServicesRecursively(paginationTrigger, services, new HashSet<>());
+                    StepsUtils.propagateServicesRecursively(paginatingSequence, services, new HashSet<>());
                     returnNextPageStep.get().setCallbackToPageDataProcessingStep(this); // IMPORTANT so that the step can propagate the next page back to this step
                     servicesPropagatedToTrigger = true;
                 }

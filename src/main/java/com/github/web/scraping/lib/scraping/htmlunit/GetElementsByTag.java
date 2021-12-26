@@ -42,7 +42,7 @@ public class GetElementsByTag extends GetElementsStepBase<GetElementsByTag> {
     }
 
     @Override
-    protected GetElementsByTag copy() {
+    public GetElementsByTag copy() {
         return copyFieldValuesTo(new GetElementsByTag(tagName));
     }
 
@@ -51,8 +51,9 @@ public class GetElementsByTag extends GetElementsStepBase<GetElementsByTag> {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
+            // TODO how to use this as a filter ...
             Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(HtmlUnitUtils.getDescendantsByTagName(ctx.getNode(), tagName));
-            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

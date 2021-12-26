@@ -43,7 +43,7 @@ public class GetElementsByDomTraversal extends CommonOperationsStepBase<GetEleme
     }
 
     @Override
-    protected GetElementsByDomTraversal copy() {
+    public GetElementsByDomTraversal copy() {
         return copyFieldValuesTo(new GetElementsByDomTraversal(type, param));
     }
 
@@ -68,7 +68,7 @@ public class GetElementsByDomTraversal extends CommonOperationsStepBase<GetEleme
                     case CHILD_ELEMENTS -> HtmlUnitUtils.findChildElements(node).stream().toList();
                 };
             };
-            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

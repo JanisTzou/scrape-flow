@@ -51,4 +51,8 @@ public class StepsUtils {
         return Optional.empty();
     }
 
+    public static StackTraceElement getStackTraceElementAt(int idx) {
+        return Thread.currentThread().getStackTrace()[idx];
+    }
+
 }

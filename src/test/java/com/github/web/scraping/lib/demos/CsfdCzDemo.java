@@ -20,7 +20,6 @@ import com.github.web.scraping.lib.scraping.EntryPoint;
 import com.github.web.scraping.lib.scraping.Scraper;
 import com.github.web.scraping.lib.scraping.Scraping;
 import com.github.web.scraping.lib.scraping.htmlunit.Download;
-import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.utils.JsonUtils;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
@@ -122,7 +121,7 @@ public class CsfdCzDemo {
     public static class CategoryListener implements ParsedDataListener<Category> {
         @Override
         public void onParsingFinished(Category data) {
-            log.info(JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
+            log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
         }
     }
 
@@ -131,7 +130,7 @@ public class CsfdCzDemo {
         @Override
         public void onParsingFinished(Article data) {
             data.setImage(null); //  throws exceptions ...
-            log.info(JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
+            log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
         }
     }
 
@@ -139,7 +138,7 @@ public class CsfdCzDemo {
     public static class MovieListener implements ParsedDataListener<Movie> {
         @Override
         public void onParsingFinished(Movie data) {
-            log.info(JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
+            log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
         }
     }
 

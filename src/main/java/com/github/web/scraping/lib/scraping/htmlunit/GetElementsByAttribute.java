@@ -54,7 +54,7 @@ public class GetElementsByAttribute extends GetElementsStepBase<GetElementsByAtt
     }
 
     @Override
-    protected GetElementsByAttribute copy() {
+    public GetElementsByAttribute copy() {
         return copyFieldValuesTo(new GetElementsByAttribute(attributeName, attributeValue, matchEntireValue));
     }
 
@@ -65,12 +65,13 @@ public class GetElementsByAttribute extends GetElementsStepBase<GetElementsByAtt
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> {
                 if (attributeValue != null) {
+                    // TODO have some smart filtering logic ? so we can layer filtering?
                     return filterByTraverseOption(HtmlUnitUtils.getDescendantsByAttributeValue(ctx.getNode(), attributeName, attributeValue, this.matchEntireValue));
                 } else {
                     return filterByTraverseOption(HtmlUnitUtils.getDescendantsByAttribute(ctx.getNode(), attributeName));
                 }
             };
-            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

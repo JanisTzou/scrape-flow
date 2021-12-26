@@ -211,14 +211,14 @@ public class BbcComDemo {
     public static class ArticleListener implements ParsedDataListener<Article> {
         @Override
         public void onParsingFinished(Article data) {
-            log.info(JsonUtils.write(data).orElse("JSON ERROR"));
+            log.info("\n" + JsonUtils.write(data).orElse("JSON ERROR"));
         }
     }
 
     public static class SectionListener implements ParsedDataListener<Section> {
         @Override
         public void onParsingFinished(Section data) {
-            log.info(JsonUtils.write(data).orElse("JSON ERROR"));
+            log.info("\n" + JsonUtils.write(data).orElse("JSON ERROR"));
         }
     }
 

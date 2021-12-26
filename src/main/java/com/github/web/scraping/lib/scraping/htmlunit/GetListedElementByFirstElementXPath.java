@@ -41,7 +41,7 @@ public class GetListedElementByFirstElementXPath extends GetElementsStepBase<Get
     }
 
     @Override
-    protected GetListedElementByFirstElementXPath copy() {
+    public GetListedElementByFirstElementXPath copy() {
         return copyFieldValuesTo(new GetListedElementByFirstElementXPath(xPath));
     }
 
@@ -81,7 +81,8 @@ public class GetListedElementByFirstElementXPath extends GetElementsStepBase<Get
                 return filterByTraverseOption(domNodes);
             };
 
-            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            // TODO how to use this as a filter ...
+            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

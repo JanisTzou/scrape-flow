@@ -41,7 +41,7 @@ public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToPar
     }
 
     @Override
-    protected NavigateToParsedLink copy() {
+    public NavigateToParsedLink copy() {
         return copyFieldValuesTo(new NavigateToParsedLink(siteParser));
     }
 

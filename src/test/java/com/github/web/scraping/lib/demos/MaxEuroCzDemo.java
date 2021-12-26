@@ -48,28 +48,32 @@ public class MaxEuroCzDemo {
 
         // TODO capture the declaration order of the steps somehow ... so we can forget
 
-        productsScraping.setScrapingSequence(
-                Get.Descendants.ByTextContent.search("Mozaika skleněná", true)
-                        .next(Do.mapElements(domNode -> Optional.ofNullable(domNode.getParentNode()))
-                                .next(Get.Descendants.ByTag.anchor()
-                                        .setCollector(Category::new, Category.class)
-                                        .next(Parse.textContent()
-                                                .collectOne(Category::setName, Category.class)
-                                        )
-                                        .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href)
-                                                .nextNavigate(Do.navigateToParsedLink(siteParser)
-                                                        .next(Do.paginate()
-                                                                .setStepsLoadingNextPage(
-                                                                        Get.Descendants.ByCss.byClassName("pagination")
-                                                                                .next(Get.Descendants.ByTextContent.search("»", true) // returns anchor
-                                                                                        .next(Do.filterElements(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode.getParentNode(), "class", "disabled", true))
-                                                                                                .next(Do.followLink()
-                                                                                                        .next(Do.returnNextPage())
+        productsScraping
+                .debug().onlyScrapeFirstElements(true)
+                .debug().logSourceCodeOfFoundElements(false)
+                .setScrapingSequence(
+                        Get.Descendants.ByTextContent.search("Mozaika skleněná", true)
+                                .debug().logSource(true)
+                                .next(Do.mapElements(domNode -> Optional.ofNullable(domNode.getParentNode()))
+                                        .next(Get.Descendants.ByTag.anchor()
+                                                .setCollector(Category::new, Category.class)
+                                                .next(Parse.textContent()
+                                                        .collectOne(Category::setName, Category.class)
+                                                )
+                                                .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href)
+                                                        .nextNavigate(Do.navigateToParsedLink(siteParser)
+                                                                .next(Do.paginate()
+                                                                        .setStepsLoadingNextPage(
+                                                                                Get.Descendants.ByCss.byClassName("pagination")
+                                                                                        .next(Get.Descendants.ByTextContent.search("»", true) // returns anchor
+                                                                                                .next(Do.filterElements(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode.getParentNode(), "class", "disabled", true))
+                                                                                                        .next(Do.followLink()
+                                                                                                                .next(Do.returnNextPage())
+                                                                                                        )
                                                                                                 )
                                                                                         )
-                                                                                )
-                                                                )
-                                                                .next(Get.Descendants.ByCss.byClassName("product").stepName("product-search")
+                                                                        )
+                                                                        .next(Get.Descendants.ByCss.byClassName("product").stepName("product-search")
                                                                                 .setCollector(Product::new, Product.class, new ProductListenerParsed())
                                                                                 .collectOne(Product::setCategory, Product.class, Category.class)
                                                                                 .next(Get.Descendants.ByCss.byClassName("product-name")
@@ -97,14 +101,14 @@ public class MaxEuroCzDemo {
                                                                                         )
                                                                                 )
 
+                                                                        )
                                                                 )
-                                                        )
 
+                                                        )
                                                 )
                                         )
                                 )
-                        )
-        );
+                );
 
 
         final String url = "https://www.maxeuro.cz/obklady-dlazby-mozaika-kat_1010.html";
@@ -153,7 +157,7 @@ public class MaxEuroCzDemo {
 
         @Override
         public void onParsingFinished(Product data) {
-            log.info(JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
+            log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
         }
     }
 

@@ -46,7 +46,7 @@ public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
     }
 
     @Override
-    protected DownloadImage copy() {
+    public DownloadImage copy() {
         return copyFieldValuesTo(new DownloadImage());
     }
 
@@ -68,7 +68,7 @@ public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
                 log.error("Error downloading image from URL {}", ctx.getParsedURL());
             }
 
-            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

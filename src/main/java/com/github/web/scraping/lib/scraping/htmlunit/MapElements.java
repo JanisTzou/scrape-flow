@@ -45,7 +45,7 @@ public class MapElements extends CommonOperationsStepBase<MapElements> {
     }
 
     @Override
-    protected MapElements copy() {
+    public MapElements copy() {
         return copyFieldValuesTo(new MapElements(this.mapper));
     }
 
@@ -66,7 +66,7 @@ public class MapElements extends CommonOperationsStepBase<MapElements> {
                 return Collections.emptyList();
             };
 
-            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

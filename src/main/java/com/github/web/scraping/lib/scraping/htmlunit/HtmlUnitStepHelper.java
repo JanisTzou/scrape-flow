@@ -16,7 +16,9 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
+import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.github.web.scraping.lib.debugging.GetFirstNItemsStatefulPredicate;
 import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.scraping.ScrapingServices;
@@ -29,34 +31,25 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Log4j2
 public class HtmlUnitStepHelper {
 
-    private final List<HtmlUnitScrapingStep<?>> nextSteps;
-    private final CollectorSetups collectorSetups;
-    private final ScrapingServices services;
+    private final HtmlUnitScrapingStep<?> step;
 
-    // just for debugging
-    @Getter
-    private String stepName;
 
-    /**
-     * @param stepName the delegating step name for debugging purposes
-     */
-    public HtmlUnitStepHelper(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps,
-                              String stepName,
-                              ScrapingServices services,
-                              CollectorSetups collectorSetups) {
-        this.nextSteps = Objects.requireNonNullElse(nextSteps, new ArrayList<>());
-        this.services = services;
-        this.collectorSetups = collectorSetups;
-        setStepName(stepName);
+    public HtmlUnitStepHelper(HtmlUnitScrapingStep<?> step) {
+        this.step = step;
     }
 
-    public void execute(ScrapingContext ctx, Supplier<List<DomNode>> nodesSearch, StepExecOrder currStepExecOrder, HtmlUnitScrapingStep.ExecutionCondition executeIf) {
+    public void execute(ScrapingContext ctx,
+                        Supplier<List<DomNode>> nodesSearch,
+                        Predicate<DomNode> nodesFilter,
+                        StepExecOrder currStepExecOrder,
+                        HtmlUnitScrapingStep.ExecutionCondition executeIf) {
         try {
             if (!canExecute(ctx, executeIf)) {
                 return;
@@ -64,17 +57,21 @@ public class HtmlUnitStepHelper {
 
             final List<DomNode> foundNodes = nodesSearch.get();
             // TODO make it possible to log XML if logging turned on for it ...
-//            log.debug("{} - {}: found {} nodes based on {}", currStepExecOrder, getStepName(), foundNodes.size(), ctx.getNode().asXml());
-            log.debug("{} - {}: found {} nodes", currStepExecOrder, getStepName(), foundNodes.size());
+//            log.debug("{} - {}: found {} nodes based on {}", currStepExecOrder, step.getName(), foundNodes.size(), ctx.getNode().asXml());
+            log.debug("{} - {}: found {} nodes", currStepExecOrder, step.getName(), foundNodes.size());
 
-            foundNodes.forEach(node -> {
+            final List<DomNode> filteredNodes = filter(nodesSearch.get(), nodesFilter);
+
+            filteredNodes.forEach(node -> {
+
+                logNodeSourceCode(node);
 
                 ContextModels nextContextModels = ctx.getContextModels().copy();
 
                 List<ModelToPublish> modelToPublishList = new ArrayList<>();
 
                 // generate models
-                collectorSetups.getModelSuppliers().stream()
+                step.getCollectorSetups().getModelSuppliers().stream()
                         .forEach(co -> {
                             Object model = co.getModelSupplier().get();
                             Class<?> modelClass = co.getModelClass();
@@ -86,7 +83,7 @@ public class HtmlUnitStepHelper {
                         });
 
                 // populate containers ...
-                collectorSetups.getAccumulators().stream()
+                step.getCollectorSetups().getAccumulators().stream()
                         // TODO only custom clases allowed here ...
                         .forEach(op -> {
                             BiConsumer<Object, Object> accumulator = op.getAccumulator();
@@ -104,7 +101,7 @@ public class HtmlUnitStepHelper {
                                 if (this instanceof HtmlUnitStepCollectingParsedValueToModel) { // TODO this will not work as 'this' is the helper ... make this work ...
                                     // has its own handling ...
                                 } else {
-                                    log.warn("{} - {}: Failed to find modelWrappers for containerClass and/or modelClass!", currStepExecOrder, stepName);
+                                    log.warn("{} - {}: Failed to find modelWrappers for containerClass and/or modelClass!", currStepExecOrder, step.getName());
                                 }
                             }
 
@@ -115,13 +112,21 @@ public class HtmlUnitStepHelper {
 
                 // TODO this step is what is missing when we call HtmlUnitSiteParser or NavigateToPage step ... from another step ... if it has a collector set to it ...
                 if (!modelToPublishList.isEmpty()) { // important
-                    services.getStepAndDataRelationshipTracker().track(currStepExecOrder, generatedSteps, modelToPublishList);
-                    services.getNotificationService().track(generatedSteps);
+                    step.getServices().getStepAndDataRelationshipTracker().track(currStepExecOrder, generatedSteps, modelToPublishList);
+                    step.getServices().getNotificationService().track(generatedSteps);
                 }
             });
 
         } catch (Exception e) {
-            log.error("{} - {}: Error executing step", currStepExecOrder, getStepName(), e);
+            log.error("{} - {}: Error executing step", currStepExecOrder, step.getName(), e);
+        }
+    }
+
+    private void logNodeSourceCode(DomNode node) {
+        if (!(node instanceof Page)
+                && (step.services.getGlobalDebugging().isLogSourceCodeOfFoundElements() || step.stepDebugging.isLogSourceCodeOfFoundElements())
+        ) {
+            log.info("Source for step {} defined at line {} \n{}", step.getName(), step.getStepDeclarationLine(), node.asXml());
         }
     }
 
@@ -130,26 +135,26 @@ public class HtmlUnitStepHelper {
             if (executeIf != null) {
                 Optional<ModelWrapper> model = ctx.getContextModels().getModelFor(executeIf.getModelType());
                 if (model.isPresent()) {
-                    log.debug("{}: Found model and will execute condition", stepName);
+                    log.debug("{}: Found model and will execute condition", step.getName());
                     boolean canExecute = executeIf.getPredicate().test(model.get().getModel());
                     if (canExecute) {
                         return true;
                     }
                 } else {
-                    log.error("No model is set up for parsed value in step {}! Cannot execute step conditionally based on it!", stepName);
+                    log.error("No model is set up for parsed value in step {}! Cannot execute step conditionally based on it!", step.getName());
                     return false;
                 }
             }
             return true;
         } catch (Exception e) {
-            log.error("Error evaluating execution condition for step: {} - step will not run", getStepName(), e);
+            log.error("Error evaluating execution condition for step: {} - step will not run", step.getName(), e);
             return false;
         }
     }
 
 
     private List<StepExecOrder> executeNextSteps(StepExecOrder currStepExecOrder, DomNode node, ScrapingContext ctx, ContextModels nextContextModels) {
-        return nextSteps.stream()
+        return step.getNextSteps().stream()
                 .map(step -> {
                     ScrapingContext nextCtx = new ScrapingContext(
                             currStepExecOrder,
@@ -164,9 +169,15 @@ public class HtmlUnitStepHelper {
                 .collect(Collectors.toList());
     }
 
-
-    private void setStepName(String stepName) {
-        this.stepName = stepName != null ? stepName + "-wrapper" : null;
+    private List<DomNode> filter(List<DomNode> nodes, Predicate<DomNode> predicate) {
+        // TODO decide where to put this ...
+        Predicate<DomNode> limitCount;
+        if (step.getServices().getGlobalDebugging().isOnlyScrapeFirstElements()) {
+            limitCount = new GetFirstNItemsStatefulPredicate<>(1);
+        } else {
+            limitCount = i -> true;
+        }
+        return nodes.stream().filter(predicate.and(limitCount)).collect(Collectors.toList());
     }
 
 

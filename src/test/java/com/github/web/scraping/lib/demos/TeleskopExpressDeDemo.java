@@ -207,7 +207,7 @@ public class TeleskopExpressDeDemo {
 
         @Override
         public void onParsingFinished(Product data) {
-            log.info(JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
+            log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
         }
     }
 

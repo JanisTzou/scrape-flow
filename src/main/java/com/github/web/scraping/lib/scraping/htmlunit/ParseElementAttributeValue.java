@@ -52,7 +52,7 @@ public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseEl
     }
 
     @Override
-    protected ParseElementAttributeValue copy() {
+    public ParseElementAttributeValue copy() {
         return copyFieldValuesTo(new ParseElementAttributeValue(parsedTextTransformation));
     }
 
@@ -72,7 +72,7 @@ public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseEl
 
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
                     ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
-                    getHelper().execute(ctxCopy, nodesSearch, stepExecOrder, getExecuteIf());
+                    getHelper().execute(ctxCopy, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
                 }
             } else {
                 log.warn("No HtmlAnchor element provided -> cannot parse href value! Check the steps sequence above step {}", getName());

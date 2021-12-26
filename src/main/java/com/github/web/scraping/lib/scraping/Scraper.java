@@ -43,7 +43,7 @@ public class Scraper {
         this.scrapings.add(scraping);
         SiteParserInternal<?> parser = scraping.getParser();
         parser.setServicesInternal(scraping.getServices());
-        parser.parse(url, scraping.getParsingSequence());
+        parser.parse(url, scraping.getScrapingSequence());
     }
 
     public void scrape(EntryPoint entryPoint) {

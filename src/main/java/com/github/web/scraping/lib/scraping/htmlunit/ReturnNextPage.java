@@ -41,7 +41,7 @@ public class ReturnNextPage extends CommonOperationsStepBase<ReturnNextPage> {
     }
 
     @Override
-    protected ReturnNextPage copy() {
+    public ReturnNextPage copy() {
         ReturnNextPage copy = new ReturnNextPage();
         copy.callbackStepSet = this.callbackStepSet;
         return copyFieldValuesTo(copy);
@@ -60,7 +60,7 @@ public class ReturnNextPage extends CommonOperationsStepBase<ReturnNextPage> {
 
             if (page.isPresent()) {
                 Supplier<List<DomNode>> nodesSearch = () -> List.of(page.get());
-                getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+                getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
             } else {
                 log.error("The previous step did not produce an HtmlPage! Cannot process next page data in step {}", getName());
             }

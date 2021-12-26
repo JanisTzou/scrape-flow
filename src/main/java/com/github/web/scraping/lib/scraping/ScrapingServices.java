@@ -16,9 +16,9 @@
 
 package com.github.web.scraping.lib.scraping;
 
+import com.github.web.scraping.lib.debugging.Debugging;
 import com.github.web.scraping.lib.parallelism.*;
 import com.github.web.scraping.lib.throttling.ScrapingRateLimiter;
-import com.github.web.scraping.lib.throttling.ScrapingRateLimiterImpl;
 import com.github.web.scraping.lib.throttling.ThrottlingService;
 import lombok.Getter;
 
@@ -35,8 +35,10 @@ public class ScrapingServices {
     private final ExclusiveExecutionTracker exclusiveExecutionTracker = new ExclusiveExecutionTracker(activeStepsTracker);
     private final NotificationService notificationService = new NotificationService(stepAndDataRelationshipTracker);
     private final StepTaskExecutor stepTaskExecutor;
+    private final Debugging globalDebugging = new Debugging();
 
     public ScrapingServices(ScrapingRateLimiter scrapingRateLimiter) {
         stepTaskExecutor = new StepTaskExecutor(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter);
     }
+
 }
