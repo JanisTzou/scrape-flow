@@ -26,6 +26,8 @@ import org.junit.Test;
 
 import java.time.Duration;
 
+import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
+
 public class AktualneCzDemo {
 
     @Test
@@ -34,10 +36,10 @@ public class AktualneCzDemo {
         // TODO any way for these to be accessible globally? So they do not need to be specified explicitly in every stage definition?
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
 
-        final GetElementsByAttribute getArticleElements = GetElements.Descendants.ByAttribute.nameAndValue("data-ga4-type", "article");
-        final GetElementsByAttribute getArticleHeadlineElem = GetElements.Descendants.ByAttribute.name("data-vr-headline");
-        final GetElementsByCssClass getArticleDescElem1 = GetElements.Descendants.ByCss.byClassName("section-opener__desc");
-        final GetElementsByCssClass getArticleDescElem2 = GetElements.Descendants.ByCss.byClassName("small-box__desc");
+        final GetElementsByAttribute getArticleElements = Get.Descendants.ByAttribute.nameAndValue("data-ga4-type", "article");
+        final GetElementsByAttribute getArticleHeadlineElem = Get.Descendants.ByAttribute.name("data-vr-headline");
+        final GetElementsByCssClass getArticleDescElem1 = Get.Descendants.ByCss.byClassName("section-opener__desc");
+        final GetElementsByCssClass getArticleDescElem2 = Get.Descendants.ByCss.byClassName("small-box__desc");
 
         final Scraping articlesScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 5)
                 .setScrapingSequence(

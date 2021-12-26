@@ -35,6 +35,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
+
 public class TeleskopExpressDeDemo {
 
     @Test
@@ -50,42 +52,42 @@ public class TeleskopExpressDeDemo {
         // TODO the parsing/scraping steps should be better named so it is clear what action they perform ... it might not be parsing exacly but also actions like button clicks etc ...
         //  maybe it is ok to have a "parsing ste" that is not exacly parsing enything but performing an action ... it's just something that needs to be performed to do the actual parsing ...
 
-        GetElementsByAttribute getNextPageLinkElemStep = GetElements.Descendants.ByAttribute.nameAndValue("title", " nächste Seite ").stepName("get-next-page-elem");
+        GetElementsByAttribute getNextPageLinkElemStep = Get.Descendants.ByAttribute.nameAndValue("title", " nächste Seite ").stepName("get-next-page-elem");
         // TODO here there are duplicates becase bellow the instances are mutated ... change this so that each call below in the sequence
         //  creates a new instance based on the previous one and only then it sets values ....
-        GetElementsByCssClass getProductTdElemsStep = GetElements.Descendants.ByCss.byClassName("main").stepName("get-product-elems"); // TODO add by tag ... filtering
-        GetElementsByCssClass getProductCodeElemStep = GetElements.Descendants.ByCss.byClassName("PRODUCTS_NAME").stepName("get-product-code-elem-1");
-        GetElementsByCssClass getProductCodeElemStep2 = GetElements.Descendants.ByCss.byClassName("PRODUCTS_NAME").stepName("get-product-code-elem-2");
-        GetElementsByCssClass getProductPriceElemStep = GetElements.Descendants.ByCss.byClassName("prod_preis").stepName("get-product-price-elem");
-        GetElementsByAttribute getProductDetailHRefElemStep = GetElements.Descendants.ByAttribute.nameAndValue("href", "product_info.php/info").setMatchEntireValue(false).stepName("get-product-detail-elem");
-        FollowLink clickNextPageLinkElem = Actions.followLink().stepName("click-next-page-button");
-        GetElementsByAttribute getProductDetailTitleElem = GetElements.Descendants.ByAttribute.nameAndValue("itemprop", "name");
-        GetElementsByAttribute getProductDescriptionElem = GetElements.Descendants.ByAttribute.nameAndValue("id", "c0");
+        GetElementsByCssClass getProductTdElemsStep = Get.Descendants.ByCss.byClassName("main").stepName("get-product-elems"); // TODO add by tag ... filtering
+        GetElementsByCssClass getProductCodeElemStep = Get.Descendants.ByCss.byClassName("PRODUCTS_NAME").stepName("get-product-code-elem-1");
+        GetElementsByCssClass getProductCodeElemStep2 = Get.Descendants.ByCss.byClassName("PRODUCTS_NAME").stepName("get-product-code-elem-2");
+        GetElementsByCssClass getProductPriceElemStep = Get.Descendants.ByCss.byClassName("prod_preis").stepName("get-product-price-elem");
+        GetElementsByAttribute getProductDetailHRefElemStep = Get.Descendants.ByAttribute.nameAndValue("href", "product_info.php/info").setMatchEntireValue(false).stepName("get-product-detail-elem");
+        FollowLink clickNextPageLinkElem = Do.followLink().stepName("click-next-page-button");
+        GetElementsByAttribute getProductDetailTitleElem = Get.Descendants.ByAttribute.nameAndValue("itemprop", "name");
+        GetElementsByAttribute getProductDescriptionElem = Get.Descendants.ByAttribute.nameAndValue("id", "c0");
 
         final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 1)
                 .setScrapingSequence(
-                        GetElements.Descendants.ByTag.body()
+                        Get.Descendants.ByTag.body()
                                 .next(new EmptyStep().stepName("before-pagination"))
-                                .next(Actions.paginate()
+                                .next(Do.paginate()
                                         .setStepsLoadingNextPage(
                                                 getNextPageLinkElemStep
                                                         .next(clickNextPageLinkElem
-                                                                .next(Actions.returnNextPage())
+                                                                .next(Do.returnNextPage())
                                                         )
                                         )
-                                        .nextExclusively(StepFlow.asStepGroup() // no steps with higher order than this very step can be allowed to run before this whole thing finishes ... lower steps can continue running ... send an event that this step finished so normal parallelism can resume ... also there might be nested ordered steps ...
-                                                        .next(GetElements.Descendants.ByCss.byClassName("headerlinks").stepName("get-nav-position-elem-step")
+                                        .nextExclusively(Flow.asStepGroup() // no steps with higher order than this very step can be allowed to run before this whole thing finishes ... lower steps can continue running ... send an event that this step finished so normal parallelism can resume ... also there might be nested ordered steps ...
+                                                        .next(Get.Descendants.ByCss.byClassName("headerlinks").stepName("get-nav-position-elem-step")
                                                                 .next(Parse.textContent().stepName("pet-1")
                                                                         .collectOne(ProductsPage::setPosition, ProductsPage.class)
                                                                 )
                                                         )
-                                                        .next(GetElements.Descendants.ByCss.byClassName("headerlinks").stepName("get-nav-position-elem-step")
+                                                        .next(Get.Descendants.ByCss.byClassName("headerlinks").stepName("get-nav-position-elem-step")
                                                                 .next(Parse.textContent().stepName("pet-1")
                                                                         .collectOne(ProductsPage::setPosition, ProductsPage.class)
                                                                 )
                                                         )
                                         )
-                                        .next(GetElements.Descendants.ByCss.byClassName("headerlinks").stepName("get-nav-position-elem-step")
+                                        .next(Get.Descendants.ByCss.byClassName("headerlinks").stepName("get-nav-position-elem-step")
                                                 .next(Parse.textContent().stepName("pet-1")
                                                         .collectOne(ProductsPage::setPosition, ProductsPage.class)
                                                 )
@@ -109,17 +111,17 @@ public class TeleskopExpressDeDemo {
                                                 .next(getProductCodeElemStep2
                                                         .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal).stepName("parse-product-href")
                                                                 .collectOne(Product::setDetailUrl, Product.class)
-                                                                .nextNavigate(Actions.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
+                                                                .nextNavigate(Do.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
                                                                         .next(getProductDetailTitleElem.stepName("get-product-detail-title") // TODO perhaps we need a setScrapingSequence method after all instead of then() here ... so that we are consistent with how we set up a SiteParse (allows only 1 sequence) ....
                                                                                 .next(Parse.textContent().collectOne(Product::setTitle, Product.class))
                                                                         )
                                                                         .next(getProductDescriptionElem
                                                                                 .next(Parse.textContent().collectOne(Product::setDescription, Product.class))
                                                                         )
-                                                                        .next(GetElements.Descendants.ByAttribute.nameAndValue("id", "MwStInfoMO")
-                                                                                .next(GetElements.Descendants.ByTag.anchor()
+                                                                        .next(Get.Descendants.ByAttribute.nameAndValue("id", "MwStInfoMO")
+                                                                                .next(Get.Descendants.ByTag.anchor()
                                                                                         .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
-                                                                                                .nextNavigate(Actions.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
+                                                                                                .nextNavigate(Do.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
                                                                                                         .next(GetListedElementsByFirstElementXPath.instance("/html/body/table/tbody/tr[1]")
                                                                                                                 .setCollector(ShippingCosts::new, ShippingCosts.class)
                                                                                                                 .collectMany((Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc), Product.class, ShippingCosts.class)

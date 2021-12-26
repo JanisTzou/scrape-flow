@@ -51,7 +51,7 @@ public class ReturnNextPage extends CommonOperationsStepBase<ReturnNextPage> {
      * @param ctx must contain a reference to HtmlPage that might be paginated (contains some for of next link or button)
      */
     @Override
-    public StepExecOrder execute(ScrapingContext ctx) {
+    protected StepExecOrder execute(ScrapingContext ctx) {
 
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 

@@ -35,6 +35,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
+
 @Log4j2
 public class BbcComDemo {
 
@@ -49,12 +51,12 @@ public class BbcComDemo {
 
         final Scraping articlesScraping = new Scraping(parser, 10)
                 .setScrapingSequence(
-                        GetElements.Descendants.ByAttribute.nameAndValue("aria-label", "World").getFirst()
-                                .next(GetElements.Descendants.ByTag.ul().getFirst()
-                                        .next(GetElements.Descendants.ByTag.li()
-                                                .next(Actions.filterElements(domNode -> domNode.getTextContent().contains("Africa"))
+                        Get.Descendants.ByAttribute.nameAndValue("aria-label", "World").getFirst()
+                                .next(Get.Descendants.ByTag.ul().getFirst()
+                                        .next(Get.Descendants.ByTag.li()
+                                                .next(Do.filterElements(domNode -> domNode.getTextContent().contains("Africa"))
                                                         .setCollector(Section::new, Section.class, new SectionListener())
-                                                        .next(GetElements.Descendants.ByTag.anchor()
+                                                        .next(Get.Descendants.ByTag.anchor()
                                                                 .next(Parse.textContent()
                                                                         .collectOne(Section::setName, Section.class)
                                                                 )
@@ -71,21 +73,21 @@ public class BbcComDemo {
     }
 
     private NavigateToParsedLink toSections(HtmlUnitSiteParser parser) {
-        return Actions.navigateToParsedLink(parser)
-                .next(GetElements.Descendants.ByAttribute.id("featured-contents")
-                        .next(GetElements.ByDomTraversal.nextSiblingElem()
-                                .next(GetElements.Descendants.ByCss.bySelector("div.gs-c-promo").stepName("listed-article")
+        return Do.navigateToParsedLink(parser)
+                .next(Get.Descendants.ByAttribute.id("featured-contents")
+                        .next(Get.nextSiblingElem()
+                                .next(Get.Descendants.ByCss.bySelector("div.gs-c-promo").stepName("listed-article")
                                         .setCollector(Promo::new, Promo.class)
                                         .setCollector(Article::new, Article.class, new ArticleListener())
                                         .collectOne(Article::setRegion, Article.class, Section.class)
                                         .collectOne(Article::setPromo, Article.class, Promo.class)
-                                        .next(GetElements.Descendants.ByCss.bySelector("p.gs-c-promo-summary")
+                                        .next(Get.Descendants.ByCss.bySelector("p.gs-c-promo-summary")
                                                 .next(Parse.textContent()
                                                         .collectOne(Promo::setSummary, Promo.class)
                                                 )
                                         )
-                                        .next(GetElements.Descendants.ByCss.bySelector("a.gs-c-promo-heading")
-                                                .next(GetElements.Descendants.ByTag.h3().next(
+                                        .next(Get.Descendants.ByCss.bySelector("a.gs-c-promo-heading")
+                                                .next(Get.Descendants.ByTag.h3().next(
                                                                 Parse.textContent()
                                                                         .collectOne(Promo::setHeading, Promo.class)
                                                         )
@@ -104,9 +106,9 @@ public class BbcComDemo {
 
 
     private NavigateToParsedLink toArticles(HtmlUnitSiteParser parser) {
-        return Actions.navigateToParsedLink(parser)
-                .next(GetElements.Descendants.ByTag.article()
-                        .nextExclusively(GetElements.Descendants.ByTextContent.search("Sport Africa", true) // category must be parsed before following steps can proceed -> exclusive call
+        return Do.navigateToParsedLink(parser)
+                .next(Get.Descendants.ByTag.article()
+                        .nextExclusively(Get.Descendants.ByTextContent.search("Sport Africa", true) // category must be parsed before following steps can proceed -> exclusive call
                                 .next(Parse.textContent()
                                         .setTransformation(s -> "Sport")
                                         .collectOne(Article::setCategory, Article.class)
@@ -123,13 +125,13 @@ public class BbcComDemo {
     }
 
     private StepGroup parseSportArticle() {
-        return StepFlow.asStepGroup()
-                .next(GetElements.Descendants.ByAttribute.id("page")
+        return Flow.asStepGroup()
+                .next(Get.Descendants.ByAttribute.id("page")
                         .next(Parse.textContent()
                                 .collectOne(Article::setTitle, Article.class)
                         )
                 )
-                .next(GetElements.Descendants.ByTag.p()
+                .next(Get.Descendants.ByTag.p()
                         .next(Parse.textContent()
                                 .collectMany((Article a, String p) -> a.getParagraphs().add(p), Article.class)
                         )
@@ -137,19 +139,19 @@ public class BbcComDemo {
     }
 
     private StepGroup parseNonSportArticle() {
-        return StepFlow.asStepGroup()
-                .next(GetElements.Descendants.ByAttribute.id("main-heading")
+        return Flow.asStepGroup()
+                .next(Get.Descendants.ByAttribute.id("main-heading")
                         .next(Parse.textContent()
                                 .collectOne(Article::setTitle, Article.class)
                         )
                 )
-                .next(GetElements.Descendants.ByAttribute.nameAndValue("data-component", "text-block")
+                .next(Get.Descendants.ByAttribute.nameAndValue("data-component", "text-block")
                         .next(Parse.textContent()
                                 .collectMany((Article a, String p) -> a.getParagraphs().add(p), Article.class)
                         )
                 )
-                .next(GetElements.Descendants.ByAttribute.nameAndValue("data-component", "unordered-list-block")
-                        .next(GetElements.Descendants.ByTag.anchor()
+                .next(Get.Descendants.ByAttribute.nameAndValue("data-component", "unordered-list-block")
+                        .next(Get.Descendants.ByTag.anchor()
                                 .next(Parse.hRef()
                                         .collectMany((Article a, String p) -> a.getLinks().add(p), Article.class)
                                 )

@@ -24,6 +24,8 @@ import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
 import com.github.web.scraping.lib.scraping.htmlunit.*;
 import org.junit.Test;
 
+import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
+
 public class IFortunaCzDemo {
 
     @Test
@@ -57,7 +59,7 @@ public class IFortunaCzDemo {
                         )
                 );
 
-        final GetElementsByXPath getEventHomeOddsElem = GetElements.Descendants.ByXPath.xPath("/html/body/div[1]/div/div[2]/div[2]/div/section/div/div[2]/table/tbody/tr/td[2]/a/span");
+        final GetElementsByXPath getEventHomeOddsElem = Get.Descendants.ByXPath.xPath("/html/body/div[1]/div/div[2]/div[2]/div/section/div/div[2]/table/tbody/tr/td[2]/a/span");
 
 //        final Crawling eventDetailOddsStage = new Crawling()
 //                .setParser(new HtmlUnitSiteParser(driverManager)

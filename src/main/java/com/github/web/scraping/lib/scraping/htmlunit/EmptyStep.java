@@ -47,7 +47,7 @@ public class EmptyStep extends CommonOperationsStepBase<EmptyStep>
     }
 
     @Override
-    public StepExecOrder execute(ScrapingContext ctx) {
+    protected StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());

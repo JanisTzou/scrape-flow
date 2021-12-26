@@ -21,13 +21,14 @@ import com.github.web.scraping.lib.scraping.Scraping;
 import com.github.web.scraping.lib.scraping.EntryPoint;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
-import com.github.web.scraping.lib.scraping.htmlunit.Actions;
-import com.github.web.scraping.lib.scraping.htmlunit.GetElements;
+import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit;
 import com.github.web.scraping.lib.scraping.htmlunit.GetElementsByXPath;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitSiteParser;
 import org.junit.Test;
 
 import java.time.Duration;
+
+import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
 
 public class SupraDalekohledyCzDemo {
 
@@ -36,11 +37,11 @@ public class SupraDalekohledyCzDemo {
 
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
 
-        GetElementsByXPath getNextBtnLink = GetElements.Descendants.ByXPath.xPath("/html/body/div[2]/div[1]/div[4]/div/div/div[2]/div[3]/div[1]/ul/li[4]/a");
+        GetElementsByXPath getNextBtnLink = Get.Descendants.ByXPath.xPath("/html/body/div[2]/div[1]/div[4]/div/div/div[2]/div[3]/div[1]/ul/li[4]/a");
 
         final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 1)
                 .setScrapingSequence(getNextBtnLink
-                        .next(Actions.followLink())
+                        .next(Do.followLink())
                 );
 
         final EntryPoint entryPoint = new EntryPoint("http://www.supra-dalekohledy.cz/prislusenstvi4/okulary/tele-vue/", productsScraping);

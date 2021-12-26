@@ -20,9 +20,8 @@ import com.github.web.scraping.lib.scraping.EntryPoint;
 import com.github.web.scraping.lib.scraping.Scraper;
 import com.github.web.scraping.lib.scraping.Scraping;
 import com.github.web.scraping.lib.scraping.htmlunit.Download;
-import com.github.web.scraping.lib.scraping.htmlunit.GetElements;
+import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitSiteParser;
-import com.github.web.scraping.lib.scraping.htmlunit.Parse;
 import com.github.web.scraping.lib.utils.JsonUtils;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
@@ -37,6 +36,8 @@ import org.junit.Test;
 import java.awt.image.BufferedImage;
 import java.time.Duration;
 
+import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
+
 public class CsfdCzDemo {
 
     @Test
@@ -46,18 +47,18 @@ public class CsfdCzDemo {
 
         final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 3)
                 .setScrapingSequence(
-                        GetElements.Descendants.ByCss.bySelector("header.box-header").getFirst()
+                        Get.Descendants.ByCss.bySelector("header.box-header").getFirst()
                                 .setCollector(Category::new, Category.class, new CategoryListener())
                                 .next(Parse.textContent()
                                         .collectOne(Category::setValue, Category.class)
                                 )
-                                .next(GetElements.ByDomTraversal.parent()
-                                        .next(GetElements.Descendants.ByCss.bySelector("div.box-content")
-                                                .next(GetElements.Descendants.ByTag.article()
+                                .next(Get.parent()
+                                        .next(Get.Descendants.ByCss.bySelector("div.box-content")
+                                                .next(Get.Descendants.ByTag.article()
                                                         .setCollector(Article::new, Article.class, new ArticleListener())
                                                         .collectOne(Article::setCategory, Article.class, Category.class)
-                                                        .next(GetElements.Descendants.ByTag.tagName("figure")
-                                                                .next(GetElements.ByDomTraversal.firstChildElem()
+                                                        .next(Get.Descendants.ByTag.tagName("figure")
+                                                                .next(Get.firstChildElem()
                                                                         .next(Parse.hRef(href -> "https:" + href)
                                                                                 .next(Download.image()
                                                                                         .collectOne(Article::setImage, Article.class)
@@ -65,8 +66,8 @@ public class CsfdCzDemo {
                                                                         )
                                                                 )
                                                         )
-                                                        .next(GetElements.Descendants.ByCss.bySelector("header.article-header")
-                                                                .next(GetElements.ByDomTraversal.firstChildElem()
+                                                        .next(Get.Descendants.ByCss.bySelector("header.article-header")
+                                                                .next(Get.firstChildElem()
                                                                         .next(Parse.textContent()
                                                                                 .setTransformation(str -> str.replace("\t", "").replace("\n", " "))
                                                                                 .collectOne(Article::setTitle, Article.class)

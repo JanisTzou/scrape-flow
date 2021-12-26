@@ -35,7 +35,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+
+import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
 
 @Log4j2
 public class ZakonyProLidiCzDemo {
@@ -54,8 +55,8 @@ public class ZakonyProLidiCzDemo {
 
         final Scraping productsScraping = new Scraping(parser, 3)
                 .setScrapingSequence(
-                        GetElements.Descendants.ByAttribute.id("__Page")
-                                .next(GetElements.Descendants.ByCss.byClassName("Name")
+                        Get.Descendants.ByAttribute.id("__Page")
+                                .next(Get.Descendants.ByCss.byClassName("Name")
                                         .setCollector(Kategorie::new, Kategorie.class)
                                         .next(Parse.textContent().collectOne(Kategorie::setJmeno, Kategorie.class))
                                         .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
@@ -72,11 +73,14 @@ public class ZakonyProLidiCzDemo {
     }
 
     private NavigateToParsedLink toKategorie(HtmlUnitSiteParser parser) {
-        return Actions.navigateToParsedLink(parser)
-                .next(GetElements.Descendants.ByCss.byClassName("BranchNodes") // TODO add special handling for Koronavirus ...
-                        .next(GetElements.ByDomTraversal.nthChildElem(2) // the subcategory
-                                .next(GetElements.Descendants.ByTag.anchor()
-                                        .setCollector(PodKategorie::new, PodKategorie.class)
+        return Do.navigateToParsedLink(parser)
+                .next(Get.Descendants.ByCss.byClassName("BranchNodes")
+                        .getFirst() // the first section
+                        .next(Get.nthChildElem(2) // subcategory list is 2nd DIV
+                                // TODO it 2nd child does not exist then do something else ... add special handling for Koronavirus ...
+                                .next(Get.Descendants.ByTag.anchor()
+//                                        .getFirst() // TODO remove ...
+                                        .setCollector(PodKategorie::new, PodKategorie.class, new PodKategorieListener())
                                         .next(Parse.textContent().collectOne(PodKategorie::setJmeno, PodKategorie.class))
                                         .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
                                                 .collectOne(PodKategorie::setUrl, PodKategorie.class)
@@ -89,54 +93,65 @@ public class ZakonyProLidiCzDemo {
                 );
     }
 
+//                        Actions.paginate()
+//                         NOT WORKING .... required JS ...
+//                        .setStepsLoadingNextPage(
+//                                GetElements.Descendants.ByAttribute.nameAndValue("title", "Jdi na Další")
+//                                        .next(Actions.filterElements(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode, "class", "disabled", true))
+//                                                .next(Actions.followLink()
+//                                                        .next(Actions.returnNextPage())
+//                                                )
+//                                        )
+//
+//                        )
+
     private NavigateToParsedLink toPredpisy(HtmlUnitSiteParser parser) {
-        return Actions.navigateToParsedLink(parser)
-                .next(GetElements.Descendants.ByCss.byClassName("DocGrid")
+        return Do.navigateToParsedLink(parser)
+                .next(Get.Descendants.ByCss.byClassName("DocGrid")
                         .getFirst()
-                        .next(GetElements.Descendants.ByTag.tbody()
-                                .next(GetElements.Descendants.ByTag.tr()
-                                        .getFirst()
+                        .next(Get.Descendants.ByTag.tbody()
+                                .next(Get.Descendants.ByTag.tr()
                                         .setCollector(PredpisInfo::new, PredpisInfo.class)
-                                        .setCollector(Predpis::new, Predpis.class, new PredpisListener())
+                                        .setCollector(Predpis::new, Predpis.class)
                                         .collectOne(Predpis::setInfo, Predpis.class, PredpisInfo.class)
                                         .collectOne(PredpisInfo::setKategorie, PredpisInfo.class, Kategorie.class)
                                         .collectOne(PredpisInfo::setPodKategorie, PredpisInfo.class, PodKategorie.class)
-                                        .next(GetElements.Descendants.ByCss.byClassName("c1")
-                                                .next(GetElements.Descendants.ByTag.anchor()
+                                        .next(Get.Descendants.ByCss.byClassName("c1")
+                                                .next(Get.Descendants.ByTag.anchor()
                                                         .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
                                                                 .collectOne(PredpisInfo::setUrl, PredpisInfo.class)
-                                                                .nextNavigate(toPredpisDetail(parser)
-                                                                )
+//                                                                        .nextNavigate(toPredpisDetail(parser) // TODO uncomment ...
+//                                                                        )
                                                         )
                                                 )
                                                 .next(Parse.textContent().collectOne(PredpisInfo::setCislo, PredpisInfo.class))
                                         )
-                                        .next(GetElements.Descendants.ByCss.byClassName("c2")
+                                        .next(Get.Descendants.ByCss.byClassName("c2")
                                                 .next(Parse.textContent()
                                                         .collectOne(PredpisInfo::setNazev, PredpisInfo.class)
                                                 )
                                         )
-                                        .next(GetElements.Descendants.ByCss.byClassName("c3")
+                                        .next(Get.Descendants.ByCss.byClassName("c3")
                                                 .next(Parse.textContent()
                                                         .collectOne(PredpisInfo::setPlatnostOd, PredpisInfo.class)
                                                 )
                                         )
                                 )
                         )
-                );
+        );
     }
 
+
     private NavigateToParsedLink toPredpisDetail(HtmlUnitSiteParser parser) {
-        return Actions.navigateToParsedLink(parser)
-                .next(GetElements.Descendants.ByCss.byClassName("Frags")
-                        .getFirst()
-                        .next(GetElements.ByDomTraversal.childElems()
-                                .setCollector(Radek::new, Radek.class)
-                                .collectMany((Predpis p, Radek r) -> p.getText().add(r), Predpis.class, Radek.class)
-                                .next(Parse.textContent()
-                                        .collectOne(Radek::setText, Radek.class)
-                                )
-                                // TODO add css class to the model ...
+        return Do.navigateToParsedLink(parser)
+                .next(Get.Descendants.ByCss.byClassName("Frags")
+                        .next(Get.childElems()
+                                        .setCollector(Radek::new, Radek.class)
+                                        .collectMany((Predpis p, Radek r) -> p.getText().add(r), Predpis.class, Radek.class)
+                                        .next(Parse.textContent()
+                                                .collectOne(Radek::setText, Radek.class)
+                                        )
+                                // TODO add css class parsing ... to the model ...
                         )
                 );
     }

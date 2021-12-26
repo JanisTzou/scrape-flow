@@ -44,7 +44,7 @@ public class GetElementsByXPath extends GetElementsStepBase<GetElementsByXPath> 
 
 
     @Override
-    public StepExecOrder execute(ScrapingContext ctx) {
+    protected StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {

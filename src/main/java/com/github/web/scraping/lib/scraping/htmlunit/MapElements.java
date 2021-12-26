@@ -50,7 +50,7 @@ public class MapElements extends CommonOperationsStepBase<MapElements> {
     }
 
     @Override
-    public StepExecOrder execute(ScrapingContext ctx) {
+    protected StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {

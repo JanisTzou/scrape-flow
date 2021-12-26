@@ -52,7 +52,7 @@ public class GetElementsByTextContent extends GetElementsStepBase<GetElementsByT
 
 
     @Override
-    public StepExecOrder execute(ScrapingContext ctx) {
+    protected StepExecOrder execute(ScrapingContext ctx) {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         // TODO hmm .. this only returns one item ... we need to return all ... and apply traverse options filtering ...

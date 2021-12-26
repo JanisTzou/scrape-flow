@@ -64,7 +64,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
      * @param ctx must contain a reference to HtmlPage that might be paginated (contains some for of next link or button)
      */
     @Override
-    public StepExecOrder execute(ScrapingContext ctx) {
+    protected StepExecOrder execute(ScrapingContext ctx) {
 
         StepExecOrder prevStepExecOrder = ctx.getRecursiveRootStepExecOrder() == null
                 ? ctx.getPrevStepExecOrder()
