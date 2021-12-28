@@ -16,26 +16,31 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-public class DebuggableStep<C extends HtmlUnitScrapingStep<C>> {
+import com.gargoylesoftware.htmlunit.html.DomNode;
 
-    private final C step;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
-    public DebuggableStep(C step) {
-        this.step = step;
+public class FilterLastN implements Filter {
+
+    private final int n;
+
+    public FilterLastN(int n) {
+        if (n <= 0) {
+            throw new IllegalArgumentException("n must be > 0");
+        }
+        this.n = n;
     }
 
-    public C setLogFoundElementsSource(boolean enabled) {
-        return step.copyThisMutateAndGet(copy -> {
-            copy.stepDebugging.setLogFoundElementsSource(enabled);
-            return copy;
-        });
-    }
-
-    public C setLogFoundElementsCount(boolean enabled) {
-        return step.copyThisMutateAndGet(copy -> {
-            copy.stepDebugging.setLogFoundElementsCount(enabled);
-            return copy;
-        });
+    @Override
+    public List<DomNode> filter(List<DomNode> list) {
+        ArrayList<DomNode> copy = new ArrayList<>(list);
+        Collections.reverse(copy);
+        return  copy.stream()
+                .limit(n)
+                .collect(Collectors.toList());
     }
 
 }

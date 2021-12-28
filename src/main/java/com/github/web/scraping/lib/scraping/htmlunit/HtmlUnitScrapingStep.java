@@ -16,7 +16,7 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-import com.github.web.scraping.lib.debugging.Debugging;
+import com.github.web.scraping.lib.debugging.DebuggingOptions;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.parallelism.StepTask;
 import com.github.web.scraping.lib.scraping.MakingHttpRequests;
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -58,9 +59,11 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
      * To be used on logging to give the user an accurate location of a problematic step
      */
     protected StackTraceElement stepDeclarationLine;
-    private CollectorSetups collectorSetups = new CollectorSetups();
+    private Collectors collectors = new Collectors();
 
-    protected Debugging stepDebugging = new Debugging();
+    protected DebuggingOptions stepDebugging = new DebuggingOptions();
+
+    protected final List<Filter> filters = new CopyOnWriteArrayList<>();
 
     /**
      * for logging and debugging
@@ -119,25 +122,25 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         });
     }
 
-    protected CollectorSetups getCollectorSetups() {
-        return collectorSetups;
+    protected Collectors getCollectors() {
+        return collectors;
     }
 
     /**
      * mutating - internal usage only
      */
-    protected void setCollectorSetupsMutably(CollectorSetups collectorSetups) {
-        this.collectorSetups = collectorSetups;
+    protected void setCollectorsMutably(Collectors collectors) {
+        this.collectors = collectors;
     }
 
     /**
      * @return copy of this step
      */
-    protected C addCollectorSetup(CollectorSetup cs) {
+    protected C addCollector(Collector cs) {
         return copyThisMutateAndGet(copy -> {
-            CollectorSetups csCopy = getCollectorSetups().copy();
+            Collectors csCopy = getCollectors().copy();
             csCopy.add(cs);
-            copy.setCollectorSetupsMutably(csCopy);
+            copy.setCollectorsMutably(csCopy);
             return copy;
         });
     }
@@ -153,6 +156,13 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         HtmlUnitScrapingStep<?> nsCopy = nextStep.copy();
         return copyThisMutateAndGet(copy -> {
             copy.addNextStepMutably(nsCopy);
+            return copy;
+        });
+    }
+
+    protected C addFilter(Filter filter) {
+        return copyThisMutateAndGet(copy -> {
+            copy.filters.add(filter);
             return copy;
         });
     }
@@ -241,7 +251,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
      * Enables logging the source codes if all the elements found by this step and processed.
      */
     @SuppressWarnings("unchecked")
-    public DebuggableStep<C> debug() {
+    public DebuggableStep<C> debugOptions() {
         return new DebuggableStep<C>((C) this);
     }
 
@@ -255,13 +265,14 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     @SuppressWarnings("unchecked")
     protected C copyFieldValuesTo(HtmlUnitScrapingStep<?> other) {
         other.executeIf = this.executeIf;
-        other.collectorSetups = this.collectorSetups.copy();
+        other.collectors = this.collectors.copy();
         other.parsedTextTransformation = this.parsedTextTransformation;
         other.name = this.name;
         other.stepDeclarationLine = this.stepDeclarationLine;
         other.nextSteps.addAll(this.nextSteps);
         other.services = this.services;
         other.stepDebugging = stepDebugging.copy();
+        other.filters.addAll(this.filters);
         return (C) other;
     }
 

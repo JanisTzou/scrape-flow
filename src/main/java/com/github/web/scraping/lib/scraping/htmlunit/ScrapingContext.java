@@ -22,6 +22,7 @@ import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -33,6 +34,7 @@ import java.util.Optional;
 @Getter
 @Setter
 @ToString
+@Log4j2
 public class ScrapingContext {
 
     /**

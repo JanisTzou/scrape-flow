@@ -16,6 +16,27 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-// marker interface
-public interface HtmlUnitStepChangingUsedParser<C>  {
+import com.gargoylesoftware.htmlunit.html.DomNode;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+public class FilterByCssClass implements Filter {
+
+    private final String className;
+
+    /**
+     * @throws NullPointerException if cssClass is null
+     */
+    FilterByCssClass(String className) {
+        Objects.requireNonNull(className);
+        this.className = className;
+    }
+
+    @Override
+    public List<DomNode> filter(List<DomNode> list) {
+        return list.stream().filter(dn -> HtmlUnitUtils.hasCssClass(dn, className)).collect(Collectors.toList());
+    }
+
 }

@@ -22,7 +22,7 @@ import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import com.github.web.scraping.lib.scraping.EntryPoint;
 import com.github.web.scraping.lib.scraping.Scraper;
 import com.github.web.scraping.lib.scraping.Scraping;
-import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit;
+import com.github.web.scraping.lib.scraping.htmlunit.GetElementsByCssSelector;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.utils.JsonUtils;
 import lombok.Getter;
@@ -35,8 +35,7 @@ import org.junit.Test;
 import java.awt.image.BufferedImage;
 import java.time.Duration;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.Get;
-import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.Parse;
+import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
 
 public class CsfdCzDemo {
 
@@ -46,41 +45,50 @@ public class CsfdCzDemo {
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
 
         final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 3)
-                .setScrapingSequence(
-                        Get.Descendants.ByCss.bySelector("header.box-header").getFirst()
+                .setSequence(
+                        Get.descendantsBySelector("header.box-header")
+                                .first() // the first article list out of two
                                 .addCollector(Category::new, Category.class, new CategoryListener())
                                 .next(Parse.textContent()
-                                        .collectOne(Category::setValue, Category.class)
+                                        .collectOne(Category::setName, Category.class)
                                 )
                                 .next(Get.parent()
-                                        .next(Get.Descendants.ByCss.bySelector("div.box-content")
-                                                .next(Get.Descendants.ByTag.article()
-                                                        .addCollector(Article::new, Article.class, new ArticleListener())
-                                                        .collectOne(Article::setCategory, Article.class, Category.class)
-                                                        .next(Get.Descendants.ByTag.tagName("figure")
-                                                                .next(Get.firstChildElem()
-                                                                        .next(Parse.hRef(href -> "https:" + href)
-                                                                                .next(HtmlUnit.Do.downloadImage()
-                                                                                        .collectOne(Article::setImage, Article.class)
-                                                                                )
-                                                                        )
-                                                                )
-                                                        )
-                                                        .next(Get.Descendants.ByCss.bySelector("header.article-header")
-                                                                .next(Get.firstChildElem()
-                                                                        .next(Parse.textContent()
-                                                                                .setTransformation(str -> str.replace("\t", "").replace("\n", " "))
-                                                                                .collectOne(Article::setTitle, Article.class)
-                                                                        )
-                                                                )
-
-                                                        ))
+                                        .next(getArticles()
                                         )
                                 )
 
                 );
 
+        start(productsScraping);
+    }
 
+    private GetElementsByCssSelector getArticles() {
+        return Get.descendantsBySelector("div.box-content")
+                .next(Get.descendants()
+                        .byTag("article")
+                        .addCollector(Article::new, Article.class, new ArticleListener())
+                        .collectOne(Article::setCategory, Article.class, Category.class)
+                        .next(Get.descendants().byTag("figure")
+                                .next(Get.children().first()
+                                        .next(Parse.hRef(href -> "https:" + href)
+                                                .next(Do.downloadImage()
+                                                        .collectOne(Article::setImage, Article.class)
+                                                )
+                                        )
+                                )
+                        )
+                        .next(Get.descendantsBySelector("header.article-header")
+                                .next(Get.children().first()
+                                        .next(Parse.textContent()
+                                                .setTransformation(str -> str.replace("\t", "").replace("\n", " "))
+                                                .collectOne(Article::setTitle, Article.class)
+                                        )
+                                )
+
+                        ));
+    }
+
+    private void start(Scraping productsScraping) throws InterruptedException {
         final EntryPoint entryPoint = new EntryPoint("https://www.csfd.cz/novinky/", productsScraping);
         final Scraper scraper = new Scraper();
         scraper.scrape(entryPoint);
@@ -95,7 +103,7 @@ public class CsfdCzDemo {
     @NoArgsConstructor
     @ToString
     public static class Category {
-        private volatile String value;
+        private volatile String name;
     }
 
 

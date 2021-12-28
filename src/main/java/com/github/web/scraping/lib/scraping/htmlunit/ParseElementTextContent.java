@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.AccumulatorType;
+import static com.github.web.scraping.lib.scraping.htmlunit.Collector.AccumulatorType;
 
 public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTextContent>
         implements HtmlUnitStepCollectingParsedStringToModel<ParseElementTextContent>,
@@ -51,7 +51,7 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
     }
 
     @Override
-    public ParseElementTextContent copy() {
+    protected ParseElementTextContent copy() {
         return copyFieldValuesTo(new ParseElementTextContent(excludeChildElementsTextContent));
     }
 
@@ -77,7 +77,7 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
 
             String transformed = transformParsedText(tc);
 
-            setParsedValueToModel(this.getCollectorSetups(), ctx, transformed, getName(), stepDeclarationLine);
+            setParsedValueToModel(this.getCollectors(), ctx, transformed, getName(), stepDeclarationLine);
 
             // TODO how to populate the following context?
         };
@@ -110,12 +110,12 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
 
     @Override
     public <T> ParseElementTextContent collectOne(BiConsumer<T, String> modelMutation, Class<T> containerType) {
-        return addCollectorSetup(new CollectorSetup(modelMutation, String.class, containerType, AccumulatorType.ONE));
+        return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.ONE));
     }
 
     @Override
     public <T> ParseElementTextContent collectMany(BiConsumer<T, String> modelMutation, Class<T> containerType) {
-        return addCollectorSetup(new CollectorSetup(modelMutation, String.class, containerType, AccumulatorType.MANY));
+        return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.MANY));
     }
 
 

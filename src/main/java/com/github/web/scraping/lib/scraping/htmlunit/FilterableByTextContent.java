@@ -16,6 +16,17 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-// marker interface
-public interface HtmlUnitStepChangingUsedParser<C>  {
+import java.util.regex.Pattern;
+
+public interface FilterableByTextContent<C extends HtmlUnitScrapingStep<C>> extends Filterable<C> {
+
+    default C byTextContent(String searchString) {
+        return addFilter(new FilterByTextContent(searchString, true));
+    }
+
+    default C byTextContent(Pattern searchStringPattern) {
+        // TODO
+        return null;
+    }
+
 }

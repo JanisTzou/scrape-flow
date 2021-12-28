@@ -22,7 +22,7 @@ import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import com.github.web.scraping.lib.scraping.EntryPoint;
 import com.github.web.scraping.lib.scraping.Scraper;
 import com.github.web.scraping.lib.scraping.Scraping;
-import com.github.web.scraping.lib.scraping.htmlunit.GetElementsByCssClass;
+import com.github.web.scraping.lib.scraping.htmlunit.GetDescendants;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitUtils;
 import com.github.web.scraping.lib.scraping.htmlunit.NavigateToParsedLink;
@@ -47,7 +47,7 @@ public class MaxEuroCzDemo {
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
         final HtmlUnitSiteParser siteParser = new HtmlUnitSiteParser(driverManager);
 
-        final Scraping scraping = new Scraping(siteParser, 5);
+        final Scraping scraping = new Scraping(siteParser, 10);
 
 
         /*
@@ -67,25 +67,27 @@ public class MaxEuroCzDemo {
             </li>
          */
 
-        scraping.debug().onlyScrapeFirstElements(false)
-                .debug().logSourceCodeOfFoundElements(false)
-                .setScrapingSequence(
-                        Get.Descendants.ByTextContent.search("Mozaika skleněná", true)
-                                .debug().logSource(true)
-                                .next(Do.mapElements(domNode -> Optional.ofNullable(domNode.getParentNode()))
-                                        .next(Get.Descendants.ByTag.anchor()
-                                                .addCollector(Category::new, Category.class)
-                                                .next(Parse.textContent()
-                                                        .collectOne(Category::setName, Category.class)
-                                                )
-                                                .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href)
-                                                        .nextNavigate(toCategoryProductList(siteParser)
+        scraping.debugOptions().onlyScrapeFirstElements(false)
+                .debugOptions().logSourceCodeOfFoundElements(false);
 
-                                                        )
+        scraping.setSequence(
+                Get.descendants().byTextContent("Mozaika skleněná")
+                        .first()                                                // ... for some reason the menu is duplicated
+                        .debugOptions().setLogFoundElementsSource(false)
+                        .next(Do.mapElements(domNode -> Optional.ofNullable(domNode.getParentNode()))
+                                .next(Get.descendants().byTag("a")
+                                        .addCollector(Category::new, Category.class)
+                                        .next(Parse.textContent()
+                                                .collectOne(Category::setName, Category.class)
+                                        )
+                                        .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href)
+                                                .nextNavigate(
+                                                        toCategoryProductList(siteParser)
                                                 )
                                         )
                                 )
-                );
+                        )
+        );
 
 
         start(scraping);
@@ -103,7 +105,7 @@ public class MaxEuroCzDemo {
                 );
     }
 
-    private GetElementsByCssClass getProductListAndDetails(HtmlUnitSiteParser siteParser) {
+    private GetDescendants getProductListAndDetails(HtmlUnitSiteParser siteParser) {
 
         /*
             <div class="product col-xs-12 col-sm-6 col-md-4 col-lg-4 ">
@@ -121,16 +123,17 @@ public class MaxEuroCzDemo {
             </div>
          */
 
-        return Get.Descendants.ByCss.byClassName("product").stepName("product-search")
-                .addCollector(Product::new, Product.class, new ProductListenerParsed())
+        return Get.descendants().byClass("product").stepName("product-search")
+                .addCollector(Product::new, Product.class, new ProductListenerParsed()) // TODO uncomment
+//                .addCollector(Product::new, Product.class)
                 .collectOne(Product::setCategory, Product.class, Category.class)
-                .next(Get.Descendants.ByCss.byClassName("product-name")
-                        .next(Get.Descendants.ByTag.anchor()
+                .next(Get.descendants().byClass("product-name")
+                        .next(Get.descendants().byTag("a")
                                 .next(Parse.textContent()
                                         .collectOne(Product::setName, Product.class)
                                 )
                         )
-                        .next(Get.Descendants.ByTag.anchor()
+                        .next(Get.descendants().byTag("a")
                                 .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href).stepName("get-product-detail-url")
                                         .collectOne(Product::setDetailUrl, Product.class)
                                         .nextNavigate(
@@ -139,7 +142,7 @@ public class MaxEuroCzDemo {
                                 )
                         )
                 )
-                .next(Get.Descendants.ByCss.byClassName("cena")
+                .next(Get.descendants().byClass("cena")
                         .next(Parse.textContent(txt -> txt.replace(" ", "").replace("Kč(m2)", "").replace(",", ".").replace("Kč(bm)", ""))
                                 .collectOne(Product::setPrice, Product.class)
                         )
@@ -147,7 +150,7 @@ public class MaxEuroCzDemo {
     }
 
 
-    private GetElementsByCssClass getPaginatingSequence() {
+    private GetDescendants getPaginatingSequence() {
 
         /*
             <ul class="pagination">
@@ -169,9 +172,9 @@ public class MaxEuroCzDemo {
             </ul>
          */
 
-        return Get.Descendants.ByCss.byClassName("pagination")
-                .next(Get.Descendants.ByTextContent.search("»", true) // returns anchor
-                        .next(Do.filterElements(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode.getParentNode(), "class", "disabled", true))
+        return Get.descendants().byClass("pagination")
+                .next(Get.descendants().byTextContent("»")  // returns anchor
+                        .next(Filter.apply(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode.getParentNode(), "class", "disabled", true))
                                 .next(Do.followLink()
                                         .next(Do.returnNextPage())
                                 )
@@ -193,7 +196,7 @@ public class MaxEuroCzDemo {
          */
 
         return Do.navigateToParsedLink(siteParser)
-                .next(Get.Descendants.ByAttribute.id("productDescription1")
+                .next(Get.descendants().byAttr("id", "productDescription1")
                         .next(Parse.textContent()
                                 .collectOne(Product::setDescription, Product.class)
                         )

@@ -22,189 +22,55 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.GetElementsByDomTraversal.Type;
+import static com.github.web.scraping.lib.scraping.htmlunit.GetParent.Type;
 
 public class HtmlUnit {
 
     public static class Get {
 
-        public static GetElementsByDomTraversal body() {
-            return new GetElementsByDomTraversal(Type.BODY);
+        public static GetElementsByXPath byXPath(String xPath) {
+            return new GetElementsByXPath(xPath);
         }
 
-        public static GetElementsByDomTraversal parent() {
-            return new GetElementsByDomTraversal(Type.PARENT);
+        public static GetParent parent() {
+            return new GetParent(Type.PARENT);
         }
 
-        public static GetElementsByDomTraversal nthParent(int nth) {
-            return new GetElementsByDomTraversal(Type.NTH_PARENT, nth);
+        public static GetParent nthParent(int nth) {
+            return new GetParent(Type.NTH_PARENT, nth);
         }
 
-        public static GetElementsByDomTraversal nextSiblingElem() {
-            return new GetElementsByDomTraversal(Type.NEXT_SIBLING_ELEMENT);
+        public static GetSiblings siblings() {
+            return new GetSiblings();
         }
 
-        public static GetElementsByDomTraversal prevSiblingElem() {
-            return new GetElementsByDomTraversal(Type.PREV_SIBLING_ELEMENT);
+        public static GetDescendants descendants() {
+            return new GetDescendants();
         }
 
-        public static GetElementsByDomTraversal firstChildElem() {
-            return new GetElementsByDomTraversal(Type.FIRST_CHILD_ELEMENT);
+        // this needs to be here ... cannot go under the descendants even thouth it gets the descendants
+        public static GetElementsByCssSelector descendantsBySelector(String sccSelector) {
+            return new GetElementsByCssSelector(sccSelector);
         }
 
-        public static GetElementsByDomTraversal firstNChildElems(int n) {
-            return new GetElementsByDomTraversal(Type.FIRST_N_CHILD_ELEMENTS, n);
+        public static GetChildren children() {
+            return new GetChildren();
         }
 
-        public static GetElementsByDomTraversal lastChildElem() {
-            return new GetElementsByDomTraversal(Type.LAST_CHILD_ELEMENT);
-        }
-
-        public static GetElementsByDomTraversal lastNChildElems(int n) {
-            return new GetElementsByDomTraversal(Type.LAST_N_CHILD_ELEMENTS, n);
-        }
-
-        public static GetElementsByDomTraversal nthChildElem(int nth) {
-            return new GetElementsByDomTraversal(Type.NTH_CHILD_ELEMENT, nth);
-        }
-
-        public static GetElementsByDomTraversal childElems() {
-            return new GetElementsByDomTraversal(Type.CHILD_ELEMENTS);
-        }
-
-
-        public static class Descendants {
-
-            public static class ByTag {
-
-                public static GetElementsByTag tagName(String tagName) {
-                    return new GetElementsByTag(tagName);
-                }
-
-                public static GetElementsByTag article() {
-                    return new GetElementsByTag("article");
-                }
-
-                public static GetElementsByTag anchor() {
-                    return new GetElementsByTag("a");
-                }
-
-                public static GetElementsByTag body() {
-                    return new GetElementsByTag("body");
-                }
-
-                public static GetElementsByTag div() {
-                    return new GetElementsByTag("div");
-                }
-
-                public static GetElementsByTag h1() {
-                    return new GetElementsByTag("h1");
-                }
-
-                public static GetElementsByTag h2() {
-                    return new GetElementsByTag("h2");
-                }
-
-                public static GetElementsByTag h3() {
-                    return new GetElementsByTag("h3");
-                }
-
-                public static GetElementsByTag h4() {
-                    return new GetElementsByTag("h4");
-                }
-
-                public static GetElementsByTag h5() {
-                    return new GetElementsByTag("h5");
-                }
-
-                public static GetElementsByTag img() {
-                    return new GetElementsByTag("img");
-                }
-
-                public static GetElementsByTag li() {
-                    return new GetElementsByTag("li");
-                }
-
-                public static GetElementsByTag p() {
-                    return new GetElementsByTag("p");
-                }
-
-                public static GetElementsByTag span() {
-                    return new GetElementsByTag("span");
-                }
-
-                public static GetElementsByTag thead() {
-                    return new GetElementsByTag("thead");
-                }
-
-                public static GetElementsByTag tbody() {
-                    return new GetElementsByTag("tbody");
-                }
-
-                public static GetElementsByTag tr() {
-                    return new GetElementsByTag("tr");
-                }
-
-                public static GetElementsByTag td() {
-                    return new GetElementsByTag("td");
-                }
-
-                public static GetElementsByTag ul() {
-                    return new GetElementsByTag("ul");
-                }
-
-
-            }
-
-
-            public static class ByTextContent {
-
-                public static GetElementsByTextContent search(String searchString, boolean matchWholeTextContent) {
-                    return new GetElementsByTextContent(searchString, matchWholeTextContent);
-                }
-
-            }
-
-
-            public static class ByCss {
-
-                public static GetElementsByCssClass byClassName(String className) {
-                    return new GetElementsByCssClass(className);
-                }
-
-                public static GetElementsByCssSelector bySelector(String selector) {
-                    return new GetElementsByCssSelector(selector);
-                }
-
-            }
-
-
-            public static class ByAttribute {
-
-                public static GetElementsByAttribute id(String idValue) {
-                    return new GetElementsByAttribute("id", idValue);
-                }
-
-                public static GetElementsByAttribute nameAndValue(String attrName, String attrValue) {
-                    return new GetElementsByAttribute(attrName, attrValue);
-                }
-
-                public static GetElementsByAttribute name(String attrName) {
-                    return new GetElementsByAttribute(attrName);
-                }
-
-            }
-
-
-            public static class ByXPath {
-
-                public static GetElementsByXPath xPath(String xPath) {
-                    return new GetElementsByXPath(xPath);
-                }
-
-            }
-        }
     }
+
+
+    /**
+     * In case some complex custom filtering logic is needed these filters can be used
+     */
+    public static class Filter {
+
+        public static FilterElements apply(Predicate<DomNode> domNodePredicate) {
+            return new FilterElements(domNodePredicate);
+        }
+
+    }
+
 
     public static class Parse {
 
@@ -228,11 +94,8 @@ public class HtmlUnit {
 
     }
 
-    public static class Do {
 
-        public static FilterElements filterElements(Predicate<DomNode> domNodePredicate) {
-            return new FilterElements(domNodePredicate);
-        }
+    public static class Do {
 
         public static MapElements mapElements(Function<DomNode, Optional<DomNode>> mapper) {
             return new MapElements(mapper);
@@ -272,6 +135,7 @@ public class HtmlUnit {
         }
     }
 
+
     public static class Flow {
 
         public static StepGroup asStepGroup() {
@@ -279,6 +143,7 @@ public class HtmlUnit {
         }
 
     }
+
 
     // TODO rename to When/If ?
     public static class Conditions {

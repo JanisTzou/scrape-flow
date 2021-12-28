@@ -16,6 +16,32 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-// marker interface
-public interface HtmlUnitStepChangingUsedParser<C>  {
+import com.gargoylesoftware.htmlunit.html.DomNode;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class FilterFirstNth implements Filter {
+
+    private final int nth;
+
+    /**
+     * @param nth positive integer
+     */
+    public FilterFirstNth(int nth) {
+        if (nth <= 0) {
+            throw new IllegalArgumentException("n must be > 0");
+        }
+        this.nth = nth;
+    }
+
+    @Override
+    public List<DomNode> filter(List<DomNode> list) {
+        if (list.size() >= nth) {
+            return List.of(list.get(nth - 1));
+        }
+        return Collections.emptyList();
+    }
+
 }

@@ -27,7 +27,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.AccumulatorType;
+import static com.github.web.scraping.lib.scraping.htmlunit.Collector.AccumulatorType;
 
 public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
         implements HtmlUnitStepCollectingParsedStringToModel<ParseElementHRef>,
@@ -52,7 +52,7 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
     }
 
     @Override
-    public ParseElementHRef copy() {
+    protected ParseElementHRef copy() {
         return copyFieldValuesTo(new ParseElementHRef(parsedTextTransformation));
     }
 
@@ -68,11 +68,11 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
                     String transformed = transformParsedText(href);
                     log.debug("{} - {}: Parsed href: {}", stepExecOrder, getName(), transformed);
 
-                    setParsedValueToModel(this.getCollectorSetups(), ctx, transformed, getName(), stepDeclarationLine);
+                    setParsedValueToModel(this.getCollectors(), ctx, transformed, getName(), stepDeclarationLine);
 
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
                     ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
-                    getHelper().execute(ctxCopy, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
+                    getHelper().execute(ctxCopy, nodesSearch, stepExecOrder, getExecuteIf());
                 }
             } else {
                 log.warn("No HtmlAnchor element provided -> cannot parse href value! Check the steps sequence above step {}", getName());
@@ -86,12 +86,12 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
 
     @Override
     public <T> ParseElementHRef collectOne(BiConsumer<T, String> modelMutation, Class<T> containerType) {
-        return addCollectorSetup(new CollectorSetup(modelMutation, String.class, containerType, AccumulatorType.ONE));
+        return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.ONE));
     }
 
     @Override
     public <T> ParseElementHRef collectMany(BiConsumer<T, String> modelMutation, Class<T> containerType) {
-        return addCollectorSetup(new CollectorSetup(modelMutation, String.class, containerType, AccumulatorType.MANY));
+        return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.MANY));
     }
 
     /**

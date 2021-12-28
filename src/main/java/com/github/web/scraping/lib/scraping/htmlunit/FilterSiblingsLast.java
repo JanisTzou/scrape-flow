@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.debugging;
+package com.github.web.scraping.lib.scraping.htmlunit;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
+import com.gargoylesoftware.htmlunit.html.DomNode;
 
-public class GetFirstNItemsStatefulPredicate<T> implements Predicate<T> {
+import java.util.Collections;
+import java.util.List;
 
-    private final int limit;
-    private final AtomicInteger counter = new AtomicInteger(0);
-
-    public GetFirstNItemsStatefulPredicate(int limit) {
-        this.limit = limit;
-    }
+public class FilterSiblingsLast implements Filter {
 
     @Override
-    public boolean test(T t) {
-        if (counter.getAndIncrement() < limit) {
-            return true;
+    public List<DomNode> filter(List<DomNode> allNextSiblings) {
+        if (allNextSiblings.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            return List.of(allNextSiblings.get(allNextSiblings.size() - 1));
         }
-        return false;
     }
+
 }

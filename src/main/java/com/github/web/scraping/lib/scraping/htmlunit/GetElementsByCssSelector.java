@@ -23,7 +23,11 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class GetElementsByCssSelector extends GetElementsStepBase<GetElementsByCssSelector> {
+public class GetElementsByCssSelector extends CommonOperationsStepBase<GetElementsByCssSelector>
+        implements FilterableByCommonCriteria<GetElementsByCssSelector> {
+
+    // this cannot be a filter ... it's more of a "Get" operation ...
+    // it would not make sense to first get descendants/children and then this ...
 
     private final String sccSelector;
 
@@ -37,7 +41,7 @@ public class GetElementsByCssSelector extends GetElementsStepBase<GetElementsByC
     }
 
     @Override
-    public GetElementsByCssSelector copy() {
+    protected GetElementsByCssSelector copy() {
         return copyFieldValuesTo(new GetElementsByCssSelector(sccSelector));
     }
 
@@ -46,8 +50,8 @@ public class GetElementsByCssSelector extends GetElementsStepBase<GetElementsByC
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(HtmlUnitUtils.getDescendantsBySccSelector(ctx.getNode(), sccSelector));
-            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
+            Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsBySccSelector(ctx.getNode(), sccSelector);
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);
@@ -55,4 +59,8 @@ public class GetElementsByCssSelector extends GetElementsStepBase<GetElementsByC
         return stepExecOrder;
     }
 
+    @Override
+    public GetElementsByCssSelector addFilter(Filter filter) {
+        return super.addFilter(filter);
+    }
 }

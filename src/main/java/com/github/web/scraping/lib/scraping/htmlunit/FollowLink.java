@@ -43,7 +43,7 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
     }
 
     @Override
-    public FollowLink copy() {
+    protected FollowLink copy() {
         return copyFieldValuesTo(new FollowLink());
     }
 
@@ -65,7 +65,7 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
                         // TODO we want to propagate this page in the context ... to the next steps ...
                         HtmlPage nextPage = (HtmlPage) enclosingWindow.getEnclosedPage();
                         URL nextUrl = nextPage.getUrl();
-                        log.debug("{} - {}: Loaded page URL after anchor clicked: {}", stepExecOrder, getName(), nextUrl.toString());
+                        log.info("{} - {}: Loaded page URL after anchor clicked: {}", stepExecOrder, getName(), nextUrl.toString());
 //                  System.out.println(nextPage.asXml());
 
                         // TODO log / throw error if urls of curr and next pages are the same ...
@@ -79,7 +79,7 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
                         return Collections.emptyList();
                     }
                 };
-                getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
+                getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
 
             } else {
                 log.warn("{}: No HtmlAnchor element provided -> cannot click element! Check the steps sequence above step {} and maybe provide search step for an anchor tag", getName(), getName());

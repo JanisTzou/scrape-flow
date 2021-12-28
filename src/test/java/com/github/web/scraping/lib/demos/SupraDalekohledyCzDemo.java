@@ -22,13 +22,13 @@ import com.github.web.scraping.lib.scraping.EntryPoint;
 import com.github.web.scraping.lib.scraping.Scraper;
 import com.github.web.scraping.lib.scraping.Scraping;
 import com.github.web.scraping.lib.scraping.htmlunit.GetElementsByXPath;
+import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitSiteParser;
 import org.junit.Test;
 
 import java.time.Duration;
 
 import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.Do;
-import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.Get;
 
 public class SupraDalekohledyCzDemo {
 
@@ -37,10 +37,10 @@ public class SupraDalekohledyCzDemo {
 
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
 
-        GetElementsByXPath getNextBtnLink = Get.Descendants.ByXPath.xPath("/html/body/div[2]/div[1]/div[4]/div/div/div[2]/div[3]/div[1]/ul/li[4]/a");
+        GetElementsByXPath getNextBtnLink = HtmlUnit.Get.byXPath("/html/body/div[2]/div[1]/div[4]/div/div/div[2]/div[3]/div[1]/ul/li[4]/a");
 
         final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 1)
-                .setScrapingSequence(getNextBtnLink
+                .setSequence(getNextBtnLink
                         .next(Do.followLink())
                 );
 

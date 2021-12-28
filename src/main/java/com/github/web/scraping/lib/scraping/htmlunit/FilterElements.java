@@ -24,6 +24,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Filters nodes acquired in the previous steps by custom conditions
@@ -43,7 +45,7 @@ public class FilterElements extends CommonOperationsStepBase<FilterElements> {
     }
 
     @Override
-    public FilterElements copy() {
+    protected FilterElements copy() {
         return copyFieldValuesTo(new FilterElements(domNodePredicate));
     }
 
@@ -52,9 +54,8 @@ public class FilterElements extends CommonOperationsStepBase<FilterElements> {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<DomNode>> nodeSupplier = () -> List.of(ctx.getNode());
-
-            getHelper().execute(ctx, nodeSupplier, domNodePredicate, stepExecOrder, getExecuteIf());
+            Supplier<List<DomNode>> nodeSupplier = () -> Stream.of(ctx.getNode()).filter(domNodePredicate).collect(Collectors.toList());
+            getHelper().execute(ctx, nodeSupplier, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

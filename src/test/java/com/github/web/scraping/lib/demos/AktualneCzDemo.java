@@ -21,8 +21,7 @@ import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
 import com.github.web.scraping.lib.scraping.EntryPoint;
 import com.github.web.scraping.lib.scraping.Scraper;
 import com.github.web.scraping.lib.scraping.Scraping;
-import com.github.web.scraping.lib.scraping.htmlunit.GetElementsByAttribute;
-import com.github.web.scraping.lib.scraping.htmlunit.GetElementsByCssClass;
+import com.github.web.scraping.lib.scraping.htmlunit.GetDescendants;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitSiteParser;
 import org.junit.Test;
 
@@ -39,13 +38,13 @@ public class AktualneCzDemo {
         // TODO any way for these to be accessible globally? So they do not need to be specified explicitly in every stage definition?
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
 
-        final GetElementsByAttribute getArticleElements = Get.Descendants.ByAttribute.nameAndValue("data-ga4-type", "article");
-        final GetElementsByAttribute getArticleHeadlineElem = Get.Descendants.ByAttribute.name("data-vr-headline");
-        final GetElementsByCssClass getArticleDescElem1 = Get.Descendants.ByCss.byClassName("section-opener__desc");
-        final GetElementsByCssClass getArticleDescElem2 = Get.Descendants.ByCss.byClassName("small-box__desc");
+        final GetDescendants getArticleElements = Get.descendants().byAttr("data-ga4-type", "article");
+        final GetDescendants getArticleHeadlineElem = Get.descendants().byAttr("data-vr-headline");
+        final GetDescendants getArticleDescElem1 = Get.descendants().byClass("section-opener__desc");
+        final GetDescendants getArticleDescElem2 = Get.descendants().byClass("small-box__desc");
 
         final Scraping articlesScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 5)
-                .setScrapingSequence(
+                .setSequence(
                         getArticleElements
                                 .next(getArticleHeadlineElem.stepName("step-1")
                                         .next(Parse.textContent())

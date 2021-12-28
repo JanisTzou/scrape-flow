@@ -18,64 +18,86 @@ package com.github.web.scraping.lib.demos;
 
 import com.github.web.scraping.lib.drivers.HtmlUnitDriverManager;
 import com.github.web.scraping.lib.drivers.HtmlUnitDriversFactory;
+import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import com.github.web.scraping.lib.scraping.EntryPoint;
 import com.github.web.scraping.lib.scraping.Scraper;
 import com.github.web.scraping.lib.scraping.Scraping;
-import com.github.web.scraping.lib.scraping.htmlunit.GetElementsByXPath;
-import com.github.web.scraping.lib.scraping.htmlunit.GetListedElementByFirstElementXPath;
-import com.github.web.scraping.lib.scraping.htmlunit.GetListedElementsByFirstElementXPath;
-import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitSiteParser;
+import com.github.web.scraping.lib.scraping.htmlunit.*;
+import com.github.web.scraping.lib.utils.JsonUtils;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.extern.log4j.Log4j2;
 import org.junit.Test;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.Get;
+import java.time.Duration;
+
+import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
 import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.Parse;
 
+@Log4j2
 public class IFortunaCzDemo {
 
+    public static final String HTTPS_WWW_IFORTUNA_CZ = "https://www.ifortuna.cz";
+
     @Test
-    public void start() {
+    public void start() throws InterruptedException {
 
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
 
-        final GetListedElementsByFirstElementXPath getEventsListElements = GetListedElementsByFirstElementXPath.instance("/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]");
-        final GetListedElementByFirstElementXPath getEventDetailLinkElem = GetListedElementByFirstElementXPath.instance("/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[1]/a");
-        final GetListedElementByFirstElementXPath getEventTitleElem = GetListedElementByFirstElementXPath.instance("/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[1]/div/div[1]/span[1]");
-        final GetListedElementByFirstElementXPath getEventDateElem = GetListedElementByFirstElementXPath.instance("/html/body/div[1]/div/div[2]/div[2]/div/div[5]/div/div[1]/div[1]/table/tbody/tr[1]/td[9]/span");
-
         final Scraping matchesScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 5)
-                .setScrapingSequence(getEventsListElements
-                        .next(getEventDetailLinkElem  // TODO perhaps we can express it better that the next step is going for the children ?
-                                .next(Parse.hRef())
-                        )
-                        .next(getEventTitleElem
-                                .next(Parse.textContent())
-                        )
-                        .next(getEventDateElem
-                                .next(Parse.textContent())
-                        )
+                .setSequence(
+                        Get.descendants().byAttr("id", "top-bets-tab-0")
+                                .next(Get.descendants().byTag("div").byClass("events-table-box")
+                                        .addCollector(Match::new, Match.class, new MatchListener())
+                                        .next(Get.descendants().byTag("tbody")
+                                                .next(Get.children().byTag("tr").first() // gets first row containing a single match data
+                                                        .next(Get.children().byTag("td").first()
+                                                                .next(Get.children().byTag("a") // match detail link
+                                                                        .next(Parse.hRef(href -> HTTPS_WWW_IFORTUNA_CZ + href)
+                                                                                .collectOne(Match::setDetailUrl, Match.class)
+                                                                        )
+                                                                )
+                                                                .next(Get.descendants().byTag("span").byClass("market-name") // match name (teams)
+                                                                        .next(Parse.textContent()
+                                                                                .collectOne(Match::setName, Match.class)
+                                                                        )
+                                                                )
+                                                        )
+                                                        .next(Get.children().byTag("td").byClass("col-date")  // match date
+                                                                .next(Get.descendants().byTag("span").byClass("event-datetime")
+                                                                        .next(Parse.textContent()
+                                                                                .collectOne(Match::setDate, Match.class)
+                                                                        )
+                                                                )
+                                                        )
+                                                )
+                                        )
+                                )
                 );
 
-        final GetElementsByXPath getEventHomeOddsElem = Get.Descendants.ByXPath.xPath("/html/body/div[1]/div/div[2]/div[2]/div/section/div/div[2]/table/tbody/tr/td[2]/a/span");
 
-//        final Crawling eventDetailOddsStage = new Crawling()
-//                .setParser(new HtmlUnitSiteParser(driverManager)
-//                        .setScrapingSequence(getEventHomeOddsElem
-//                                .then(new ParseElementText())
-//                        )
-//                        )
-//               ;
-
-
-        // TODO maybe the entry url should be part of the first scraping stage? And we can have something like "FirstScrapingStage) ... or maybe entry point abstraction is good enough ?
         final EntryPoint entryPoint = new EntryPoint("https://www.ifortuna.cz/", matchesScraping);
-
         final Scraper scraper = new Scraper();
-
         scraper.scrape(entryPoint);
-
+        scraper.awaitCompletion(Duration.ofMinutes(5));
+        Thread.sleep(1000); // let logging finish
     }
 
-    public enum Identifiers {
-        EVENT_LINK,
+
+    @Getter @Setter @ToString
+    public static class Match {
+        private String name;
+        private String detailUrl;
+        private String date;
     }
+
+    public static class MatchListener implements ParsedDataListener<Match> {
+        @Override
+        public void onParsingFinished(Match data) {
+            log.info("\n" + JsonUtils.write(data).orElse("JSON ERROR"));
+        }
+    }
+
+
 }

@@ -16,6 +16,15 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-// marker interface
-public interface HtmlUnitStepChangingUsedParser<C>  {
+import com.gargoylesoftware.htmlunit.html.DomNode;
+
+import java.util.List;
+
+public class FilterSiblingsFirst implements Filter {
+
+    @Override
+    public List<DomNode> filter(List<DomNode> allPrevSiblings) {
+        return allPrevSiblings.stream().findFirst().stream().toList();
+    }
+
 }

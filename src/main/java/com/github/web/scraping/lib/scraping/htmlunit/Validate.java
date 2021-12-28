@@ -16,6 +16,10 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-// marker interface
-public interface HtmlUnitStepChangingUsedParser<C>  {
+public interface Validate<C extends HtmlUnitScrapingStep<C>> {
+
+    void expectOne();
+
+    void expectMany();
+
 }

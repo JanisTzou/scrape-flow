@@ -16,6 +16,16 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-// marker interface
-public interface HtmlUnitStepChangingUsedParser<C>  {
+import com.gargoylesoftware.htmlunit.html.DomNode;
+
+import java.util.List;
+import java.util.function.Predicate;
+
+
+interface Filter {
+
+    // we always need to filter the whole list as we might have operations that
+    // need to know the number of items (e.g. whe filtering the first N nodes)
+    List<DomNode> filter(List<DomNode> list);
+
 }

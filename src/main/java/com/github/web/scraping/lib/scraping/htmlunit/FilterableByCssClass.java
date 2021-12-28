@@ -16,6 +16,10 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-// marker interface
-public interface HtmlUnitStepChangingUsedParser<C>  {
+public interface FilterableByCssClass<C extends HtmlUnitScrapingStep<C>> extends Filterable<C> {
+
+    default C byClass(String className) {
+        return addFilter(new FilterByCssClass(className));
+    }
+
 }

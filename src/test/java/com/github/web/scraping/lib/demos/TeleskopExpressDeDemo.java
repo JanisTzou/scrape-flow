@@ -34,6 +34,7 @@ import org.junit.Test;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
 
@@ -46,19 +47,18 @@ public class TeleskopExpressDeDemo {
 
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
 
-        GetElementsByAttribute getNextPageLinkElemStep = Get.Descendants.ByAttribute.nameAndValue("title", " nächste Seite ").stepName("get-next-page-elem");
-        GetElementsByCssClass getProductTdElemsStep = Get.Descendants.ByCss.byClassName("main").stepName("get-product-elems");
-        GetElementsByCssClass getProductCodeElemStep = Get.Descendants.ByCss.byClassName("PRODUCTS_NAME").stepName("get-product-code-elem-1");
-        GetElementsByCssClass getProductPriceElemStep = Get.Descendants.ByCss.byClassName("prod_preis").stepName("get-product-price-elem");
-        GetElementsByAttribute getProductDetailHRefElemStep = Get.Descendants.ByAttribute.nameAndValue("href", "product_info.php/info").setMatchEntireValue(false).stepName("get-product-detail-elem");
+        GetDescendants getNextPageLinkElemStep = Get.descendants().byAttr("title", " nächste Seite ").stepName("get-next-page-elem");
+        GetDescendants getProductTdElemsStep = Get.descendants().byClass("main").stepName("get-product-elems");
+        GetDescendants getProductCodeElemStep = Get.descendants().byClass("PRODUCTS_NAME").stepName("get-product-code-elem-1");
+        GetDescendants getProductPriceElemStep = Get.descendants().byClass("prod_preis").stepName("get-product-price-elem");
         FollowLink clickNextPageLinkElem = Do.followLink().stepName("click-next-page-button");
-        GetElementsByAttribute getProductDetailTitleElem = Get.Descendants.ByAttribute.nameAndValue("itemprop", "name");
-        GetElementsByAttribute getProductDescriptionElem = Get.Descendants.ByAttribute.nameAndValue("id", "c0");
+        GetDescendants getProductDetailTitleElem = Get.descendants().byAttr("itemprop", "name");
+        GetDescendants getProductDescriptionElem = Get.descendants().byAttr("id", "c0");
 
         final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 1)
-                .debug().onlyScrapeFirstElements(false)
-                .debug().logSourceCodeOfFoundElements(false)
-                .setScrapingSequence(
+                .debugOptions().onlyScrapeFirstElements(false)
+                .debugOptions().logSourceCodeOfFoundElements(false)
+                .setSequence(
                         Do.paginate()
                                 .setStepsLoadingNextPage(
                                         getNextPageLinkElemStep
@@ -86,18 +86,20 @@ public class TeleskopExpressDeDemo {
                                                                 .next(getProductDescriptionElem
                                                                         .next(Parse.textContent().collectOne(Product::setDescription, Product.class))
                                                                 )
-                                                                .next(Get.Descendants.ByAttribute.nameAndValue("id", "MwStInfoMO")
-                                                                        .next(Get.Descendants.ByTag.anchor()
+                                                                .next(Get.descendants().byAttr("id", "MwStInfoMO")
+                                                                        .next(Get.descendants().byTag("a")
                                                                                 .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
                                                                                         .nextNavigate(Do.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
-                                                                                                .next(GetListedElementsByFirstElementXPath.instance("/html/body/table/tbody/tr[1]")
-                                                                                                        .addCollector(ShippingCosts::new, ShippingCosts.class)
-                                                                                                        .collectMany((Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc), Product.class, ShippingCosts.class)
-                                                                                                        .next(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[1]")
-                                                                                                                .next(Parse.textContent().stepName("get-shipping-service").collectOne(ShippingCosts::setService, ShippingCosts.class))
-                                                                                                        )
-                                                                                                        .next(GetListedElementByFirstElementXPath.instance("/html/body/table/tbody/tr[1]/td[2]")
-                                                                                                                .next(Parse.textContent().stepName("get-shipping-price").collectOne(ShippingCosts::setPrice, ShippingCosts.class))
+                                                                                                .next(Get.byXPath("/html/body/table/tbody")
+                                                                                                        .next(Get.children().byTag("tr") // rows doe each shipping service price
+                                                                                                                .addCollector(ShippingCosts::new, ShippingCosts.class)
+                                                                                                                .collectMany((Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc), Product.class, ShippingCosts.class)
+                                                                                                                .next(Get.children().byTag("td").first()  // service name
+                                                                                                                        .next(Parse.textContent().stepName("get-shipping-service").collectOne(ShippingCosts::setService, ShippingCosts.class))
+                                                                                                                )
+                                                                                                                .next(Get.children().byTag("td").firstNth(2)  // service price
+                                                                                                                        .next(Parse.textContent().stepName("get-shipping-price").collectOne(ShippingCosts::setPrice, ShippingCosts.class))
+                                                                                                                )
                                                                                                         )
                                                                                                 )
                                                                                         )

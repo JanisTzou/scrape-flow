@@ -23,22 +23,20 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class GetElementsByCssClass extends GetElementsStepBase<GetElementsByCssClass> {
+public class GetDescendants extends CommonOperationsStepBase<GetDescendants>
+        implements FilterableByCommonCriteria<GetDescendants>, Filterable<GetDescendants> {
 
-    private final String cssClassName;
-
-    GetElementsByCssClass(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, String cssClassName) {
+    GetDescendants(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
         super(nextSteps);
-        this.cssClassName = cssClassName;
     }
 
-    GetElementsByCssClass(String cssClassName) {
-        this(null, cssClassName);
+    GetDescendants() {
+        this(null);
     }
 
     @Override
-    public GetElementsByCssClass copy() {
-        return copyFieldValuesTo(new GetElementsByCssClass(cssClassName));
+    protected GetDescendants copy() {
+        return copyFieldValuesTo(new GetDescendants());
     }
 
     @Override
@@ -46,13 +44,21 @@ public class GetElementsByCssClass extends GetElementsStepBase<GetElementsByCssC
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(HtmlUnitUtils.getDescendantsByClass(ctx.getNode(), cssClassName));
-            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
+            Supplier<List<DomNode>> nodesSearch = () -> {
+                // important to include only html elements -> users for not expect to deal with other types when defining filtering operations (e.g. first() ... )
+                return HtmlUnitUtils.getHtmlElementDescendants(ctx.getNode(), n -> true);
+            };
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);
 
         return stepExecOrder;
+    }
+
+    @Override
+    public GetDescendants addFilter(Filter filter) {
+        return super.addFilter(filter);
     }
 
 }

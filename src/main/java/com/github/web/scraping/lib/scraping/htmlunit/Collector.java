@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 @Getter
-public class CollectorSetup {
+public class Collector {
 
     private final Supplier<?> modelSupplier;
     private final Class<?> modelClass;
@@ -40,12 +40,12 @@ public class CollectorSetup {
 //    private final CollectedModelType collectedModelType;
 
     @SuppressWarnings("unchecked")
-    public CollectorSetup(Supplier<?> modelSupplier,
-                          Class<?> modelClass,
-                          AccumulatorType accumulatorType,
-                          BiConsumer<?, ?> accumulator,
-                          Class<?> containerClass,
-                          ParsedDataListener<?> parsedDataListener) {
+    public Collector(Supplier<?> modelSupplier,
+                     Class<?> modelClass,
+                     AccumulatorType accumulatorType,
+                     BiConsumer<?, ?> accumulator,
+                     Class<?> containerClass,
+                     ParsedDataListener<?> parsedDataListener) {
         this.modelSupplier = modelSupplier;
         this.accumulatorType = accumulatorType;
         this.accumulator = (BiConsumer<Object, Object>) accumulator;
@@ -54,15 +54,15 @@ public class CollectorSetup {
         this.parsedDataListener = (ParsedDataListener<Object>) parsedDataListener;
     }
 
-    public CollectorSetup(Supplier<?> modelSupplier, Class<?> modelClass) {
+    public Collector(Supplier<?> modelSupplier, Class<?> modelClass) {
         this(modelSupplier, modelClass, null, null, null, null);
     }
 
-    public CollectorSetup(Supplier<?> modelSupplier, Class<?> modelClass, ParsedDataListener<?> parsedDataListener) {
+    public Collector(Supplier<?> modelSupplier, Class<?> modelClass, ParsedDataListener<?> parsedDataListener) {
         this(modelSupplier, modelClass, null, null, null, parsedDataListener);
     }
 
-    public CollectorSetup(BiConsumer<?, ?> accumulator, Class<?> modelClass, Class<?> containerClass, AccumulatorType accumulatorType) {
+    public Collector(BiConsumer<?, ?> accumulator, Class<?> modelClass, Class<?> containerClass, AccumulatorType accumulatorType) {
         this(null, modelClass, accumulatorType, accumulator, containerClass, null);
     }
 

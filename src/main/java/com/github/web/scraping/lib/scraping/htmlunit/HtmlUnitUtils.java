@@ -100,39 +100,54 @@ public class HtmlUnitUtils {
     }
 
     public static List<DomNode> getDescendantsByAttributeValue(DomNode parentElement, String attributeName, String attributeValue, boolean exactMatch) {
-        return filterAndGetDescendants(parentElement, el -> hasAttributeWithValue(el, attributeName, attributeValue, exactMatch));
+        return getHtmlElementDescendants(parentElement, el -> hasAttributeWithValue(el, attributeName, attributeValue, exactMatch));
     }
 
     public static List<DomNode> getDescendantsByAttribute(DomNode parentElement, String attributeName) {
-        return filterAndGetDescendants(parentElement, el -> el.hasAttribute(attributeName));
+        return getHtmlElementDescendants(parentElement, el -> el instanceof HtmlElement && ((HtmlElement) el).hasAttribute(attributeName));
     }
 
     public static List<DomNode> getDescendantsByClass(DomNode parentElement, String cssClassName) {
-        return filterAndGetDescendants(parentElement, el -> {
+        return getHtmlElementDescendants(parentElement, el -> hasCssClass(el, cssClassName));
+    }
+
+    public static boolean hasCssClass(DomNode domNode, String cssClassName) {
+        if (domNode instanceof HtmlElement el) {
             if (el.hasAttribute("class")) {
                 return Arrays.stream(el.getAttribute("class").split(" ")).anyMatch(ccls -> ccls.equalsIgnoreCase(cssClassName));
             }
-            return false;
-        });
+        }
+        return false;
     }
 
-    public static List<DomNode> getDescendantsBySccSelector(DomNode parentElement, String selector) {
-        DomNodeList<DomNode> domNodes = parentElement.querySelectorAll(selector);
-        return domNodes;
+    public static boolean hasTagName(DomNode domNode, String tagName) {
+        if (domNode instanceof HtmlElement el) {
+            return el.getTagName().equalsIgnoreCase(tagName);
+        }
+        return false;
     }
 
-    // TODO there is a big problem here that some elements are being searched but only for descendants and in fact we want those same "parents" returned ... somehow express this in the
-    //  steps that go for elements ... so that their filtering function is clear ...
-    public static List<DomNode> getDescendantsByTagName(DomNode parentElement, String tagName) {
-        return filterAndGetDescendants(parentElement, el -> el.getTagName().equalsIgnoreCase(tagName));
+    public static List<DomNode> getDescendantsBySccSelector(DomNode domNode, String selector) {
+        return domNode.querySelectorAll(selector);
     }
 
-    public static List<DomNode> filterAndGetDescendants(DomNode parentElement, Predicate<DomElement> filter) {
+
+    public static List<DomNode> getDescendants(DomNode parentElement, Predicate<DomNode> filter) {
         List<DomNode> found = new ArrayList<>();
-        for (DomNode childElement : parentElement.getHtmlElementDescendants()) {
-            if (childElement instanceof HtmlElement htmlEl) {
+        for (DomNode desc : parentElement.getDescendants()) {
+            if (filter.test(desc)) {
+                found.add(desc);
+            }
+        }
+        return found;
+    }
+
+    public static List<DomNode> getHtmlElementDescendants(DomNode parentElement, Predicate<DomNode> filter) {
+        List<DomNode> found = new ArrayList<>();
+        for (DomNode desc : parentElement.getHtmlElementDescendants()) {
+            if (desc instanceof HtmlElement htmlEl) {
                 if (filter.test(htmlEl)) {
-                    found.add(childElement);
+                    found.add(desc);
                 }
             }
         }
@@ -140,26 +155,31 @@ public class HtmlUnitUtils {
     }
 
     public static boolean hasAttributeWithValue(DomNode domNode, String attribute, String value, boolean exactMatch) {
-        if (domNode instanceof DomElement) {
-            return hasAttributeWithValue((DomElement) domNode, attribute, value, exactMatch);
-        }
-        return false;
-    }
-
-    public static boolean hasAttributeWithValue(DomElement element, String attribute, String value, boolean exactMatch) {
-        if (exactMatch) {
-            return element.hasAttribute(attribute) && element.getAttribute(attribute).equals(value);
+        if (domNode instanceof HtmlElement element) {
+            if (exactMatch) {
+                return element.hasAttribute(attribute) && element.getAttribute(attribute).equals(value);
+            } else {
+                return element.hasAttribute(attribute) && element.getAttribute(attribute).contains(value);
+            }
         } else {
-            return element.hasAttribute(attribute) && element.getAttribute(attribute).contains(value);
+            return false;
         }
     }
 
-
-    public static Optional<DomNode> findNthParent(DomNode domNode, int nth) {
-        if (nth < 0) {
-            throw new IllegalArgumentException("Cannot return nth child element for n = " + nth + " - nth must be a non-negative integer!");
+    public static boolean hasAttribute(DomNode domNode, String attribute) {
+        if (domNode instanceof HtmlElement element) {
+            return element.hasAttribute(attribute);
+        } else {
+            return false;
         }
-        return findNthParentHelper(domNode, nth, 0);
+    }
+
+    public static Optional<DomNode> findNthParent(DomNode domNode, Integer nth) {
+        if (nth != null && nth < 0) {
+            throw new IllegalArgumentException("Cannot return nth child element for n = " + nth + " - nth must be a non-null and non-negative integer!");
+        } else {
+            return findNthParentHelper(domNode, nth, 0);
+        }
     }
 
     private static Optional<DomNode> findNthParentHelper(DomNode domNode, int nth, int count) {
@@ -176,6 +196,26 @@ public class HtmlUnitUtils {
 
     public static Optional<DomNode> findNextSiblingElement(DomNode domNode) {
         return Optional.ofNullable(domNode.getNextElementSibling());
+    }
+
+    public static List<DomNode> findPrevSiblingElements(DomNode domNode) {
+        List<DomNode> prevSiblings = new ArrayList<>();
+        DomNode prev = domNode.getPreviousElementSibling();
+        while (prev != null) {
+            prevSiblings.add(prev);
+            prev = prev.getPreviousElementSibling();
+        }
+        return prevSiblings;
+    }
+
+    public static List<DomNode> findNextSiblingElements(DomNode domNode) {
+        List<DomNode> nextSiblings = new ArrayList<>();
+        DomNode next = domNode.getNextElementSibling();
+        while (next != null) {
+            nextSiblings.add(next);
+            next = next.getNextElementSibling();
+        }
+        return nextSiblings;
     }
 
     public static Optional<DomNode> findPrevSiblingElement(DomNode domNode) {
@@ -215,5 +255,18 @@ public class HtmlUnitUtils {
         return domNode.getChildNodes().stream().filter(node -> node instanceof HtmlElement).map(node -> (HtmlElement) node).collect(Collectors.toList());
     }
 
+    public static Optional<DomNode> toDomNode(Object obj) {
+        if (obj instanceof DomNode node) {
+            return Optional.of(node);
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<HtmlElement> toHtmlElement(Object obj) {
+        if (obj instanceof HtmlElement elem) {
+            return Optional.of(elem);
+        }
+        return Optional.empty();
+    }
 
 }

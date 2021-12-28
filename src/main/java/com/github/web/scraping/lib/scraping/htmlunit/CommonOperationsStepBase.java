@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.AccumulatorType;
+import static com.github.web.scraping.lib.scraping.htmlunit.Collector.AccumulatorType;
 
 
 public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>> extends HtmlUnitScrapingStep<C>
@@ -35,22 +35,22 @@ public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>
 
     @Override
     public <R, T> C collectOne(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType) {
-        return addCollectorSetup(new CollectorSetup(accumulator, modelType, containerType, AccumulatorType.ONE));
+        return addCollector(new Collector(accumulator, modelType, containerType, AccumulatorType.ONE));
     }
 
     @Override
     public <R, T> C collectMany(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType) {
-        return addCollectorSetup(new CollectorSetup(accumulator, modelType, containerType, AccumulatorType.MANY));
+        return addCollector(new Collector(accumulator, modelType, containerType, AccumulatorType.MANY));
     }
 
     @Override
     public <T> C addCollector(Supplier<T> modelSupplier, Class<T> modelType) {
-        return addCollectorSetup(new CollectorSetup(modelSupplier, modelType));
+        return addCollector(new Collector(modelSupplier, modelType));
     }
 
     @Override
     public <T> C addCollector(Supplier<T> modelSupplier, Class<T> modelType, ParsedDataListener<T> parsedDataListener) {
-        return addCollectorSetup(new CollectorSetup(modelSupplier, modelType, parsedDataListener));
+        return addCollector(new Collector(modelSupplier, modelType, parsedDataListener));
     }
 
     @Override

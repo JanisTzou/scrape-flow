@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.AccumulatorType;
+import static com.github.web.scraping.lib.scraping.htmlunit.Collector.AccumulatorType;
 
 @Log4j2
 public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
@@ -46,7 +46,7 @@ public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
     }
 
     @Override
-    public DownloadImage copy() {
+    protected DownloadImage copy() {
         return copyFieldValuesTo(new DownloadImage());
     }
 
@@ -61,14 +61,14 @@ public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
             try {
                 imageURL = new URL(ctx.getParsedURL());
                 BufferedImage bufferedImage = ImageIO.read(imageURL);
-                setParsedValueToModel(this.getCollectorSetups(), ctx, bufferedImage, getName(), stepDeclarationLine);
+                setParsedValueToModel(this.getCollectors(), ctx, bufferedImage, getName(), stepDeclarationLine);
 
                 log.debug("Success downloading image");
             } catch (Exception e) {
                 log.error("Error downloading image from URL {}", ctx.getParsedURL());
             }
 
-            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);
@@ -78,12 +78,12 @@ public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
 
     @Override
     public <T> DownloadImage collectOne(BiConsumer<T, BufferedImage> modelMutation, Class<T> containerType) {
-        return addCollectorSetup(new CollectorSetup(modelMutation, BufferedImage.class, containerType, AccumulatorType.ONE));
+        return addCollector(new Collector(modelMutation, BufferedImage.class, containerType, AccumulatorType.ONE));
     }
 
     @Override
     public <T> DownloadImage collectMany(BiConsumer<T, BufferedImage> modelMutation, Class<T> containerType) {
-        return addCollectorSetup(new CollectorSetup(modelMutation, BufferedImage.class, containerType, AccumulatorType.MANY));
+        return addCollector(new Collector(modelMutation, BufferedImage.class, containerType, AccumulatorType.MANY));
     }
 
 }

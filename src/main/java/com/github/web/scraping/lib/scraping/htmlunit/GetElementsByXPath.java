@@ -17,13 +17,16 @@
 package com.github.web.scraping.lib.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
-public class GetElementsByXPath extends GetElementsStepBase<GetElementsByXPath> {
+public class GetElementsByXPath extends CommonOperationsStepBase<GetElementsByXPath>
+        implements FilterableByCommonCriteria<GetElementsByXPath> {
 
     private final String xPath;
 
@@ -38,7 +41,7 @@ public class GetElementsByXPath extends GetElementsStepBase<GetElementsByXPath> 
     }
 
     @Override
-    public GetElementsByXPath copy() {
+    protected GetElementsByXPath copy() {
         return copyFieldValuesTo(new GetElementsByXPath(xPath));
     }
 
@@ -48,14 +51,22 @@ public class GetElementsByXPath extends GetElementsStepBase<GetElementsByXPath> 
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
-            // TODO how to use this as a filter ...
-            Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(ctx.getNode().getByXPath(xPath));
-            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
+            Supplier<List<DomNode>> nodesSearch = () ->
+                    ctx.getNode().getByXPath(xPath).stream()
+                            .flatMap(obj -> HtmlUnitUtils.toDomNode(obj).stream())
+                            .filter(domNode -> domNode instanceof HtmlElement)  // important to include only html elements -> users for not expect to deal with other types when defining filtering operations (e.g. first() ... )
+                            .collect(Collectors.toList());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);
 
         return stepExecOrder;
+    }
+
+    @Override
+    public GetElementsByXPath addFilter(Filter filter) {
+        return super.addFilter(filter);
     }
 
 }

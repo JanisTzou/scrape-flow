@@ -79,10 +79,10 @@ public class ZakonyProLidiCzDemo {
          */
 
         final Scraping scraping = new Scraping(parser, 5)
-                .debug().onlyScrapeFirstElements(false)
-                .setScrapingSequence(
-                        Get.Descendants.ByAttribute.id("__Page")
-                                .next(Get.Descendants.ByCss.byClassName("Name")
+                .debugOptions().onlyScrapeFirstElements(false)
+                .setSequence(
+                        Get.descendants().byAttr("id", "__Page")
+                                .next(Get.descendants().byClass("Name")
                                         .addCollector(Kategorie::new, Kategorie.class, new KategorieListener())
                                         .next(Parse.textContent()
                                                 .collectOne(Kategorie::setJmeno, Kategorie.class)
@@ -123,11 +123,11 @@ public class ZakonyProLidiCzDemo {
          */
 
         return Do.navigateToParsedLink(parser)
-                .next(Get.Descendants.ByCss.byClassName("BranchNodes")
-                        .getFirst() // the first section - there are multiple BranchNodes ...
-                        .next(Get.nthChildElem(2) // subcategory list is 2nd DIV
+                .next(Get.descendants().byClass("BranchNodes")
+                        .first() // the first section - there are multiple BranchNodes ...
+                        .next(Get.children().firstNth(2) // subcategory list is 2nd DIV
                                 // TODO it 2nd child does not exist then do something else ... add special handling for Koronavirus ...
-                                .next(Get.Descendants.ByTag.anchor()
+                                .next(Get.descendants().byTag("a")
                                         .addCollector(PodKategorie::new, PodKategorie.class, new PodKategorieListener())
                                         .next(Parse.textContent()
                                                 .collectOne(PodKategorie::setJmeno, PodKategorie.class)
@@ -147,14 +147,13 @@ public class ZakonyProLidiCzDemo {
 //                         NOT WORKING .... required JS ...
 //                        .setStepsLoadingNextPage(
 //                                GetElements.Descendants.ByAttribute.nameAndValue("title", "Jdi na Další")
-//                                        .next(Actions.filterElements(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode, "class", "disabled", true))
+//                                        .next(Filter.apply(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode, "class", "disabled", true))
 //                                                .next(Actions.followLink()
 //                                                        .next(Actions.returnNextPage())
 //                                                )
 //                                        )
 //
 //                        )
-
 
 
     private NavigateToParsedLink toPredpisy(HtmlUnitSiteParser parser) {
@@ -180,38 +179,38 @@ public class ZakonyProLidiCzDemo {
              */
 
         return Do.navigateToParsedLink(parser)
-                .next(Get.Descendants.ByCss.byClassName("DocGrid")
-                        .getFirst()
-                        .next(Get.Descendants.ByTag.tbody()
-                                .next(Get.Descendants.ByTag.tr()
+                .next(Get.descendants().byClass("DocGrid")
+                        .first()
+                        .next(Get.descendants().byTag("tbody")
+                                .next(Get.descendants().byTag("tr")
                                         .addCollector(PredpisInfo::new, PredpisInfo.class, new PredpisInfoListener())
                                         .addCollector(Predpis::new, Predpis.class)
                                         .collectOne(Predpis::setInfo, Predpis.class, PredpisInfo.class)
                                         .collectOne(PredpisInfo::setKategorie, PredpisInfo.class, Kategorie.class)
                                         .collectOne(PredpisInfo::setPodKategorie, PredpisInfo.class, PodKategorie.class)
-                                        .next(Get.Descendants.ByCss.byClassName("c1")
-                                                .next(Get.Descendants.ByTag.anchor()
+                                        .next(Get.descendants().byClass("c1")
+                                                .next(Get.descendants().byTag("a")
                                                         .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
                                                                 .collectOne(PredpisInfo::setUrl, PredpisInfo.class)
-                                                                        .nextNavigate(toPredpisDetail(parser)
-                                                                        )
+                                                                .nextNavigate(toPredpisDetail(parser)
+                                                                )
                                                         )
                                                 )
                                                 .next(Parse.textContent().collectOne(PredpisInfo::setCislo, PredpisInfo.class))
                                         )
-                                        .next(Get.Descendants.ByCss.byClassName("c2")
+                                        .next(Get.descendants().byClass("c2")
                                                 .next(Parse.textContent()
                                                         .collectOne(PredpisInfo::setNazev, PredpisInfo.class)
                                                 )
                                         )
-                                        .next(Get.Descendants.ByCss.byClassName("c3")
+                                        .next(Get.descendants().byClass("c3")
                                                 .next(Parse.textContent()
                                                         .collectOne(PredpisInfo::setPlatnostOd, PredpisInfo.class)
                                                 )
                                         )
                                 )
                         )
-        );
+                );
     }
 
 
@@ -237,8 +236,8 @@ public class ZakonyProLidiCzDemo {
          */
 
         return Do.navigateToParsedLink(parser)
-                .next(Get.Descendants.ByCss.byClassName("Frags")
-                        .next(Get.childElems()
+                .next(Get.descendants().byClass("Frags")
+                        .next(Get.children()
                                         .addCollector(Radek::new, Radek.class)
                                         .collectMany((Predpis p, Radek r) -> p.getText().add(r), Predpis.class, Radek.class)
                                         .next(Parse.textContent()

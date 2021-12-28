@@ -16,50 +16,62 @@
 
 package com.github.web.scraping.lib.debugging;
 
-public class Debugging {
+public class DebuggingOptions {
 
     private volatile boolean onlyScrapeFirstElements = false;
     private volatile boolean onlyScrapeNFirstElements = false;
-    private volatile boolean logSourceCodeOfFoundElements = false;
+    private volatile boolean logFoundElementsSource = false;
     private volatile boolean logSourceCodeOfLoadedPage = false;
+    private volatile boolean logFoundElementsCount = false;
     // TODO only single pagination => one page change ... not all if there are many ...?
     // TOOD limit pagination count? Actually a similar option might be useful for real prunning ...
 
-    public Debugging() {
+    public DebuggingOptions() {
     }
 
-    public Debugging(Debugging d) {
+    public DebuggingOptions(DebuggingOptions d) {
         this(d.onlyScrapeFirstElements,
                 d.onlyScrapeNFirstElements,
-                d.logSourceCodeOfFoundElements,
-                d.logSourceCodeOfLoadedPage
+                d.logFoundElementsSource,
+                d.logSourceCodeOfLoadedPage,
+                d.logFoundElementsCount
         );
     }
 
-    private Debugging(boolean onlyScrapeFirstElements,
-                      boolean onlyScrapeNFirstElements,
-                      boolean logSourceCodeOfFoundElements,
-                      boolean logSourceCodeOfLoadedPage) {
+    private DebuggingOptions(boolean onlyScrapeFirstElements,
+                             boolean onlyScrapeNFirstElements,
+                             boolean logFoundElementsSource,
+                             boolean logSourceCodeOfLoadedPage,
+                             boolean logFoundElementsCount) {
         this.onlyScrapeFirstElements = onlyScrapeFirstElements;
         this.onlyScrapeNFirstElements = onlyScrapeNFirstElements;
-        this.logSourceCodeOfFoundElements = logSourceCodeOfFoundElements;
+        this.logFoundElementsSource = logFoundElementsSource;
         this.logSourceCodeOfLoadedPage = logSourceCodeOfLoadedPage;
+        this.logFoundElementsCount = logFoundElementsCount;
     }
 
     /**
      * When we have a long sequence, that we want to test, this will traverse the scraping sequence by always using
      * using the first found element and continuing from there - and ignore all other found elements in the same step f there were many
      */
-    public Debugging onlyScrapeFirstElements(boolean enabled) {
+    public DebuggingOptions setOnlyScrapeFirstElements(boolean enabled) {
         this.onlyScrapeFirstElements = enabled;
         return this;
     }
 
     /**
-     * This turns on logging of the XML for all found elements
+     * This turns on logging of the XML for found elements
      */
-    public Debugging logSourceCodeOfFoundElements(boolean enabled) {
-        this.logSourceCodeOfFoundElements = enabled;
+    public DebuggingOptions setLogFoundElementsSource(boolean enabled) {
+        this.logFoundElementsSource = enabled;
+        return this;
+    };
+
+    /**
+     * This turns on logging count found elements
+     */
+    public DebuggingOptions setLogFoundElementsCount(boolean enabled) {
+        this.logFoundElementsCount = enabled;
         return this;
     };
 
@@ -67,11 +79,15 @@ public class Debugging {
         return onlyScrapeFirstElements;
     }
 
-    public boolean isLogSourceCodeOfFoundElements() {
-        return logSourceCodeOfFoundElements;
+    public boolean isLogFoundElementsSource() {
+        return logFoundElementsSource;
     }
 
-    public Debugging copy() {
-        return new Debugging(this);
+    public boolean isLogFoundElementsCount() {
+        return logFoundElementsCount;
+    }
+
+    public DebuggingOptions copy() {
+        return new DebuggingOptions(this);
     }
 }

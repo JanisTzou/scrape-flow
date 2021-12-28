@@ -16,6 +16,19 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-// marker interface
-public interface HtmlUnitStepChangingUsedParser<C>  {
+
+import com.gargoylesoftware.htmlunit.html.DomNode;
+
+import java.util.List;
+
+interface Filterable<C extends HtmlUnitScrapingStep<C>> {
+
+    /**
+     * @param filter a filter that will be applied on found elements by this step before
+     *               next steps are executed for each of the resulting elements.
+     *               The filters are applied in the order in which they were added.
+     * @return a copy of this instance with the filter added to it
+     */
+    C addFilter(Filter filter);
+
 }

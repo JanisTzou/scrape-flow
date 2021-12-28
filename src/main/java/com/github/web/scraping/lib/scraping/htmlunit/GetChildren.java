@@ -17,33 +17,27 @@
 package com.github.web.scraping.lib.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Supplier;
 
-public class GetElementsByTag extends GetElementsStepBase<GetElementsByTag> {
+public class GetChildren extends CommonOperationsStepBase<GetChildren>
+        implements FilterableByCommonCriteria<GetChildren>, Filterable<GetChildren> {
 
-    private final String tagName;
-
-    /**
-     * @throws NullPointerException if tagName is null
-     */
-    GetElementsByTag(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, String tagName) {
+    GetChildren(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
         super(nextSteps);
-        Objects.requireNonNull(tagName);
-        this.tagName = tagName;
     }
 
-    GetElementsByTag(String tagName) {
-        this(null, tagName);
+    GetChildren() {
+        this(null);
     }
 
     @Override
-    public GetElementsByTag copy() {
-        return copyFieldValuesTo(new GetElementsByTag(tagName));
+    protected GetChildren copy() {
+        return copyFieldValuesTo(new GetChildren());
     }
 
     @Override
@@ -51,14 +45,22 @@ public class GetElementsByTag extends GetElementsStepBase<GetElementsByTag> {
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
-            // TODO how to use this as a filter ...
-            Supplier<List<DomNode>> nodesSearch = () -> filterByTraverseOption(HtmlUnitUtils.getDescendantsByTagName(ctx.getNode(), tagName));
-            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
+            Supplier<List<DomNode>> nodesSearch = () -> {
+                // important to include only html elements -> users for not expect to deal with other types when defining filtering operations (e.g. first() ... )
+                return ctx.getNode().getChildNodes().stream().filter(n -> n instanceof HtmlElement).toList();
+            };
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);
 
         return stepExecOrder;
+    }
+
+
+    @Override
+    public GetChildren addFilter(Filter filter) {
+        return super.addFilter(filter);
     }
 
 }

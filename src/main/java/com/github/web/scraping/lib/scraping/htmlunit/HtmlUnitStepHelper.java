@@ -18,7 +18,6 @@ package com.github.web.scraping.lib.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.web.scraping.lib.debugging.GetFirstNItemsStatefulPredicate;
 import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -43,7 +41,6 @@ public class HtmlUnitStepHelper {
 
     public void execute(ScrapingContext ctx,
                         Supplier<List<DomNode>> nodesSearch,
-                        Predicate<DomNode> nodesFilter,
                         StepExecOrder currStepExecOrder,
                         HtmlUnitScrapingStep.ExecutionCondition executeIf) {
         try {
@@ -52,10 +49,11 @@ public class HtmlUnitStepHelper {
             }
 
             final List<DomNode> foundNodes = nodesSearch.get();
+            final List<DomNode> filteredNodes = filter(foundNodes);
 
-            log.debug("{} - {}: found {} nodes", currStepExecOrder, step.getName(), foundNodes.size());
+            logFoundCount(currStepExecOrder, filteredNodes.size());
 
-            final List<DomNode> filteredNodes = filter(nodesSearch.get(), nodesFilter);
+            // TODO if this is a filtering step, then we need to do the stuff below but to the next step
 
             filteredNodes.forEach(node -> {
 
@@ -66,7 +64,7 @@ public class HtmlUnitStepHelper {
                 List<ModelToPublish> modelToPublishList = new ArrayList<>();
 
                 // generate models
-                step.getCollectorSetups().getModelSuppliers()
+                step.getCollectors().getModelSuppliers()
                         .forEach(co -> {
                             Object model = co.getModelSupplier().get();
                             Class<?> modelClass = co.getModelClass();
@@ -78,7 +76,7 @@ public class HtmlUnitStepHelper {
                         });
 
                 // populate containers with generated models ...
-                step.getCollectorSetups().getAccumulators()
+                step.getCollectors().getAccumulators()
                         .forEach(op -> {
                             BiConsumer<Object, Object> accumulator = op.getAccumulator();
 
@@ -118,10 +116,17 @@ public class HtmlUnitStepHelper {
         }
     }
 
+    private void logFoundCount(StepExecOrder currStepExecOrder, int count) {
+        if ((step.services.getGlobalDebugging().isLogFoundElementsCount() || step.stepDebugging.isLogFoundElementsCount())
+        ) {
+            log.info("{} - {}: found {} nodes", currStepExecOrder, step.getName(), count);
+        }
+    }
+
 
     private void logNodeSourceCode(DomNode node) {
         if (!(node instanceof Page)
-                && (step.services.getGlobalDebugging().isLogSourceCodeOfFoundElements() || step.stepDebugging.isLogSourceCodeOfFoundElements())
+                && (step.services.getGlobalDebugging().isLogFoundElementsSource() || step.stepDebugging.isLogFoundElementsSource())
         ) {
             log.info("Source for step {} defined at line {} \n{}", step.getName(), step.getStepDeclarationLine(), node.asXml());
         }
@@ -166,15 +171,24 @@ public class HtmlUnitStepHelper {
                 .collect(Collectors.toList());
     }
 
-    private List<DomNode> filter(List<DomNode> nodes, Predicate<DomNode> predicate) {
-        // TODO decide where to put this ...
-        Predicate<DomNode> limitCount;
+    private List<DomNode> filter(List<DomNode> nodesToFilter) {
+        List<DomNode> nodes = applyFilters(step.filters, nodesToFilter);
         if (step.getServices().getGlobalDebugging().isOnlyScrapeFirstElements()) {
-            limitCount = new GetFirstNItemsStatefulPredicate<>(1);
+            return nodes.stream().findFirst().stream().toList();
         } else {
-            limitCount = i -> true;
+            return nodes;
         }
-        return nodes.stream().filter(predicate.and(limitCount)).collect(Collectors.toList());
+    }
+
+    private List<DomNode> applyFilters(List<Filter> filters, List<DomNode> nodes) {
+        if (filters.isEmpty()) {
+            return nodes;
+        }
+        List<DomNode> filtered = nodes;
+        for (Filter filter : filters) {
+            filtered = filter.filter(filtered);
+        }
+        return filtered;
     }
 
 

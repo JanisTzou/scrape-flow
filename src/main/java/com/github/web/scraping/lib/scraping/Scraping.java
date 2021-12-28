@@ -51,7 +51,7 @@ public class Scraping {
         this.parser = parser;
     }
 
-    public <T extends HtmlUnitScrapingStep<T>> Scraping setScrapingSequence(T sequence) {
+    public <T extends HtmlUnitScrapingStep<T>> Scraping setSequence(T sequence) {
         this.scrapingSequence = new HtmlUnitScrapingStepUpdater<>(sequence).setScrapingSequence(StepsUtils.getStackTraceElementAt(2));
         return this;
     }
@@ -61,7 +61,7 @@ public class Scraping {
         return services.getStepTaskExecutor().awaitCompletion(timeout);
     }
 
-    public DebuggableScraping debug() {
+    public DebuggableScraping debugOptions() {
         return new DebuggableScraping(this);
     }
 

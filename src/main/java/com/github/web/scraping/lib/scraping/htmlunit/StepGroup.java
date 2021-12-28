@@ -38,7 +38,7 @@ public class StepGroup extends CommonOperationsStepBase<StepGroup>
     }
 
     @Override
-    public StepGroup copy() {
+    protected StepGroup copy() {
         return copyFieldValuesTo(new StepGroup());
     }
 
@@ -48,7 +48,7 @@ public class StepGroup extends CommonOperationsStepBase<StepGroup>
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
-            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

@@ -45,7 +45,7 @@ public class MapElements extends CommonOperationsStepBase<MapElements> {
     }
 
     @Override
-    public MapElements copy() {
+    protected MapElements copy() {
         return copyFieldValuesTo(new MapElements(this.mapper));
     }
 
@@ -56,17 +56,17 @@ public class MapElements extends CommonOperationsStepBase<MapElements> {
         Runnable runnable = () -> {
 
             Supplier<List<DomNode>> nodesSearch = () -> {
-                Optional<DomNode> other = mapper.apply(ctx.getNode());
-                if (other.isPresent()) {
-                    log.debug("{} element mapped successfully from {} to {}", getName(), ctx.getNode(), other.get());
-                    return List.of(other.get());
+                Optional<DomNode> mapped = mapper.apply(ctx.getNode());
+                if (mapped.isPresent()) {
+                    log.debug("{} element mapped successfully from {} to {}", getName(), ctx.getNode(), mapped.get());
+                    return List.of(mapped.get());
                 } else {
                     log.debug("{} element could not be mapped from {} to other element", getName(), ctx.getNode());
                 }
                 return Collections.emptyList();
             };
 
-            getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
         };
 
         handleExecution(stepExecOrder, runnable);

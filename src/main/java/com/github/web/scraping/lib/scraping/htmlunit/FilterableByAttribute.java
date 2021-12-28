@@ -16,26 +16,25 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-public class DebuggableStep<C extends HtmlUnitScrapingStep<C>> {
+import javax.annotation.Nullable;
+import java.util.regex.Pattern;
 
-    private final C step;
+public interface FilterableByAttribute<C extends HtmlUnitScrapingStep<C>> extends Filterable<C> {
 
-    public DebuggableStep(C step) {
-        this.step = step;
+    default C byAttr(String name, @Nullable String value) {
+        FilterByAttribute filter = new FilterByAttribute(name, value);
+        return addFilter(filter);
     }
 
-    public C setLogFoundElementsSource(boolean enabled) {
-        return step.copyThisMutateAndGet(copy -> {
-            copy.stepDebugging.setLogFoundElementsSource(enabled);
-            return copy;
-        });
+    default C byAttr(String name, Pattern valuePattern) {
+//        return new FilterElementsByAttribute(attributeName, attributeValue);
+        // TODO
+        return null;
     }
 
-    public C setLogFoundElementsCount(boolean enabled) {
-        return step.copyThisMutateAndGet(copy -> {
-            copy.stepDebugging.setLogFoundElementsCount(enabled);
-            return copy;
-        });
+    default C byAttr(String name) {
+        FilterByAttribute filter = new FilterByAttribute(name);
+        return addFilter(filter);
     }
 
 }

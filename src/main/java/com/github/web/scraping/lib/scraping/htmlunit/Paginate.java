@@ -52,7 +52,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
     }
 
     @Override
-    public Paginate copy() {
+    protected Paginate copy() {
         Paginate copy = new Paginate(servicesPropagatedToTrigger);
         if (this.paginatingSequence != null) {
             copy.paginatingSequence = this.paginatingSequence.copy();
@@ -91,7 +91,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
                 ScrapingContext plainCtx = ctx.toBuilder()
                         .setRecursiveRootStepExecOrder(null)
                         .build();
-                getHelper().execute(plainCtx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
+                getHelper().execute(plainCtx, nodesSearch, stepExecOrder, getExecuteIf());
 
                 // PAGINATION
                 ScrapingContext paginatingCtx = ctx.toBuilder()

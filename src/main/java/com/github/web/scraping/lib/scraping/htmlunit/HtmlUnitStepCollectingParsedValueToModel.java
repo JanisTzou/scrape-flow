@@ -20,9 +20,8 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
-import static com.github.web.scraping.lib.scraping.htmlunit.CollectorSetup.AccumulatorType;
+import static com.github.web.scraping.lib.scraping.htmlunit.Collector.AccumulatorType;
 
 interface HtmlUnitStepCollectingParsedValueToModel<C, V> {
 
@@ -43,20 +42,23 @@ interface HtmlUnitStepCollectingParsedValueToModel<C, V> {
     <T> C collectMany(BiConsumer<T, V> modelMutation, Class<T> containerType);
 
 
-    default <T> void setParsedValueToModel(CollectorSetups collectorSetups, ScrapingContext ctx, T parsedValue, String stepName, StackTraceElement stepDeclarationLine) {
+    default <T> void setParsedValueToModel(Collectors collectors, ScrapingContext ctx, T parsedValue, String stepName, StackTraceElement stepDeclarationLine) {
         try {
-            List<CollectorSetup> cols = getCollectorsWithAccumulatorsForParsedValueType(collectorSetups, parsedValue);
+            if (parsedValue == null) {
+                log.warn("{}: Parsed value is null -> cannot set to model ...", stepName);
+            }
+            List<Collector> cols = getCollectorsWithAccumulatorsForParsedValueType(collectors, parsedValue);
 
-            for (CollectorSetup col : cols) {
+            for (Collector col : cols) {
                 Optional<ModelWrapper> mw = ctx.getContextModels().getModelFor(col.getContainerClass());
                 if (mw.isPresent()) {
-                    boolean valueIllegallySetMultipleTimes = col.getAccumulatorType().equals(AccumulatorType.ONE) && mw.get().isAlreadyApplied(collectorSetups);
+                    boolean valueIllegallySetMultipleTimes = col.getAccumulatorType().equals(AccumulatorType.ONE) && mw.get().isAlreadyApplied(collectors);
                     if (valueIllegallySetMultipleTimes) {
                         log.error("Wrong parsed data collector setup detected in the step sequence related to model of class type '{}' related to line: {}! " +
                                 " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided", mw.get().getModel().getClass().getSimpleName(), stepDeclarationLine);
                     } else {
                         col.getAccumulator().accept(mw.get().getModel(), parsedValue);
-                        mw.get().addAppliedAccumulator(collectorSetups);
+                        mw.get().addAppliedAccumulator(collectors);
                     }
                 } else {
                     log.error("No model is set up for parsed value in step {}! Cannot collect parsed data to it!", stepName);
@@ -69,10 +71,10 @@ interface HtmlUnitStepCollectingParsedValueToModel<C, V> {
     }
 
     @Nonnull
-    private <T> List<CollectorSetup> getCollectorsWithAccumulatorsForParsedValueType(CollectorSetups collectorSetups, T parsedValue) {
-        return collectorSetups.getAccumulators().stream()
+    private <T> List<Collector> getCollectorsWithAccumulatorsForParsedValueType(Collectors collectors, T parsedValue) {
+        return collectors.getAccumulators().stream()
                 .filter(co -> co.getModelClass().equals(parsedValue.getClass()))
-                .collect(Collectors.toList());
+                .collect(java.util.stream.Collectors.toList());
     }
 
 }

@@ -24,13 +24,23 @@ public class DebuggableScraping {
         this.scraping = scraping;
     }
 
+    /**
+     * Useful when we want to test the scraping sequence but want to globally limit the number of elements scraped.
+     * Only first elements found at each step will be used for the execution of subsequent steps. If there are any filters applied at a step,
+     * then those will be applied first and the first element of the resulting element list will be taken.
+     * @return reference to this instance
+     */
     public Scraping onlyScrapeFirstElements(boolean enabled) {
-        scraping.getServices().getGlobalDebugging().onlyScrapeFirstElements(enabled);
+        scraping.getServices().getGlobalDebugging().setOnlyScrapeFirstElements(enabled);
         return scraping;
     }
 
+    /**
+     * Logs the source code of each found element as XML
+     * @return @return reference to this instance
+     */
     public Scraping logSourceCodeOfFoundElements(boolean enabled) {
-        scraping.getServices().getGlobalDebugging().logSourceCodeOfFoundElements(enabled);
+        scraping.getServices().getGlobalDebugging().setLogFoundElementsSource(enabled);
         return scraping;
     }
 

@@ -16,6 +16,28 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-// marker interface
-public interface HtmlUnitStepChangingUsedParser<C>  {
+import com.gargoylesoftware.htmlunit.html.DomNode;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+public class FilterByTag implements Filter {
+
+    private final String tagName;
+
+    /**
+     * @throws NullPointerException if tagName is null
+     */
+    FilterByTag(String tagName) {
+        Objects.requireNonNull(tagName);
+        this.tagName = tagName;
+    }
+
+    @Override
+    public List<DomNode> filter(List<DomNode> list) {
+        return list.stream().filter(n -> HtmlUnitUtils.hasTagName(n, tagName)).collect(Collectors.toList());
+    }
+
+
 }

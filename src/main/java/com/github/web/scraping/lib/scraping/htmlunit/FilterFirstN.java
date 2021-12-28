@@ -16,6 +16,27 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-// marker interface
-public interface HtmlUnitStepChangingUsedParser<C>  {
+import com.gargoylesoftware.htmlunit.html.DomNode;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class FilterFirstN implements Filter {
+
+    private final int n;
+
+    public FilterFirstN(int n) {
+        if (n <= 0) {
+            throw new IllegalArgumentException("n must be > 0");
+        }
+        this.n = n;
+    }
+
+    @Override
+    public List<DomNode> filter(List<DomNode> list) {
+        return list.stream()
+                .limit(n)
+                .collect(Collectors.toList());
+    }
+
 }

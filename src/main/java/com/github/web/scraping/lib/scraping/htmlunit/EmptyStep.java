@@ -42,7 +42,7 @@ public class EmptyStep extends CommonOperationsStepBase<EmptyStep>
     }
 
     @Override
-    public EmptyStep copy() {
+    protected EmptyStep copy() {
         return copyFieldValuesTo(new EmptyStep());
     }
 
@@ -51,7 +51,7 @@ public class EmptyStep extends CommonOperationsStepBase<EmptyStep>
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
-        getHelper().execute(ctx, nodesSearch, i -> true, stepExecOrder, getExecuteIf());
+        getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
 
         return stepExecOrder;
     }

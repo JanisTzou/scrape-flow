@@ -20,11 +20,8 @@ import com.github.web.scraping.lib.scraping.htmlunit.StepsUtils;
 import lombok.extern.log4j.Log4j2;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Log4j2
