@@ -16,8 +16,16 @@
 
 package com.github.web.scraping.lib.parallelism;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+
+@RequiredArgsConstructor
+@Getter
+@ToString
 public class TaskError {
-    public TaskError(StepTask task, Throwable error) {
-        // TODO ...
-    }
+
+    private final StepTask task;
+    private final Throwable error;
+
 }

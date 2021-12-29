@@ -32,27 +32,17 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
         implements HtmlUnitStepCollectingParsedStringToModel<ParseElementTextContent>,
         HtmlUnitParsingStep<ParseElementTextContent> {
 
-    // TODO provide a set of options to transform/sanitize text ... \n \t .. etc ...
-
-    private boolean excludeChildElementsTextContent;
-
-    ParseElementTextContent(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps,
-                            boolean excludeChildElementsTextContent) {
+    ParseElementTextContent(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
         super(nextSteps);
-        this.excludeChildElementsTextContent = excludeChildElementsTextContent;
-    }
-
-    ParseElementTextContent(boolean excludeChildElementsTextContent) {
-        this(null, excludeChildElementsTextContent);
     }
 
     ParseElementTextContent() {
-        this(null, false);
+        this(null);
     }
 
     @Override
     protected ParseElementTextContent copy() {
-        return copyFieldValuesTo(new ParseElementTextContent(excludeChildElementsTextContent));
+        return copyFieldValuesTo(new ParseElementTextContent());
     }
 
     @Override
@@ -64,47 +54,18 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
             if (ctx.getNode() instanceof HtmlElement htmlEl) {
                 tc = htmlEl.getTextContent();
                 if (tc != null) {
-                    tc = StringEscapeUtils.unescapeHtml4(tc);
-                    // this should be optional ... used in cases when child elements' content filthies the parent element's content ...
-                    if (this.excludeChildElementsTextContent) {
-                        // TODO maybe we can use the text node for this very purpose ?
-                        tc = removeChildElementsTextContent(tc, htmlEl);
-                    }
-                    tc = tc.trim();
+                    tc = StringEscapeUtils.unescapeHtml4(tc).trim();
                 }
             }
 
             String transformed = convertParsedText(tc);
 
             setParsedValueToModel(this.getCollectors(), ctx, transformed, getName(), stepDeclarationLine);
-
-            // TODO how to populate the following context?
         };
 
         handleExecution(stepExecOrder, runnable);
 
         return stepExecOrder;
-    }
-
-    private String removeChildElementsTextContent(String textContent, HtmlElement el) {
-        for (DomElement childElement : el.getChildElements()) {
-            textContent = textContent.replace(childElement.getTextContent(), "");
-        }
-        return textContent;
-    }
-
-
-    /**
-     * Determines if the text of child elements should be part of the resulting parsed text content
-     * set to false by default
-     *
-     * @return copy of this step
-     */
-    public ParseElementTextContent excludeChildElements() {
-        return copyModifyAndGet(copy -> {
-            copy.excludeChildElementsTextContent = true;
-            return copy;
-        });
     }
 
     @Override

@@ -130,7 +130,7 @@ public class NotificationService {
         for (ModelToPublish mtp : data.getSpawned().getModelToPublishList()) {
             log.debug("{} has finalized data of type '{}'", stepExecOrder, mtp.getModel().getClass().getSimpleName());
             if (mtp.getParsedDataListener() != null) {
-                log.info("{} About to publish data to listener for type '{}' after step finished", stepExecOrder, mtp.getModelClass().getSimpleName()); // TODO do debug
+                log.debug("{} About to publish data to listener for type '{}' after step finished", stepExecOrder, mtp.getModelClass().getSimpleName());
                 mtp.getParsedDataListener().onParsingFinished(mtp.getModel());
             }
         }

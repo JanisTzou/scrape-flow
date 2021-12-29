@@ -18,6 +18,7 @@ package com.github.web.scraping.lib.parallelism;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ import java.util.Comparator;
 
 @RequiredArgsConstructor
 @Getter
+@ToString
 public class StepTask implements Comparable<StepTask> {
 
     public static Comparator<StepTask> NATURAL_COMPARATOR = (st1, st2) -> {

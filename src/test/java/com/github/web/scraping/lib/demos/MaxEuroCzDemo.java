@@ -124,8 +124,7 @@ public class MaxEuroCzDemo {
          */
 
         return Get.descendants().byClass("product").stepName("product-search")
-                .addCollector(Product::new, Product.class, new ProductListenerParsed()) // TODO uncomment
-//                .addCollector(Product::new, Product.class)
+                .addCollector(Product::new, Product.class, new ProductListenerParsed())
                 .collectOne(Product::setCategory, Product.class, Category.class)
                 .next(Get.descendants().byClass("product-name")
                         .next(Get.descendants().byTag("a")

@@ -56,24 +56,24 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
 
                 Supplier<List<DomNode>> nodesSearch = () -> {
                     try {
-                        // TODO clean this mess ...
                         HtmlPage currPage = anch.getHtmlPageOrNull();
                         URL currUrl = currPage.getUrl();
-                        WebWindow enclosingWindow = currPage.getEnclosingWindow();
-                        log.debug("{} - {}: Clicking HtmlAnchor element at {}", stepExecOrder, getName(), anch.getHrefAttribute());
-                        HtmlPage nextPage2 = (HtmlPage) anch.click();
-                        // TODO we want to propagate this page in the context ... to the next steps ...
-                        HtmlPage nextPage = (HtmlPage) enclosingWindow.getEnclosedPage();
-                        URL nextUrl = nextPage.getUrl();
-                        log.info("{} - {}: Loaded page URL after anchor clicked: {}", stepExecOrder, getName(), nextUrl.toString());
-//                  System.out.println(nextPage.asXml());
 
-                        // TODO log / throw error if urls of curr and next pages are the same ...
-                        if (nextPage2 != null) {
-                            return List.of(nextPage2);
-                        } else {
+                        log.debug("{} - {}: Clicking HtmlAnchor element at {}", stepExecOrder, getName(), anch.getHrefAttribute());
+
+                        // TODO we want to propagate this page in the context ... to the next steps ...
+                        HtmlPage nextPage = anch.click();
+                        URL nextUrl = nextPage.getUrl();
+
+                        if (currUrl.equals(nextUrl)) {
+                            log.info("Page is the same after clicking anchor element! Still at URL {}", currUrl);
                             return Collections.emptyList();
+                        } else {
+//                          System.out.println(nextPage.asXml());
+                            log.info("{} - {}: Loaded page URL after anchor clicked: {}", stepExecOrder, getName(), nextUrl.toString());
+                            return List.of(nextPage);
                         }
+
                     } catch (IOException e) {
                         log.error("{}: Error while clicking element {}", getName(), anch, e);
                         return Collections.emptyList();

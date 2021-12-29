@@ -23,8 +23,7 @@ public class DebuggingOptions {
     private volatile boolean logFoundElementsSource = false;
     private volatile boolean logSourceCodeOfLoadedPage = false;
     private volatile boolean logFoundElementsCount = false;
-    // TODO only single pagination => one page change ... not all if there are many ...?
-    // TOOD limit pagination count? Actually a similar option might be useful for real prunning ...
+    // TODO only single pagination => one page change ... not all if there are many ...? Maybe also useful for prod?
 
     public DebuggingOptions() {
     }
