@@ -36,6 +36,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
 
@@ -78,7 +79,7 @@ public class ZakonyProLidiCzDemo {
 
          */
 
-        final Scraping scraping = new Scraping(parser, 5)
+        final Scraping scraping = new Scraping(parser, 5, TimeUnit.SECONDS)
                 .debugOptions().onlyScrapeFirstElements(false)
                 .setSequence(
                         Get.descendants().byAttr("id", "__Page")

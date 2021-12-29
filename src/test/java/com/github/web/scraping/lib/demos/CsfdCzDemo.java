@@ -34,6 +34,7 @@ import org.junit.Test;
 
 import java.awt.image.BufferedImage;
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
 
@@ -44,7 +45,7 @@ public class CsfdCzDemo {
 
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
 
-        final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 3)
+        final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 3, TimeUnit.SECONDS)
                 .setSequence(
                         Get.descendantsBySelector("header.box-header")
                                 .first() // the first article list out of two

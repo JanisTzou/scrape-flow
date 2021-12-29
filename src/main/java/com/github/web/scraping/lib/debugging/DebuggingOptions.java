@@ -23,7 +23,6 @@ public class DebuggingOptions {
     private volatile boolean logFoundElementsSource = false;
     private volatile boolean logSourceCodeOfLoadedPage = false;
     private volatile boolean logFoundElementsCount = false;
-    // TODO only single pagination => one page change ... not all if there are many ...? Maybe also useful for prod?
 
     public DebuggingOptions() {
     }
@@ -51,28 +50,25 @@ public class DebuggingOptions {
 
     /**
      * When we have a long sequence, that we want to test, this will traverse the scraping sequence by always using
-     * using the first found element and continuing from there - and ignore all other found elements in the same step f there were many
+     * the first found element and continuing from there - and ignore all other found elements in the same step f there were many
      */
-    public DebuggingOptions setOnlyScrapeFirstElements(boolean enabled) {
+    public void setOnlyScrapeFirstElements(boolean enabled) {
         this.onlyScrapeFirstElements = enabled;
-        return this;
     }
 
     /**
      * This turns on logging of the XML for found elements
      */
-    public DebuggingOptions setLogFoundElementsSource(boolean enabled) {
+    public void setLogFoundElementsSource(boolean enabled) {
         this.logFoundElementsSource = enabled;
-        return this;
-    };
+    }
 
     /**
      * This turns on logging count found elements
      */
-    public DebuggingOptions setLogFoundElementsCount(boolean enabled) {
+    public void setLogFoundElementsCount(boolean enabled) {
         this.logFoundElementsCount = enabled;
-        return this;
-    };
+    }
 
     public boolean isOnlyScrapeFirstElements() {
         return onlyScrapeFirstElements;

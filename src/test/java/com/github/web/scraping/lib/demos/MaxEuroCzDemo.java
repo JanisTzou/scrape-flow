@@ -36,6 +36,7 @@ import org.junit.Test;
 
 import java.time.Duration;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
 
@@ -47,7 +48,7 @@ public class MaxEuroCzDemo {
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
         final HtmlUnitSiteParser siteParser = new HtmlUnitSiteParser(driverManager);
 
-        final Scraping scraping = new Scraping(siteParser, 10);
+        final Scraping scraping = new Scraping(siteParser, 10, TimeUnit.SECONDS);
 
 
         /*

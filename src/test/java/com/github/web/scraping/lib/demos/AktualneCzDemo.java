@@ -26,6 +26,7 @@ import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitSiteParser;
 import org.junit.Test;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.Get;
 import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.Parse;
@@ -43,7 +44,7 @@ public class AktualneCzDemo {
         final GetDescendants getArticleDescElem1 = Get.descendants().byClass("section-opener__desc");
         final GetDescendants getArticleDescElem2 = Get.descendants().byClass("small-box__desc");
 
-        final Scraping articlesScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 5)
+        final Scraping articlesScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 5, TimeUnit.SECONDS)
                 .setSequence(
                         getArticleElements
                                 .next(getArticleHeadlineElem.stepName("step-1")

@@ -31,6 +31,7 @@ import lombok.extern.log4j.Log4j2;
 import org.junit.Test;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
 import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.Parse;
@@ -45,7 +46,7 @@ public class IFortunaCzDemo {
 
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
 
-        final Scraping matchesScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 5)
+        final Scraping matchesScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 5, TimeUnit.SECONDS)
                 .setSequence(
                         Get.descendants().byAttr("id", "top-bets-tab-0")
                                 .next(Get.descendants().byTag("div").byClass("events-table-box")

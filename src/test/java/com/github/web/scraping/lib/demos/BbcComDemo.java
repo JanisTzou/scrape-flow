@@ -36,6 +36,7 @@ import org.junit.Test;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
 
@@ -51,7 +52,7 @@ public class BbcComDemo {
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
         final HtmlUnitSiteParser parser = new HtmlUnitSiteParser(driverManager);
 
-        final Scraping articlesScraping = new Scraping(parser, 10)
+        final Scraping articlesScraping = new Scraping(parser, 10, TimeUnit.SECONDS)
                 .debugOptions().logSourceCodeOfFoundElements(false)
                 .debugOptions().onlyScrapeFirstElements(true)
                 .setSequence(

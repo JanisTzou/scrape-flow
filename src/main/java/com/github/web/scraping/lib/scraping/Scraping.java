@@ -23,6 +23,7 @@ import com.github.web.scraping.lib.throttling.ScrapingRateLimiterImpl;
 import lombok.Getter;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -42,8 +43,8 @@ public class Scraping {
     // TODO add option to not crawl duplicate URLS ...
 
 
-    public Scraping(SiteParser parser, int maxRequestRatePerSec) {
-        this(new ScrapingServices(new ScrapingRateLimiterImpl(maxRequestRatePerSec)), parser);
+    public Scraping(SiteParser parser, int rqLimitPerTimeUnit, TimeUnit timeUnit) {
+        this(new ScrapingServices(new ScrapingRateLimiterImpl(rqLimitPerTimeUnit, timeUnit)), parser);
     }
 
     Scraping(ScrapingServices services, SiteParser parser) {
