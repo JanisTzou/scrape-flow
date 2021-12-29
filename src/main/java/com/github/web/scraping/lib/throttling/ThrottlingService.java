@@ -24,7 +24,7 @@ public class ThrottlingService {
     // throttlable
     private final int maxTasks = 10;
 
-    public boolean canProceed(int executingThrottlableTasksCount) {
+    public boolean isWithinLimit(int executingThrottlableTasksCount) {
         return executingThrottlableTasksCount < maxTasks;
     }
 

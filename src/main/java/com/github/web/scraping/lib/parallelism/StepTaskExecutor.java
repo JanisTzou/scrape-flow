@@ -21,6 +21,7 @@ import com.github.web.scraping.lib.throttling.ThrottlingService;
 import lombok.extern.log4j.Log4j2;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
@@ -42,11 +43,14 @@ public class StepTaskExecutor {
     private final ThrottlingService throttlingService;
     private final Duration periodicExecNextTriggerInterval;
     private final ExecutingTasksTracker executingTasksTracker;
-    private volatile Supplier<LocalDateTime> nowSupplier;
     private final ExclusiveExecutionTracker exclusiveExecutionTracker;
     private final ActiveStepsTracker activeStepsTracker;
     private final ScrapingRateLimiter scrapingRateLimiter;
     private final AtomicInteger activeTaskCount = new AtomicInteger(0);
+    // TODO number should be at least the number of open windows in chrome ...
+    //  depends how we will handle windows ... vs threads ...
+    private final Scheduler blockingTasksScheduler = Schedulers.newBoundedElastic(Runtime.getRuntime().availableProcessors(), Integer.MAX_VALUE, "io-worker", 60, true);
+    private volatile Supplier<LocalDateTime> nowSupplier;
 
     public StepTaskExecutor(ThrottlingService throttlingService,
                             ExclusiveExecutionTracker exclusiveExecutionTracker,
@@ -145,11 +149,15 @@ public class StepTaskExecutor {
             return false;
         }
         Optional<StepExecOrder> parentTask = next.getStepTask().getStepExecOrder().getParent();
-        boolean parentTaskFinished = parentTask.map(pt ->  !activeStepsTracker.isActive(pt)).orElse(true); // super important that children do not skip parent tasks ... issues that are hard to debug ...
+        boolean parentTaskFinished = parentTask.map(pt -> !activeStepsTracker.isActive(pt)).orElse(true); // super important that children do not skip parent tasks ... issues that are hard to debug ...
         return parentTaskFinished
                 && exclusiveExecutionTracker.canExecute(next)
-                && (!next.getStepTask().isMakingHttpRequests() || scrapingRateLimiter.incrementIfRequestWithinLimitAndGet(nowSupplier.get()))
-                && (!next.getStepTask().isThrottlingAllowed() || throttlingService.canProceed(executingTasksTracker.countOfExecutingThrottlableTasks()));
+                && isWithinScrapingLimits(next.getStepTask());
+    }
+
+    private boolean isWithinScrapingLimits(StepTask stepTask) {
+        return (!stepTask.isMakingHttpRequests() || scrapingRateLimiter.incrementIfRequestWithinLimitAndGet(nowSupplier.get()))
+                && (!stepTask.isThrottlingAllowed() || throttlingService.isWithinLimit(executingTasksTracker.countOfExecutingThrottlableTasks()));
     }
 
     private void executeTask(StepTask task,
@@ -160,20 +168,12 @@ public class StepTaskExecutor {
         AtomicBoolean isRetry = new AtomicBoolean(false);
 
         Mono.just(task)
-                .doOnNext(t -> {
-                    log.debug("{} - ... executing ...", task.loggingInfo());
-                })
+                .doOnNext(t -> log.debug("{} - ... executing ...", task.loggingInfo()))
                 .map(task0 -> handleTaskIfRetried(isRetry, task0))
-                // TODO if task make HttpRequerst then use a different thread pool ...
-                .flatMap(canProceed ->
-                        Mono.fromCallable(() -> {
-                            task.getStepRunnable().run();
-                            return task;
-                        }) // if we got here it means that the previous step passed and emitted 'true'
-                )
+                .flatMap(canProceed -> runTask(task))
+                .publishOn(Schedulers.parallel())
                 .onErrorMap(error -> {
                     logRequestError(task, error);
-                    executingTasksTracker.untrack(task);   // if an error happened and will be retried at some point, we want to untrack the task so that other requests coming in for the same url do not get ignored
                     return error;
                 })
                 .retryBackoff(task.getNumOfRetries(), task.getRetryBackoff())
@@ -181,8 +181,8 @@ public class StepTaskExecutor {
                     logDroppingRetrying(task, error);
                     logEnqueuedRequestCount();
                     notifyOnErrorCallback(task, taskErrorConsumer, error);
+                    executingTasksTracker.untrack(task);   // only untrack here when retries have finished
                     return Mono.empty();
-                    // note - do not untrack task here, it should already be untracked by onErrorMap() above
                 })
                 .doOnNext(data -> {
                     executingTasksTracker.untrack(task);
@@ -212,6 +212,19 @@ public class StepTaskExecutor {
         this.activeTaskCount.incrementAndGet();
     }
 
+    private Mono<StepTask> runTask(StepTask task) {
+        // if we got here it means that the previous step passed and emitted 'true'
+        Mono<StepTask> mono = Mono.fromCallable(() -> {
+            task.getStepRunnable().run();
+            return task;
+        });
+        if (task.isMakingHttpRequests()) {
+            return mono.subscribeOn(blockingTasksScheduler);
+        } else {
+            return mono;
+        }
+    }
+
     private Runnable taskFinishedHook(StepTask task) {
         return () -> {
             log.debug("Finished step {}", task.loggingInfo());
@@ -220,17 +233,11 @@ public class StepTaskExecutor {
         };
     }
 
-
-    // returns true if te stepTask is within limit. The returned value has no affect though on subsequent items in the Mono chain
+    // returns true if the stepTask is within limit and any subsequent execution of this block for the
+    // same flux/mono instance will mean that it is a retry after failure
     private Mono<Boolean> handleTaskIfRetried(AtomicBoolean isRetry, StepTask stepTask) {
-        // done like this with AtomicBoolean because when we poll requests from requestsQueue
-        // we have checked that they are within limit so that is ok ...
-        // ... but when requests fail and are retried by the Reactor Flux we need to check again
-        // the retry because it happens at some later point and we might have run out of rqs / sec for that moment
-        // ->>> WE NEED TO MAKE SURE THAT RETRIED REQUEST ALSO RESPECT THE RQs/SEC LIMIT + THAT THEY ARE TRACKED CORRECTLY
         if (isRetry.get()) {
-            // TODO call to requestsPerSecondCounter.incrementIfRequestWithinLimitAndGet(nowSupplier.get())
-            if (throttlingService.canProceed(executingTasksTracker.countOfExecutingThrottlableTasks())) {
+            if (isWithinScrapingLimits(stepTask)) {
                 logRetry(stepTask);
                 return Mono.just(true);
             } else {
@@ -268,6 +275,7 @@ public class StepTaskExecutor {
         try {
             Flux.interval(period, period)
                     .doOnNext(checkNo -> {
+                        // TODO cleanup reasources ... open browser windows and such ...
                         if (activeTaskCount.get() == 0 && taskQueue.size() == 0) {
                             log.info(">>> Finished scraping <<<");
                             withinTimeout.set(true);
@@ -284,10 +292,6 @@ public class StepTaskExecutor {
         }
 
         return withinTimeout.get(); // if this was set to true we made it within the given timeout
-    }
-
-    // used only to terminate a blocking flux from within (no other way to "cancel" it)
-    private static class TerminateFluxException extends RuntimeException {
     }
 
     private void logRequestError(StepTask request, Throwable error) {
@@ -315,7 +319,6 @@ public class StepTaskExecutor {
         log.trace("Dropping request retry {} after error: ", request.loggingInfo(), error);
     }
 
-
     /**
      * FOR TESTING PURPOSES ONLY.
      * Needed so we are able to test changes of behaviour based on the passage of time
@@ -323,6 +326,10 @@ public class StepTaskExecutor {
      */
     void setNowSupplier(Supplier<LocalDateTime> nowSupplierNew) {
         this.nowSupplier = nowSupplierNew;
+    }
+
+    // used only to terminate a blocking flux from within (no other way to "cancel" it)
+    private static class TerminateFluxException extends RuntimeException {
     }
 
 }
