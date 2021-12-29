@@ -91,7 +91,7 @@ public class TeleskopExpressDeDemo {
                                                                                 .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
                                                                                         .nextNavigate(Do.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
                                                                                                 .next(Get.byXPath("/html/body/table/tbody")
-                                                                                                        .next(Get.children().byTag("tr") // rows doe each shipping service price
+                                                                                                        .next(Get.children().byTag("tr").excludingFirstN(1) // rows doe each shipping service price; first row contains captions
                                                                                                                 .addCollector(ShippingCosts::new, ShippingCosts.class)
                                                                                                                 .collectMany((Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc), Product.class, ShippingCosts.class)
                                                                                                                 .next(Get.children().byTag("td").first()  // service name

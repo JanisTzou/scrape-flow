@@ -27,14 +27,14 @@ public interface FilterableByFirstAndLast<C extends HtmlUnitScrapingStep<C>> ext
     }
 
     /**
-     * @param n positive integer
+     * @param n non-negative integer
      */
     default C firstN(int n) {
         return addFilter(new FilterFirstN(n));
     }
 
     /**
-     * @param n positive integer
+     * @param n non-negative integer
      */
     default C lastN(int n) {
         return addFilter(new FilterLastN(n));
@@ -54,7 +54,18 @@ public interface FilterableByFirstAndLast<C extends HtmlUnitScrapingStep<C>> ext
         return addFilter(new FilterLastNth(nth));
     }
 
-    // TODO add exclusingFirstN
-    // TODO add exclusingLastN
-    //  ... when we want to leave out a row containing the title for example ...
+    /**
+     * @param n non-negative integer
+     */
+    default C excludingFirstN(int n) {
+        return addFilter(new FilterExcludeFirstN(n));
+    }
+
+    /**
+     * @param n non-negative integer
+     */
+    default C excludingLastN(int n) {
+        return addFilter(new FilterExcludeLastN(n));
+    }
+
 }

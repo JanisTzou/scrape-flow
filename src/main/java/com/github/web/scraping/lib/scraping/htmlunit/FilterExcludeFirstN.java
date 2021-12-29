@@ -18,16 +18,15 @@ package com.github.web.scraping.lib.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class FilterLastN implements Filter {
+public class FilterExcludeFirstN implements Filter {
 
     private final int n;
 
-    public FilterLastN(int n) {
+    public FilterExcludeFirstN(int n) {
         if (n < 0) {
             throw new IllegalArgumentException("n must be >= 0");
         }
@@ -36,11 +35,12 @@ public class FilterLastN implements Filter {
 
     @Override
     public List<DomNode> filter(List<DomNode> list) {
-        ArrayList<DomNode> copy = new ArrayList<>(list);
-        Collections.reverse(copy);
-        return  copy.stream()
-                .limit(n)
-                .collect(Collectors.toList());
+        int lastN = list.size() - n;
+        if (lastN > 0) {
+            return new FilterLastN(lastN).filter(list);
+        } else {
+            return Collections.emptyList();
+        }
     }
 
 }
