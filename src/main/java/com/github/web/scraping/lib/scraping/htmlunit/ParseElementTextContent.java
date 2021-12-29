@@ -75,7 +75,7 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
                 }
             }
 
-            String transformed = transformParsedText(tc);
+            String transformed = convertParsedText(tc);
 
             setParsedValueToModel(this.getCollectors(), ctx, transformed, getName(), stepDeclarationLine);
 
@@ -102,7 +102,7 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
      * @return copy of this step
      */
     public ParseElementTextContent excludeChildElements() {
-        return copyThisMutateAndGet(copy -> {
+        return copyModifyAndGet(copy -> {
             copy.excludeChildElementsTextContent = true;
             return copy;
         });
@@ -120,9 +120,9 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
 
 
     @Override
-    public ParseElementTextContent setTransformation(Function<String, String> parsedTextTransformation) {
-        return copyThisMutateAndGet(copy -> {
-            copy.parsedTextTransformation = parsedTextTransformation;
+    public ParseElementTextContent setValueConversion(Function<String, String> parsedTextTransformation) {
+        return copyModifyAndGet(copy -> {
+            copy.parsedValueConversion = parsedTextTransformation;
             return copy;
         });
     }

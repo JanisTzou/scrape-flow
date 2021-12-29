@@ -24,6 +24,6 @@ public interface HtmlUnitParsingStep<C> {
      * @param parsedTextToNewText transformation the parsed string
      * @return copy of this step
      */
-    C setTransformation(Function<String, String> parsedTextToNewText);
+    C setValueConversion(Function<String, String> parsedTextToNewText);
 
 }

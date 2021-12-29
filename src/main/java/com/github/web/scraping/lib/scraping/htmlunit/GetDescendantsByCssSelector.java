@@ -23,26 +23,26 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class GetElementsByCssSelector extends CommonOperationsStepBase<GetElementsByCssSelector>
-        implements FilterableByCommonCriteria<GetElementsByCssSelector> {
+public class GetDescendantsByCssSelector extends CommonOperationsStepBase<GetDescendantsByCssSelector>
+        implements FilterableByCommonCriteria<GetDescendantsByCssSelector> {
 
     // this cannot be a filter ... it's more of a "Get" operation ...
     // it would not make sense to first get descendants/children and then this ...
 
     private final String sccSelector;
 
-    GetElementsByCssSelector(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, String sccSelector) {
+    GetDescendantsByCssSelector(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, String sccSelector) {
         super(nextSteps);
         this.sccSelector = sccSelector;
     }
 
-    GetElementsByCssSelector(String sccSelector) {
+    GetDescendantsByCssSelector(String sccSelector) {
         this(null, sccSelector);
     }
 
     @Override
-    protected GetElementsByCssSelector copy() {
-        return copyFieldValuesTo(new GetElementsByCssSelector(sccSelector));
+    protected GetDescendantsByCssSelector copy() {
+        return copyFieldValuesTo(new GetDescendantsByCssSelector(sccSelector));
     }
 
     @Override
@@ -60,7 +60,7 @@ public class GetElementsByCssSelector extends CommonOperationsStepBase<GetElemen
     }
 
     @Override
-    public GetElementsByCssSelector addFilter(Filter filter) {
+    public GetDescendantsByCssSelector addFilter(Filter filter) {
         return super.addFilter(filter);
     }
 }

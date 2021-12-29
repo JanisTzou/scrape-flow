@@ -78,8 +78,6 @@ public class StepAndDataRelationshipTracker {
         }
     }
 
-    // TODO this method might be slow ... so maybe before calling it we can make some checks to invoke it less ...
-
     /**
      * @param finishedStep step whose execution has just finished.
      *                     This method will search the step hierarchy upwards from this step (through parents ...) and will check if all related step executions

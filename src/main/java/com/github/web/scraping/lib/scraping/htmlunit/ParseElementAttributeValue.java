@@ -17,7 +17,7 @@
 package com.github.web.scraping.lib.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 
 import javax.annotation.Nullable;
@@ -33,27 +33,25 @@ public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseEl
         implements HtmlUnitStepCollectingParsedStringToModel<ParseElementAttributeValue>,
         HtmlUnitParsingStep<ParseElementAttributeValue> {
 
-    // TODO add some filtering logic for the hrefs parsed ...
+    private final String attributeName;
 
-    // TODO this is basically a specialisation of ParseAttributeValue
-
-
-    ParseElementAttributeValue(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, Function<String, String> parsedTextTransformation) {
+    ParseElementAttributeValue(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, String attributeName, Function<String, String> parsedTextTransformation) {
         super(nextSteps);
-        this.parsedTextTransformation = Objects.requireNonNullElse(parsedTextTransformation, NO_TEXT_TRANSFORMATION);
+        this.attributeName = attributeName;
+        this.parsedValueConversion = Objects.requireNonNullElse(parsedTextTransformation, NO_VALUE_CONVERSION);
     }
 
-    ParseElementAttributeValue(Function<String, String> parsedTextTransformation) {
-        this(null, parsedTextTransformation);
+    ParseElementAttributeValue(String attributeName, Function<String, String> parsedTextTransformation) {
+        this(null, attributeName, parsedTextTransformation);
     }
 
-    ParseElementAttributeValue() {
-        this(null, null);
+    ParseElementAttributeValue(String attributeName) {
+        this(null, attributeName, null);
     }
 
     @Override
     protected ParseElementAttributeValue copy() {
-        return copyFieldValuesTo(new ParseElementAttributeValue(parsedTextTransformation));
+        return copyFieldValuesTo(new ParseElementAttributeValue(attributeName, parsedValueConversion));
     }
 
 
@@ -62,20 +60,19 @@ public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseEl
         StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
-            if (ctx.getNode() instanceof HtmlAnchor anch) {
-                String href = anch.getHrefAttribute();
-                if (href != null) {
-                    String transformed = transformParsedText(href);
-                    log.debug("{} - {}: Parsed href: {}", stepExecOrder, getName(), transformed);
+            if (ctx.getNode() instanceof HtmlElement el && el.hasAttribute(attributeName)) {
+                String value = el.getAttribute(attributeName);
+                if (value != null) {
+                    String converted = convertParsedText(value);
+                    log.debug("{} - {}: Parsed value: {}", stepExecOrder, getName(), converted);
 
-                    setParsedValueToModel(this.getCollectors(), ctx, transformed, getName(), stepDeclarationLine); // TODO let this be handled by the helper?
+                    setParsedValueToModel(this.getCollectors(), ctx, converted, getName(), stepDeclarationLine);
 
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
-                    ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
-                    getHelper().execute(ctxCopy, nodesSearch, stepExecOrder, getExecuteIf());
+                    getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
                 }
             } else {
-                log.warn("No HtmlAnchor element provided -> cannot parse href value! Check the steps sequence above step {}", getName());
+                log.trace("{}: Node is not an HtmlElement or does not have attribute {}: node: {}", getName(), attributeName, ctx.getNode());
             }
         };
 
@@ -94,19 +91,9 @@ public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseEl
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.MANY));
     }
 
-    /**
-     * Same as {@link HtmlUnitStepSupportingNext#next(HtmlUnitScrapingStep)} but with a more meaningful name for the purpose.
-     * For more specialised versions of <code>next()</code> see and use these the ones defined here {@link HtmlUnitStepSupportingNext}
-     *
-     * @return copy of this step
-     */
-    public ParseElementAttributeValue nextNavigate(NavigateToParsedLink nextStep) {
-        return addNextStep(nextStep);
-    }
-
     @Override
-    public ParseElementAttributeValue setTransformation(Function<String, String> parsedTextToNewText) {
-        return setParsedTextTransformation(parsedTextToNewText);
+    public ParseElementAttributeValue setValueConversion(Function<String, String> parsedTextConversion) {
+        return setParsedValueConversion(parsedTextConversion);
     }
 
 }

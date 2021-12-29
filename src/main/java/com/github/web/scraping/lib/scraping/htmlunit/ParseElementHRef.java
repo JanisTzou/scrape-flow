@@ -40,7 +40,7 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
 
     ParseElementHRef(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, Function<String, String> parsedTextTransformation) {
         super(nextSteps);
-        this.parsedTextTransformation = Objects.requireNonNullElse(parsedTextTransformation, NO_TEXT_TRANSFORMATION);
+        this.parsedValueConversion = Objects.requireNonNullElse(parsedTextTransformation, NO_VALUE_CONVERSION);
     }
 
     ParseElementHRef(Function<String, String> parsedTextTransformation) {
@@ -53,7 +53,7 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
 
     @Override
     protected ParseElementHRef copy() {
-        return copyFieldValuesTo(new ParseElementHRef(parsedTextTransformation));
+        return copyFieldValuesTo(new ParseElementHRef(parsedValueConversion));
     }
 
 
@@ -65,13 +65,13 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
             if (ctx.getNode() instanceof HtmlAnchor anch) {
                 String href = anch.getHrefAttribute();
                 if (href != null) {
-                    String transformed = transformParsedText(href);
-                    log.debug("{} - {}: Parsed href: {}", stepExecOrder, getName(), transformed);
+                    String converted = convertParsedText(href);
+                    log.debug("{} - {}: Parsed href: {}", stepExecOrder, getName(), converted);
 
-                    setParsedValueToModel(this.getCollectors(), ctx, transformed, getName(), stepDeclarationLine);
+                    setParsedValueToModel(this.getCollectors(), ctx, converted, getName(), stepDeclarationLine);
 
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
-                    ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(transformed).build();
+                    ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(converted).build();
                     getHelper().execute(ctxCopy, nodesSearch, stepExecOrder, getExecuteIf());
                 }
             } else {
@@ -105,8 +105,8 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
     }
 
     @Override
-    public ParseElementHRef setTransformation(Function<String, String> parsedTextToNewText) {
-        return setParsedTextTransformation(parsedTextToNewText);
+    public ParseElementHRef setValueConversion(Function<String, String> parsedTextToNewText) {
+        return setParsedValueConversion(parsedTextToNewText);
     }
 
 }

@@ -49,8 +49,8 @@ public class HtmlUnit {
         }
 
         // this needs to be here ... cannot go under the descendants even thouth it gets the descendants
-        public static GetElementsByCssSelector descendantsBySelector(String sccSelector) {
-            return new GetElementsByCssSelector(sccSelector);
+        public static GetDescendantsByCssSelector descendantsBySelector(String sccSelector) {
+            return new GetDescendantsByCssSelector(sccSelector);
         }
 
         public static GetChildren children() {
@@ -78,19 +78,25 @@ public class HtmlUnit {
             return new ParseElementTextContent();
         }
 
-        public static ParseElementTextContent textContent(Function<String, String> parsedTextTransformation) {
-            return new ParseElementTextContent().setTransformation(parsedTextTransformation);
+        public static ParseElementTextContent textContent(Function<String, String> parsedTextConverter) {
+            return new ParseElementTextContent().setValueConversion(parsedTextConverter);
         }
 
         public static ParseElementHRef hRef() {
             return new ParseElementHRef();
         }
 
-        public static ParseElementHRef hRef(Function<String, String> parsedTextTransformation) {
-            return new ParseElementHRef(parsedTextTransformation);
+        public static ParseElementHRef hRef(Function<String, String> parsedTextConverter) {
+            return new ParseElementHRef(parsedTextConverter);
         }
 
-        // TODO attribute value etc ...
+        public static ParseElementAttributeValue attrValue(String attrName, Function<String, String> parsedTextConverter) {
+            return new ParseElementAttributeValue(attrName, parsedTextConverter);
+        }
+
+        public static ParseElementAttributeValue attrValue(String attrName) {
+            return new ParseElementAttributeValue(attrName);
+        }
 
     }
 

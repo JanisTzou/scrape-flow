@@ -117,7 +117,7 @@ public class BbcComDemo {
                 .next(Get.descendants().byTag("article")
                         .nextExclusively(Get.descendants().byTextContent("Sport Africa") // category must be parsed before following steps can proceed -> exclusive call
                                 .next(Parse.textContent()
-                                        .setTransformation(s -> "Sport")
+                                        .setValueConversion(s -> "Sport")
                                         .collectOne(Article::setCategory, Article.class)
                                 )
                         )

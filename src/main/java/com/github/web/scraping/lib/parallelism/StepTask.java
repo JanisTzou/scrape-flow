@@ -64,6 +64,7 @@ public class StepTask implements Comparable<StepTask> {
         return toString();
     }
 
+    // TODO we need to implement retry logic - steps need to communicate the failures using exceptions ...
     public long getNumOfRetries() {
         return 0; // TODO ?
     }

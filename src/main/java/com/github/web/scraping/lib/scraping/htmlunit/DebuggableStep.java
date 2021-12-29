@@ -25,14 +25,14 @@ public class DebuggableStep<C extends HtmlUnitScrapingStep<C>> {
     }
 
     public C setLogFoundElementsSource(boolean enabled) {
-        return step.copyThisMutateAndGet(copy -> {
+        return step.copyModifyAndGet(copy -> {
             copy.stepDebugging.setLogFoundElementsSource(enabled);
             return copy;
         });
     }
 
     public C setLogFoundElementsCount(boolean enabled) {
-        return step.copyThisMutateAndGet(copy -> {
+        return step.copyModifyAndGet(copy -> {
             copy.stepDebugging.setLogFoundElementsCount(enabled);
             return copy;
         });

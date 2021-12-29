@@ -22,7 +22,7 @@ import com.github.web.scraping.lib.parallelism.ParsedDataListener;
 import com.github.web.scraping.lib.scraping.EntryPoint;
 import com.github.web.scraping.lib.scraping.Scraper;
 import com.github.web.scraping.lib.scraping.Scraping;
-import com.github.web.scraping.lib.scraping.htmlunit.GetElementsByCssSelector;
+import com.github.web.scraping.lib.scraping.htmlunit.GetDescendantsByCssSelector;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.utils.JsonUtils;
 import lombok.Getter;
@@ -62,7 +62,7 @@ public class CsfdCzDemo {
         start(productsScraping);
     }
 
-    private GetElementsByCssSelector getArticles() {
+    private GetDescendantsByCssSelector getArticles() {
         return Get.descendantsBySelector("div.box-content")
                 .next(Get.descendants()
                         .byTag("article")
@@ -80,7 +80,7 @@ public class CsfdCzDemo {
                         .next(Get.descendantsBySelector("header.article-header")
                                 .next(Get.children().first()
                                         .next(Parse.textContent()
-                                                .setTransformation(str -> str.replace("\t", "").replace("\n", " "))
+                                                .setValueConversion(str -> str.replace("\t", "").replace("\n", " "))
                                                 .collectOne(Article::setTitle, Article.class)
                                         )
                                 )

@@ -53,52 +53,14 @@ public class HtmlUnitStepHelper {
 
             logFoundCount(currStepExecOrder, filteredNodes.size());
 
-            // TODO if this is a filtering step, then we need to do the stuff below but to the next step
-
-            filteredNodes.forEach(node -> {
+            for (DomNode node : filteredNodes) {
 
                 logNodeSourceCode(node);
 
                 ContextModels nextContextModels = ctx.getContextModels().copy();
-
                 List<ModelToPublish> modelToPublishList = new ArrayList<>();
 
-                // generate models
-                step.getCollectors().getModelSuppliers()
-                        .forEach(co -> {
-                            Object model = co.getModelSupplier().get();
-                            Class<?> modelClass = co.getModelClass();
-                            ParsedDataListener<Object> parsedDataListener = co.getParsedDataListener();
-                            if (parsedDataListener != null) {
-                                modelToPublishList.add(new ModelToPublish(model, modelClass, parsedDataListener));
-                            }
-                            nextContextModels.push(model, modelClass);
-                        });
-
-                // populate containers with generated models ...
-                step.getCollectors().getAccumulators()
-                        .forEach(op -> {
-                            BiConsumer<Object, Object> accumulator = op.getAccumulator();
-
-                            Class<?> containerClass = op.getContainerClass();
-                            Class<?> modelClass = op.getModelClass();
-
-                            // TODO if we have multiple collections will this not get mixed up ?
-                            Optional<ModelWrapper> container = nextContextModels.getModelFor(containerClass);
-                            Optional<ModelWrapper> accumulatedModel = nextContextModels.getModelFor(modelClass);
-
-                            if (container.isPresent() && accumulatedModel.isPresent()) {
-                                accumulator.accept(container.get().getModel(), accumulatedModel.get().getModel());
-                            } else if (container.isPresent()) {
-                                if (this instanceof HtmlUnitStepCollectingParsedValueToModel) { // TODO this will not work as 'this' is the helper ... make this work ...
-                                    // has its own handling ...
-                                } else {
-                                    // TODO handle better so we do not get this in the logs all the time ...
-//                                    log.warn("{} - {}: Failed to find modelWrappers for containerClass and/or modelClass!", currStepExecOrder, step.getName());
-                                }
-                            }
-
-                        });
+                createAndAccumulateModels(currStepExecOrder, nextContextModels, modelToPublishList);
 
 
                 List<StepExecOrder> generatedSteps = executeNextSteps(currStepExecOrder, node, ctx, nextContextModels);
@@ -109,12 +71,47 @@ public class HtmlUnitStepHelper {
                     step.getServices().getStepAndDataRelationshipTracker().track(currStepExecOrder, generatedSteps, modelToPublishList);
                     step.getServices().getNotificationService().track(generatedSteps);
                 }
-            });
+            }
 
         } catch (Exception e) {
             log.error("{} - {}: Error executing step", currStepExecOrder, step.getName(), e);
         }
     }
+
+    private void createAndAccumulateModels(StepExecOrder currStepExecOrder, ContextModels nextContextModels, List<ModelToPublish> modelToPublishList) {
+        // generate models
+        for (Collector co : step.getCollectors().getModelSuppliers()) {
+            Object model = co.getModelSupplier().get();
+            Class<?> modelClass = co.getModelClass();
+            ParsedDataListener<Object> parsedDataListener = co.getParsedDataListener();
+            if (parsedDataListener != null) {
+                modelToPublishList.add(new ModelToPublish(model, modelClass, parsedDataListener));
+            }
+            nextContextModels.push(model, modelClass);
+        }
+
+        // populate containers with generated models ...
+        for (Collector op : step.getCollectors().getAccumulators()) {
+            BiConsumer<Object, Object> accumulator = op.getAccumulator();
+
+            Class<?> containerClass = op.getContainerClass();
+            Class<?> modelClass = op.getModelClass();
+
+            Optional<ModelWrapper> container = nextContextModels.getModelFor(containerClass);
+            Optional<ModelWrapper> accumulatedModel = nextContextModels.getModelFor(modelClass);
+
+            if (container.isPresent() && accumulatedModel.isPresent()) {
+                accumulator.accept(container.get().getModel(), accumulatedModel.get().getModel());
+            } else if (container.isPresent()) {
+                if (step instanceof HtmlUnitStepCollectingParsedValueToModel) {
+                    // has its own handling ...
+                } else {
+                    log.warn("{} - {}: Failed to find modelWrappers for containerClass and/or modelClass!", currStepExecOrder, step.getName());
+                }
+            }
+        }
+    }
+
 
     private void logFoundCount(StepExecOrder currStepExecOrder, int count) {
         if ((step.services.getGlobalDebugging().isLogFoundElementsCount() || step.stepDebugging.isLogFoundElementsCount())
@@ -137,7 +134,7 @@ public class HtmlUnitStepHelper {
             if (executeIf != null) {
                 Optional<ModelWrapper> model = ctx.getContextModels().getModelFor(executeIf.getModelType());
                 if (model.isPresent()) {
-                    log.debug("{}: Found model and will execute condition", step.getName());
+                    log.trace("{}: Found model and will execute condition", step.getName());
                     boolean canExecute = executeIf.getPredicate().test(model.get().getModel());
                     if (canExecute) {
                         return true;

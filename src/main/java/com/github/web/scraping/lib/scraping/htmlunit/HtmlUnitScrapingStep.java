@@ -37,7 +37,7 @@ import java.util.function.UnaryOperator;
 @Log4j2
 public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> implements StepThrottling {
 
-    protected static Function<String, String> NO_TEXT_TRANSFORMATION = s -> s;
+    protected static Function<String, String> NO_VALUE_CONVERSION = s -> s;
 
     private final List<HtmlUnitScrapingStep<?>> nextSteps;
 
@@ -51,7 +51,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     /**
      * relevant for steps that do scrape textual values
      */
-    protected Function<String, String> parsedTextTransformation = NO_TEXT_TRANSFORMATION; // by default return the string as-is
+    protected Function<String, String> parsedValueConversion = NO_VALUE_CONVERSION; // by default return the string as-is
 
     protected ScrapingServices services;
 
@@ -86,7 +86,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
      * @return copy of this step
      */
     protected C setExclusiveExecution(boolean exclusiveExecution) {
-        return copyThisMutateAndGet(copy -> {
+        return copyModifyAndGet(copy -> {
             copy.exclusiveExecution = exclusiveExecution;
             return copy;
         });
@@ -96,7 +96,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
      * @return copy of this step
      */
     protected C setStepDeclarationLine(StackTraceElement stepDeclarationLine) {
-        return copyThisMutateAndGet(copy -> {
+        return copyModifyAndGet(copy -> {
             copy.stepDeclarationLine = stepDeclarationLine;
             return copy;
         });
@@ -106,7 +106,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
      * @return copy of this step
      */
     protected C setExecuteIf(ExecutionCondition executeIf) {
-        return copyThisMutateAndGet(copy -> {
+        return copyModifyAndGet(copy -> {
             copy.executeIf = executeIf;
             return copy;
         });
@@ -115,9 +115,9 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     /**
      * @return copy of this step
      */
-    protected C setParsedTextTransformation(Function<String, String> transformation) {
-        return copyThisMutateAndGet(copy -> {
-            copy.parsedTextTransformation = transformation;
+    protected C setParsedValueConversion(Function<String, String> conversion) {
+        return copyModifyAndGet(copy -> {
+            copy.parsedValueConversion = conversion;
             return copy;
         });
     }
@@ -137,7 +137,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
      * @return copy of this step
      */
     protected C addCollector(Collector cs) {
-        return copyThisMutateAndGet(copy -> {
+        return copyModifyAndGet(copy -> {
             Collectors csCopy = getCollectors().copy();
             csCopy.add(cs);
             copy.setCollectorsMutably(csCopy);
@@ -154,14 +154,14 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
      */
     protected C addNextStep(HtmlUnitScrapingStep<?> nextStep) {
         HtmlUnitScrapingStep<?> nsCopy = nextStep.copy();
-        return copyThisMutateAndGet(copy -> {
+        return copyModifyAndGet(copy -> {
             copy.addNextStepMutably(nsCopy);
             return copy;
         });
     }
 
     protected C addFilter(Filter filter) {
-        return copyThisMutateAndGet(copy -> {
+        return copyModifyAndGet(copy -> {
             copy.filters.add(filter);
             return copy;
         });
@@ -215,14 +215,14 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
      * @return a copy of this step with the given <code>name</code> set
      */
     public C stepName(String name) {
-        return copyThisMutateAndGet(copy -> {
+        return copyModifyAndGet(copy -> {
             copy.setName(name != null && !name.toLowerCase().contains("step") ? name + "-step" : name);
             return copy;
         });
     }
 
-    protected String transformParsedText(String text) {
-        return text != null ? parsedTextTransformation.apply(text) : null;
+    protected String convertParsedText(String text) {
+        return text != null ? parsedValueConversion.apply(text) : null;
     }
 
     /**
@@ -255,10 +255,9 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         return new DebuggableStep<C>((C) this);
     }
 
-    // TODO having this public is a problem ... we will need a builder to be able to have clean interfaces ...
     protected abstract C copy();
 
-    protected C copyThisMutateAndGet(UnaryOperator<C> copyMutation) {
+    protected C copyModifyAndGet(UnaryOperator<C> copyMutation) {
         return copyMutation.apply(this.copy());
     }
 
@@ -266,7 +265,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     protected C copyFieldValuesTo(HtmlUnitScrapingStep<?> other) {
         other.executeIf = this.executeIf;
         other.collectors = this.collectors.copy();
-        other.parsedTextTransformation = this.parsedTextTransformation;
+        other.parsedValueConversion = this.parsedValueConversion;
         other.name = this.name;
         other.stepDeclarationLine = this.stepDeclarationLine;
         other.nextSteps.addAll(this.nextSteps);
@@ -275,9 +274,6 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         other.filters.addAll(this.filters);
         return (C) other;
     }
-
-    // TODO make possible to print the element's code for debugging ... on a targeted step basis ...
-
 
     @Getter
     protected static class ExecutionCondition {
