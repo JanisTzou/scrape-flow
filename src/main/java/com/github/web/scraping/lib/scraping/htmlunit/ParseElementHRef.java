@@ -33,18 +33,13 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
         implements HtmlUnitStepCollectingParsedStringToModel<ParseElementHRef>,
         HtmlUnitParsingStep<ParseElementHRef> {
 
-    // TODO add some filtering logic for the hrefs parsed ...
-
-    // TODO this is basically a specialisation of ParseAttributeValue
-
-
-    ParseElementHRef(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, Function<String, String> parsedTextTransformation) {
+    ParseElementHRef(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, Function<String, String> parsedValueConversion) {
         super(nextSteps);
-        this.parsedValueConversion = Objects.requireNonNullElse(parsedTextTransformation, NO_VALUE_CONVERSION);
+        this.parsedValueConversion = Objects.requireNonNullElse(parsedValueConversion, NO_VALUE_CONVERSION);
     }
 
-    ParseElementHRef(Function<String, String> parsedTextTransformation) {
-        this(null, parsedTextTransformation);
+    ParseElementHRef(Function<String, String> parsedValueConversion) {
+        this(null, parsedValueConversion);
     }
 
     ParseElementHRef() {

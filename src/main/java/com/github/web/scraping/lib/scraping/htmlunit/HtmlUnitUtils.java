@@ -166,6 +166,15 @@ public class HtmlUnitUtils {
         }
     }
 
+    public static boolean hasAttributeWithValue(DomNode domNode, String attribute, String valueRegex) {
+        if (domNode instanceof HtmlElement element) {
+            if (element.hasAttribute(attribute)) {
+                return element.getAttribute(attribute).matches(valueRegex);
+            }
+        }
+        return false;
+    }
+
     public static boolean hasAttribute(DomNode domNode, String attribute) {
         if (domNode instanceof HtmlElement element) {
             return element.hasAttribute(attribute);

@@ -62,7 +62,6 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
         Runnable runnable = () -> {
             String tc = null;
             if (ctx.getNode() instanceof HtmlElement htmlEl) {
-                // TODO look for DomText ...
                 tc = htmlEl.getTextContent();
                 if (tc != null) {
                     tc = StringEscapeUtils.unescapeHtml4(tc);
@@ -120,9 +119,9 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
 
 
     @Override
-    public ParseElementTextContent setValueConversion(Function<String, String> parsedTextTransformation) {
+    public ParseElementTextContent setValueConversion(Function<String, String> parsedValueConversion) {
         return copyModifyAndGet(copy -> {
-            copy.parsedValueConversion = parsedTextTransformation;
+            copy.parsedValueConversion = parsedValueConversion;
             return copy;
         });
     }

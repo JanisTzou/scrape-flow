@@ -21,7 +21,7 @@ import java.util.function.Function;
 public interface HtmlUnitParsingStep<C> {
 
     /**
-     * @param parsedTextToNewText transformation the parsed string
+     * @param parsedTextToNewText converts the parsed string
      * @return copy of this step
      */
     C setValueConversion(Function<String, String> parsedTextToNewText);

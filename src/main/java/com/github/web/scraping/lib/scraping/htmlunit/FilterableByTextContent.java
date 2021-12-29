@@ -16,17 +16,17 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-import java.util.regex.Pattern;
-
 public interface FilterableByTextContent<C extends HtmlUnitScrapingStep<C>> extends Filterable<C> {
 
     default C byTextContent(String searchString) {
-        return addFilter(new FilterByTextContent(searchString, true));
+        return addFilter(FilterByTextContent.createForSearchString(searchString));
     }
 
-    default C byTextContent(Pattern searchStringPattern) {
-        // TODO
-        return null;
+    /**
+     * Will  match the text content using {@link java.lang.String#matches(String regex)} -> regex must match whole value
+     */
+    default C byTextContentRegex(String regex) {
+        return addFilter(FilterByTextContent.createForRegex(regex));
     }
 
 }

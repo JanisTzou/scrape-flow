@@ -24,25 +24,25 @@ import java.util.stream.Collectors;
 
 public class FilterByAttribute implements Filter {
 
-    private static final boolean MATCH_ENTIRE_VALUE_DEFAULT = true;
     private final String attributeName;
     private final String attributeValue;
-    private boolean matchEntireValue;
+    private final String valueRegex;
 
-    FilterByAttribute(String attributeName,
+    private FilterByAttribute(String attributeName,
                       @Nullable String attributeValue,
-                      boolean matchEntireValue) {
+                      String valueRegex) {
         this.attributeName = attributeName;
         this.attributeValue = attributeValue;
-        this.matchEntireValue = matchEntireValue;
+        this.valueRegex = valueRegex;
     }
 
-    FilterByAttribute(String attributeName, @Nullable String attributeValue) {
-        this(attributeName, attributeValue, MATCH_ENTIRE_VALUE_DEFAULT);
+    FilterByAttribute(String attributeName,
+                      @Nullable String attributeValue) {
+        this(attributeName, attributeValue, null);
     }
 
     FilterByAttribute(String attributeName) {
-        this(attributeName, null, MATCH_ENTIRE_VALUE_DEFAULT);
+        this(attributeName, null, null);
     }
 
     @Override
@@ -50,11 +50,12 @@ public class FilterByAttribute implements Filter {
         return list.stream()
                 .filter(n -> {
                     if (attributeValue != null) {
-                        return HtmlUnitUtils.hasAttributeWithValue(n, attributeName, attributeValue, this.matchEntireValue);
+                        return HtmlUnitUtils.hasAttributeWithValue(n, attributeName, attributeValue, true);
+                    } else if (valueRegex != null) {
+                        return HtmlUnitUtils.hasAttributeWithValue(n, attributeName, valueRegex);
                     } else {
                         return HtmlUnitUtils.hasAttribute(n, attributeName);
                     }
-                    // TODO support for patterns ...
                 })
                 .collect(Collectors.toList());
     }

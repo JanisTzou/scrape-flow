@@ -21,35 +21,35 @@ import com.gargoylesoftware.htmlunit.html.DomText;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Log4j2
 public class FilterByTextContent implements Filter {
 
     private final String searchString;
-    private final boolean matchWholeTextContent;
+    private final String regex;
 
-
-    FilterByTextContent(String searchString, boolean matchWholeTextContent) {
-        Objects.requireNonNull(searchString);
+    private FilterByTextContent(String searchString, String regex) {
         this.searchString = searchString;
-        this.matchWholeTextContent = matchWholeTextContent;
+        this.regex = regex;
     }
 
-    // TODO think about how to use this when we have a lot of descendants and some of them might be nested ...
-    //  ... also try to use TextNodes ...
+    static FilterByTextContent createForSearchString(String searchString) {
+        return new FilterByTextContent(searchString, null);
+    }
 
-    // TODO we need to get to the lowest element with the text ...
+    static FilterByTextContent createForRegex(String searchStringRegex) {
+        return new FilterByTextContent(null, searchStringRegex);
+    }
 
     @Override
     public List<DomNode> filter(List<DomNode> list) {
-        return list.stream().filter(this::containsSearchStringDirectly).collect(Collectors.toList());
+        return list.stream().filter(this::childNodesContainText).collect(Collectors.toList());
 
     }
 
-    // recursively visits all child nodes until it finds one that has child DomText nodes containing the search text
-    private boolean containsSearchStringDirectly(DomNode domNode) {
+    // Important the child nodes need to contain the text - not the descendants
+    private boolean childNodesContainText(DomNode domNode) {
         for (DomNode childNode : domNode.getChildNodes()) {
             if (childNode instanceof DomText domText) {
                 if (isFound(domText)) {
@@ -63,29 +63,14 @@ public class FilterByTextContent implements Filter {
         return false;
     }
 
-    // recursively visits all child nodes until it finds one that has child DomText nodes containing the search text
-    private boolean containsSearchStringRecursively(DomNode domNode) {
-        for (DomNode childNode : domNode.getChildNodes()) {
-            if (childNode instanceof DomText domText) {
-                if (isFound(domText)) {
-                    log.debug("Found element by textContent: {} - {}", searchString, childNode);
-                    return true;
-                } else {
-                    return containsSearchStringRecursively(childNode);
-                }
-            }
-        }
-        return false;
-    }
-
     private boolean isFound(DomText domText) {
-        boolean found;
-        if (matchWholeTextContent) {
-            found = domText.getTextContent().trim().equalsIgnoreCase(searchString);
+        if (searchString != null) {
+            return domText.getTextContent().trim().equalsIgnoreCase(searchString);
+        } else if (regex != null) {
+            return domText.getTextContent().matches(regex);
         } else {
-            found = domText.getTextContent().trim().contains(searchString);
+            throw new IllegalStateException("Cannot match text content - no search criteria specified!");
         }
-        return found;
     }
 
 

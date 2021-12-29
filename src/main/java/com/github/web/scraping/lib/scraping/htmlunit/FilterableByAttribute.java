@@ -17,7 +17,6 @@
 package com.github.web.scraping.lib.scraping.htmlunit;
 
 import javax.annotation.Nullable;
-import java.util.regex.Pattern;
 
 public interface FilterableByAttribute<C extends HtmlUnitScrapingStep<C>> extends Filterable<C> {
 
@@ -26,10 +25,12 @@ public interface FilterableByAttribute<C extends HtmlUnitScrapingStep<C>> extend
         return addFilter(filter);
     }
 
-    default C byAttr(String name, Pattern valuePattern) {
-//        return new FilterElementsByAttribute(attributeName, attributeValue);
-        // TODO
-        return null;
+    /**
+     * Will  match the attribute value using {@link java.lang.String#matches(String regex)} -> regex must match whole value
+     */
+    default C byAttrRegex(String name, String valueRegex) {
+        FilterByAttribute filter = new FilterByAttribute(name, valueRegex);
+        return addFilter(filter);
     }
 
     default C byAttr(String name) {

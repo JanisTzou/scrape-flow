@@ -35,14 +35,14 @@ public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseEl
 
     private final String attributeName;
 
-    ParseElementAttributeValue(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, String attributeName, Function<String, String> parsedTextTransformation) {
+    ParseElementAttributeValue(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, String attributeName, Function<String, String> parsedValueConversion) {
         super(nextSteps);
         this.attributeName = attributeName;
-        this.parsedValueConversion = Objects.requireNonNullElse(parsedTextTransformation, NO_VALUE_CONVERSION);
+        this.parsedValueConversion = Objects.requireNonNullElse(parsedValueConversion, NO_VALUE_CONVERSION);
     }
 
-    ParseElementAttributeValue(String attributeName, Function<String, String> parsedTextTransformation) {
-        this(null, attributeName, parsedTextTransformation);
+    ParseElementAttributeValue(String attributeName, Function<String, String> parsedValueConversion) {
+        this(null, attributeName, parsedValueConversion);
     }
 
     ParseElementAttributeValue(String attributeName) {
