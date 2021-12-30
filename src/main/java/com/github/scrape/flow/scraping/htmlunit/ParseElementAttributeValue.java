@@ -19,6 +19,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.data.collectors.Collector;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.github.scrape.flow.scraping.htmlunit.Collector.AccumulatorType;
+import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
 public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseElementAttributeValue>
         implements HtmlUnitStepCollectingParsedStringToModel<ParseElementAttributeValue>,
@@ -92,8 +93,8 @@ public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseEl
     }
 
     @Override
-    public ParseElementAttributeValue setValueConversion(Function<String, String> parsedTextConversion) {
-        return setParsedValueConversion(parsedTextConversion);
+    public ParseElementAttributeValue setValueConversion(Function<String, String> parsedTextMapper) {
+        return setParsedValueConversion(parsedTextMapper);
     }
 
 }

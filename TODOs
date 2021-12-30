@@ -6,3 +6,9 @@ TODO how to make data that is not structured hierarchically hierarchical?
 
 // TODO log duplicated URLs found ? e.g. with BBC there was some problem like that ... for no obvious reason ...
 // TODO all public facing stuff should throw ex if passes param must not be nul and is null ...
+
+// TODO it might be nice to provide progress in the logs ... like scraped 10/125 Urls ... (if the finitie number of urls is available)
+
+// TODO simplified bootstrapping of main components
+
+// TODO expose library specific components in classes called xxxConfigurer so that use can e.g. configure proxies etc ... i the cae of HtmlUnit we need to enable configuring the WebClient

@@ -23,7 +23,6 @@ import com.gargoylesoftware.htmlunit.WebClient;
 
 public class HtmlUnitDriversFactory implements DriversFactory<WebClient> {
 
-    // TODO make cifigurable to use proxies or not ....
     public HtmlUnitDriversFactory() {
     }
 

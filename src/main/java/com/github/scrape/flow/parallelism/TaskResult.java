@@ -23,6 +23,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public class TaskResult {
 
-    private final StepTask task;
+    private final Task task;
 
 }

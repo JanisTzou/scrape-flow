@@ -16,12 +16,16 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
+import com.github.scrape.flow.data.collectors.Collector;
+import com.github.scrape.flow.data.collectors.Collectors;
+import com.github.scrape.flow.data.collectors.ModelWrapper;
+
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
-import static com.github.scrape.flow.scraping.htmlunit.Collector.AccumulatorType;
+import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
 interface HtmlUnitStepCollectingParsedValueToModel<C, V> {
 

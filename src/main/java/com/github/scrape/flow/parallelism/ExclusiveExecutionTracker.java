@@ -53,10 +53,10 @@ public class ExclusiveExecutionTracker {
         }
     }
 
-    // TODO this solution does not take into account nested exlusive steps (especially those that have intermediary non-exclusive steps between them and their eclusive parents )
+    // TODO this solution does not take into account nested exclusive steps (especially those that have intermediary non-exclusive steps between them and their eclusive parents )
 
     public boolean canExecute(QueuedStepTask qst) {
-        StepTask st = qst.getStepTask();
+        Task st = qst.getStepTask();
         StepExecOrder order = st.getStepExecOrder();
 
         if (taskRootOrderStack.isEmpty()) {
@@ -65,7 +65,6 @@ public class ExclusiveExecutionTracker {
             }
             return true;
         } else {
-            // TODO implement exclusive nested stuff ...
             StepExecOrder exclusiveScopeRoot = taskRootOrderStack.peek();
             if (order.isBefore(exclusiveScopeRoot)) {
                 // this is ok, there should be nothing in such a step that would depend on this subsequent step

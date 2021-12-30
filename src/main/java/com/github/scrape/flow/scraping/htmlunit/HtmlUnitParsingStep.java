@@ -21,9 +21,9 @@ import java.util.function.Function;
 public interface HtmlUnitParsingStep<C> {
 
     /**
-     * @param parsedTextToNewText converts the parsed string
-     * @return copy of this step
+     * @param parsedTextMapper maps the parsed string to another string
+     * @return copy of this step with the mapper added to it
      */
-    C setValueConversion(Function<String, String> parsedTextToNewText);
+    C setValueConversion(Function<String, String> parsedTextMapper);
 
 }

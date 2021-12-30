@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.parallelism.*;
+import com.github.scrape.flow.data.publishing.DataPublisher;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
 import com.github.scrape.flow.throttling.ThrottlingService;
 import lombok.Getter;
@@ -33,15 +34,15 @@ public class ScrapingServices {
     private final ActiveStepsTracker activeStepsTracker = new ActiveStepsTracker();
     private final StepAndDataRelationshipTracker stepAndDataRelationshipTracker = new StepAndDataRelationshipTracker(activeStepsTracker);
     private final ExclusiveExecutionTracker exclusiveExecutionTracker = new ExclusiveExecutionTracker(activeStepsTracker);
-    private final NotificationService notificationService = new NotificationService(stepAndDataRelationshipTracker);
-    private final StepTaskExecutor stepTaskExecutor;
+    private final DataPublisher dataPublisher = new DataPublisher(stepAndDataRelationshipTracker);
+    private final TaskExecutor taskExecutor;
     private final Options options = new Options();
     private final DebuggingOptions globalDebugging = new DebuggingOptions();
     private final TaskService taskService;
 
     public ScrapingServices(ScrapingRateLimiter scrapingRateLimiter) {
-        stepTaskExecutor = new StepTaskExecutor(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker);
-        taskService = new TaskService(stepTaskExecutor, activeStepsTracker, notificationService, scrapingRateLimiter, options);
+        taskExecutor = new TaskExecutor(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker);
+        taskService = new TaskService(taskExecutor, activeStepsTracker, dataPublisher, scrapingRateLimiter, options);
     }
 
 }

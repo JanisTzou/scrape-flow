@@ -68,7 +68,7 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
     }
 
     private Optional<HtmlPage> loadHtmlPage(String pageUrl, WebClient webClient, @Nullable StepExecOrder currStepExecOrder) {
-        // TODO someway somehow we need to make this retriable ...
+        // TODO someway somehow we need to make this retrievable ...
         String logInfo = currStepExecOrder != null ? currStepExecOrder + " - " : "";
         try {
             log.debug("{}Loading page URL: {}", logInfo, pageUrl);

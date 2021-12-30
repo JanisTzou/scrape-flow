@@ -18,7 +18,7 @@ package com.github.scrape.flow.demos;
 
 import com.github.scrape.flow.drivers.HtmlUnitDriverManager;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.parallelism.ScrapedDataListener;
+import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.EntryPoint;
 import com.github.scrape.flow.scraping.Scraper;
 import com.github.scrape.flow.scraping.Scraping;
@@ -212,14 +212,14 @@ public class BbcComDemo {
 
     public static class ArticleListener implements ScrapedDataListener<Article> {
         @Override
-        public void onParsedData(Article data) {
+        public void onScrapedData(Article data) {
             log.info("\n" + JsonUtils.write(data).orElse("JSON ERROR"));
         }
     }
 
     public static class SectionListener implements ScrapedDataListener<Section> {
         @Override
-        public void onParsedData(Section data) {
+        public void onScrapedData(Section data) {
             log.info("\n" + JsonUtils.write(data).orElse("JSON ERROR"));
         }
     }

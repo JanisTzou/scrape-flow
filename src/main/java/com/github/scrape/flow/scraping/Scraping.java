@@ -62,7 +62,7 @@ public class Scraping {
 
     // should be only exposed to the scraper responsible for running this Scraping instance
     public boolean awaitCompletion(Duration timeout) {
-        return services.getStepTaskExecutor().awaitCompletion(timeout);
+        return services.getTaskExecutor().awaitCompletion(timeout);
     }
 
     public ConfigurableScraping getOptions() {

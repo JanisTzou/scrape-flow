@@ -16,6 +16,7 @@
 
 package com.github.scrape.flow.parallelism;
 
+import com.github.scrape.flow.data.publishing.DataPublisher;
 import com.github.scrape.flow.scraping.Options;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
 import lombok.RequiredArgsConstructor;
@@ -25,39 +26,39 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class TaskService {
 
-    private final StepTaskExecutor stepTaskExecutor;
+    private final TaskExecutor taskExecutor;
     private final ActiveStepsTracker activeStepsTracker;
-    private final NotificationService notificationService;
+    private final DataPublisher dataPublisher;
     private final ScrapingRateLimiter scrapingRateLimiter;
     private final Options options;
 
-    public void handleExecution(StepTaskBasis stepTaskBasis) {
-        StepTask stepTask = createStepTask(stepTaskBasis);
+    public void handleExecution(TaskBasis taskBasis) {
+        Task task = createStepTask(taskBasis);
 
-        StepExecOrder execOrder = stepTask.getStepExecOrder();
-        activeStepsTracker.track(execOrder, stepTask.getStepName());
-        stepTaskExecutor.submit(
-                stepTask,
+        StepExecOrder execOrder = task.getStepExecOrder();
+        activeStepsTracker.track(execOrder, task.getStepName());
+        taskExecutor.submit(
+                task,
                 r -> handleFinishedStep(execOrder),
                 e -> handleFinishedStep(execOrder) // even when we finish in error there might be successfully parsed other data that might be waiting to get published outside
         );
     }
 
-    private StepTask createStepTask(StepTaskBasis stepTaskBasis) {
+    private Task createStepTask(TaskBasis taskBasis) {
         scrapingRateLimiter.getRequestFreq();
         int retries = options.getRequestRetries();
-        StepTask stepTask;
+        Task task;
         if (retries == 0) {
-            stepTask = StepTask.from(stepTaskBasis, retries, Duration.ZERO);
+            task = Task.from(taskBasis, retries, Duration.ZERO);
         } else {
-            stepTask = StepTask.from(stepTaskBasis, retries, scrapingRateLimiter.getRequestFreq().dividedBy(retries));
+            task = Task.from(taskBasis, retries, scrapingRateLimiter.getRequestFreq().dividedBy(retries));
         }
-        return stepTask;
+        return task;
     }
 
     private void handleFinishedStep(StepExecOrder stepExecOrder) {
         activeStepsTracker.untrack(stepExecOrder);
-        notificationService.notifyAfterStepFinished(stepExecOrder);
+        dataPublisher.notifyAfterStepFinished(stepExecOrder);
     }
 
 }

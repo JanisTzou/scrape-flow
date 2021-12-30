@@ -16,7 +16,7 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-import com.github.scrape.flow.parallelism.ScrapedDataListener;
+import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;

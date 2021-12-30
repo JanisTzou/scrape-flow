@@ -18,10 +18,13 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.parallelism.StepExecOrder;
-import com.github.scrape.flow.parallelism.StepTaskBasis;
+import com.github.scrape.flow.parallelism.TaskBasis;
 import com.github.scrape.flow.scraping.MakingHttpRequests;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.StepThrottling;
+import com.github.scrape.flow.data.collectors.Collector;
+import com.github.scrape.flow.data.collectors.Collectors;
+import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
@@ -226,7 +229,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     }
 
     public void handleExecution(StepExecOrder stepExecOrder, Runnable runnable) {
-        StepTaskBasis stepTask = new StepTaskBasis(stepExecOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests);
+        TaskBasis stepTask = new TaskBasis(stepExecOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests);
         services.getTaskService().handleExecution(stepTask);
     }
 

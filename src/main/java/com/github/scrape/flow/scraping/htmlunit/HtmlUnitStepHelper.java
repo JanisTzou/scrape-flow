@@ -18,8 +18,12 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.scrape.flow.parallelism.ScrapedDataListener;
+import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.data.collectors.Collector;
+import com.github.scrape.flow.data.publishing.ModelToPublish;
+import com.github.scrape.flow.data.collectors.ModelWrapper;
+import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.ArrayList;
@@ -69,7 +73,7 @@ public class HtmlUnitStepHelper {
                 //  decide which category of steps absolutely must use this and make it somehow nicely available ...
                 if (!modelToPublishList.isEmpty()) { // important
                     step.getServices().getStepAndDataRelationshipTracker().track(currStepExecOrder, generatedSteps, modelToPublishList);
-                    step.getServices().getNotificationService().track(generatedSteps);
+                    step.getServices().getDataPublisher().track(generatedSteps);
                 }
             }
 

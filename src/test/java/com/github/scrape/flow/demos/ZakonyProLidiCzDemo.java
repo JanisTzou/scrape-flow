@@ -18,7 +18,7 @@ package com.github.scrape.flow.demos;
 
 import com.github.scrape.flow.drivers.HtmlUnitDriverManager;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.parallelism.ScrapedDataListener;
+import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.EntryPoint;
 import com.github.scrape.flow.scraping.Scraper;
 import com.github.scrape.flow.scraping.Scraping;
@@ -310,7 +310,7 @@ public class ZakonyProLidiCzDemo {
     @Log4j2
     public static class KategorieListener implements ScrapedDataListener<Kategorie> {
         @Override
-        public void onParsedData(Kategorie data) {
+        public void onScrapedData(Kategorie data) {
             printLine();
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
             printLine();
@@ -320,7 +320,7 @@ public class ZakonyProLidiCzDemo {
     @Log4j2
     public static class PodKategorieListener implements ScrapedDataListener<PodKategorie> {
         @Override
-        public void onParsedData(PodKategorie data) {
+        public void onScrapedData(PodKategorie data) {
             printLine();
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
             printLine();
@@ -330,7 +330,7 @@ public class ZakonyProLidiCzDemo {
     @Log4j2
     public static class PredpisInfoListener implements ScrapedDataListener<PredpisInfo> {
         @Override
-        public void onParsedData(PredpisInfo data) {
+        public void onScrapedData(PredpisInfo data) {
             printLine();
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
             printLine();
@@ -340,7 +340,7 @@ public class ZakonyProLidiCzDemo {
     @Log4j2
     public static class PredpisListener implements ScrapedDataListener<Predpis> {
         @Override
-        public void onParsedData(Predpis data) {
+        public void onScrapedData(Predpis data) {
             printLine();
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
             printLine();

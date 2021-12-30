@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.data.collectors.Collector;
 import org.apache.commons.text.StringEscapeUtils;
 
 import javax.annotation.Nullable;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static com.github.scrape.flow.scraping.htmlunit.Collector.AccumulatorType;
+import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
 public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTextContent>
         implements HtmlUnitStepCollectingParsedStringToModel<ParseElementTextContent>,
@@ -79,9 +80,9 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
 
 
     @Override
-    public ParseElementTextContent setValueConversion(Function<String, String> parsedValueConversion) {
+    public ParseElementTextContent setValueConversion(Function<String, String> parsedTextMapper) {
         return copyModifyAndGet(copy -> {
-            copy.parsedValueConversion = parsedValueConversion;
+            copy.parsedValueConversion = parsedTextMapper;
             return copy;
         });
     }

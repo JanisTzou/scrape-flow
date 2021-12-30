@@ -36,7 +36,7 @@ public class SeleniumDriverManager implements DriverManager<WebDriver> {
     private final SeleniumDriversFactory driversFactory;
     private volatile long lastUsedTs;
     private volatile long lastRestartTs;
-    // no flag about the driver being curently active should be needed as it is owned
+    // no flag about the driver being currently active should be needed as it is owned
 
 
     public SeleniumDriverManager(DriverRestartStrategy restartStrategy,
@@ -54,8 +54,6 @@ public class SeleniumDriverManager implements DriverManager<WebDriver> {
     public WebDriver getDriver() {
         lastUsedTs = System.currentTimeMillis();
         if (driver == null) {
-            // TODO introduce a loop here where we repeatedly try to get the driver till successful for some time ...
-            //  ... related to VPN crashes ....
             this.driver = startNewDriver();
             return driver;
         } else {

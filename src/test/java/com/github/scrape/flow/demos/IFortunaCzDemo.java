@@ -18,7 +18,7 @@ package com.github.scrape.flow.demos;
 
 import com.github.scrape.flow.drivers.HtmlUnitDriverManager;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.parallelism.ScrapedDataListener;
+import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.EntryPoint;
 import com.github.scrape.flow.scraping.Scraper;
 import com.github.scrape.flow.scraping.Scraping;
@@ -95,7 +95,7 @@ public class IFortunaCzDemo {
 
     public static class MatchListener implements ScrapedDataListener<Match> {
         @Override
-        public void onParsedData(Match data) {
+        public void onScrapedData(Match data) {
             log.info("\n" + JsonUtils.write(data).orElse("JSON ERROR"));
         }
     }

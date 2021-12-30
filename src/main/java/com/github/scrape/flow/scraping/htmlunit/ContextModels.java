@@ -16,13 +16,16 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
+import com.github.scrape.flow.data.collectors.ModelWrapper;
+
 import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
 import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Holds the generated models in a sequence of step executions so they are accessible from the parsingContext
+ * Holds the generated models in a sequence of step executions so they are accessible from the parsingContext.
+ * Access is synchronised to insure data visibility when switching threads
  */
 public class ContextModels {
 

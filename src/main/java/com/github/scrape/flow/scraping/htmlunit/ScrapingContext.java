@@ -30,6 +30,7 @@ import java.util.Optional;
 
 /**
  * Allows sharing information between parsing steps
+ * Very careful how this is shared and populated (needs to be copied always when going from one step to next ...)
  */
 @Getter
 @Setter
@@ -45,7 +46,6 @@ public class ScrapingContext {
 
     private DomNode node;
 
-    // TODO very careful how this is shared and populated (needs to be copied always when going from one step to next ...)
     @Nonnull
     private ContextModels contextModels;
 
@@ -99,7 +99,7 @@ public class ScrapingContext {
         private String parsedURL;
         private StepExecOrder recursiveRootStepExecOrder;
 
-        public Builder(StepExecOrder prevStepExecOrder, DomNode node, ContextModels contextModelsCopy, String parsedText, String parsedURL,
+        private Builder(StepExecOrder prevStepExecOrder, DomNode node, ContextModels contextModelsCopy, String parsedText, String parsedURL,
                        StepExecOrder recursiveRootStepExecOrder) {
             this.prevStepExecOrder = prevStepExecOrder;
             this.node = node;
@@ -109,7 +109,7 @@ public class ScrapingContext {
             this.recursiveRootStepExecOrder = recursiveRootStepExecOrder;
         }
 
-        public Builder(ScrapingContext ctx) {
+        private Builder(ScrapingContext ctx) {
             this(ctx.prevStepExecOrder, ctx.node, ctx.contextModels.copy(), ctx.parsedText, ctx.parsedURL, ctx.recursiveRootStepExecOrder);
         }
 

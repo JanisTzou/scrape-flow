@@ -40,9 +40,9 @@ public class ActiveStepsTracker {
         return patriciaTrie.get(stepOrder.asString()) != null;
     }
 
-    public synchronized void track(StepExecOrder stepExecOrder, String name) {
-        log.debug("tracking {} - {}", stepExecOrder, name);
-        patriciaTrie.put(stepExecOrder.asString(), new TrackedStepOrder(stepExecOrder, name));
+    public synchronized void track(StepExecOrder stepExecOrder, String stepName) {
+        log.debug("tracking {} - {}", stepExecOrder, stepName);
+        patriciaTrie.put(stepExecOrder.asString(), new TrackedStepOrder(stepExecOrder, stepName));
     }
 
     public synchronized void untrack(StepExecOrder stepExecOrder) {
@@ -51,7 +51,6 @@ public class ActiveStepsTracker {
     }
 
 
-    @Deprecated
     @RequiredArgsConstructor
     public static class TrackedStepOrder {
         private final StepExecOrder stepExecOrder;

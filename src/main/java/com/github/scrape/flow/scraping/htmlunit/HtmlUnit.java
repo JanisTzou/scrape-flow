@@ -17,6 +17,7 @@
 package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.github.scrape.flow.scraping.htmlunit.filters.FilterElements;
 
 import java.util.Optional;
 import java.util.function.Function;

@@ -22,25 +22,25 @@ import java.util.function.Consumer;
 
 public class QueuedStepTask {
 
-    public static Comparator<QueuedStepTask> NATURAL_COMPARATOR = (qst1, qst2) -> StepTask.NATURAL_COMPARATOR.compare(qst1.getStepTask(), qst2.getStepTask());
+    public static Comparator<QueuedStepTask> NATURAL_COMPARATOR = (qst1, qst2) -> Task.NATURAL_COMPARATOR.compare(qst1.getStepTask(), qst2.getStepTask());
 
-    private final StepTask stepTask;
+    private final Task task;
     private final Consumer<TaskResult> taskResultConsumer;
     private final Consumer<TaskError> taskErrorConsumer;
     private final long enqueuedTimestamp;
 
-    public QueuedStepTask(StepTask stepTask,
+    public QueuedStepTask(Task task,
                           Consumer<TaskResult> taskResultConsumer,
                           Consumer<TaskError> taskErrorConsumer,
                           long enqueuedTimestamp) {
-        this.stepTask = stepTask;
+        this.task = task;
         this.taskResultConsumer = taskResultConsumer;
         this.taskErrorConsumer = taskErrorConsumer;
         this.enqueuedTimestamp = enqueuedTimestamp;
     }
 
-    public StepTask getStepTask() {
-        return stepTask;
+    public Task getStepTask() {
+        return task;
     }
 
     public Consumer<TaskResult> getTaskResultConsumer() {
@@ -56,6 +56,6 @@ public class QueuedStepTask {
     }
 
     public LocalDateTime getCreated() {
-        return stepTask.getCreated();
+        return task.getCreated();
     }
 }

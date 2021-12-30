@@ -21,13 +21,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ExecutingTasksTracker {
 
-    private final Map<StepExecOrder, StepTask> tracked = new ConcurrentHashMap<>();
+    private final Map<StepExecOrder, Task> tracked = new ConcurrentHashMap<>();
 
-    public void track(StepTask task) {
+    public void track(Task task) {
         tracked.put(task.getStepExecOrder(), task);
     }
 
-    public void untrack(StepTask task) {
+    public void untrack(Task task) {
         tracked.remove(task.getStepExecOrder());
     }
 
@@ -36,6 +36,6 @@ public class ExecutingTasksTracker {
     }
 
     public int countOfExecutingThrottlableTasks() {
-        return (int) tracked.values().stream().filter(StepTask::isThrottlingAllowed).count();
+        return (int) tracked.values().stream().filter(Task::isThrottlingAllowed).count();
     }
 }

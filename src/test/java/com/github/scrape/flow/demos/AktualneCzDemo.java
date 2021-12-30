@@ -36,7 +36,6 @@ public class AktualneCzDemo {
     @Test
     public void start() throws InterruptedException {
 
-        // TODO any way for these to be accessible globally? So they do not need to be specified explicitly in every stage definition?
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
 
         final GetDescendants getArticleElements = Get.descendants().byAttr("data-ga4-type", "article");

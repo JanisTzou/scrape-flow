@@ -18,7 +18,7 @@ package com.github.scrape.flow.demos;
 
 import com.github.scrape.flow.drivers.HtmlUnitDriverManager;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.parallelism.ScrapedDataListener;
+import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.EntryPoint;
 import com.github.scrape.flow.scraping.Scraper;
 import com.github.scrape.flow.scraping.Scraping;
@@ -130,7 +130,7 @@ public class CsfdCzDemo {
     @Log4j2
     public static class CategoryListener implements ScrapedDataListener<Category> {
         @Override
-        public void onParsedData(Category data) {
+        public void onScrapedData(Category data) {
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
         }
     }
@@ -138,7 +138,7 @@ public class CsfdCzDemo {
     @Log4j2
     public static class ArticleListener implements ScrapedDataListener<Article> {
         @Override
-        public void onParsedData(Article data) {
+        public void onScrapedData(Article data) {
             data.setImage(null); //  throws exceptions ...
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
         }
@@ -147,7 +147,7 @@ public class CsfdCzDemo {
     @Log4j2
     public static class MovieListener implements ScrapedDataListener<Movie> {
         @Override
-        public void onParsedData(Movie data) {
+        public void onScrapedData(Movie data) {
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
         }
     }

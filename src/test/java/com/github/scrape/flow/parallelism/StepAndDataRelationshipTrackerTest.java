@@ -16,7 +16,8 @@
 
 package com.github.scrape.flow.parallelism;
 
-import com.github.scrape.flow.scraping.htmlunit.ModelToPublish;
+import com.github.scrape.flow.data.publishing.ModelToPublish;
+import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

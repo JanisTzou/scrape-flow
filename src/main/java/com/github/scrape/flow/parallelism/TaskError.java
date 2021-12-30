@@ -25,7 +25,7 @@ import lombok.ToString;
 @ToString
 public class TaskError {
 
-    private final StepTask task;
+    private final Task task;
     private final Throwable error;
 
 }

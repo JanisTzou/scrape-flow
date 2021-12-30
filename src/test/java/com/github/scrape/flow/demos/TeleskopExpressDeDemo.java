@@ -18,7 +18,7 @@ package com.github.scrape.flow.demos;
 
 import com.github.scrape.flow.drivers.HtmlUnitDriverManager;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.parallelism.ScrapedDataListener;
+import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.EntryPoint;
 import com.github.scrape.flow.scraping.Scraper;
 import com.github.scrape.flow.scraping.Scraping;
@@ -42,8 +42,6 @@ public class TeleskopExpressDeDemo {
 
     @Test
     public void start() throws InterruptedException {
-
-        // TODO it might be nice to provide progress in the logs ... like scraped 10/125 Urls ... (if the finitie number of urls is available)
 
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
 
@@ -166,7 +164,7 @@ public class TeleskopExpressDeDemo {
     public static class ProductScrapedListener implements ScrapedDataListener<Product> {
 
         @Override
-        public void onParsedData(Product data) {
+        public void onScrapedData(Product data) {
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
         }
     }

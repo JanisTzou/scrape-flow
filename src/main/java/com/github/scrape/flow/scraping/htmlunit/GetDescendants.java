@@ -18,6 +18,9 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
+import com.github.scrape.flow.scraping.htmlunit.filters.Filterable;
+import com.github.scrape.flow.scraping.htmlunit.filters.FilterableByCommonCriteria;
 
 import javax.annotation.Nullable;
 import java.util.List;

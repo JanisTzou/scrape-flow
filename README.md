@@ -100,7 +100,7 @@ To scrape the names of each section from the page sample above and navigate to t
     
     public class ScrapedSectionListener implements ScrapedDataListener<Section> {
         @Override
-        public void onParsedData(Section data) {
+        public void onScrapedData(Section data) {
             // do something with parsed data
         }
     }

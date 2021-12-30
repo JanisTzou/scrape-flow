@@ -20,6 +20,7 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.scraping.MakingHttpRequests;
 import com.github.scrape.flow.scraping.StepThrottling;
+import com.github.scrape.flow.data.collectors.Collector;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import static com.github.scrape.flow.scraping.htmlunit.Collector.AccumulatorType;
+import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
 @Log4j2
 public class DownloadImage extends CommonOperationsStepBase<DownloadImage>

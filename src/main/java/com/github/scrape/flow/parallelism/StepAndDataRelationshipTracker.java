@@ -16,7 +16,7 @@
 
 package com.github.scrape.flow.parallelism;
 
-import com.github.scrape.flow.scraping.htmlunit.ModelToPublish;
+import com.github.scrape.flow.data.publishing.ModelToPublish;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -165,7 +165,7 @@ public class StepAndDataRelationshipTracker {
      */
     @Getter
     @ToString
-    static class Spawned {
+    public static class Spawned {
 
         private final StepExecOrder parent;
 
