@@ -11,7 +11,7 @@ The library aims at solving common scraping problems which can become challengin
 
 - following links
 - pagination
-- parallel scraping
+- parallelism
 - selective sequential execution of scraping steps
 - throttling based on site reponsiveness (To be implemented)
 - retrial of failed requests
@@ -54,7 +54,9 @@ To be added when project is more ready :-)
 ```
 
 
-#### Scraping setup:
+#### Scraping example:
+
+To scrape the names of each section from the page sample above and navigate to the detail of each section we can define the following scraping steps/sequence:
 
 ```java
 
