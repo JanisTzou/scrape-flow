@@ -16,7 +16,7 @@
 
 package com.github.scraping.flow.scraping.htmlunit;
 
-import com.github.scraping.flow.parallelism.ParsedDataListener;
+import com.github.scraping.flow.parallelism.ScrapedDataListener;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -49,8 +49,8 @@ public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>
     }
 
     @Override
-    public <T> C addCollector(Supplier<T> modelSupplier, Class<T> modelType, ParsedDataListener<T> parsedDataListener) {
-        return addCollector(new Collector(modelSupplier, modelType, parsedDataListener));
+    public <T> C addCollector(Supplier<T> modelSupplier, Class<T> modelType, ScrapedDataListener<T> scrapedDataListener) {
+        return addCollector(new Collector(modelSupplier, modelType, scrapedDataListener));
     }
 
     @Override

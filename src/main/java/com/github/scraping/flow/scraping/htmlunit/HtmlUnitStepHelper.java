@@ -18,7 +18,7 @@ package com.github.scraping.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.scraping.flow.parallelism.ParsedDataListener;
+import com.github.scraping.flow.parallelism.ScrapedDataListener;
 import com.github.scraping.flow.parallelism.StepExecOrder;
 import lombok.extern.log4j.Log4j2;
 
@@ -83,9 +83,9 @@ public class HtmlUnitStepHelper {
         for (Collector co : step.getCollectors().getModelSuppliers()) {
             Object model = co.getModelSupplier().get();
             Class<?> modelClass = co.getModelClass();
-            ParsedDataListener<Object> parsedDataListener = co.getParsedDataListener();
-            if (parsedDataListener != null) {
-                modelToPublishList.add(new ModelToPublish(model, modelClass, parsedDataListener));
+            ScrapedDataListener<Object> scrapedDataListener = co.getScrapedDataListener();
+            if (scrapedDataListener != null) {
+                modelToPublishList.add(new ModelToPublish(model, modelClass, scrapedDataListener));
             }
             nextContextModels.push(model, modelClass);
         }

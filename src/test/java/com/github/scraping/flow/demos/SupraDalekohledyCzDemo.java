@@ -47,7 +47,7 @@ public class SupraDalekohledyCzDemo {
 
         final EntryPoint entryPoint = new EntryPoint("http://www.supra-dalekohledy.cz/prislusenstvi4/okulary/tele-vue/", productsScraping);
         final Scraper scraper = new Scraper();
-        scraper.scrape(entryPoint);
+        scraper.start(entryPoint);
 
         scraper.awaitCompletion(Duration.ofMinutes(5));
         Thread.sleep(2000); // let logging finish ...

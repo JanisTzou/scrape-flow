@@ -18,7 +18,7 @@ package com.github.scraping.flow.demos;
 
 import com.github.scraping.flow.drivers.HtmlUnitDriverManager;
 import com.github.scraping.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scraping.flow.parallelism.ParsedDataListener;
+import com.github.scraping.flow.parallelism.ScrapedDataListener;
 import com.github.scraping.flow.scraping.EntryPoint;
 import com.github.scraping.flow.scraping.Scraper;
 import com.github.scraping.flow.scraping.Scraping;
@@ -126,7 +126,7 @@ public class MaxEuroCzDemo {
          */
 
         return Get.descendants().byClass("product").stepName("product-search")
-                .addCollector(Product::new, Product.class, new ProductListenerParsed())
+                .addCollector(Product::new, Product.class, new ProductListenerScraped())
                 .collectOne(Product::setCategory, Product.class, Category.class)
                 .next(Get.descendants().byClass("product-name")
                         .next(Get.descendants().byTag("a")
@@ -210,7 +210,7 @@ public class MaxEuroCzDemo {
         final EntryPoint entryPoint = new EntryPoint(url, productsScraping);
         final Scraper scraper = new Scraper();
 
-        scraper.scrape(entryPoint);
+        scraper.start(entryPoint);
 
         scraper.awaitCompletion(Duration.ofSeconds(200));
         Thread.sleep(2000); // let logging finish ...
@@ -248,10 +248,10 @@ public class MaxEuroCzDemo {
 
 
     @Log4j2
-    public static class ProductListenerParsed implements ParsedDataListener<Product> {
+    public static class ProductListenerScraped implements ScrapedDataListener<Product> {
 
         @Override
-        public void onParsingFinished(Product data) {
+        public void onParsedData(Product data) {
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
         }
     }

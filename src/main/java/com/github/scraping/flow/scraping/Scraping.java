@@ -42,6 +42,9 @@ public class Scraping {
 
     // TODO add option to not crawl duplicate URLS ...
 
+    public Scraping(SiteParser parser) {
+        this(new ScrapingServices(new ScrapingRateLimiterImpl(1, TimeUnit.SECONDS)), parser);
+    }
 
     public Scraping(SiteParser parser, int rqLimitPerTimeUnit, TimeUnit timeUnit) {
         this(new ScrapingServices(new ScrapingRateLimiterImpl(rqLimitPerTimeUnit, timeUnit)), parser);

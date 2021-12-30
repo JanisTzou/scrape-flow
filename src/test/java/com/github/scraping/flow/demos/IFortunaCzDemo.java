@@ -18,7 +18,7 @@ package com.github.scraping.flow.demos;
 
 import com.github.scraping.flow.drivers.HtmlUnitDriverManager;
 import com.github.scraping.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scraping.flow.parallelism.ParsedDataListener;
+import com.github.scraping.flow.parallelism.ScrapedDataListener;
 import com.github.scraping.flow.scraping.EntryPoint;
 import com.github.scraping.flow.scraping.Scraper;
 import com.github.scraping.flow.scraping.Scraping;
@@ -80,7 +80,7 @@ public class IFortunaCzDemo {
 
         final EntryPoint entryPoint = new EntryPoint("https://www.ifortuna.cz/", matchesScraping);
         final Scraper scraper = new Scraper();
-        scraper.scrape(entryPoint);
+        scraper.start(entryPoint);
         scraper.awaitCompletion(Duration.ofMinutes(5));
         Thread.sleep(1000); // let logging finish
     }
@@ -93,9 +93,9 @@ public class IFortunaCzDemo {
         private String date;
     }
 
-    public static class MatchListener implements ParsedDataListener<Match> {
+    public static class MatchListener implements ScrapedDataListener<Match> {
         @Override
-        public void onParsingFinished(Match data) {
+        public void onParsedData(Match data) {
             log.info("\n" + JsonUtils.write(data).orElse("JSON ERROR"));
         }
     }

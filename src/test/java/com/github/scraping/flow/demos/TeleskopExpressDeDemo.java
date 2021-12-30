@@ -18,7 +18,7 @@ package com.github.scraping.flow.demos;
 
 import com.github.scraping.flow.drivers.HtmlUnitDriverManager;
 import com.github.scraping.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scraping.flow.parallelism.ParsedDataListener;
+import com.github.scraping.flow.parallelism.ScrapedDataListener;
 import com.github.scraping.flow.scraping.EntryPoint;
 import com.github.scraping.flow.scraping.Scraper;
 import com.github.scraping.flow.scraping.Scraping;
@@ -67,7 +67,7 @@ public class TeleskopExpressDeDemo {
                                                 )
                                 )
                                 .next(getProductTdElemsStep
-                                        .addCollector(Product::new, Product.class, new ProductParsedListener())
+                                        .addCollector(Product::new, Product.class, new ProductScrapedListener())
                                         .next(getProductCodeElemStep
                                                 .addCollector(ProductCode::new, ProductCode.class)
                                                 .collectOne(Product::setProductCode, Product.class, ProductCode.class)
@@ -118,7 +118,7 @@ public class TeleskopExpressDeDemo {
         final EntryPoint entryPoint = new EntryPoint(url, productsScraping);
         final Scraper scraper = new Scraper();
 
-        scraper.scrape(entryPoint);
+        scraper.start(entryPoint);
 
         scraper.awaitCompletion(Duration.ofMinutes(5));
         Thread.sleep(2000); // let logging finish ...
@@ -163,10 +163,10 @@ public class TeleskopExpressDeDemo {
     }
 
     @Log4j2
-    public static class ProductParsedListener implements ParsedDataListener<Product> {
+    public static class ProductScrapedListener implements ScrapedDataListener<Product> {
 
         @Override
-        public void onParsingFinished(Product data) {
+        public void onParsedData(Product data) {
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
         }
     }

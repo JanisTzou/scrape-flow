@@ -18,7 +18,7 @@ package com.github.scraping.flow.demos;
 
 import com.github.scraping.flow.drivers.HtmlUnitDriverManager;
 import com.github.scraping.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scraping.flow.parallelism.ParsedDataListener;
+import com.github.scraping.flow.parallelism.ScrapedDataListener;
 import com.github.scraping.flow.scraping.EntryPoint;
 import com.github.scraping.flow.scraping.Scraper;
 import com.github.scraping.flow.scraping.Scraping;
@@ -44,7 +44,6 @@ import static com.github.scraping.flow.scraping.htmlunit.HtmlUnit.*;
 public class BbcComDemo {
 
     public static final String HTTPS_WWW_BBC_COM = "https://www.bbc.com";
-
 
     @Test
     public void demo() throws InterruptedException {
@@ -174,7 +173,7 @@ public class BbcComDemo {
     private void start(Scraping articlesScraping) throws InterruptedException {
         final EntryPoint entryPoint = new EntryPoint("https://www.bbc.com/news/world", articlesScraping);
         final Scraper scraper = new Scraper();
-        scraper.scrape(entryPoint);
+        scraper.start(entryPoint);
         scraper.awaitCompletion(Duration.ofMinutes(2));
         Thread.sleep(1000); // let logging finish
     }
@@ -211,16 +210,16 @@ public class BbcComDemo {
     }
 
 
-    public static class ArticleListener implements ParsedDataListener<Article> {
+    public static class ArticleListener implements ScrapedDataListener<Article> {
         @Override
-        public void onParsingFinished(Article data) {
+        public void onParsedData(Article data) {
             log.info("\n" + JsonUtils.write(data).orElse("JSON ERROR"));
         }
     }
 
-    public static class SectionListener implements ParsedDataListener<Section> {
+    public static class SectionListener implements ScrapedDataListener<Section> {
         @Override
-        public void onParsingFinished(Section data) {
+        public void onParsedData(Section data) {
             log.info("\n" + JsonUtils.write(data).orElse("JSON ERROR"));
         }
     }

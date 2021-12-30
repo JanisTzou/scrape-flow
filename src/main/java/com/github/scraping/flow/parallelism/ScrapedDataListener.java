@@ -16,8 +16,8 @@
 
 package com.github.scraping.flow.parallelism;
 
-public interface ParsedDataListener<T> {
+public interface ScrapedDataListener<T> {
 
-    void onParsingFinished(T data);
+    void onParsedData(T data);
 
 }

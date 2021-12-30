@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
 
 public class StepAndDataRelationshipTrackerTest {
 
-    ParsedDataListener<Object> listener = Mockito.mock(ParsedDataListener.class);
+    ScrapedDataListener<Object> listener = Mockito.mock(ScrapedDataListener.class);
 
     String model1 = "model1";
     String model2 = "model2";

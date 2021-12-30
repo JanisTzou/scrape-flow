@@ -18,7 +18,7 @@ package com.github.scraping.flow.demos;
 
 import com.github.scraping.flow.drivers.HtmlUnitDriverManager;
 import com.github.scraping.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scraping.flow.parallelism.ParsedDataListener;
+import com.github.scraping.flow.parallelism.ScrapedDataListener;
 import com.github.scraping.flow.scraping.EntryPoint;
 import com.github.scraping.flow.scraping.Scraper;
 import com.github.scraping.flow.scraping.Scraping;
@@ -252,7 +252,7 @@ public class ZakonyProLidiCzDemo {
     private void start(Scraping productsScraping) throws InterruptedException {
         final EntryPoint entryPoint = new EntryPoint("https://www.zakonyprolidi.cz/obory", productsScraping);
         final Scraper scraper = new Scraper();
-        scraper.scrape(entryPoint);
+        scraper.start(entryPoint);
 
         scraper.awaitCompletion(Duration.ofMinutes(15));
         Thread.sleep(2000); // let logging finish ...
@@ -308,9 +308,9 @@ public class ZakonyProLidiCzDemo {
     }
 
     @Log4j2
-    public static class KategorieListener implements ParsedDataListener<Kategorie> {
+    public static class KategorieListener implements ScrapedDataListener<Kategorie> {
         @Override
-        public void onParsingFinished(Kategorie data) {
+        public void onParsedData(Kategorie data) {
             printLine();
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
             printLine();
@@ -318,9 +318,9 @@ public class ZakonyProLidiCzDemo {
     }
 
     @Log4j2
-    public static class PodKategorieListener implements ParsedDataListener<PodKategorie> {
+    public static class PodKategorieListener implements ScrapedDataListener<PodKategorie> {
         @Override
-        public void onParsingFinished(PodKategorie data) {
+        public void onParsedData(PodKategorie data) {
             printLine();
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
             printLine();
@@ -328,9 +328,9 @@ public class ZakonyProLidiCzDemo {
     }
 
     @Log4j2
-    public static class PredpisInfoListener implements ParsedDataListener<PredpisInfo> {
+    public static class PredpisInfoListener implements ScrapedDataListener<PredpisInfo> {
         @Override
-        public void onParsingFinished(PredpisInfo data) {
+        public void onParsedData(PredpisInfo data) {
             printLine();
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
             printLine();
@@ -338,9 +338,9 @@ public class ZakonyProLidiCzDemo {
     }
 
     @Log4j2
-    public static class PredpisListener implements ParsedDataListener<Predpis> {
+    public static class PredpisListener implements ScrapedDataListener<Predpis> {
         @Override
-        public void onParsingFinished(Predpis data) {
+        public void onParsedData(Predpis data) {
             printLine();
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
             printLine();

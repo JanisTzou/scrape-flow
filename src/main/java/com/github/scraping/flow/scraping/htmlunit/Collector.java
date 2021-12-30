@@ -16,7 +16,7 @@
 
 package com.github.scraping.flow.scraping.htmlunit;
 
-import com.github.scraping.flow.parallelism.ParsedDataListener;
+import com.github.scraping.flow.parallelism.ScrapedDataListener;
 import lombok.Getter;
 
 import java.util.function.BiConsumer;
@@ -32,7 +32,7 @@ public class Collector {
     private final BiConsumer<Object, Object> accumulator; // <containerType, modelType>
     private final Class<?> containerClass;
 
-    private final ParsedDataListener<Object> parsedDataListener;
+    private final ScrapedDataListener<Object> scrapedDataListener;
 
 //    private final boolean onlyCustomTypesAllowed; // TODO ...
 
@@ -45,21 +45,21 @@ public class Collector {
                      AccumulatorType accumulatorType,
                      BiConsumer<?, ?> accumulator,
                      Class<?> containerClass,
-                     ParsedDataListener<?> parsedDataListener) {
+                     ScrapedDataListener<?> scrapedDataListener) {
         this.modelSupplier = modelSupplier;
         this.accumulatorType = accumulatorType;
         this.accumulator = (BiConsumer<Object, Object>) accumulator;
         this.modelClass = modelClass;
         this.containerClass = containerClass;
-        this.parsedDataListener = (ParsedDataListener<Object>) parsedDataListener;
+        this.scrapedDataListener = (ScrapedDataListener<Object>) scrapedDataListener;
     }
 
     public Collector(Supplier<?> modelSupplier, Class<?> modelClass) {
         this(modelSupplier, modelClass, null, null, null, null);
     }
 
-    public Collector(Supplier<?> modelSupplier, Class<?> modelClass, ParsedDataListener<?> parsedDataListener) {
-        this(modelSupplier, modelClass, null, null, null, parsedDataListener);
+    public Collector(Supplier<?> modelSupplier, Class<?> modelClass, ScrapedDataListener<?> scrapedDataListener) {
+        this(modelSupplier, modelClass, null, null, null, scrapedDataListener);
     }
 
     public Collector(BiConsumer<?, ?> accumulator, Class<?> modelClass, Class<?> containerClass, AccumulatorType accumulatorType) {

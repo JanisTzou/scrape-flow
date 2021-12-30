@@ -16,7 +16,7 @@
 
 package com.github.scraping.flow.scraping.htmlunit;
 
-import com.github.scraping.flow.parallelism.ParsedDataListener;
+import com.github.scraping.flow.parallelism.ScrapedDataListener;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +27,6 @@ public class ModelToPublish {
 
     private final Object model;
     private final Class<?> modelClass;
-    private final ParsedDataListener<Object> parsedDataListener;
+    private final ScrapedDataListener<Object> scrapedDataListener;
 
 }

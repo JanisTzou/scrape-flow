@@ -30,11 +30,15 @@ public class Scraper {
     // TODO can the parsing here be from both selenium and htmlunit?
     private final List<Scraping> scrapings = new CopyOnWriteArrayList<>();
 
-    public void scrape(EntryPoint entryPoint) {
-        this.scrape(List.of(entryPoint));
+    public void start(Scraping scraping, String url) {
+        this.start(List.of(new EntryPoint(url, scraping)));
     }
 
-    public void scrape(List<EntryPoint> entryPoints) {
+    public void start(EntryPoint entryPoint) {
+        this.start(List.of(entryPoint));
+    }
+
+    public void start(List<EntryPoint> entryPoints) {
         for (EntryPoint entryPoint : entryPoints) {
             String url = entryPoint.getUrl();
             Scraping scraping = entryPoint.getScraping();

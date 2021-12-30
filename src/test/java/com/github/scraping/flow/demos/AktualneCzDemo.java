@@ -65,7 +65,7 @@ public class AktualneCzDemo {
         final EntryPoint entryPoint = new EntryPoint("https://zpravy.aktualne.cz/zahranici/", articlesScraping);
 
         final Scraper scraper = new Scraper();
-        scraper.scrape(entryPoint);
+        scraper.start(entryPoint);
         scraper.awaitCompletion(Duration.ofMinutes(2));
         Thread.sleep(1000); // let logging finish
     }

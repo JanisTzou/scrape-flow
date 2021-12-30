@@ -18,7 +18,7 @@ package com.github.scraping.flow.demos;
 
 import com.github.scraping.flow.drivers.HtmlUnitDriverManager;
 import com.github.scraping.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scraping.flow.parallelism.ParsedDataListener;
+import com.github.scraping.flow.parallelism.ScrapedDataListener;
 import com.github.scraping.flow.scraping.EntryPoint;
 import com.github.scraping.flow.scraping.Scraper;
 import com.github.scraping.flow.scraping.Scraping;
@@ -92,7 +92,7 @@ public class CsfdCzDemo {
     private void start(Scraping productsScraping) throws InterruptedException {
         final EntryPoint entryPoint = new EntryPoint("https://www.csfd.cz/novinky/", productsScraping);
         final Scraper scraper = new Scraper();
-        scraper.scrape(entryPoint);
+        scraper.start(entryPoint);
 
         scraper.awaitCompletion(Duration.ofMinutes(5));
         Thread.sleep(2000); // let logging finish ...
@@ -128,26 +128,26 @@ public class CsfdCzDemo {
 
 
     @Log4j2
-    public static class CategoryListener implements ParsedDataListener<Category> {
+    public static class CategoryListener implements ScrapedDataListener<Category> {
         @Override
-        public void onParsingFinished(Category data) {
+        public void onParsedData(Category data) {
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
         }
     }
 
     @Log4j2
-    public static class ArticleListener implements ParsedDataListener<Article> {
+    public static class ArticleListener implements ScrapedDataListener<Article> {
         @Override
-        public void onParsingFinished(Article data) {
+        public void onParsedData(Article data) {
             data.setImage(null); //  throws exceptions ...
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
         }
     }
 
     @Log4j2
-    public static class MovieListener implements ParsedDataListener<Movie> {
+    public static class MovieListener implements ScrapedDataListener<Movie> {
         @Override
-        public void onParsingFinished(Movie data) {
+        public void onParsedData(Movie data) {
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
         }
     }
