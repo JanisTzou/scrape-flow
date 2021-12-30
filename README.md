@@ -19,8 +19,11 @@ The library aims at solving common scraping problems which can become challengin
 - publishing of scraped data to clients in the order in which it appeared on the web
 - utilities for debugging
 
-
 ## Usage
+
+To be added when project is more ready :-)
+
+## Sample code
 
 #### Example static site code snipped to scrape:
 
