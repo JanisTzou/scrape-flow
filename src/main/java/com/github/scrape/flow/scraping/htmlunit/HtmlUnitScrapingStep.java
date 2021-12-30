@@ -19,9 +19,10 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.parallelism.TaskBasis;
+import com.github.scrape.flow.parallelism.TaskService;
 import com.github.scrape.flow.scraping.MakingHttpRequests;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.StepThrottling;
+import com.github.scrape.flow.scraping.Throttling;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.data.collectors.Collectors;
 import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
@@ -38,7 +39,7 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 @Log4j2
-public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> implements StepThrottling {
+public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> implements Throttling {
 
     protected static Function<String, String> NO_VALUE_CONVERSION = s -> s;
 
@@ -55,8 +56,6 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
      * relevant for steps that do scrape textual values
      */
     protected Function<String, String> parsedValueConversion = NO_VALUE_CONVERSION; // by default return the string as-is
-
-    protected ScrapingServices services;
 
     /**
      * To be used on logging to give the user an accurate location of a problematic step
@@ -79,7 +78,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     }
 
 
-    protected abstract StepExecOrder execute(ScrapingContext ctx);
+    protected abstract StepExecOrder execute(ScrapingContext ctx, ScrapingServices services);
 
     protected HtmlUnitStepHelper getHelper() {
         return new HtmlUnitStepHelper(this);
@@ -180,20 +179,6 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         this.nextSteps.add(nextStep);
     }
 
-    /**
-     * Internal usage only
-     * Mutates this instance by adding the specific <code>services</code>.
-     * Does not create a copy of either <code>this</code> step or <code>nextStep</code>.
-     * Should only be used at runtime (not at Assembly time)
-     */
-    protected void setServicesMutably(ScrapingServices services) {
-        this.services = services;
-    }
-
-    protected ScrapingServices getServices() {
-        return services;
-    }
-
     protected boolean isExclusiveExecution() {
         return exclusiveExecution;
     }
@@ -228,13 +213,9 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         return text != null ? parsedValueConversion.apply(text) : null;
     }
 
-    public void handleExecution(StepExecOrder stepExecOrder, Runnable runnable) {
+    public void handleExecution(StepExecOrder stepExecOrder, Runnable runnable, TaskService taskService) {
         TaskBasis stepTask = new TaskBasis(stepExecOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests);
-        services.getTaskService().handleExecution(stepTask);
-    }
-
-    protected StepExecOrder genNextOrderAfter(StepExecOrder stepAtPrevLevel) {
-        return services.getStepExecOrderGenerator().genNextOrderAfter(stepAtPrevLevel);
+        taskService.handleExecution(stepTask);
     }
 
     /**
@@ -259,7 +240,6 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         other.name = this.name;
         other.stepDeclarationLine = this.stepDeclarationLine;
         other.nextSteps.addAll(this.nextSteps);
-        other.services = this.services;
         other.stepDebugging = stepDebugging.copy();
         other.filters.addAll(this.filters);
         return (C) other;

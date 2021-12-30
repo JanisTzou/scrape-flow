@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.scraping.ScrapingServices;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -43,15 +44,15 @@ public class StepBlock extends CommonOperationsStepBase<StepBlock>
     }
 
     @Override
-    public  StepExecOrder execute(ScrapingContext ctx) {
-        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
+    public  StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
+        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
-            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
         };
 
-        handleExecution(stepExecOrder, runnable);
+        handleExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }

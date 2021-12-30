@@ -49,8 +49,7 @@ public class Scraper {
     private void doScrape(String url, Scraping scraping) {
         this.scrapings.add(scraping);
         SiteParser parser = scraping.getParser();
-        StepsUtils.propagateServicesRecursively(scraping.getScrapingSequence(), scraping.getServices(), new HashSet<>());
-        parser.parse(url, scraping.getScrapingSequence());
+        parser.parse(url, scraping.getScrapingSequence(), scraping.getServices());
     }
 
     public void awaitCompletion(Duration timeout) {

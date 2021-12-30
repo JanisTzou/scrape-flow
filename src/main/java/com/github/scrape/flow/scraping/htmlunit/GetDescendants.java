@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
 import com.github.scrape.flow.scraping.htmlunit.filters.Filterable;
 import com.github.scrape.flow.scraping.htmlunit.filters.FilterableByCommonCriteria;
@@ -43,18 +44,18 @@ public class GetDescendants extends CommonOperationsStepBase<GetDescendants>
     }
 
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx) {
-        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
+    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
+        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> {
                 // important to include only html elements -> users for not expect to deal with other types when defining filtering operations (e.g. first() ... )
                 return HtmlUnitUtils.getHtmlElementDescendants(ctx.getNode(), n -> true);
             };
-            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
         };
 
-        handleExecution(stepExecOrder, runnable);
+        handleExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }

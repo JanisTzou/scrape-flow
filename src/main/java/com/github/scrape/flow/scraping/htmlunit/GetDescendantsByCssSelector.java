@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
 import com.github.scrape.flow.scraping.htmlunit.filters.FilterableByCommonCriteria;
 
@@ -48,15 +49,15 @@ public class GetDescendantsByCssSelector extends CommonOperationsStepBase<GetDes
     }
 
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx) {
-        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
+    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
+        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsBySccSelector(ctx.getNode(), sccSelector);
-            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
         };
 
-        handleExecution(stepExecOrder, runnable);
+        handleExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }

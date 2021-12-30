@@ -49,7 +49,7 @@ public class TaskExecutor {
     private final AtomicInteger activeTaskCount = new AtomicInteger(0);
     // TODO number should be at least the number of open windows in chrome ...
     //  depends how we will handle windows ... vs threads ...
-    private final Scheduler blockingTasksScheduler = Schedulers.newBoundedElastic(Runtime.getRuntime().availableProcessors(), Integer.MAX_VALUE, "io-worker", 60, true);
+    private static final Scheduler blockingTasksScheduler = Schedulers.newBoundedElastic(Runtime.getRuntime().availableProcessors(), Integer.MAX_VALUE, "io-worker", 60, true);
     private volatile Supplier<LocalDateTime> nowSupplier;
 
     public TaskExecutor(ThrottlingService throttlingService,

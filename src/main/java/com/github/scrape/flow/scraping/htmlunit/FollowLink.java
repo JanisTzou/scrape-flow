@@ -22,6 +22,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.scraping.LoadingNewPage;
 import com.github.scrape.flow.scraping.RequestException;
+import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.extern.log4j.Log4j2;
 
 import java.net.URL;
@@ -47,8 +48,8 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
     }
 
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx) {
-        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
+    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
+        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
             if (ctx.getNode() instanceof HtmlAnchor anch) {
@@ -77,14 +78,14 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
                         throw new RequestException(e);
                     }
                 };
-                getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+                getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
 
             } else {
                 log.warn("{}: No HtmlAnchor element provided -> cannot click element! Check the steps sequence above step {} and maybe provide search step for an anchor tag", getName(), getName());
             }
         };
 
-        handleExecution(stepExecOrder, runnable);
+        handleExecution(stepExecOrder, runnable, services.getTaskService());
         return stepExecOrder;
     }
 

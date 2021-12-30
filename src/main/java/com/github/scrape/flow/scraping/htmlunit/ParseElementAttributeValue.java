@@ -20,6 +20,7 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.data.collectors.Collector;
+import com.github.scrape.flow.scraping.ScrapingServices;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -57,8 +58,8 @@ public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseEl
 
 
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx) {
-        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
+    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
+        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
             if (ctx.getNode() instanceof HtmlElement el && el.hasAttribute(attributeName)) {
@@ -70,14 +71,14 @@ public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseEl
                     setParsedValueToModel(this.getCollectors(), ctx, converted, getName(), stepDeclarationLine);
 
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
-                    getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+                    getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
                 }
             } else {
                 log.trace("{}: Node is not an HtmlElement or does not have attribute {}: node: {}", getName(), attributeName, ctx.getNode());
             }
         };
 
-        handleExecution(stepExecOrder, runnable);
+        handleExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }

@@ -19,6 +19,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
@@ -49,24 +50,25 @@ public class ReturnNextPage extends CommonOperationsStepBase<ReturnNextPage> {
 
     /**
      * @param ctx must contain a reference to HtmlPage that might be paginated (contains some for of next link or button)
+     * @param services
      */
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx) {
+    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
 
-        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
+        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
             Optional<HtmlPage> page = ctx.getNodeAsHtmlPage();
 
             if (page.isPresent()) {
                 Supplier<List<DomNode>> nodesSearch = () -> List.of(page.get());
-                getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+                getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
             } else {
                 log.error("The previous step did not produce an HtmlPage! Cannot process next page data in step {}", getName());
             }
         };
 
-        handleExecution(stepExecOrder, runnable);
+        handleExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }

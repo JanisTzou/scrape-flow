@@ -19,6 +19,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
@@ -62,15 +63,16 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
 
     /**
      * @param ctx must contain a reference to HtmlPage that might be paginated (contains some for of next link or button)
+     * @param services
      */
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx) {
+    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
 
         StepExecOrder prevStepExecOrder = ctx.getRecursiveRootStepExecOrder() == null
                 ? ctx.getPrevStepExecOrder()
                 : ctx.getRecursiveRootStepExecOrder();
 
-        StepExecOrder stepExecOrder = genNextOrderAfter(prevStepExecOrder);
+        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(prevStepExecOrder);
 
         checkPaginationTriggerAndLinkItToThisStep();
 
@@ -91,7 +93,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
                 ScrapingContext plainCtx = ctx.toBuilder()
                         .setRecursiveRootStepExecOrder(null)
                         .build();
-                getHelper().execute(plainCtx, nodesSearch, stepExecOrder, getExecuteIf());
+                getHelper().execute(plainCtx, nodesSearch, stepExecOrder, getExecuteIf(), services);
 
                 // PAGINATION
                 ScrapingContext paginatingCtx = ctx.toBuilder()
@@ -103,12 +105,12 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
                 //  but it is questionably if we would like to design the data propagation as models if it's just for internal purposes ...
 //                services.getStepAndDataRelationshipTracker().track(stepExecOrder, generatedSteps, model, (ParsedDataListener<Object>) collecting.getDataListener());
 
-                paginatingSequence.execute(paginatingCtx);
+                paginatingSequence.execute(paginatingCtx, services);
 
             }
         };
 
-        handleExecution(stepExecOrder, runnable);
+        handleExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }
@@ -133,7 +135,6 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
                 throw new IllegalStateException("the paginationTrigger step sequence must contain the step ReturnNextPage to work properly. Cannot execute pagination in this step: " + getName());
             } else {
                 if (!servicesPropagatedToTrigger) {
-                    StepsUtils.propagateServicesRecursively(paginatingSequence, services, new HashSet<>());
                     returnNextPageStep.get().setCallbackToPageDataProcessingStep(this); // IMPORTANT so that the step can propagate the next page back to this step
                     servicesPropagatedToTrigger = true;
                 }

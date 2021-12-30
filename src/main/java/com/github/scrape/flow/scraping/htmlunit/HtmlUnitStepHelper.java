@@ -19,10 +19,12 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
+import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.data.publishing.ModelToPublish;
 import com.github.scrape.flow.data.collectors.ModelWrapper;
+import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
 import lombok.extern.log4j.Log4j2;
 
@@ -46,20 +48,21 @@ public class HtmlUnitStepHelper {
     public void execute(ScrapingContext ctx,
                         Supplier<List<DomNode>> nodesSearch,
                         StepExecOrder currStepExecOrder,
-                        HtmlUnitScrapingStep.ExecutionCondition executeIf) {
+                        HtmlUnitScrapingStep.ExecutionCondition executeIf,
+                        ScrapingServices services) {
         try {
             if (!canExecute(ctx, executeIf)) {
                 return;
             }
 
             final List<DomNode> foundNodes = nodesSearch.get();
-            final List<DomNode> filteredNodes = filter(foundNodes);
+            final List<DomNode> filteredNodes = filter(foundNodes, services.getGlobalDebugging());
 
-            logFoundCount(currStepExecOrder, filteredNodes.size());
+            logFoundCount(currStepExecOrder, filteredNodes.size(), services.getGlobalDebugging());
 
             for (DomNode node : filteredNodes) {
 
-                logNodeSourceCode(node);
+                logNodeSourceCode(node, services.getGlobalDebugging());
 
                 ContextModels nextContextModels = ctx.getContextModels().copy();
                 List<ModelToPublish> modelToPublishList = new ArrayList<>();
@@ -67,13 +70,13 @@ public class HtmlUnitStepHelper {
                 createAndAccumulateModels(currStepExecOrder, nextContextModels, modelToPublishList);
 
 
-                List<StepExecOrder> generatedSteps = executeNextSteps(currStepExecOrder, node, ctx, nextContextModels);
+                List<StepExecOrder> generatedSteps = executeNextSteps(currStepExecOrder, node, ctx, nextContextModels, services);
 
                 // TODO this step is what is missing when we call HtmlUnitSiteParser or NavigateToPage step ... from another step ... if it has a collector set to it ...
                 //  decide which category of steps absolutely must use this and make it somehow nicely available ...
                 if (!modelToPublishList.isEmpty()) { // important
-                    step.getServices().getStepAndDataRelationshipTracker().track(currStepExecOrder, generatedSteps, modelToPublishList);
-                    step.getServices().getDataPublisher().track(generatedSteps);
+                    services.getStepAndDataRelationshipTracker().track(currStepExecOrder, generatedSteps, modelToPublishList);
+                    services.getDataPublisher().track(generatedSteps);
                 }
             }
 
@@ -117,17 +120,17 @@ public class HtmlUnitStepHelper {
     }
 
 
-    private void logFoundCount(StepExecOrder currStepExecOrder, int count) {
-        if ((step.services.getGlobalDebugging().isLogFoundElementsCount() || step.stepDebugging.isLogFoundElementsCount())
+    private void logFoundCount(StepExecOrder currStepExecOrder, int count, DebuggingOptions globalDebugging) {
+        if ((globalDebugging.isLogFoundElementsCount() || step.stepDebugging.isLogFoundElementsCount())
         ) {
             log.info("{} - {}: found {} nodes", currStepExecOrder, step.getName(), count);
         }
     }
 
 
-    private void logNodeSourceCode(DomNode node) {
+    private void logNodeSourceCode(DomNode node, DebuggingOptions globalDebugging) {
         if (!(node instanceof Page)
-                && (step.services.getGlobalDebugging().isLogFoundElementsSource() || step.stepDebugging.isLogFoundElementsSource())
+                && (globalDebugging.isLogFoundElementsSource() || step.stepDebugging.isLogFoundElementsSource())
         ) {
             log.info("Source for step {} defined at line {} \n{}", step.getName(), step.getStepDeclarationLine(), node.asXml());
         }
@@ -156,7 +159,7 @@ public class HtmlUnitStepHelper {
     }
 
 
-    private List<StepExecOrder> executeNextSteps(StepExecOrder currStepExecOrder, DomNode node, ScrapingContext ctx, ContextModels nextContextModels) {
+    private List<StepExecOrder> executeNextSteps(StepExecOrder currStepExecOrder, DomNode node, ScrapingContext ctx, ContextModels nextContextModels, ScrapingServices services) {
         return step.getNextSteps().stream()
                 .map(step -> {
                     ScrapingContext nextCtx = new ScrapingContext(
@@ -167,14 +170,14 @@ public class HtmlUnitStepHelper {
                             ctx.getParsedURL(),
                             ctx.getRecursiveRootStepExecOrder()
                     );
-                    return step.execute(nextCtx);
+                    return step.execute(nextCtx, services);
                 })
                 .collect(Collectors.toList());
     }
 
-    private List<DomNode> filter(List<DomNode> nodesToFilter) {
+    private List<DomNode> filter(List<DomNode> nodesToFilter, DebuggingOptions globalDebugging) {
         List<DomNode> nodes = applyFilters(step.filters, nodesToFilter);
-        if (step.getServices().getGlobalDebugging().isOnlyScrapeFirstElements()) {
+        if (globalDebugging.isOnlyScrapeFirstElements()) {
             return nodes.stream().findFirst().stream().toList();
         } else {
             return nodes;

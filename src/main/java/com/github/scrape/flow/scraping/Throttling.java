@@ -20,7 +20,7 @@ package com.github.scrape.flow.scraping;
  * Marker interface - marks steps that are candidates for being throttled
  * as they execute (or very likely will might execute) requests to crawled websites
  */
-public interface StepThrottling {
+public interface Throttling {
 
     default boolean throttlingAllowed() {
         return false;

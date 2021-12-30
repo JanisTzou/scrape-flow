@@ -26,11 +26,11 @@ public interface SiteParser {
 
     // TODO this looks pretty HtmlUnit-specific ...
 
-    void parse(String url, HtmlUnitScrapingStep<?> parsingSequence);
+    void parse(String url, HtmlUnitScrapingStep<?> parsingSequence, ScrapingServices services);
 
     /**
      * For internal lib uses only
      */
-    void parse(String url, ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequence, StepExecOrder currStepExecOrder);
+    void parse(String url, ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequence, StepExecOrder currStepExecOrder, ScrapingServices services);
 
 }

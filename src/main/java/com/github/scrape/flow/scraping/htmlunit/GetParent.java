@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.scraping.ScrapingServices;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -57,8 +58,8 @@ public class GetParent extends CommonOperationsStepBase<GetParent>
     }
 
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx) {
-        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
+    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
+        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
             DomNode node = ctx.getNode();
@@ -67,10 +68,10 @@ public class GetParent extends CommonOperationsStepBase<GetParent>
                         case PARENT -> Stream.of(node.getParentNode()).toList();
                         case NTH_PARENT -> HtmlUnitUtils.findNthParent(node, param).stream().toList();
                     };
-            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
         };
 
-        handleExecution(stepExecOrder, runnable);
+        handleExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }

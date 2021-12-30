@@ -19,7 +19,8 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.scraping.MakingHttpRequests;
-import com.github.scrape.flow.scraping.StepThrottling;
+import com.github.scrape.flow.scraping.ScrapingServices;
+import com.github.scrape.flow.scraping.Throttling;
 import com.github.scrape.flow.data.collectors.Collector;
 import lombok.extern.log4j.Log4j2;
 
@@ -36,7 +37,7 @@ import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 @Log4j2
 public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
         implements HtmlUnitStepCollectingParsedBufferedImageToModel<DownloadImage>,
-        StepThrottling, MakingHttpRequests {
+        Throttling, MakingHttpRequests {
 
     DownloadImage(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
         super(nextSteps);
@@ -52,8 +53,8 @@ public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
     }
 
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx) {
-        StepExecOrder stepExecOrder = genNextOrderAfter(ctx.getPrevStepExecOrder());
+    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
+        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
@@ -69,10 +70,10 @@ public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
                 log.error("Error downloading image from URL {}", ctx.getParsedURL());
             }
 
-            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
+            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
         };
 
-        handleExecution(stepExecOrder, runnable);
+        handleExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }
