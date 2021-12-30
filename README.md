@@ -5,9 +5,9 @@ Note: The library is still under development
 ## Introduction
 
 Experimental library for asynchronous web scraping. What needs to be scraped is defined as a sequence of steps in a fluent and declarative way. 
-The resuling code has a tree-like structure that follows the parsed site's DOM structure and the levels of following links.
+The resuling code has a tree-like structure that follows the parsed site's DOM structure and the levels of followed links.
 
-The library aims at solving common scraping problems which can become challenging when using generally available low-level libraries like HtmlUnit for asynchronous fault-tolerant scraping:
+The library aims to solve common scraping problems which can become challenging when using generally available low-level libraries like HtmlUnit for asynchronous fault-tolerant scraping:
 
 - following links
 - pagination
@@ -15,8 +15,8 @@ The library aims at solving common scraping problems which can become challengin
 - selective sequential execution of scraping steps
 - throttling based on site reponsiveness (To be implemented)
 - retrial of failed requests
-- transitioning between static ad JS-powered site scraping (To be implemented)
-- publishing of scraped data to clients in the order in which it appeared on the web
+- transitioning between static and JS-heavy site scraping (To be implemented)
+- publishing of scraped data to client code in the order in which it appeared on the web
 - utilities for debugging
 
 ## Usage
@@ -25,7 +25,7 @@ To be added when project is more ready :-)
 
 ## Sample code
 
-#### Example static site code snipped to scrape:
+#### Example static site code snippet to scrape:
 
 ```html
 <body>
