@@ -18,13 +18,17 @@ package com.github.web.scraping.lib.drivers;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebWindow;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.URL;
 
 public class TestHtmlUnitWebClient {
 
+    @Ignore
     @Test
     public void testInitialisationEfficiency() throws IOException {
 
@@ -46,7 +50,7 @@ public class TestHtmlUnitWebClient {
 
 
             System.out.println(htmlPage.asXml());
-//            WebWindow window = webClient.openWindow(new URL("https://www.sreality.cz/detail/prodej/byt/2+kk/praha-hloubetin-u-elektry/1213263452#img=0&fullscreen=false"), "window");
+            WebWindow window = webClient.openWindow(new URL("https://www.sreality.cz/detail/prodej/byt/2+kk/praha-hloubetin-u-elektry/1213263452#img=0&fullscreen=false"), "window");
 //            HtmlPage htmlPage = (HtmlPage) window.getEnclosedPage();
             webClient.close();
         }

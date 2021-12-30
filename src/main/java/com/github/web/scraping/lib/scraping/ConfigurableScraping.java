@@ -14,15 +14,23 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.throttling;
+package com.github.web.scraping.lib.scraping;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+public class ConfigurableScraping {
 
-public interface ScrapingRateLimiter {
+    private final Scraping scraping;
 
-    boolean incrementIfRequestWithinLimitAndGet(LocalDateTime now);
+    public ConfigurableScraping(Scraping scraping) {
+        this.scraping = scraping;
+    }
 
-    Duration getRequestFreq();
+    /**
+     * limit the number of retries for a request when it fails (e.g. when loading a new page)
+     * @return reference to this instance
+     */
+    public Scraping setRequestRetries(int max) {
+        scraping.getServices().getOptions().setRequestRetries(max);
+        return scraping;
+    }
 
 }

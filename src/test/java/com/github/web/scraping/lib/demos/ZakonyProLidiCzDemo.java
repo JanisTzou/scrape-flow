@@ -80,7 +80,7 @@ public class ZakonyProLidiCzDemo {
          */
 
         final Scraping scraping = new Scraping(parser, 5, TimeUnit.SECONDS)
-                .debugOptions().onlyScrapeFirstElements(false)
+                .getDebugOptions().setOnlyScrapeFirstElements(false)
                 .setSequence(
                         Get.descendants().byAttr("id", "__Page")
                                 .next(Get.descendants().byClass("Name")

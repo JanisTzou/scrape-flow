@@ -26,20 +26,20 @@ import java.util.function.Supplier;
 /**
  * Used just to test context propagation
  */
-public class StepGroup extends CommonOperationsStepBase<StepGroup>
-        implements HtmlUnitStepSupportingNext<StepGroup>, HtmlUnitStepSupportingCollection<StepGroup> {
+public class StepBlock extends CommonOperationsStepBase<StepBlock>
+        implements HtmlUnitStepSupportingNext<StepBlock>, HtmlUnitStepSupportingCollection<StepBlock> {
 
-    StepGroup(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
+    StepBlock(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
         super(nextSteps);
     }
 
-    StepGroup() {
+    StepBlock() {
         this(null);
     }
 
     @Override
-    protected StepGroup copy() {
-        return copyFieldValuesTo(new StepGroup());
+    protected StepBlock copy() {
+        return copyFieldValuesTo(new StepBlock());
     }
 
     @Override

@@ -89,9 +89,7 @@ public class StepTaskExecutor {
 
     private void schedulePeriodicExecNextTrigger() {
         Flux.interval(periodicExecNextTriggerInterval, periodicExecNextTriggerInterval)
-                .doOnNext(num -> {
-                    this.dequeueNextAndExecute();
-                })
+                .doOnNext(num -> this.dequeueNextAndExecute())
                 .onErrorResume(throwable -> {
                     log.warn("Error in scheduled trigger of dequeueNextAndExecute()", throwable);
                     return Mono.empty();
@@ -299,7 +297,7 @@ public class StepTaskExecutor {
     }
 
     private void logRetry(StepTask request) {
-        log.trace("Going to retry request after previous failure {}", request.loggingInfo());
+        log.info("Going to retry request after previous failure {}", request.loggingInfo());
     }
 
     private void logDelayedRetry(StepTask request) {
@@ -322,7 +320,6 @@ public class StepTaskExecutor {
     /**
      * FOR TESTING PURPOSES ONLY.
      * Needed so we are able to test changes of behaviour based on the passage of time
-     * Package-private visibility intentional
      */
     void setNowSupplier(Supplier<LocalDateTime> nowSupplierNew) {
         this.nowSupplier = nowSupplierNew;

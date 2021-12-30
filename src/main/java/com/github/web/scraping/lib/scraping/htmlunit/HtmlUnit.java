@@ -144,8 +144,8 @@ public class HtmlUnit {
 
     public static class Flow {
 
-        public static StepGroup asStepGroup() {
-            return new StepGroup();
+        public static StepBlock asBlock() {
+            return new StepBlock();
         }
 
     }

@@ -68,8 +68,9 @@ public class MaxEuroCzDemo {
             </li>
          */
 
-        scraping.debugOptions().onlyScrapeFirstElements(false)
-                .debugOptions().logSourceCodeOfFoundElements(false);
+        scraping.getDebugOptions().setOnlyScrapeFirstElements(true)
+                .getDebugOptions().setLogFoundElementsSource(false)
+                .getOptions().setRequestRetries(2);
 
         scraping.setSequence(
                 Get.descendants().byTextContent("Mozaika skleněná")

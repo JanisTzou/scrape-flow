@@ -35,10 +35,13 @@ public class ScrapingServices {
     private final ExclusiveExecutionTracker exclusiveExecutionTracker = new ExclusiveExecutionTracker(activeStepsTracker);
     private final NotificationService notificationService = new NotificationService(stepAndDataRelationshipTracker);
     private final StepTaskExecutor stepTaskExecutor;
+    private final Options options = new Options();
     private final DebuggingOptions globalDebugging = new DebuggingOptions();
+    private final TaskService taskService;
 
     public ScrapingServices(ScrapingRateLimiter scrapingRateLimiter) {
         stepTaskExecutor = new StepTaskExecutor(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker);
+        taskService = new TaskService(stepTaskExecutor, activeStepsTracker, notificationService, scrapingRateLimiter, options);
     }
 
 }

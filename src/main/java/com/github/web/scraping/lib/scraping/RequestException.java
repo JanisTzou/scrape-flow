@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.github.web.scraping.lib.throttling;
+package com.github.web.scraping.lib.scraping;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+public class RequestException extends RuntimeException {
 
-public interface ScrapingRateLimiter {
+    public RequestException(Throwable cause) {
+        super(cause);
+    }
 
-    boolean incrementIfRequestWithinLimitAndGet(LocalDateTime now);
-
-    Duration getRequestFreq();
-
+    public RequestException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

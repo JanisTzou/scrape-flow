@@ -22,6 +22,7 @@ import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.web.scraping.lib.drivers.DriverManager;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
+import com.github.web.scraping.lib.scraping.RequestException;
 import com.github.web.scraping.lib.scraping.SiteParserBase;
 import lombok.extern.log4j.Log4j2;
 
@@ -68,6 +69,7 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
     }
 
     private Optional<HtmlPage> loadHtmlPage(String pageUrl, WebClient webClient, @Nullable StepExecOrder currStepExecOrder) {
+        // TODO someway somehow we need to make this retriable ...
         String logInfo = currStepExecOrder != null ? currStepExecOrder + " - " : "";
         try {
             log.debug("{}Loading page URL: {}", logInfo, pageUrl);
@@ -91,7 +93,7 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
             }
         } catch (Exception e) {
             log.error("{}Error when getting htmlPage for URL: {}", logInfo, pageUrl, e);
-            return Optional.empty();
+            throw new RequestException(e);
         }
     }
 

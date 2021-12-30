@@ -26,7 +26,6 @@ import java.util.Comparator;
 
 @RequiredArgsConstructor
 @Getter
-@ToString
 public class StepTask implements Comparable<StepTask> {
 
     public static Comparator<StepTask> NATURAL_COMPARATOR = (st1, st2) -> {
@@ -37,15 +36,34 @@ public class StepTask implements Comparable<StepTask> {
 
     /**
      * Tasks with this setting will be executed with priority
-     * The implementation should effectively disable the execution of tasks without exclusive order for the time.
+     * The implementation should effectively disable the execution of
+     * tasks with subsequent stepExecOrder values which have with
+     * exclusive = false for the time exclusive tasks are running.
      */
     private final boolean exclusiveExecution;
 
     private final String stepName;
     private final Runnable stepRunnable;
-    private final LocalDateTime created = LocalDateTime.now();
     private final boolean throttlingAllowed;
     private final boolean makingHttpRequests;
+
+    private final int retries;
+    private final Duration retryBackoff;
+
+    private final LocalDateTime created = LocalDateTime.now();
+
+    public static StepTask from(StepTaskBasis basis, int retries, Duration retryBackoff) {
+        return new StepTask(
+                basis.getStepExecOrder(),
+                basis.isExclusiveExecution(),
+                basis.getStepName(),
+                basis.getStepRunnable(),
+                basis.isThrottlingAllowed(),
+                basis.isMakingHttpRequests(),
+                retries,
+                retryBackoff
+        );
+    }
 
     @Override
     public int compareTo(StepTask o) {
@@ -66,12 +84,11 @@ public class StepTask implements Comparable<StepTask> {
         return toString();
     }
 
-    // TODO we need to implement retry logic - steps need to communicate the failures using exceptions ...
     public long getNumOfRetries() {
-        return 0; // TODO ?
+        return retries;
     }
 
     public Duration getRetryBackoff() {
-        return Duration.ZERO; // TODO ...
+        return retryBackoff;
     }
 }

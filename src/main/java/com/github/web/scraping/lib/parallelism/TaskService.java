@@ -16,8 +16,48 @@
 
 package com.github.web.scraping.lib.parallelism;
 
-public interface TaskService {
+import com.github.web.scraping.lib.scraping.Options;
+import com.github.web.scraping.lib.throttling.ScrapingRateLimiter;
+import lombok.RequiredArgsConstructor;
 
-    void submit(StepTask task);
+import java.time.Duration;
+
+@RequiredArgsConstructor
+public class TaskService {
+
+    private final StepTaskExecutor stepTaskExecutor;
+    private final ActiveStepsTracker activeStepsTracker;
+    private final NotificationService notificationService;
+    private final ScrapingRateLimiter scrapingRateLimiter;
+    private final Options options;
+
+    public void handleExecution(StepTaskBasis stepTaskBasis) {
+        StepTask stepTask = createStepTask(stepTaskBasis);
+
+        StepExecOrder execOrder = stepTask.getStepExecOrder();
+        activeStepsTracker.track(execOrder, stepTask.getStepName());
+        stepTaskExecutor.submit(
+                stepTask,
+                r -> handleFinishedStep(execOrder),
+                e -> handleFinishedStep(execOrder) // even when we finish in error there might be successfully parsed other data that might be waiting to get published outside
+        );
+    }
+
+    private StepTask createStepTask(StepTaskBasis stepTaskBasis) {
+        scrapingRateLimiter.getRequestFreq();
+        int retries = options.getRequestRetries();
+        StepTask stepTask;
+        if (retries == 0) {
+            stepTask = StepTask.from(stepTaskBasis, retries, Duration.ZERO);
+        } else {
+            stepTask = StepTask.from(stepTaskBasis, retries, scrapingRateLimiter.getRequestFreq().dividedBy(retries));
+        }
+        return stepTask;
+    }
+
+    private void handleFinishedStep(StepExecOrder stepExecOrder) {
+        activeStepsTracker.untrack(stepExecOrder);
+        notificationService.notifyAfterStepFinished(stepExecOrder);
+    }
 
 }

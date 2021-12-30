@@ -16,6 +16,35 @@
 
 package com.github.web.scraping.lib.scraping;
 
-// marker
-public interface MakingHttpRequests {
+import lombok.Getter;
+import lombok.ToString;
+
+@ToString
+public class Options {
+
+    private static final int REQUEST_RETRIES_MAX_DEFAULT = 1;
+
+    @Getter
+    private volatile int requestRetries;
+
+    public Options() {
+        this(REQUEST_RETRIES_MAX_DEFAULT);
+    }
+
+    public Options(Options options) {
+        this(options.requestRetries);
+    }
+
+    private Options(int requestRetries) {
+        this.requestRetries = requestRetries;
+    }
+
+    public void setRequestRetries(int max) {
+        this.requestRetries = max;
+    }
+
+    public Options copy() {
+        return new Options(this);
+    }
+
 }

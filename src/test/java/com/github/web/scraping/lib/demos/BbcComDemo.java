@@ -24,7 +24,7 @@ import com.github.web.scraping.lib.scraping.Scraper;
 import com.github.web.scraping.lib.scraping.Scraping;
 import com.github.web.scraping.lib.scraping.htmlunit.HtmlUnitSiteParser;
 import com.github.web.scraping.lib.scraping.htmlunit.NavigateToParsedLink;
-import com.github.web.scraping.lib.scraping.htmlunit.StepGroup;
+import com.github.web.scraping.lib.scraping.htmlunit.StepBlock;
 import com.github.web.scraping.lib.utils.JsonUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,18 +52,17 @@ public class BbcComDemo {
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
         final HtmlUnitSiteParser parser = new HtmlUnitSiteParser(driverManager);
 
-        final Scraping articlesScraping = new Scraping(parser, 10, TimeUnit.SECONDS)
-                .debugOptions().logSourceCodeOfFoundElements(false)
-                .debugOptions().onlyScrapeFirstElements(true)
+        final Scraping articlesScraping = new Scraping(parser, 1, TimeUnit.SECONDS)
+                .getDebugOptions().setLogFoundElementsSource(false)
+                .getDebugOptions().setOnlyScrapeFirstElements(false)
                 .setSequence(
                         Get.descendants().byAttr("aria-label", "World")
                                 .first()
                                 .next(Get.descendants().byTag("ul")
                                         .first()
                                         .next(Get.descendants().byTag("li")
-                                                .first()
-                                                .debugOptions().setLogFoundElementsSource(true)
-                                                .debugOptions().setLogFoundElementsCount(true)
+//                                                .getDebugOptions().setLogFoundElementsSource(true)
+//                                                .getDebugOptions().setLogFoundElementsCount(true)
                                                 .addCollector(Section::new, Section.class, new SectionListener())
                                                 .next(Get.descendants().byTag("a")
                                                         .next(Parse.textContent()
@@ -132,8 +131,8 @@ public class BbcComDemo {
                 );
     }
 
-    private StepGroup parseSportArticle() {
-        return Flow.asStepGroup()
+    private StepBlock parseSportArticle() {
+        return Flow.asBlock()
                 .next(Get.descendants().byAttr("id", "page")
                         .next(Parse.textContent()
                                 .collectOne(Article::setTitle, Article.class)
@@ -146,8 +145,8 @@ public class BbcComDemo {
                 );
     }
 
-    private StepGroup parseNonSportArticle() {
-        return Flow.asStepGroup()
+    private StepBlock parseNonSportArticle() {
+        return Flow.asBlock()
                 .next(Get.descendants().byAttr("id", "main-heading")
                         .next(Parse.textContent()
                                 .collectOne(Article::setTitle, Article.class)

@@ -16,6 +16,7 @@
 
 package com.github.web.scraping.lib.throttling;
 
+import lombok.Getter;
 import lombok.ToString;
 
 import java.time.Duration;
@@ -45,15 +46,16 @@ public class ScrapingRateLimiterImpl implements ScrapingRateLimiter {
     @Override
     public synchronized boolean incrementIfRequestWithinLimitAndGet(LocalDateTime now) {
         if (now.isEqual(nextRqAllowedTime) || now.isAfter(nextRqAllowedTime)) {
-//            int correction = now.isEqual(nextRqAllowedTime) ? 0 : 1;
-            int correction = 1;
             Duration between = Duration.between(nextRqAllowedTime, now);
-            long multiplicand = between.dividedBy(requestFreq) + correction;
+            long multiplicand = between.dividedBy(requestFreq) + 1;
             nextRqAllowedTime = nextRqAllowedTime.plus(requestFreq.multipliedBy(multiplicand));
             return true;
         }
         return false;
     }
 
-
+    @Override
+    public Duration getRequestFreq() {
+        return requestFreq;
+    }
 }

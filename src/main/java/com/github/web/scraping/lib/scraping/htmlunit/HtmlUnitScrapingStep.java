@@ -19,6 +19,7 @@ package com.github.web.scraping.lib.scraping.htmlunit;
 import com.github.web.scraping.lib.debugging.DebuggingOptions;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.parallelism.StepTask;
+import com.github.web.scraping.lib.parallelism.StepTaskBasis;
 import com.github.web.scraping.lib.scraping.MakingHttpRequests;
 import com.github.web.scraping.lib.scraping.ScrapingServices;
 import com.github.web.scraping.lib.scraping.StepThrottling;
@@ -225,22 +226,9 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         return text != null ? parsedValueConversion.apply(text) : null;
     }
 
-    /**
-     * @param runnable task can be executed immediately or at some later point based on the given mode
-     */
-    protected void handleExecution(StepExecOrder stepExecOrder, Runnable runnable) {
-        StepTask stepTask = new StepTask(stepExecOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests);
-        services.getActiveStepsTracker().track(stepExecOrder, getName());
-        services.getStepTaskExecutor().submit(
-                stepTask,
-                r -> handleFinishedStep(stepExecOrder),
-                e -> handleFinishedStep(stepExecOrder) // even when we finish in error there might be successfully parsed other data that might be waiting to get published outside
-        );
-    }
-
-    private void handleFinishedStep(StepExecOrder stepExecOrder) {
-        services.getActiveStepsTracker().untrack(stepExecOrder);
-        services.getNotificationService().notifyAfterStepFinished(stepExecOrder);
+    public void handleExecution(StepExecOrder stepExecOrder, Runnable runnable) {
+        StepTaskBasis stepTask = new StepTaskBasis(stepExecOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests);
+        services.getTaskService().handleExecution(stepTask);
     }
 
     protected StepExecOrder genNextOrderAfter(StepExecOrder stepAtPrevLevel) {

@@ -30,7 +30,7 @@ public class DebuggableScraping {
      * then those will be applied first and the first element of the resulting element list will be taken.
      * @return reference to this instance
      */
-    public Scraping onlyScrapeFirstElements(boolean enabled) {
+    public Scraping setOnlyScrapeFirstElements(boolean enabled) {
         scraping.getServices().getGlobalDebugging().setOnlyScrapeFirstElements(enabled);
         return scraping;
     }
@@ -39,7 +39,7 @@ public class DebuggableScraping {
      * Logs the source code of each found element as XML
      * @return @return reference to this instance
      */
-    public Scraping logSourceCodeOfFoundElements(boolean enabled) {
+    public Scraping setLogFoundElementsSource(boolean enabled) {
         scraping.getServices().getGlobalDebugging().setLogFoundElementsSource(enabled);
         return scraping;
     }

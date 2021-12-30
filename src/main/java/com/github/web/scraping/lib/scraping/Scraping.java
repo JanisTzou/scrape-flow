@@ -62,7 +62,11 @@ public class Scraping {
         return services.getStepTaskExecutor().awaitCompletion(timeout);
     }
 
-    public DebuggableScraping debugOptions() {
+    public ConfigurableScraping getOptions() {
+        return new ConfigurableScraping(this);
+    }
+
+    public DebuggableScraping getDebugOptions() {
         return new DebuggableScraping(this);
     }
 

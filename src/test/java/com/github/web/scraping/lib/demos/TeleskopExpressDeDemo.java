@@ -35,7 +35,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 import static com.github.web.scraping.lib.scraping.htmlunit.HtmlUnit.*;
 
@@ -56,9 +55,9 @@ public class TeleskopExpressDeDemo {
         GetDescendants getProductDetailTitleElem = Get.descendants().byAttr("itemprop", "name");
         GetDescendants getProductDescriptionElem = Get.descendants().byAttr("id", "c0");
 
-        final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 20, TimeUnit.MINUTES)
-                .debugOptions().onlyScrapeFirstElements(false)
-                .debugOptions().logSourceCodeOfFoundElements(false)
+        final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 1, TimeUnit.SECONDS)
+                .getDebugOptions().setOnlyScrapeFirstElements(false)
+                .getDebugOptions().setLogFoundElementsSource(false)
                 .setSequence(
                         Do.paginate()
                                 .setStepsLoadingNextPage(
@@ -111,7 +110,6 @@ public class TeleskopExpressDeDemo {
                                                 )
                                         )
                                 )
-
                 );
 
 
@@ -127,6 +125,14 @@ public class TeleskopExpressDeDemo {
 
     }
 
+
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    @ToString
+    public static class Brand {
+        private volatile String name;
+    }
 
     @Setter
     @Getter

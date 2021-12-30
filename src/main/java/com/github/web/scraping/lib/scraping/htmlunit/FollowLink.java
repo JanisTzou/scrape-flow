@@ -16,12 +16,12 @@
 
 package com.github.web.scraping.lib.scraping.htmlunit;
 
-import com.gargoylesoftware.htmlunit.WebWindow;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.web.scraping.lib.parallelism.StepExecOrder;
 import com.github.web.scraping.lib.scraping.LoadingNewPage;
+import com.github.web.scraping.lib.scraping.RequestException;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
@@ -58,7 +58,6 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
                     try {
                         HtmlPage currPage = anch.getHtmlPageOrNull();
                         URL currUrl = currPage.getUrl();
-
                         log.debug("{} - {}: Clicking HtmlAnchor element at {}", stepExecOrder, getName(), anch.getHrefAttribute());
 
                         // TODO we want to propagate this page in the context ... to the next steps ...
@@ -74,9 +73,9 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
                             return List.of(nextPage);
                         }
 
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         log.error("{}: Error while clicking element {}", getName(), anch, e);
-                        return Collections.emptyList();
+                        throw new RequestException(e);
                     }
                 };
                 getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf());
