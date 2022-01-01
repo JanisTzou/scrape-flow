@@ -26,7 +26,7 @@ import java.util.List;
 
 @Log4j2
 public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToParsedLink>
-        implements HtmlUnitStepChangingUsedParser<NavigateToParsedLink>, LoadingNewPage {
+        implements LoadingNewPage {
 
     // TODp perhaps provide in the constructor as a mandatory thing ?
     private SiteParser siteParser;
@@ -58,11 +58,11 @@ public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToPar
                 siteParser.parse(ctx.getParsedURL(), ctx, this.getNextSteps(), stepExecOrder, services);
 
             } else {
-                log.error("{}: Cannot parse next site - the parsed URL is null!", getName());
+                log.error("{}: Cannot navigate to next site - the previously parsed URL is null!", getName());
             }
         };
 
-        handleExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }

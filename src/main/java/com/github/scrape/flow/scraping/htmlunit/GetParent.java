@@ -71,7 +71,7 @@ public class GetParent extends CommonOperationsStepBase<GetParent>
             getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
         };
 
-        handleExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }

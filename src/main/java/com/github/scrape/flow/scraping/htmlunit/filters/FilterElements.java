@@ -62,7 +62,7 @@ public class FilterElements extends CommonOperationsStepBase<FilterElements> {
             getHelper().execute(ctx, nodeSupplier, stepExecOrder, getExecuteIf(), services);
         };
 
-        handleExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }

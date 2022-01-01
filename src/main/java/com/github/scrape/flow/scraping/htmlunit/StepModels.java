@@ -16,14 +16,15 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-import java.util.function.Function;
+import com.github.scrape.flow.data.publishing.ModelToPublish;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-public interface HtmlUnitParsingStep<C> {
+import java.util.List;
 
-    /**
-     * @param parsedTextMapper maps the parsed string to another string
-     * @return copy of this step with the mapper added to it
-     */
-    C setValueConversion(Function<String, String> parsedTextMapper);
-
+@RequiredArgsConstructor
+@Getter
+public class StepModels {
+    private final List<ModelToPublish> modelToPublishList;
+    private final ContextModels nextContextModels;
 }

@@ -16,6 +16,7 @@
 
 package com.github.scrape.flow.demos;
 
+import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.drivers.HtmlUnitDriverManager;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
@@ -32,6 +33,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.Duration;
@@ -42,6 +44,7 @@ import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.*;
 
 public class MaxEuroCzDemo {
 
+    @Ignore
     @Test
     public void start() throws InterruptedException {
 
@@ -68,7 +71,7 @@ public class MaxEuroCzDemo {
             </li>
          */
 
-        scraping.getDebugOptions().setOnlyScrapeFirstElements(true)
+        scraping.getDebugOptions().setOnlyScrapeFirstElements(false)
                 .getDebugOptions().setLogFoundElementsSource(false)
                 .getOptions().setRequestRetries(2);
 
@@ -101,8 +104,8 @@ public class MaxEuroCzDemo {
                         .setStepsLoadingNextPage(
                                 getPaginatingSequence()
                         )
-                        .next(getProductListAndDetails(siteParser)
-
+                        .next( // TODO these steps need to execute exclusively and before the loading page sequence
+                                getProductListAndDetails(siteParser)
                         )
                 );
     }
@@ -133,8 +136,6 @@ public class MaxEuroCzDemo {
                                 .next(Parse.textContent()
                                         .collectOne(Product::setName, Product.class)
                                 )
-                        )
-                        .next(Get.descendants().byTag("a")
                                 .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href).stepName("get-product-detail-url")
                                         .collectOne(Product::setDetailUrl, Product.class)
                                         .nextNavigate(
@@ -175,12 +176,16 @@ public class MaxEuroCzDemo {
 
         return Get.descendants().byClass("pagination")
                 .next(Get.descendants().byTextContent("»")  // returns anchor
-                        .next(Filter.apply(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode.getParentNode(), "class", "disabled", true))
+                        .next(Filter.apply(domNode -> !isDisabled(domNode))
                                 .next(Do.followLink()
                                         .next(Do.returnNextPage())
                                 )
                         )
                 );
+    }
+
+    private boolean isDisabled(DomNode domNode) {
+        return HtmlUnitUtils.hasAttributeWithValue(domNode.getParentNode(), "class", "disabled", true);
     }
 
 

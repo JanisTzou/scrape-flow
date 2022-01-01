@@ -74,7 +74,7 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
         try {
             log.debug("{}Loading page URL: {}", logInfo, pageUrl);
             URL url = new URL(pageUrl);
-            Page page = webClient.getPage(url);
+            Page page = webClient.getPage(url);  // we have one webClient instance per thread so this call is ok -> each client will have its own "current top WebWindow"
             WebResponse resp = page.getWebResponse();
             int statusCode = resp.getStatusCode();
             if (statusCode >= 400) {

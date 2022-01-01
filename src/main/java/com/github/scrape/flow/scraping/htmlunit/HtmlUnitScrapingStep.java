@@ -26,16 +26,11 @@ import com.github.scrape.flow.scraping.Throttling;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.data.collectors.Collectors;
 import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
-import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 @Log4j2
@@ -50,7 +45,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     /**
      * condition for the execution of this step
      */
-    protected ExecutionCondition executeIf = null;
+    protected StepExecutionCondition executeIf = StepExecutionCondition.NO_CONDITIONS;
 
     /**
      * relevant for steps that do scrape textual values
@@ -84,6 +79,10 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         return new HtmlUnitStepHelper(this);
     }
 
+    protected HtmlUnitStepHelper getHelper(NextStepsHandler nextStepsHandler) {
+        return new HtmlUnitStepHelper(this, nextStepsHandler);
+    }
+
     /**
      * @return copy of this step
      */
@@ -107,7 +106,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     /**
      * @return copy of this step
      */
-    protected C setExecuteIf(ExecutionCondition executeIf) {
+    protected C setExecuteIf(StepExecutionCondition executeIf) {
         return copyModifyAndGet(copy -> {
             copy.executeIf = executeIf;
             return copy;
@@ -183,7 +182,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         return exclusiveExecution;
     }
 
-    protected ExecutionCondition getExecuteIf() {
+    protected StepExecutionCondition getExecuteIf() {
         return executeIf;
     }
 
@@ -213,9 +212,9 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         return text != null ? parsedValueConversion.apply(text) : null;
     }
 
-    public void handleExecution(StepExecOrder stepExecOrder, Runnable runnable, TaskService taskService) {
+    protected void submitForExecution(StepExecOrder stepExecOrder, Runnable runnable, TaskService taskService) {
         TaskBasis stepTask = new TaskBasis(stepExecOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests);
-        taskService.handleExecution(stepTask);
+        taskService.submitForExecution(stepTask);
     }
 
     /**
@@ -243,18 +242,6 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         other.stepDebugging = stepDebugging.copy();
         other.filters.addAll(this.filters);
         return (C) other;
-    }
-
-    @Getter
-    protected static class ExecutionCondition {
-        protected final Predicate<Object> predicate;
-        protected final Class<?> modelType;
-
-        @SuppressWarnings("unchecked")
-        public ExecutionCondition(Predicate<?> predicate, Class<?> modelType) {
-            this.predicate = (Predicate<Object>) predicate;
-            this.modelType = modelType;
-        }
     }
 
 }

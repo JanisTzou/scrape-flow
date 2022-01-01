@@ -23,7 +23,6 @@ import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -63,14 +62,13 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
 
     /**
      * @param ctx must contain a reference to HtmlPage that might be paginated (contains some for of next link or button)
-     * @param services
      */
     @Override
     protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
 
-        StepExecOrder prevStepExecOrder = ctx.getRecursiveRootStepExecOrder() == null
+        StepExecOrder prevStepExecOrder = ctx.getRootLoopedStepExecOrder() == null
                 ? ctx.getPrevStepExecOrder()
-                : ctx.getRecursiveRootStepExecOrder();
+                : ctx.getRootLoopedStepExecOrder();
 
         StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(prevStepExecOrder);
 
@@ -87,18 +85,20 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
 
         Runnable runnable = () -> {
             if (page.isPresent()) {
+
                 // GENERAL
                 Supplier<List<DomNode>> nodesSearch = () -> List.of(page.get());
                 // important to set the recursiveRootStepExecOrder to null ... the general nextSteps and logic should not be affected by it ... it's only related to pagination
                 ScrapingContext plainCtx = ctx.toBuilder()
                         .setRecursiveRootStepExecOrder(null)
                         .build();
-                getHelper().execute(plainCtx, nodesSearch, stepExecOrder, getExecuteIf(), services);
+                NextStepsHandler nextStepsHandler = new NextStepsWrappedInOneExclusiveBlock(); // we need to make absolutely sure that the next steps have finished before we go to next page
+                getHelper(nextStepsHandler).execute(plainCtx, nodesSearch, stepExecOrder, getExecuteIf(), services);
 
                 // PAGINATION
                 ScrapingContext paginatingCtx = ctx.toBuilder()
                         .setPrevStepOrder(stepExecOrder)
-                        .setRecursiveRootStepExecOrder(prevStepExecOrder)
+                        .setRecursiveRootStepExecOrder(prevStepExecOrder) // TODO reconsider?
                         .setNode(page.get())
                         .build();
                 // TODO the pagination sequence does not support models currently ... if it does (e.g. for internal data propagation purposes) it will need to implement some for of data tracking ...
@@ -110,7 +110,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
             }
         };
 
-        handleExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }

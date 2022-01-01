@@ -16,5 +16,8 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-interface HtmlUnitStepCollectingParsedStringToModel<C> extends HtmlUnitStepCollectingParsedValueToModel<C, String> {
+public class TestUtils {
 }
+
+
+

@@ -49,16 +49,20 @@ public class GetChildren extends CommonOperationsStepBase<GetChildren>
         StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<DomNode>> nodesSearch = () -> {
-                // important to include only html elements -> users for not expect to deal with other types when defining filtering operations (e.g. first() ... )
-                return ctx.getNode().getChildNodes().stream().filter(n -> n instanceof HtmlElement).toList();
-            };
+            Supplier<List<DomNode>> nodesSearch = nodesSearch(ctx.getNode());
             getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
         };
 
-        handleExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
+    }
+
+    Supplier<List<DomNode>> nodesSearch(DomNode parent) {
+        return () -> {
+            // important to include only html elements -> users for not expect to deal with other types when defining filtering operations (e.g. first() ... )
+            return parent.getChildNodes().stream().filter(n -> n instanceof HtmlElement).toList();
+        };
     }
 
 

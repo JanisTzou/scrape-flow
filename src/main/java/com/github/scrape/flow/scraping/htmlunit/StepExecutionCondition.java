@@ -16,7 +16,11 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-import java.awt.image.BufferedImage;
+@FunctionalInterface
+public interface StepExecutionCondition {
 
-interface HtmlUnitStepCollectingParsedBufferedImageToModel<C> extends HtmlUnitStepCollectingParsedValueToModel<C, BufferedImage> {
+    StepExecutionCondition NO_CONDITIONS = (HtmlUnitScrapingStep<?> step, ScrapingContext ctx) -> true;
+
+    boolean canExecute(HtmlUnitScrapingStep<?> step, ScrapingContext ctx);
+
 }

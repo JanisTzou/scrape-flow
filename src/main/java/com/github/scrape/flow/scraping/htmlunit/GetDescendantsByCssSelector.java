@@ -57,7 +57,7 @@ public class GetDescendantsByCssSelector extends CommonOperationsStepBase<GetDes
             getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
         };
 
-        handleExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }

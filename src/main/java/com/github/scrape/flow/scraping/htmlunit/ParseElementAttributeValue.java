@@ -32,8 +32,8 @@ import java.util.function.Supplier;
 import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
 public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseElementAttributeValue>
-        implements HtmlUnitStepCollectingParsedStringToModel<ParseElementAttributeValue>,
-        HtmlUnitParsingStep<ParseElementAttributeValue> {
+        implements CollectingParsedValueToModelStep<ParseElementAttributeValue, String>,
+        ParsingStep<ParseElementAttributeValue> {
 
     private final String attributeName;
 
@@ -78,7 +78,7 @@ public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseEl
             }
         };
 
-        handleExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }

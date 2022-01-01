@@ -27,19 +27,19 @@ import java.util.function.BiConsumer;
 
 import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
-interface HtmlUnitStepCollectingParsedValueToModel<C, V> {
+interface CollectingParsedValueToModelStep<C, V> {
 
-    org.apache.logging.log4j.Logger log = org.apache.logging.log4j.LogManager.getLogger(HtmlUnitStepCollectingParsedValueToModel.class);
+    org.apache.logging.log4j.Logger log = org.apache.logging.log4j.LogManager.getLogger(CollectingParsedValueToModelStep.class);
 
     /**
-     * specialisation of {@link HtmlUnitStepSupportingCollection#collectOne(BiConsumer, Class, Class)}
+     * specialisation of {@link CollectingStep#collectOne(BiConsumer, Class, Class)}
      *
      * @return a copy of this step
      */
     <T> C collectOne(BiConsumer<T, V> modelMutation, Class<T> containerType);
 
     /**
-     * specialisation of {@link HtmlUnitStepSupportingCollection#collectMany(BiConsumer, Class, Class)}
+     * specialisation of {@link CollectingStep#collectMany(BiConsumer, Class, Class)}
      *
      * @return a copy of this step
      */

@@ -28,7 +28,7 @@ import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
 
 public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>> extends HtmlUnitScrapingStep<C>
-        implements HtmlUnitStepSupportingNext<C>, HtmlUnitStepSupportingCollection<C> {
+        implements ChainedStep<C>, CollectingStep<C> {
 
     public CommonOperationsStepBase(List<HtmlUnitScrapingStep<?>> nextSteps) {
         super(nextSteps);
@@ -70,18 +70,18 @@ public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>
     }
 
     @Override
-    public <T> C nextIf(Predicate<T> condition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep) {
+    public <T> C nextIf(Predicate<T> modelDataCondition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep) {
         HtmlUnitScrapingStep<?> nextCopy = nextStep.copy()
                 .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3))
-                .setExecuteIf(new ExecutionCondition(condition, modelType));
+                .setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType));
         return addNextStep(nextCopy);
     }
 
     @Override
-    public <T> C nextIfExclusively(Predicate<T> condition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep) {
+    public <T> C nextIfExclusively(Predicate<T> modelDataCondition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep) {
         HtmlUnitScrapingStep<?> nextCopy = nextStep.copy()
                 .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3))
-                .setExecuteIf(new ExecutionCondition(condition, modelType))
+                .setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType))
                 .setExclusiveExecution(true);
         return addNextStep(nextCopy);
 

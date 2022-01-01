@@ -32,8 +32,8 @@ import java.util.function.Supplier;
 import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
 public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
-        implements HtmlUnitStepCollectingParsedStringToModel<ParseElementHRef>,
-        HtmlUnitParsingStep<ParseElementHRef> {
+        implements CollectingParsedValueToModelStep<ParseElementHRef, String>,
+        ParsingStep<ParseElementHRef> {
 
     ParseElementHRef(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, Function<String, String> parsedValueConversion) {
         super(nextSteps);
@@ -76,7 +76,7 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
             }
         };
 
-        handleExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }
@@ -92,8 +92,8 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
     }
 
     /**
-     * Same as {@link HtmlUnitStepSupportingNext#next(HtmlUnitScrapingStep)} but with a more meaningful name for the purpose.
-     * For more specialised versions of <code>next()</code> see and use these the ones defined here {@link HtmlUnitStepSupportingNext}
+     * Same as {@link ChainedStep#next(HtmlUnitScrapingStep)} but with a more meaningful name for the purpose.
+     * For more specialised versions of <code>next()</code> see and use these the ones defined here {@link ChainedStep}
      *
      * @return copy of this step
      */

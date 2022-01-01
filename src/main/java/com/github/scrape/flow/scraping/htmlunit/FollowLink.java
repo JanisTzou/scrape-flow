@@ -52,7 +52,7 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
         StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
 
         Runnable runnable = () -> {
-            if (ctx.getNode() instanceof HtmlAnchor anch) {
+            if (ctx.getNode() instanceof HtmlAnchor anch && anch.hasAttribute("href")) { // check for href to filter away sites that use JS to load next here ...
 
                 Supplier<List<DomNode>> nodesSearch = () -> {
                     try {
@@ -81,11 +81,12 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
                 getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
 
             } else {
-                log.warn("{}: No HtmlAnchor element provided -> cannot click element! Check the steps sequence above step {} and maybe provide search step for an anchor tag", getName(), getName());
+                log.warn("{}: No anchor element with href attribute provided -> cannot click element! Check the steps sequence above step {} " +
+                        "and maybe provide search step for an anchor tag. It might be necessary to use scraping with JS support here", getName(), getName());
             }
         };
 
-        handleExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepExecOrder, runnable, services.getTaskService());
         return stepExecOrder;
     }
 

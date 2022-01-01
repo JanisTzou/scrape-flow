@@ -51,7 +51,7 @@ public class BbcComDemo {
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
         final HtmlUnitSiteParser parser = new HtmlUnitSiteParser(driverManager);
 
-        final Scraping scraping = new Scraping(parser, 1, TimeUnit.SECONDS)
+        final Scraping scraping = new Scraping(parser, 5, TimeUnit.SECONDS)
                 .setSequence(
                         Get.descendants().byAttr("aria-label", "World")
                                 .first()

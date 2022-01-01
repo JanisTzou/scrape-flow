@@ -68,7 +68,7 @@ public class ReturnNextPage extends CommonOperationsStepBase<ReturnNextPage> {
             }
         };
 
-        handleExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }

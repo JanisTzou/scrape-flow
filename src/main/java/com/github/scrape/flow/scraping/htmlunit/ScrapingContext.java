@@ -54,8 +54,8 @@ public class ScrapingContext {
     // should contain th efull URL so that it can be navigated to ...
     private String parsedURL;
 
-    // used in special cases when we have recursive step execution and we always want to set the prev step to some initial value ...
-    private StepExecOrder recursiveRootStepExecOrder;
+    // used in special cases when we have looped step execution and we always want to set the prev step to some initial value ...
+    private StepExecOrder rootLoopedStepExecOrder;
 
 
 
@@ -72,13 +72,13 @@ public class ScrapingContext {
                            @Nonnull ContextModels contextModels,
                            String parsedText,
                            String parsedURL,
-                           StepExecOrder recursiveRootStepExecOrder) {
+                           StepExecOrder rootLoopedStepExecOrder) {
         this.prevStepExecOrder = Objects.requireNonNull(prevStepExecOrder);
         this.node = node;
         this.contextModels = Objects.requireNonNull(contextModels);
         this.parsedText = parsedText;
         this.parsedURL = parsedURL;
-        this.recursiveRootStepExecOrder = recursiveRootStepExecOrder;
+        this.rootLoopedStepExecOrder = rootLoopedStepExecOrder;
     }
 
     public Optional<HtmlPage> getNodeAsHtmlPage() {
@@ -110,7 +110,7 @@ public class ScrapingContext {
         }
 
         private Builder(ScrapingContext ctx) {
-            this(ctx.prevStepExecOrder, ctx.node, ctx.contextModels.copy(), ctx.parsedText, ctx.parsedURL, ctx.recursiveRootStepExecOrder);
+            this(ctx.prevStepExecOrder, ctx.node, ctx.contextModels.copy(), ctx.parsedText, ctx.parsedURL, ctx.rootLoopedStepExecOrder);
         }
 
         public Builder setPrevStepOrder(StepExecOrder stepExecOrder) {

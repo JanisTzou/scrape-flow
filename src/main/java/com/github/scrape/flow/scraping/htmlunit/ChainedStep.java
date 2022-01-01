@@ -18,7 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import java.util.function.Predicate;
 
-public interface HtmlUnitStepSupportingNext<C>  {
+public interface ChainedStep<C>  {
 
     /**
      * <p>Specifies the next step to execute after the step that the method is called on finishes.
@@ -30,7 +30,7 @@ public interface HtmlUnitStepSupportingNext<C>  {
      * is guaranteed when the client code publishes the output to registered listeners.
      * <br>
      * <br>
-     * <p>To enforce the execution order to be the same as the order of step declaration use {@link HtmlUnitStepSupportingNext#nextExclusively(HtmlUnitScrapingStep)} - this can be used for  any steps needed.
+     * <p>To enforce the execution order to be the same as the order of step declaration use {@link ChainedStep#nextExclusively(HtmlUnitScrapingStep)} - this can be used for  any steps needed.
      *
      */
     C next(HtmlUnitScrapingStep<?> nextStep);
@@ -57,8 +57,8 @@ public interface HtmlUnitStepSupportingNext<C>  {
     <T> C nextIf(Predicate<T> condition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep);
 
     /**
-     * Combines the behaviours of {@link HtmlUnitStepSupportingNext#nextIf(Predicate, Class, HtmlUnitScrapingStep)}
-     * and {@link HtmlUnitStepSupportingNext#nextExclusively(HtmlUnitScrapingStep)} - see there for more details
+     * Combines the behaviours of {@link ChainedStep#nextIf(Predicate, Class, HtmlUnitScrapingStep)}
+     * and {@link ChainedStep#nextExclusively(HtmlUnitScrapingStep)} - see there for more details
      * @param condition condition accept an object that is expected to contain previously parsed data
      * @param nextStep step to execute if condition passes
      * @return a copy of this step - this allows chaining multiple following steps to execute when that step finishes.

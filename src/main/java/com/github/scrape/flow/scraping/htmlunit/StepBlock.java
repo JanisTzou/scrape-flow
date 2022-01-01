@@ -28,7 +28,7 @@ import java.util.function.Supplier;
  * Used just to test context propagation
  */
 public class StepBlock extends CommonOperationsStepBase<StepBlock>
-        implements HtmlUnitStepSupportingNext<StepBlock>, HtmlUnitStepSupportingCollection<StepBlock> {
+        implements ChainedStep<StepBlock>, CollectingStep<StepBlock> {
 
     StepBlock(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
         super(nextSteps);
@@ -52,7 +52,7 @@ public class StepBlock extends CommonOperationsStepBase<StepBlock>
             getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
         };
 
-        handleExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }

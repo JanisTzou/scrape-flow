@@ -30,8 +30,8 @@ import java.util.function.Function;
 import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
 public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTextContent>
-        implements HtmlUnitStepCollectingParsedStringToModel<ParseElementTextContent>,
-        HtmlUnitParsingStep<ParseElementTextContent> {
+        implements CollectingParsedValueToModelStep<ParseElementTextContent, String>,
+        ParsingStep<ParseElementTextContent> {
 
     ParseElementTextContent(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
         super(nextSteps);
@@ -64,7 +64,7 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
             setParsedValueToModel(this.getCollectors(), ctx, transformed, getName(), stepDeclarationLine);
         };
 
-        handleExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }

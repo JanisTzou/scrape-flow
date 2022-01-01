@@ -12,3 +12,6 @@ TODO how to make data that is not structured hierarchically hierarchical?
 // TODO simplified bootstrapping of main components
 
 // TODO expose library specific components in classes called xxxConfigurer so that use can e.g. configure proxies etc ... i the cae of HtmlUnit we need to enable configuring the WebClient
+
+
+// HtmlUnit FAQs: https://htmlunit.sourceforge.io/faq.html

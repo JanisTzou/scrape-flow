@@ -28,7 +28,7 @@ import java.util.function.Supplier;
  * Used just to test context propagation
  */
 public class DummyStep extends CommonOperationsStepBase<DummyStep>
-        implements HtmlUnitStepSupportingNext<DummyStep>, HtmlUnitStepSupportingCollection<DummyStep> {
+        implements ChainedStep<DummyStep>, CollectingStep<DummyStep> {
 
     protected DummyStep(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
         super(nextSteps);

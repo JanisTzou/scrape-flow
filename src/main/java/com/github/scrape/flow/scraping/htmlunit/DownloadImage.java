@@ -36,7 +36,7 @@ import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
 @Log4j2
 public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
-        implements HtmlUnitStepCollectingParsedBufferedImageToModel<DownloadImage>,
+        implements CollectingParsedValueToModelStep<DownloadImage, BufferedImage>,
         Throttling, MakingHttpRequests {
 
     DownloadImage(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
@@ -73,10 +73,11 @@ public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
             getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
         };
 
-        handleExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepExecOrder, runnable, services.getTaskService());
 
         return stepExecOrder;
     }
+
 
     @Override
     public <T> DownloadImage collectOne(BiConsumer<T, BufferedImage> modelMutation, Class<T> containerType) {

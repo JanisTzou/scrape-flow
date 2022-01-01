@@ -32,7 +32,7 @@ public class TaskService {
     private final ScrapingRateLimiter scrapingRateLimiter;
     private final Options options;
 
-    public void handleExecution(TaskBasis taskBasis) {
+    public void submitForExecution(TaskBasis taskBasis) {
         Task task = createStepTask(taskBasis);
 
         StepExecOrder execOrder = task.getStepExecOrder();

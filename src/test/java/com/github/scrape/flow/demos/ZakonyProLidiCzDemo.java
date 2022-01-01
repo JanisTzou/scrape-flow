@@ -23,6 +23,7 @@ import com.github.scrape.flow.scraping.EntryPoint;
 import com.github.scrape.flow.scraping.Scraper;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteParser;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitUtils;
 import com.github.scrape.flow.scraping.htmlunit.NavigateToParsedLink;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Getter;
@@ -79,7 +80,7 @@ public class ZakonyProLidiCzDemo {
 
          */
 
-        final Scraping scraping = new Scraping(parser, 5, TimeUnit.SECONDS)
+        final Scraping scraping = new Scraping(parser, 2, TimeUnit.SECONDS)
                 .getDebugOptions().setOnlyScrapeFirstElements(false)
                 .setSequence(
                         Get.descendants().byAttr("id", "__Page")
@@ -135,7 +136,7 @@ public class ZakonyProLidiCzDemo {
                                         )
                                         .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
                                                 .collectOne(PodKategorie::setUrl, PodKategorie.class)
-                                                .nextNavigate(toPredpisy(parser)
+                                                .nextNavigate(toPredpisyList(parser)
                                                 )
                                         )
                                 )
@@ -156,8 +157,19 @@ public class ZakonyProLidiCzDemo {
 //
 //                        )
 
+    // not working  , needs JS ...
+//    Do.paginate()
+//            .setStepsLoadingNextPage(
+//            Get.descendants().byAttr("title", "Jdi na Další")
+//                                        .next(Filter.apply(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode, "class", "disabled", true))
+//            .next(Do.followLink()
+//                                                        .next(Do.returnNextPage())
+//            )
+//            )
+//
+//            )
 
-    private NavigateToParsedLink toPredpisy(HtmlUnitSiteParser parser) {
+    private NavigateToParsedLink toPredpisyList(HtmlUnitSiteParser parser) {
 
             /*
                 <table class="DocGrid">
@@ -211,7 +223,8 @@ public class ZakonyProLidiCzDemo {
                                         )
                                 )
                         )
-                );
+                )
+                ;
     }
 
 
