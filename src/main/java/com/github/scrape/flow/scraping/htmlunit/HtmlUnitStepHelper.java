@@ -81,8 +81,7 @@ public class HtmlUnitStepHelper {
 
 
     private void logFoundCount(StepExecOrder currStepExecOrder, int count, DebuggingOptions globalDebugging) {
-        if ((globalDebugging.isLogFoundElementsCount() || step.stepDebugging.isLogFoundElementsCount())
-        ) {
+        if (globalDebugging.isLogFoundElementsCount() || step.stepDebugging.isLogFoundElementsCount()) {
             log.info("{} - {}: found {} nodes", currStepExecOrder, step.getName(), count);
         }
     }
@@ -97,7 +96,11 @@ public class HtmlUnitStepHelper {
     }
 
 
-    private List<StepExecOrder> executeNextSteps(StepExecOrder currStepExecOrder, DomNode node, ScrapingContext ctx, ContextModels nextContextModels, ScrapingServices services) {
+    private List<StepExecOrder> executeNextSteps(StepExecOrder currStepExecOrder,
+                                                 DomNode node,
+                                                 ScrapingContext ctx,
+                                                 ContextModels nextContextModels,
+                                                 ScrapingServices services) {
         // TODO have a nextStepContextHandler ?
         ScrapingContext nextCtx = new ScrapingContext(
                 currStepExecOrder,

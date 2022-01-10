@@ -29,18 +29,48 @@ import lombok.Getter;
 @Getter
 public class ScrapingServices {
 
-    private final StepExecOrderGenerator stepExecOrderGenerator = new StepExecOrderGenerator();
-    private final ThrottlingService throttlingService = new ThrottlingService();
-    private final ActiveStepsTracker activeStepsTracker = new ActiveStepsTracker();
-    private final StepAndDataRelationshipTracker stepAndDataRelationshipTracker = new StepAndDataRelationshipTracker(activeStepsTracker);
-    private final ExclusiveExecutionTracker exclusiveExecutionTracker = new ExclusiveExecutionTracker(activeStepsTracker);
-    private final DataPublisher dataPublisher = new DataPublisher(stepAndDataRelationshipTracker);
+    private final StepExecOrderGenerator stepExecOrderGenerator;
+    private final ThrottlingService throttlingService;
+    private final ActiveStepsTracker activeStepsTracker;
+    private final StepAndDataRelationshipTracker stepAndDataRelationshipTracker;
+    private final ExclusiveExecutionTracker exclusiveExecutionTracker;
+    private final DataPublisher dataPublisher;
+    private final Options options;
+    private final DebuggingOptions globalDebugging;
     private final TaskExecutor taskExecutor;
-    private final Options options = new Options();
-    private final DebuggingOptions globalDebugging = new DebuggingOptions();
     private final TaskService taskService;
 
+    public ScrapingServices(StepExecOrderGenerator stepExecOrderGenerator,
+                            ThrottlingService throttlingService,
+                            ActiveStepsTracker activeStepsTracker,
+                            StepAndDataRelationshipTracker stepAndDataRelationshipTracker,
+                            ExclusiveExecutionTracker exclusiveExecutionTracker,
+                            DataPublisher dataPublisher,
+                            TaskExecutor taskExecutor,
+                            Options options,
+                            DebuggingOptions globalDebugging,
+                            TaskService taskService) {
+        this.stepExecOrderGenerator = stepExecOrderGenerator;
+        this.throttlingService = throttlingService;
+        this.activeStepsTracker = activeStepsTracker;
+        this.stepAndDataRelationshipTracker = stepAndDataRelationshipTracker;
+        this.exclusiveExecutionTracker = exclusiveExecutionTracker;
+        this.dataPublisher = dataPublisher;
+        this.options = options;
+        this.globalDebugging = globalDebugging;
+        this.taskExecutor = taskExecutor;
+        this.taskService = taskService;
+    }
+
     public ScrapingServices(ScrapingRateLimiter scrapingRateLimiter) {
+        this.stepExecOrderGenerator = new StepExecOrderGenerator();
+        this.throttlingService = new ThrottlingService();
+        this.activeStepsTracker = new ActiveStepsTracker();
+        this.stepAndDataRelationshipTracker = new StepAndDataRelationshipTracker(activeStepsTracker);
+        this.exclusiveExecutionTracker = new ExclusiveExecutionTracker(activeStepsTracker);
+        this.dataPublisher = new DataPublisher(stepAndDataRelationshipTracker);
+        this.options = new Options();
+        this.globalDebugging = new DebuggingOptions();
         taskExecutor = new TaskExecutor(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker);
         taskService = new TaskService(taskExecutor, activeStepsTracker, dataPublisher, scrapingRateLimiter, options);
     }

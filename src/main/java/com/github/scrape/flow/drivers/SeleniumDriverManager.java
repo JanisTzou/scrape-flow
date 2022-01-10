@@ -18,7 +18,7 @@ package com.github.scrape.flow.drivers;
 
 import com.github.scrape.flow.drivers.lifecycle.DriverQuitStrategy;
 import com.github.scrape.flow.drivers.lifecycle.DriverRestartStrategy;
-import org.jboss.logging.Logger;
+import lombok.extern.log4j.Log4j2;
 import org.openqa.selenium.WebDriver;
 
 
@@ -26,9 +26,9 @@ import org.openqa.selenium.WebDriver;
  * NOTE: An instance should only be owned by one actor at a time so it can not happen that
  * some other actor quits the driver when other is in the middle of scraping
  */
+@Log4j2
 public class SeleniumDriverManager implements DriverManager<WebDriver> {
 
-    private static final Logger log = Logger.getLogger(SeleniumDriverManager.class);
     public static final String DEFAULT_PAGE_URL = "data:,";
     private volatile WebDriver driver;
     private final DriverRestartStrategy restartStrategy;

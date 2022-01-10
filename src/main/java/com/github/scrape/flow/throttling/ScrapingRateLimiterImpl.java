@@ -30,7 +30,14 @@ public class ScrapingRateLimiterImpl implements ScrapingRateLimiter {
     private final Duration requestFreq;
     private LocalDateTime nextRqAllowedTime;
 
+    /**
+     * @param limitPerTimeUnit must be > 0
+     * @throws IllegalArgumentException if specified limit is not > 0
+     */
     public ScrapingRateLimiterImpl(int limitPerTimeUnit, TimeUnit timeUnit, LocalDateTime nextRqAllowedTime) {
+        if (limitPerTimeUnit <= 0) {
+            throw new IllegalArgumentException("limitPerTimeUnit must be > 0");
+        }
         this.limit = limitPerTimeUnit;
         this.duration = Duration.of(1, timeUnit.toChronoUnit());
         this.requestFreq = duration.dividedBy(limitPerTimeUnit);

@@ -1,0 +1,133 @@
+/*
+ * Copyright 2021 Janis Tzoumas
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.github.scrape;
+
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.github.scrape.flow.data.publishing.DataPublisher;
+import com.github.scrape.flow.debugging.DebuggingOptions;
+import com.github.scrape.flow.parallelism.*;
+import com.github.scrape.flow.scraping.Options;
+import com.github.scrape.flow.scraping.ScrapingServices;
+import com.github.scrape.flow.throttling.ScrapingRateLimiter;
+import com.github.scrape.flow.throttling.ScrapingRateLimiterImpl;
+import com.github.scrape.flow.throttling.ThrottlingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.concurrent.TimeUnit;
+
+@Configuration
+public class TestConfiguration {
+
+    @Bean
+    @Autowired
+    public ScrapingServices scrapingServices(StepExecOrderGenerator stepExecOrderGenerator,
+                                             ThrottlingService throttlingService,
+                                             ActiveStepsTracker activeStepsTracker,
+                                             StepAndDataRelationshipTracker stepAndDataRelationshipTracker,
+                                             ExclusiveExecutionTracker exclusiveExecutionTracker,
+                                             DataPublisher dataPublisher,
+                                             TaskExecutor taskExecutor,
+                                             Options options,
+                                             DebuggingOptions globalDebugging,
+                                             TaskService taskService) {
+        return new ScrapingServices(stepExecOrderGenerator,
+                throttlingService,
+                activeStepsTracker,
+                stepAndDataRelationshipTracker,
+                exclusiveExecutionTracker,
+                dataPublisher,
+                taskExecutor,
+                options,
+                globalDebugging,
+                taskService
+        );
+    }
+
+    @Bean
+    public StepExecOrderGenerator stepExecOrderGenerator() {
+        return new StepExecOrderGenerator();
+    }
+
+    @Bean
+    public ThrottlingService throttlingService() {
+        return new ThrottlingService();
+    }
+
+    @Bean
+    public ActiveStepsTracker activeStepsTracker() {
+        return new ActiveStepsTracker();
+    }
+
+    @Bean
+    public StepAndDataRelationshipTracker stepAndDataRelationshipTracker(ActiveStepsTracker activeStepsTracker) {
+        return new StepAndDataRelationshipTracker(activeStepsTracker);
+    }
+
+    @Bean
+    public ExclusiveExecutionTracker exclusiveExecutionTracker(ActiveStepsTracker activeStepsTracker) {
+        return new ExclusiveExecutionTracker(activeStepsTracker);
+    }
+
+    @Bean
+    @Autowired
+    public DataPublisher dataPublisher(StepAndDataRelationshipTracker stepAndDataRelationshipTracker) {
+        return new DataPublisher(stepAndDataRelationshipTracker);
+    }
+
+    @Bean
+    public Options options() {
+        return new Options();
+    }
+
+    @Bean
+    public DebuggingOptions debuggingOptions() {
+        return new DebuggingOptions();
+    }
+
+    @Bean
+    public ScrapingRateLimiter scrapingRateLimiter() {
+        return new ScrapingRateLimiterImpl(1, TimeUnit.MILLISECONDS);
+    }
+
+    @Bean
+    @Autowired
+    public TaskExecutor taskExecutor(ThrottlingService throttlingService,
+                                     ExclusiveExecutionTracker exclusiveExecutionTracker,
+                                     ScrapingRateLimiter scrapingRateLimiter,
+                                     ActiveStepsTracker activeStepsTracker) {
+        return new TaskExecutor(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker);
+    }
+
+    @Bean
+    @Autowired
+    public TaskService taskService(TaskExecutor taskExecutor,
+                                   ActiveStepsTracker activeStepsTracker,
+                                   DataPublisher dataPublisher,
+                                   ScrapingRateLimiter scrapingRateLimiter,
+                                   Options options) {
+        return new TaskService(taskExecutor, activeStepsTracker, dataPublisher, scrapingRateLimiter, options);
+    }
+
+    @Bean(destroyMethod = "close")
+    public WebClient webClient() {
+         return new WebClient(BrowserVersion.CHROME);
+    }
+
+}

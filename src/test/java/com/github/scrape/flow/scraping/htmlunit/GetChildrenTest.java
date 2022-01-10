@@ -51,20 +51,12 @@ public class GetChildrenTest {
     @Test
     public void childNodesAreFound() throws IOException, URISyntaxException {
 
-        HtmlPage page = loadTestPage("test_page_1.html");
+        HtmlPage page = TestUtils.loadTestPage("test_page_1.html", webClient);
         DomNode parent = (DomNode) page.getByXPath("/html/body/div").stream().findFirst().get();
 
         List<DomNode> foundNodes = getChildren.nodesSearch(parent).get();
 
         assertEquals(4, foundNodes.size());
-    }
-
-
-    public static HtmlPage loadTestPage(String fileName) throws URISyntaxException, IOException {
-        URL resource = GetChildrenTest.class.getClassLoader().getResource(fileName);
-        File file = Paths.get(resource.toURI()).toFile();
-        HtmlPage page = webClient.getPage("file:////" + file.toString());
-        return page;
     }
 
 }

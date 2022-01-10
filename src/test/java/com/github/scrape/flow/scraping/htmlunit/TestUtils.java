@@ -16,7 +16,23 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
+
 public class TestUtils {
+
+    public static HtmlPage loadTestPage(String fileName, WebClient webClient) throws URISyntaxException, IOException {
+        URL resource = GetChildrenAndParseTextContentIntegrationTest.class.getClassLoader().getResource(fileName);
+        File file = Paths.get(resource.toURI()).toFile();
+        return webClient.getPage("file:////" + file.getAbsolutePath());
+    }
+
 }
 
 
