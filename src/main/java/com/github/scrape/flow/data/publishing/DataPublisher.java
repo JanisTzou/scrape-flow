@@ -102,14 +102,14 @@ public class DataPublisher {
                         }
 
                         if (send) {
-                            removeFromWaitingAndPublish(stepExecOrder, nextWaiting, waitingSteps);
+                            removeFromWaitingAndPublish(stepExecOrder, nextWaiting);
                         } else {
                             log.debug("delaying sending finalized data: {}", waitingSteps);
                             break;
                         }
 
                     } else {
-                        removeFromWaitingAndPublish(stepExecOrder, nextWaiting, waitingSteps);
+                        removeFromWaitingAndPublish(stepExecOrder, nextWaiting);
                     }
                 } else {
                     break;
@@ -120,7 +120,7 @@ public class DataPublisher {
     }
 
 
-    private void removeFromWaitingAndPublish(StepExecOrder stepExecOrder, FinalizedModels nextWaiting, List<StepExecOrder> waitingSteps) {
+    private void removeFromWaitingAndPublish(StepExecOrder stepExecOrder, FinalizedModels nextWaiting) {
         waitingToSendQueue.poll();
         nextWaiting.getSpawned().getSteps().forEach(waitingToSendSet::remove);
         publish(stepExecOrder, nextWaiting);

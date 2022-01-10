@@ -24,19 +24,13 @@ import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
 import com.github.scrape.flow.scraping.htmlunit.filters.Filterable;
 import com.github.scrape.flow.scraping.htmlunit.filters.FilterableByCommonCriteria;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
 public class GetChildren extends CommonOperationsStepBase<GetChildren>
         implements FilterableByCommonCriteria<GetChildren>, Filterable<GetChildren> {
 
-    GetChildren(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
-        super(nextSteps);
-    }
-
     GetChildren() {
-        this(null);
     }
 
     @Override

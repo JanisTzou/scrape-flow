@@ -29,8 +29,8 @@ public class OperationExecutor {
 
 
 	public static <T> T attemptExecute(SupplierOperation<T> operation,
-								int tryIntervalMilis,
-								int timeoutMilis,
+								int tryIntervalMillis,
+								int timeoutMillis,
 								Logger callerLog,
 								String logHead,
 								Optional<String> failedSingleTrialLogMsg,
@@ -40,7 +40,7 @@ public class OperationExecutor {
 
 //		log.debug(logHead + " Entering attemptExecute()");
 
-		int cyclesCount = timeoutMilis / tryIntervalMilis;
+		int cyclesCount = timeoutMillis / tryIntervalMillis;
 		int count       = 0;
 
 		while(true) {
@@ -51,7 +51,7 @@ public class OperationExecutor {
 //				log.debug(logHead + " Exiting attemptExecute()");
 				return t;
 			} catch (Exception exception) {       // WebDriverExceptions we want to retry
-				handleException(tryIntervalMilis, callerLog, logHead, failedSingleTrialLogMsg, completeFailureMsg, cyclesCount, count, exception);
+				handleException(tryIntervalMillis, callerLog, logHead, failedSingleTrialLogMsg, completeFailureMsg, cyclesCount, count, exception);
 			}
 
 			count++;
@@ -63,8 +63,8 @@ public class OperationExecutor {
 
 	public static <T> T attemptExecute(SupplierOperation<T> operation,
 								OperationPredicate<T> condition,       // defines additional condition for the result
-								int tryIntervalMilis,
-								int timeoutMilis,
+								int tryIntervalMillis,
+								int timeoutMillis,
 								Logger callerLog,
 								String logHead,
 								Optional<String> failedSingleTrialLogMsg,
@@ -74,7 +74,7 @@ public class OperationExecutor {
 
 //		log.debug(logHead + " Entering attemptExecute()");
 
-		int cyclesCount = timeoutMilis / tryIntervalMilis;
+		int cyclesCount = timeoutMillis / tryIntervalMillis;
 		int count       = 0;
 
 
@@ -93,10 +93,10 @@ public class OperationExecutor {
 				} else {
 					// we keep trying to meet the condition ...
 					logPartialFailure(callerLog, logHead, failedSingleTrialLogMsg, "No values complying with spec. conditions found." );
-					sleep(tryIntervalMilis, callerLog);
+					sleep(tryIntervalMillis, callerLog);
 				}
 			} catch (Exception exception) {       // WebDriverExceptions we want to retry
-				handleException(tryIntervalMilis, callerLog, logHead, failedSingleTrialLogMsg, completeFailureMsg, cyclesCount, count, exception);
+				handleException(tryIntervalMillis, callerLog, logHead, failedSingleTrialLogMsg, completeFailureMsg, cyclesCount, count, exception);
 			}
 
 			count++;
@@ -105,8 +105,8 @@ public class OperationExecutor {
 
 
 	public static <T> void attemptExecute(ConsumerOperation operation,
-									int tryIntervalMilis,
-									int timeoutMilis,
+									int tryIntervalMillis,
+									int timeoutMillis,
 									Logger callerLog,
 									String logHead,
 									Optional<String> failedSingleTrialLogMsg,
@@ -116,7 +116,7 @@ public class OperationExecutor {
 
 //		log.debug(logHead + " Entering attemptExecute()");
 
-		int cyclesCount = timeoutMilis / tryIntervalMilis;
+		int cyclesCount = timeoutMillis / tryIntervalMillis;
 		int count       = 0;
 
 		while(true) {
@@ -125,7 +125,7 @@ public class OperationExecutor {
 				logSuccess(log, logHead, successLogMsg);
 				break;
 			} catch (Exception exception) {
-				handleException(tryIntervalMilis, callerLog, logHead, failedSingleTrialLogMsg, completeFailureMsg, cyclesCount, count, exception);
+				handleException(tryIntervalMillis, callerLog, logHead, failedSingleTrialLogMsg, completeFailureMsg, cyclesCount, count, exception);
 			}
 
 			count++;
@@ -137,8 +137,8 @@ public class OperationExecutor {
 
 	public static <T> void attemptExecute(ConsumerOperation operation,
 									OperationPredicate<T> condition,       // defines additional condition for the result
-									int tryIntervalMilis,
-									int timeoutMilis,
+									int tryIntervalMillis,
+									int timeoutMillis,
 									Logger callerLog,
 									String logHead,
 									Optional<String> failedSingleTrialLogMsg,
@@ -148,7 +148,7 @@ public class OperationExecutor {
 
 //		log.debug(logHead + " Entering attemptExecute()");
 
-		int cyclesCount = timeoutMilis / tryIntervalMilis;
+		int cyclesCount = timeoutMillis / tryIntervalMillis;
 		int count       = 0;
 
 		while(true) {
@@ -166,10 +166,10 @@ public class OperationExecutor {
 				} else {
 					// we keep trying to meet the condition ...
 					logPartialFailure(callerLog, logHead, failedSingleTrialLogMsg, "No values complying with spec. conditions found." );
-					sleep(tryIntervalMilis, callerLog);
+					sleep(tryIntervalMillis, callerLog);
 				}
 			} catch (Exception exception) {       // WebDriverExceptions we want to retry
-				handleException(tryIntervalMilis, callerLog, logHead, failedSingleTrialLogMsg, completeFailureMsg, cyclesCount, count, exception);
+				handleException(tryIntervalMillis, callerLog, logHead, failedSingleTrialLogMsg, completeFailureMsg, cyclesCount, count, exception);
 			}
 
 			count++;
@@ -180,7 +180,7 @@ public class OperationExecutor {
 
 
 	// helper
-	private static void handleException(int tryIntervalMilis,
+	private static void handleException(int tryIntervalMillis,
 			Logger callerLog,
 			String logHead,
 			Optional<String> failedSingleTrialLogMsg,
@@ -198,7 +198,7 @@ public class OperationExecutor {
 
 		logPartialFailure(callerLog, logHead, failedSingleTrialLogMsg, exception.getClass().getSimpleName());
 
-		sleep(tryIntervalMilis, callerLog);
+		sleep(tryIntervalMillis, callerLog);
 	}
 
 
@@ -221,9 +221,9 @@ public class OperationExecutor {
 	}
 
 	// helper
-	private static void sleep(int tryIntervalMilis, Logger log) {
+	private static void sleep(int tryIntervalMillis, Logger log) {
 		try {
-			Thread.sleep(tryIntervalMilis);
+			Thread.sleep(tryIntervalMillis);
 		} catch (InterruptedException e) {
 			log.error(e);
 		}

@@ -20,11 +20,9 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.htmlunit.CommonOperationsStepBase;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitScrapingStep;
 import com.github.scrape.flow.scraping.htmlunit.ScrapingContext;
 import lombok.extern.log4j.Log4j2;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -39,13 +37,8 @@ public class FilterElements extends CommonOperationsStepBase<FilterElements> {
 
     private final Predicate<DomNode> domNodePredicate;
 
-    FilterElements(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, Predicate<DomNode> domNodePredicate) {
-        super(nextSteps);
-        this.domNodePredicate = domNodePredicate;
-    }
-
     public FilterElements(Predicate<DomNode> domNodePredicate) {
-        this(null, domNodePredicate);
+        this.domNodePredicate = domNodePredicate;
     }
 
     @Override

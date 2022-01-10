@@ -5,7 +5,7 @@ Note: The library is still under development
 ## Introduction
 
 Experimental library for asynchronous web scraping. What needs to be scraped is defined as a sequence of steps in a fluent and declarative way. 
-The resuling code has a tree-like structure that follows the parsed site's DOM structure and the levels of followed links.
+The resulting code has a tree-like structure that follows the parsed site's DOM structure and the levels of followed links.
 
 The library aims to solve common scraping problems which can become challenging when using generally available low-level libraries like HtmlUnit for asynchronous fault-tolerant scraping:
 
@@ -13,10 +13,10 @@ The library aims to solve common scraping problems which can become challenging 
 - pagination
 - parallelism
 - selective sequential execution of scraping steps
-- throttling based on site reponsiveness (To be implemented)
+- throttling based on site responsiveness (To be implemented)
 - retrial of failed requests
 - transitioning between static and JS-heavy site scraping (To be implemented)
-- publishing of scraped data to client code in the order in which it appeared on the web
+- publishing of scraped data to client code in the order in which it appeared on the scraped sites
 - utilities for debugging
 
 ## Usage
@@ -67,7 +67,7 @@ To scrape the names of each section from the page sample above and navigate to t
 
     scraping.setSequence(
         Get.descendants().byAttr("aria-label", "World")
-            .next(Get.children().byTag("li")
+            .next(Get.descendants().byTag("li")
                 .addCollector(Section::new, Section.class, new ScrapedSectionListener())  // for each encountered list item a model is instantiated to hold the scraped data
                 .next(Get.descendants().byTag("a")
                     .next(Parse.textContent()

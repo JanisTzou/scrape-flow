@@ -22,23 +22,14 @@ import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.SiteParser;
 import lombok.extern.log4j.Log4j2;
 
-import java.util.List;
-
 @Log4j2
 public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToParsedLink>
         implements LoadingNewPage {
 
-    // TODp perhaps provide in the constructor as a mandatory thing ?
-    private SiteParser siteParser;
-
-
-    NavigateToParsedLink(List<HtmlUnitScrapingStep<?>> nextSteps, SiteParser siteParser) {
-        super(nextSteps);
-        this.siteParser = siteParser;
-    }
+    private final SiteParser siteParser;
 
     NavigateToParsedLink(SiteParser siteParser) {
-        this(null, siteParser);
+        this.siteParser = siteParser;
     }
 
     @Override

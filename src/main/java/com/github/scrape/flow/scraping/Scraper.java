@@ -16,11 +16,9 @@
 
 package com.github.scrape.flow.scraping;
 
-import com.github.scrape.flow.scraping.htmlunit.StepsUtils;
 import lombok.extern.log4j.Log4j2;
 
 import java.time.Duration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 

@@ -49,7 +49,7 @@ public class HtmlUnit {
             return new GetDescendants();
         }
 
-        // this needs to be here ... cannot go under the descendants even thouth it gets the descendants
+        // this needs to be here ... cannot go under the descendants even though it gets the descendants
         public static GetDescendantsByCssSelector descendantsBySelector(String sccSelector) {
             return new GetDescendantsByCssSelector(sccSelector);
         }
@@ -157,7 +157,7 @@ public class HtmlUnit {
 
         // TODO define sets of conditions that we can use in next() ... to avoid dealing with DomNode ...
 
-        // HasAnyDescendats of
+        // HasAnyDescendants of
     }
 
 }

@@ -133,7 +133,7 @@ public class StepExecOrder {
     // error-prone having this as a field ... review methods modifying the list before doinf so ...
     public String asString() {
         return this.values.stream().map(Object::toString).collect(Collectors.joining("-", "", "-")); // IMPORTANT - the suffix is needed for prefix matching to work when tracking active steps/tasks...
-    };
+    }
 
     @Override
     public boolean equals(Object o) {

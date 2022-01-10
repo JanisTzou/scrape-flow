@@ -32,8 +32,7 @@ public class SeleniumUtils {
     private static final Logger log = LogManager.getLogger();
 
     public static boolean hasAttribute(WebElement webElement, String attrName) {
-        boolean result = webElement.getAttribute(attrName) != null;
-        return result;
+        return webElement.getAttribute(attrName) != null;
     }
 
 

@@ -16,6 +16,8 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
+import com.github.scrape.flow.data.collectors.Collector;
+import com.github.scrape.flow.data.collectors.Collectors;
 import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.parallelism.TaskBasis;
@@ -23,12 +25,11 @@ import com.github.scrape.flow.parallelism.TaskService;
 import com.github.scrape.flow.scraping.MakingHttpRequests;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.Throttling;
-import com.github.scrape.flow.data.collectors.Collector;
-import com.github.scrape.flow.data.collectors.Collectors;
 import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
 import lombok.extern.log4j.Log4j2;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -36,9 +37,9 @@ import java.util.function.UnaryOperator;
 @Log4j2
 public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> implements Throttling {
 
-    protected static Function<String, String> NO_VALUE_CONVERSION = s -> s;
+    protected static final Function<String, String> NO_VALUE_CONVERSION = s -> s;
 
-    private final List<HtmlUnitScrapingStep<?>> nextSteps;
+    private final List<HtmlUnitScrapingStep<?>> nextSteps = new ArrayList<>();
 
     protected boolean exclusiveExecution = false;
 
@@ -68,8 +69,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     private String name = getClass().getSimpleName() + "-unnamed-step";
 
 
-    protected HtmlUnitScrapingStep(List<HtmlUnitScrapingStep<?>> nextSteps) {
-        this.nextSteps = new ArrayList<>(Objects.requireNonNullElse(nextSteps, Collections.emptyList()));
+    protected HtmlUnitScrapingStep() {
     }
 
 

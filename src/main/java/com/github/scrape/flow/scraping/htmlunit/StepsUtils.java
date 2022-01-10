@@ -16,11 +16,9 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.Optional;
-import java.util.Set;
 
 @Log4j2
 public class StepsUtils {

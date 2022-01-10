@@ -24,7 +24,7 @@ public class HtmlUnitDriverManager implements DriverManager<WebClient> {
      * WebClient docs:
      * Note: a WebClient instance is not thread safe. It is intended to be used from a single thread
      */
-    private volatile ThreadLocal<WebClient> webClient = ThreadLocal.withInitial(this::startNewDriver);
+    private final ThreadLocal<WebClient> webClient = ThreadLocal.withInitial(this::startNewDriver);
     private final HtmlUnitDriversFactory driversFactory;
 
 

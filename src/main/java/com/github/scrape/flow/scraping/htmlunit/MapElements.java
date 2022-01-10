@@ -21,7 +21,6 @@ import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.extern.log4j.Log4j2;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -36,13 +35,8 @@ public class MapElements extends CommonOperationsStepBase<MapElements> {
 
     private final Function<DomNode, Optional<DomNode>> mapper;
 
-    MapElements(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, Function<DomNode, Optional<DomNode>> mapper) {
-        super(nextSteps);
-        this.mapper = mapper;
-    }
-
     MapElements(Function<DomNode, Optional<DomNode>> mapper) {
-        this(null, mapper);
+        this.mapper = mapper;
     }
 
     @Override

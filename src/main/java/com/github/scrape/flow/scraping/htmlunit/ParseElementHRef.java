@@ -18,11 +18,10 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
-import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.data.collectors.Collector;
+import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -35,17 +34,12 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
         implements CollectingParsedValueToModelStep<ParseElementHRef, String>,
         ParsingStep<ParseElementHRef> {
 
-    ParseElementHRef(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, Function<String, String> parsedValueConversion) {
-        super(nextSteps);
+    ParseElementHRef(Function<String, String> parsedValueConversion) {
         this.parsedValueConversion = Objects.requireNonNullElse(parsedValueConversion, NO_VALUE_CONVERSION);
     }
 
-    ParseElementHRef(Function<String, String> parsedValueConversion) {
-        this(null, parsedValueConversion);
-    }
-
     ParseElementHRef() {
-        this(null, null);
+        this( null);
     }
 
     @Override

@@ -22,7 +22,6 @@ import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
 import com.github.scrape.flow.scraping.htmlunit.filters.FilterableByCommonCriteria;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -34,13 +33,8 @@ public class GetDescendantsByCssSelector extends CommonOperationsStepBase<GetDes
 
     private final String sccSelector;
 
-    GetDescendantsByCssSelector(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, String sccSelector) {
-        super(nextSteps);
-        this.sccSelector = sccSelector;
-    }
-
     GetDescendantsByCssSelector(String sccSelector) {
-        this(null, sccSelector);
+        this.sccSelector = sccSelector;
     }
 
     @Override

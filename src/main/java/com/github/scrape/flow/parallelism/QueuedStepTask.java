@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 
 public class QueuedStepTask {
 
-    public static Comparator<QueuedStepTask> NATURAL_COMPARATOR = (qst1, qst2) -> Task.NATURAL_COMPARATOR.compare(qst1.getStepTask(), qst2.getStepTask());
+    public static final Comparator<QueuedStepTask> NATURAL_COMPARATOR = (qst1, qst2) -> Task.NATURAL_COMPARATOR.compare(qst1.getStepTask(), qst2.getStepTask());
 
     private final Task task;
     private final Consumer<TaskResult> taskResultConsumer;

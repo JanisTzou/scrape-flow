@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class GetParent extends CommonOperationsStepBase<GetParent>
-    // TODO these filters do not ake sense for the parent as they are .... if we want to provide them, the impementation must go throguh all parents until it fineds the one specificed by the filters ...
+    // TODO these filters do not ake sense for the parent as they are .... if we want to provide them, the implementation must go throguh all parents until it finds the one specified by the filters ...
     //  if ued as they are the filters might just filter away the one parent found ...
 //        implements
 //        FilterableByAttribute<GetParent>,
@@ -38,18 +38,13 @@ public class GetParent extends CommonOperationsStepBase<GetParent>
     private final Type type;
     private final Integer param;
 
-    GetParent(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, Type type, @Nullable Integer param) {
-        super(nextSteps);
+    GetParent(Type type, @Nullable Integer param) {
         this.type = type;
         this.param = param;
     }
 
-    GetParent(Type type, Integer param) {
-        this(null, type, param);
-    }
-
     GetParent(Type type) {
-        this(null, type, null);
+        this(type, null);
     }
 
     @Override

@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Runs the steps the way they were defined by the user (in terms of order, exclusivenes etc.)
+ * Runs the steps the way they were defined by the user (in terms of order, exclusiveness etc.)
  */
 public class NextStepsAsDefinedByUser implements NextStepsHandler {
 

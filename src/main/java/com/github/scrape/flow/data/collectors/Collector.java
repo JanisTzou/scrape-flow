@@ -68,7 +68,7 @@ public class Collector {
 
     public enum AccumulatorType {
         ONE,
-        MANY;
+        MANY
     }
 
     public enum CollectedModelType {

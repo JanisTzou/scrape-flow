@@ -34,12 +34,7 @@ import java.util.function.Supplier;
 public class FollowLink extends CommonOperationsStepBase<FollowLink>
         implements LoadingNewPage {
 
-    FollowLink(List<HtmlUnitScrapingStep<?>> nextSteps) {
-        super(nextSteps);
-    }
-
     FollowLink() {
-        this(null);
     }
 
     @Override

@@ -18,11 +18,10 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.data.collectors.Collector;
+import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -37,18 +36,13 @@ public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseEl
 
     private final String attributeName;
 
-    ParseElementAttributeValue(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, String attributeName, Function<String, String> parsedValueConversion) {
-        super(nextSteps);
+    ParseElementAttributeValue(String attributeName, Function<String, String> parsedValueConversion) {
         this.attributeName = attributeName;
         this.parsedValueConversion = Objects.requireNonNullElse(parsedValueConversion, NO_VALUE_CONVERSION);
     }
 
-    ParseElementAttributeValue(String attributeName, Function<String, String> parsedValueConversion) {
-        this(null, attributeName, parsedValueConversion);
-    }
-
     ParseElementAttributeValue(String attributeName) {
-        this(null, attributeName, null);
+        this(attributeName, null);
     }
 
     @Override

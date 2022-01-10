@@ -21,7 +21,6 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
 import com.github.scrape.flow.scraping.htmlunit.filters.FilterUtils;
 import lombok.extern.log4j.Log4j2;
 

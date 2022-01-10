@@ -36,7 +36,7 @@ public class Scraping {
      * Should specific for one scraping instance
      */
     private final ScrapingServices services;
-    private SiteParser parser;
+    private final SiteParser parser;
     // TODO the parsing sequence needs to be something generic - not HtmlUnit-specific ...
     private HtmlUnitScrapingStep<?> scrapingSequence;
 

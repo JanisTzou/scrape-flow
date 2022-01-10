@@ -19,16 +19,12 @@ package com.github.scrape.flow.drivers;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebWindow;
-import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
 
 public class HtmlUnitWebClientTest {
 

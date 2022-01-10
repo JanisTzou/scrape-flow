@@ -17,14 +17,13 @@
 package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.scraping.MakingHttpRequests;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.Throttling;
-import com.github.scrape.flow.data.collectors.Collector;
 import lombok.extern.log4j.Log4j2;
 
-import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.net.URL;
@@ -39,12 +38,7 @@ public class DownloadImage extends CommonOperationsStepBase<DownloadImage>
         implements CollectingParsedValueToModelStep<DownloadImage, BufferedImage>,
         Throttling, MakingHttpRequests {
 
-    DownloadImage(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
-        super(nextSteps);
-    }
-
     DownloadImage() {
-        this(null);
     }
 
     @Override

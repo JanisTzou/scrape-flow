@@ -51,7 +51,7 @@ public class FilterByAttribute implements Filter {
         return list.stream()
                 .filter(n -> {
                     if (attributeValue != null) {
-                        return HtmlUnitUtils.hasAttributeWithValue(n, attributeName, attributeValue, true);
+                        return HtmlUnitUtils.hasAttributeWithExactValue(n, attributeName, attributeValue);
                     } else if (valueRegex != null) {
                         return HtmlUnitUtils.hasAttributeWithValue(n, attributeName, valueRegex);
                     } else {

@@ -22,7 +22,6 @@ import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.extern.log4j.Log4j2;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -33,12 +32,8 @@ public class ReturnNextPage extends CommonOperationsStepBase<ReturnNextPage> {
 
     private boolean callbackStepSet = false;
 
-    ReturnNextPage(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
-        super(nextSteps);
-    }
 
     ReturnNextPage() {
-        this(null);
     }
 
     @Override
@@ -73,7 +68,7 @@ public class ReturnNextPage extends CommonOperationsStepBase<ReturnNextPage> {
         return stepExecOrder;
     }
 
-    // TODO remove this and somehow communicate this via the ScrapingContext ... we can have a callback step there ... thet can be utlized by some steps
+    // TODO remove this and somehow communicate this via the ScrapingContext ... we can have a callback step there ... that can be utilized by some steps
     /**
      * Must be called at runtime - mutates this instance.
      */

@@ -23,7 +23,6 @@ import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
 import com.github.scrape.flow.scraping.htmlunit.filters.FilterableByCommonCriteria;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -34,13 +33,8 @@ public class GetElementsByXPath extends CommonOperationsStepBase<GetElementsByXP
     private final String xPath;
 
 
-    GetElementsByXPath(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps, String xPath) {
-        super(nextSteps);
-        this.xPath = xPath;
-    }
-
     GetElementsByXPath(String xPath) {
-        this(null, xPath);
+        this.xPath = xPath;
     }
 
     @Override

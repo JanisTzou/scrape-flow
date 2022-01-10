@@ -22,7 +22,6 @@ import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.extern.log4j.Log4j2;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -34,21 +33,11 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
 
     private boolean servicesPropagatedToTrigger;
 
-    Paginate(List<HtmlUnitScrapingStep<?>> nextSteps, boolean servicesPropagatedToTrigger) {
-        super(nextSteps);
+    Paginate(boolean servicesPropagatedToTrigger) {
         this.servicesPropagatedToTrigger = servicesPropagatedToTrigger;
     }
 
-    public Paginate(boolean servicesPropagatedToTrigger) {
-        this(null, servicesPropagatedToTrigger);
-    }
-
-    Paginate(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
-        super(nextSteps);
-    }
-
-    Paginate() {
-        this(null);
+    Paginate() {;
     }
 
     @Override
@@ -79,14 +68,10 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
             log.error("{} - {}: No HtmlPage provided by previous step! Cannot process page data and paginate to next pages!", stepExecOrder, getName());
         }
 
-        // HERE WE TRIGGER TWO TASKS -> DATA PROCESSING & PAGINATION
-
-        // >>>>>    this part just processes the received page ...
-
         Runnable runnable = () -> {
             if (page.isPresent()) {
 
-                // GENERAL
+                // GENERAL - just processes the received page
                 Supplier<List<DomNode>> nodesSearch = () -> List.of(page.get());
                 // important to set the recursiveRootStepExecOrder to null ... the general nextSteps and logic should not be affected by it ... it's only related to pagination
                 ScrapingContext plainCtx = ctx.toBuilder()
@@ -126,6 +111,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
     }
 
 
+    // TODO this should be removed ... we wanna pass this link via the context ...
     private void checkPaginationTriggerAndLinkItToThisStep() {
         if (paginatingSequence == null) {
             throw new IllegalStateException("paginationTrigger must be set for pagination to work!");

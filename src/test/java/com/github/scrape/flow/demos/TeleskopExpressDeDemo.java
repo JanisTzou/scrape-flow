@@ -16,13 +16,15 @@
 
 package com.github.scrape.flow.demos;
 
+import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.drivers.HtmlUnitDriverManager;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.EntryPoint;
 import com.github.scrape.flow.scraping.Scraper;
 import com.github.scrape.flow.scraping.Scraping;
-import com.github.scrape.flow.scraping.htmlunit.*;
+import com.github.scrape.flow.scraping.htmlunit.FollowLink;
+import com.github.scrape.flow.scraping.htmlunit.GetDescendants;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteParser;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

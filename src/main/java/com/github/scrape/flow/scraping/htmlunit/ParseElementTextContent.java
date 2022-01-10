@@ -17,13 +17,11 @@
 package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.data.collectors.Collector;
+import com.github.scrape.flow.parallelism.StepExecOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import org.apache.commons.text.StringEscapeUtils;
 
-import javax.annotation.Nullable;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -33,12 +31,7 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
         implements CollectingParsedValueToModelStep<ParseElementTextContent, String>,
         ParsingStep<ParseElementTextContent> {
 
-    ParseElementTextContent(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
-        super(nextSteps);
-    }
-
     ParseElementTextContent() {
-        this(null);
     }
 
     @Override

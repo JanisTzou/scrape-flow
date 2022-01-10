@@ -22,31 +22,31 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Collectors {
 
-    private final List<Collector> operations = new CopyOnWriteArrayList<>();
+    private final List<Collector> list = new CopyOnWriteArrayList<>();
 
     public Collectors() {
     }
 
     public Collectors copy() {
         Collectors copy = new Collectors();
-        copy.operations.addAll(this.operations);
+        copy.list.addAll(this.list);
         return copy;
     }
 
-    public void add(Collector operation) {
-        operations.add(operation);
+    public void add(Collector collector) {
+        list.add(collector);
     }
 
     public List<Collector> getAll() {
-        return Collections.unmodifiableList(operations);
+        return Collections.unmodifiableList(list);
     }
 
     public List<Collector> getModelSuppliers() {
-        return operations.stream().filter(co -> co.getModelSupplier() != null).collect(java.util.stream.Collectors.toList());
+        return list.stream().filter(co -> co.getModelSupplier() != null).collect(java.util.stream.Collectors.toList());
     }
 
     public List<Collector> getAccumulators() {
-        return operations.stream().filter(co -> co.getAccumulator() != null).collect(java.util.stream.Collectors.toList());
+        return list.stream().filter(co -> co.getAccumulator() != null).collect(java.util.stream.Collectors.toList());
     }
 
 }

@@ -22,7 +22,6 @@ import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.htmlunit.filters.*;
 import lombok.extern.log4j.Log4j2;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -49,12 +48,7 @@ public class GetSiblings extends CommonOperationsStepBase<GetSiblings>
             FilterSiblingsLast.class
     );
 
-    GetSiblings(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
-        super(nextSteps);
-    }
-
     GetSiblings() {
-        this(null);
     }
 
     @Override

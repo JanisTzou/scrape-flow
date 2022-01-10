@@ -26,7 +26,6 @@ import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -146,11 +145,14 @@ public class TaskExecutor {
         if (next == null) {
             return false;
         }
-        Optional<StepExecOrder> parentTask = next.getStepTask().getStepExecOrder().getParent();
-        boolean parentTaskFinished = parentTask.map(pt -> !activeStepsTracker.isActive(pt)).orElse(true); // super important that children do not skip parent tasks ... issues that are hard to debug ...
-        return parentTaskFinished
+        return isParentTaskFinished(next)
                 && exclusiveExecutionTracker.canExecute(next)
                 && isWithinScrapingLimits(next.getStepTask());
+    }
+
+    private boolean isParentTaskFinished(QueuedStepTask next) {
+        // super important that children do not skip parent tasks ... issues that are hard to debug ...
+        return next.getStepTask().getStepExecOrder().getParent().map(pt -> !activeStepsTracker.isActive(pt)).orElse(true);
     }
 
     private boolean isWithinScrapingLimits(Task task) {

@@ -53,8 +53,8 @@ public class ExclusiveExecutionTracker {
         }
     }
 
-    // TODO this solution does not take into account nested exclusive steps (especially those that have intermediary non-exclusive steps between them and their eclusive parents )
-
+    // TODO this solution does not take into account nested exclusive steps (especially those that have intermediary non-exclusive steps between them and their exclusive parents )
+    //  also this this violates command-query separation !!!
     public boolean canExecute(QueuedStepTask qst) {
         Task st = qst.getStepTask();
         StepExecOrder order = st.getStepExecOrder();

@@ -16,10 +16,9 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.data.collectors.Collector;
+import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -30,8 +29,7 @@ import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>> extends HtmlUnitScrapingStep<C>
         implements ChainedStep<C>, CollectingStep<C> {
 
-    public CommonOperationsStepBase(List<HtmlUnitScrapingStep<?>> nextSteps) {
-        super(nextSteps);
+    protected CommonOperationsStepBase() {
     }
 
     @Override

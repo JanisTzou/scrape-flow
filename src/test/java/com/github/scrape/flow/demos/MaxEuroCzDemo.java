@@ -17,9 +17,9 @@
 package com.github.scrape.flow.demos;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.drivers.HtmlUnitDriverManager;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.EntryPoint;
 import com.github.scrape.flow.scraping.Scraper;
 import com.github.scrape.flow.scraping.Scraping;
@@ -185,7 +185,7 @@ public class MaxEuroCzDemo {
     }
 
     private boolean isDisabled(DomNode domNode) {
-        return HtmlUnitUtils.hasAttributeWithValue(domNode.getParentNode(), "class", "disabled", true);
+        return HtmlUnitUtils.hasAttributeWithExactValue(domNode.getParentNode(), "class", "disabled");
     }
 
 
