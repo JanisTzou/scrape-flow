@@ -23,6 +23,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -176,7 +177,7 @@ public class TaskExecutor {
                     logRequestError(task, error);
                     return error;
                 })
-                .retryBackoff(task.getNumOfRetries(), task.getRetryBackoff())
+                .retryWhen(Retry.backoff(task.getNumOfRetries(), task.getRetryBackoff()))
                 .onErrorResume(error -> {
                     logDroppingRetrying(task, error);
                     logEnqueuedRequestCount();

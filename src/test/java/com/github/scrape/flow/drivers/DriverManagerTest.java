@@ -16,7 +16,6 @@
 
 package com.github.scrape.flow.drivers;
 
-import com.github.scrape.flow.AppConfig;
 import com.github.scrape.flow.drivers.lifecycle.QuitAfterIdleInterval;
 import com.github.scrape.flow.drivers.lifecycle.RestartDriverAfterInterval;
 import org.junit.Assert;
@@ -38,7 +37,7 @@ public class DriverManagerTest {
     public void test_that_restartDriverIfNeeded_Restarts_The_Driver_Only_When_Strategy_Condition_Met() throws InterruptedException {
 
         // given
-        SeleniumDriversFactory driversFactory = new SeleniumDriversFactory(AppConfig.getChromeDriverDir(),false);
+        SeleniumDriversFactory driversFactory = new SeleniumDriversFactory("TODO_provide_dir",false);
 
         int restartInMillis = 2_000;
 
@@ -81,7 +80,7 @@ public class DriverManagerTest {
     public void test_that_quitWebDriverIfIdle_Restarts_The_Driver_Only_When_Strategy_Condition_Met() throws InterruptedException {
 
         // given
-        SeleniumDriversFactory driversFactory = new SeleniumDriversFactory(AppConfig.getChromeDriverDir(),false);
+        SeleniumDriversFactory driversFactory = new SeleniumDriversFactory("TODO_provide_dir",false);
 
         int maxIdleIntervalMillis = 2_000;
 
@@ -129,7 +128,7 @@ public class DriverManagerTest {
 
         List<WebDriver> webDriverList = new ArrayList<>();
 
-        SeleniumDriversFactory driversFactory = new SeleniumDriversFactory(AppConfig.getChromeDriverDir(),false);
+        SeleniumDriversFactory driversFactory = new SeleniumDriversFactory("TODO_provide_dir",false);
 
         for (int i = 0; i < 5; i++) {
             WebDriver webDriver = driversFactory.startDriver();
