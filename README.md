@@ -1,3 +1,5 @@
+![build status](https://github.com/JanisTzou/scrape-flow/actions/workflows/main.yml/badge.svg)
+
 # Scrape Flow
 
 Note: The library is still under development
