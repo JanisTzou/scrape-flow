@@ -1,4 +1,4 @@
-![branch parameter](https://github.com/JanisTzou/scrape-flow/actions/workflows/main.yml/badge.svg?branch=master)
+![build status](https://github.com/JanisTzou/scrape-flow/actions/workflows/main.yml/badge.svg)
 
 # Scrape Flow
 
