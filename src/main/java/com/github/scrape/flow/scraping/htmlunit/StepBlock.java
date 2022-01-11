@@ -31,7 +31,7 @@ public class StepBlock extends CommonOperationsStepBase<StepBlock>
         implements ChainedStep<StepBlock>, CollectingStep<StepBlock> {
 
     StepBlock(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
-        super();
+        super(nextSteps);
     }
 
     StepBlock() {

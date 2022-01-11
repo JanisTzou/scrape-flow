@@ -29,7 +29,9 @@ import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -39,7 +41,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
 
     protected static final Function<String, String> NO_VALUE_CONVERSION = s -> s;
 
-    private final List<HtmlUnitScrapingStep<?>> nextSteps = new ArrayList<>();
+    private final List<HtmlUnitScrapingStep<?>> nextSteps;
 
     protected boolean exclusiveExecution = false;
 
@@ -69,7 +71,12 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     private String name = getClass().getSimpleName() + "-unnamed-step";
 
 
+    protected HtmlUnitScrapingStep(List<HtmlUnitScrapingStep<?>> nextSteps) {
+        this.nextSteps = new ArrayList<>(Objects.requireNonNullElse(nextSteps, Collections.emptyList()));
+    }
+
     protected HtmlUnitScrapingStep() {
+        this(null);
     }
 
 
