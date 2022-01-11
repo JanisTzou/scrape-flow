@@ -53,7 +53,8 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
         StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
-            if (ctx.getNode() instanceof HtmlAnchor anch) {
+            if (ctx.getNode() instanceof HtmlAnchor) {
+                HtmlAnchor anch = (HtmlAnchor) ctx.getNode();
                 String href = anch.getHrefAttribute();
                 if (href != null) {
                     String converted = convertParsedText(href);

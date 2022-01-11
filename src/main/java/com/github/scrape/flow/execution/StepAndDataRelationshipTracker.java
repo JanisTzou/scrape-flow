@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 @Log4j2
 public class StepAndDataRelationshipTracker {
 
-
     /**
      * The owning step order is the step that generated the data model object
      * Tha data model object is populated with parsed data in the child steps and until they have all finished the data cannot be published to listeners
@@ -57,7 +56,7 @@ public class StepAndDataRelationshipTracker {
      * @param spawnedSteps       steps created by the parent
      * @param modelToPublishList encapsulates the model object to which parsing steps assign acquired data
      */
-    public void track(StepOrder parent, List<StepOrder> spawnedSteps, List<ModelToPublish> modelToPublishList) {
+    public synchronized void track(StepOrder parent, List<StepOrder> spawnedSteps, List<ModelToPublish> modelToPublishList) {
         Spawned s = new Spawned(parent, spawnedSteps, modelToPublishList);
         log.debug("Tracking {}", s);
         spawnedByParentStep.compute(parent, (parent0, sl) -> {
@@ -69,7 +68,7 @@ public class StepAndDataRelationshipTracker {
         });
     }
 
-    public void untrack(Spawned spawned) {
+    public synchronized void untrack(Spawned spawned) {
         SpawnedList spawnedList = spawnedByParentStep.get(spawned.parent);
         if (spawnedList != null) {
             spawnedList.remove(spawned);
@@ -84,7 +83,7 @@ public class StepAndDataRelationshipTracker {
      *                     This method will search the step hierarchy upwards from this step (through parents ...) and will check if all related step executions
      *                     have been finished ... if yes than the data parsed by all those steps can be returned inside the list of FinalizedData
      */
-    public List<FinalizedModels> getModelsWithNoActiveSteps(StepOrder finishedStep) {
+    public synchronized List<FinalizedModels> getModelsWithNoActiveSteps(StepOrder finishedStep) {
         List<FinalizedModels> dtpList = new ArrayList<>();
 
         List<RelatedSteps> rsList = getAllRelatedStepsTo(finishedStep);

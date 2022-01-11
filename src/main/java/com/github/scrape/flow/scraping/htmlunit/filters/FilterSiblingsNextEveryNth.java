@@ -19,6 +19,7 @@ package com.github.scrape.flow.scraping.htmlunit.filters;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class FilterSiblingsNextEveryNth implements Filter {
@@ -40,7 +41,7 @@ public class FilterSiblingsNextEveryNth implements Filter {
         return IntStream.range(0, allNextSiblings.size())
                 .filter(n -> n % nth == 0)
                 .mapToObj(allNextSiblings::get)
-                .toList();
+                .collect(Collectors.toList());
     }
 
 }

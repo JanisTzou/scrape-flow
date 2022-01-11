@@ -19,12 +19,13 @@ package com.github.scrape.flow.scraping.htmlunit.filters;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FilterSiblingsFirst implements Filter {
 
     @Override
     public List<DomNode> filter(List<DomNode> allPrevSiblings) {
-        return allPrevSiblings.stream().findFirst().stream().toList();
+        return allPrevSiblings.stream().findFirst().stream().collect(Collectors.toList());
     }
 
 }

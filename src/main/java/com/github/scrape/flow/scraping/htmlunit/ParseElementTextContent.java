@@ -45,7 +45,8 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
 
         Runnable runnable = () -> {
             String tc = null;
-            if (ctx.getNode() instanceof HtmlElement htmlEl) {
+            if (ctx.getNode() instanceof HtmlElement) {
+                HtmlElement htmlEl = (HtmlElement) ctx.getNode();
                 tc = htmlEl.getTextContent();
                 if (tc != null) {
                     tc = StringEscapeUtils.unescapeHtml4(tc).trim();

@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -88,7 +89,7 @@ public class StepAndDataRelationshipTrackerTest {
         asTracker.untrack(step_1_2_2);
         data = sdrTracker.getModelsWithNoActiveSteps(step_1_2_2);
         assertFalse(data.isEmpty());
-        assertEquals(List.of(step_1_2_1, step_1_2_2), data.get(0).getSpawned().getSteps().stream().toList());
+        assertEquals(List.of(step_1_2_1, step_1_2_2), new ArrayList<>(data.get(0).getSpawned().getSteps()));
         assertEquals(model2, data.get(0).getSpawned().getModelToPublishList().get(0).getModel());
 
     }

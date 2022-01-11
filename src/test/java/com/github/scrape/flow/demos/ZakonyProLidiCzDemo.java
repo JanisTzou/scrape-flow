@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.*;
 
@@ -46,7 +48,8 @@ public class ZakonyProLidiCzDemo {
     public static final String HTTPS_WWW_ZAKONYPROLIDI_CZ = "https://www.zakonyprolidi.cz";
 
     private static void printLine() {
-        log.info("-".repeat(200));
+        String line = IntStream.range(0, 200).mapToObj(i -> "-").collect(Collectors.joining());
+        log.info(line);
     }
 
     @Test

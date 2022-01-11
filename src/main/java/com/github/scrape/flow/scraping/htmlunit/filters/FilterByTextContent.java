@@ -51,7 +51,8 @@ public class FilterByTextContent implements Filter {
     // Important the child nodes need to contain the text - not the descendants
     private boolean childNodesContainText(DomNode domNode) {
         for (DomNode childNode : domNode.getChildNodes()) {
-            if (childNode instanceof DomText domText) {
+            if (childNode instanceof DomText) {
+                DomText domText = (DomText) childNode;
                 if (isFound(domText)) {
                     log.debug("Found element by textContent: {} - {}", searchString, childNode);
                     return true;

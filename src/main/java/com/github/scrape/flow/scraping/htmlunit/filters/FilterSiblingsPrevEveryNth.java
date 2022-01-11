@@ -21,6 +21,7 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class FilterSiblingsPrevEveryNth implements Filter {
@@ -44,7 +45,7 @@ public class FilterSiblingsPrevEveryNth implements Filter {
         return IntStream.range(0, reversed.size())
                 .filter(n -> n % nth == 0)
                 .mapToObj(reversed::get)
-                .toList();
+                .collect(Collectors.toList());
     }
 
 }

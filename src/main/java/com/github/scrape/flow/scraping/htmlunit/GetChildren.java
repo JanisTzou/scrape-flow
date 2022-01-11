@@ -26,6 +26,7 @@ import com.github.scrape.flow.scraping.htmlunit.filters.FilterableByCommonCriter
 
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class GetChildren extends CommonOperationsStepBase<GetChildren>
         implements FilterableByCommonCriteria<GetChildren>, Filterable<GetChildren> {
@@ -55,7 +56,7 @@ public class GetChildren extends CommonOperationsStepBase<GetChildren>
     Supplier<List<DomNode>> nodesSearch(DomNode parent) {
         return () -> {
             // important to include only html elements -> users for not expect to deal with other types when defining filtering operations (e.g. first() ... )
-            return parent.getChildNodes().stream().filter(n -> n instanceof HtmlElement).toList();
+            return parent.getChildNodes().stream().filter(n -> n instanceof HtmlElement).collect(Collectors.toList());
         };
     }
 

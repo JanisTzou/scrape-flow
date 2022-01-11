@@ -3,9 +3,8 @@
 
     <Properties>
         <Property name="level">info</Property>
-        <Property name="layoutPattern">$${sys:app-name} %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-20thread %-30c{1.}:  %msg%n
-        </Property>
         <Property name="app-name">Scrapers</Property>
+        <Property name="layoutPattern">$${sys:app-name} %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-20thread %-30c{1.}: %msg%n</Property>
     </Properties>
 
     <Appenders>
@@ -18,7 +17,7 @@
 
     <Loggers>
 
-        <Logger name="com.gargoylesoftware.htmlunit" level="error" />
+        <Logger name="com.gargoylesoftware.htmlunit" level="error"/>
         <Logger name="org.apache" level="error"/>
 
         <Root level="${sys:level}">

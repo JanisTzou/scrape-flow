@@ -190,6 +190,14 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         return stepDeclarationLine;
     }
 
+    protected DebuggingOptions getStepDebugging() {
+        return stepDebugging;
+    }
+
+    protected List<Filter> getFilters() {
+        return filters;
+    }
+
     public String getName() {
         return name;
     }

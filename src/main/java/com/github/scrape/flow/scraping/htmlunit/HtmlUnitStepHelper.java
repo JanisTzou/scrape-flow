@@ -54,7 +54,7 @@ public class HtmlUnitStepHelper {
             }
 
             List<DomNode> foundNodes = nodesSearch.get();
-            List<DomNode> filteredNodes = FilterUtils.filter(foundNodes, step.filters, services.getGlobalDebugging());
+            List<DomNode> filteredNodes = FilterUtils.filter(foundNodes, step.getFilters(), services.getGlobalDebugging());
             logFoundCount(currStepOrder, filteredNodes.size(), services.getGlobalDebugging());
 
             for (DomNode node : filteredNodes) {
@@ -64,13 +64,13 @@ public class HtmlUnitStepHelper {
                 StepModelsHandler modelsHandler = StepModelsHandler.createFor(step);
                 StepModels stepModels = modelsHandler.createAndAccumulateModels(currStepOrder, ctx.getContextModels());
 
-                List<StepOrder> generatedOrders = executeNextSteps(currStepOrder, node, ctx, stepModels.getNextContextModels(), services);
+                List<StepOrder> nextStepsOrders = executeNextSteps(currStepOrder, node, ctx, stepModels.getNextContextModels(), services);
 
                 // TODO this step is what is missing when we call HtmlUnitSiteParser or NavigateToPage step ... from another step ... if it has a collector set to it ...
                 //  decide which category of steps absolutely must use this and make it somehow nicely available ...
                 if (!stepModels.getModelToPublishList().isEmpty()) { // important
-                    services.getStepAndDataRelationshipTracker().track(currStepOrder, generatedOrders, stepModels.getModelToPublishList());
-                    services.getScrapedDataPublisher().track(generatedOrders);
+                    services.getStepAndDataRelationshipTracker().track(currStepOrder, nextStepsOrders, stepModels.getModelToPublishList());
+                    services.getScrapedDataPublisher().enqueueStepsToAwaitDataPublishing(nextStepsOrders);
                 }
             }
 
@@ -81,7 +81,7 @@ public class HtmlUnitStepHelper {
 
 
     private void logFoundCount(StepOrder currStepOrder, int count, DebuggingOptions globalDebugging) {
-        if (globalDebugging.isLogFoundElementsCount() || step.stepDebugging.isLogFoundElementsCount()) {
+        if (globalDebugging.isLogFoundElementsCount() || step.getStepDebugging().isLogFoundElementsCount()) {
             log.info("{} - {}: found {} nodes", currStepOrder, step.getName(), count);
         }
     }
@@ -89,7 +89,7 @@ public class HtmlUnitStepHelper {
 
     private void logNodeSourceCode(DomNode node, DebuggingOptions globalDebugging) {
         if (!(node instanceof Page)
-                && (globalDebugging.isLogFoundElementsSource() || step.stepDebugging.isLogFoundElementsSource())
+                && (globalDebugging.isLogFoundElementsSource() || step.getStepDebugging().isLogFoundElementsSource())
         ) {
             log.info("Source for step {} defined at line {} \n{}", step.getName(), step.getStepDeclarationLine(), node.asXml());
         }

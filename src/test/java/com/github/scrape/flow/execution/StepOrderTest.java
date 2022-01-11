@@ -130,7 +130,7 @@ public class StepOrderTest {
     public void subOrder() {
         assertEquals(new StepOrder(1, 2, 2), new StepOrder(1, 2, 2, 4).getSubOrder(3).get());
 
-        assertTrue(new StepOrder(1, 2, 2, 4).getSubOrder(5).isEmpty());
+        assertFalse(new StepOrder(1, 2, 2, 4).getSubOrder(5).isPresent());
     }
 
     @Test

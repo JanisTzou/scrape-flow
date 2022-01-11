@@ -64,7 +64,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
         checkPaginationTriggerAndLinkItToThisStep();
 
         Optional<HtmlPage> page = ctx.getNodeAsHtmlPage();
-        if (page.isEmpty()) {
+        if (!page.isPresent()) {
             log.error("{} - {}: No HtmlPage provided by previous step! Cannot process page data and paginate to next pages!", stepOrder, getName());
         }
 
@@ -117,7 +117,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
             throw new IllegalStateException("paginationTrigger must be set for pagination to work!");
         } else {
             Optional<ReturnNextPage> returnNextPageStep = StepsUtils.findStepOfTypeInSequence(paginatingSequence, ReturnNextPage.class);
-            if (returnNextPageStep.isEmpty()) {
+            if (!returnNextPageStep.isPresent()) {
                 throw new IllegalStateException("the paginationTrigger step sequence must contain the step ReturnNextPage to work properly. Cannot execute pagination in this step: " + getName());
             } else {
                 if (!servicesPropagatedToTrigger) {

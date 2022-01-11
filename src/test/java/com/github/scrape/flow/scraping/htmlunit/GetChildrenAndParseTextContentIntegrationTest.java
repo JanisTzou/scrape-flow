@@ -25,12 +25,11 @@ import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.execution.TaskExecutor;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.Data;
-import org.junit.*;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -38,11 +37,12 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = TestConfiguration.class)
+@ContextConfiguration(classes = {TestConfiguration.class})
 public class GetChildrenAndParseTextContentIntegrationTest {
 
     @Autowired
@@ -51,8 +51,8 @@ public class GetChildrenAndParseTextContentIntegrationTest {
     private TaskExecutor taskExecutor;
     @Autowired
     private WebClient webClient;
-    @MockBean
-    private ScrapedDataListener<ScrapedValue> dataListenerMock;
+
+    private ScrapedDataListener<ScrapedValue> dataListenerMock = Mockito.mock(ScrapedDataListener.class);
 
 
     @Test
@@ -84,5 +84,6 @@ public class GetChildrenAndParseTextContentIntegrationTest {
     private static class ScrapedValue {
         private String val;
     }
+
 
 }

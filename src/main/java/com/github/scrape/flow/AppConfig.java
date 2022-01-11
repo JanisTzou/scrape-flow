@@ -21,7 +21,6 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import java.io.File;
-import java.util.logging.Level;
 
 @Deprecated
 public class AppConfig {
@@ -57,12 +56,6 @@ public class AppConfig {
         } else {
             return chromeDriverPath;
         }
-    }
-
-
-    public static void turnOffHtmlUnitLogger() {
-        java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
-        System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
     }
 
 }

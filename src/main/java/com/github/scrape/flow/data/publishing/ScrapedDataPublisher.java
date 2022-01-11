@@ -31,6 +31,7 @@ public class ScrapedDataPublisher {
 
     private final StepAndDataRelationshipTracker stepAndDataRelationshipTracker;
 
+    // order in which
     private final Queue<StepOrder> publishingOrderQueue = new PriorityQueue<>(100, StepOrder.NATURAL_COMPARATOR);
     private final Queue<FinalizedModels> waitingToSendQueue = new PriorityQueue<>(100, FinalizedModels.NATURAL_COMPARATOR);
     private final Set<StepOrder> waitingToSendSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -40,21 +41,18 @@ public class ScrapedDataPublisher {
         this.stepAndDataRelationshipTracker = stepAndDataRelationshipTracker;
     }
 
-
-    // TODO fix this better ... potential deadlocks ...
-
     /**
      * Call this only when the spawnedModel instance was just instantiated (-> do not call this from places where the data model was readily propagated ...)
      *
-     * @param spawnedSteps steps that hold generated models to be populated by step execution with parsed data ...
+     * @param steps hold generated models to be populated by subsequent step execution with parsed data ...
      */
-    public synchronized void track(List<StepOrder> spawnedSteps) {
-        publishingOrderQueue.addAll(spawnedSteps);
+    public synchronized void enqueueStepsToAwaitDataPublishing(List<StepOrder> steps) {
+        publishingOrderQueue.addAll(steps);
     }
 
 
     // TODO refactor this ...
-
+    // TODO bind this logic to a single thread and make only the publishing parallel ? ... so we can avoid synchronisation
     public synchronized void notifyAfterStepFinished(StepOrder stepOrder) {
 
         log.debug("Received finished step notification: {}", stepOrder);
@@ -120,6 +118,7 @@ public class ScrapedDataPublisher {
     }
 
 
+    // TODO publish on Schedulers.parallel() ?
     private void removeFromWaitingAndPublish(StepOrder stepOrder, FinalizedModels nextWaiting) {
         waitingToSendQueue.poll();
         nextWaiting.getSpawned().getSteps().forEach(waitingToSendSet::remove);

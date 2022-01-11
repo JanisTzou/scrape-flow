@@ -56,19 +56,24 @@ public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseEl
         StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
-            if (ctx.getNode() instanceof HtmlElement el && el.hasAttribute(attributeName)) {
-                String value = el.getAttribute(attributeName);
-                if (value != null) {
-                    String converted = convertParsedText(value);
-                    log.debug("{} - {}: Parsed value: {}", stepOrder, getName(), converted);
+            if (ctx.getNode() instanceof HtmlElement) {
+                HtmlElement el = (HtmlElement) ctx.getNode();
+                if (el.hasAttribute(attributeName)) {
+                    String value = el.getAttribute(attributeName);
+                    if (value != null) {
+                        String converted = convertParsedText(value);
+                        log.debug("{} - {}: Parsed value: {}", stepOrder, getName(), converted);
 
-                    setParsedValueToModel(this.getCollectors(), ctx, converted, getName(), stepDeclarationLine);
+                        setParsedValueToModel(this.getCollectors(), ctx, converted, getName(), stepDeclarationLine);
 
-                    Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
-                    getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
+                        Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
+                        getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
+                    }
+                } else {
+                    log.trace("{}: Node does not have attribute {}: node: {}", getName(), attributeName, ctx.getNode());
                 }
             } else {
-                log.trace("{}: Node is not an HtmlElement or does not have attribute {}: node: {}", getName(), attributeName, ctx.getNode());
+                log.trace("{}: Node is not an HtmlElement node: {}", getName(), ctx.getNode());
             }
         };
 

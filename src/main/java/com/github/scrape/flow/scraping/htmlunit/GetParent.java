@@ -21,8 +21,10 @@ import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GetParent extends CommonOperationsStepBase<GetParent>
@@ -58,11 +60,14 @@ public class GetParent extends CommonOperationsStepBase<GetParent>
 
         Runnable runnable = () -> {
             DomNode node = ctx.getNode();
-            Supplier<List<DomNode>> nodesSearch = () ->
-                    switch (type) {
-                        case PARENT -> Stream.of(node.getParentNode()).toList();
-                        case NTH_PARENT -> HtmlUnitUtils.findNthParent(node, param).stream().toList();
-                    };
+            Supplier<List<DomNode>> nodesSearch = () -> {
+                if (type.equals(Type.PARENT)) {
+                    return Stream.of(node.getParentNode()).collect(Collectors.toList());
+                } else if (type.equals(Type.NTH_PARENT)) {
+                    return HtmlUnitUtils.findNthParent(node, param).stream().collect(Collectors.toList());
+                }
+                return Collections.emptyList();
+            };
             getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
         };
 

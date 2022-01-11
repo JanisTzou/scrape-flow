@@ -20,13 +20,14 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.debugging.DebuggingOptions;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FilterUtils {
 
     public static List<DomNode> filter(List<DomNode> nodesToFilter, List<Filter> filters, DebuggingOptions globalDebugging) {
         List<DomNode> nodes = applyFilters(filters, nodesToFilter);
         if (globalDebugging.isOnlyScrapeFirstElements()) {
-            return nodes.stream().findFirst().stream().toList();
+            return nodes.stream().findFirst().stream().collect(Collectors.toList());
         } else {
             return nodes;
         }

@@ -28,17 +28,19 @@ import java.util.function.Predicate;
 public class HtmlUnitUtils {
 
     public static boolean hasCssClass(DomNode domNode, String cssClassName) {
-        if (domNode instanceof HtmlElement el) {
-            if (el.hasAttribute("class")) {
-                return Arrays.stream(el.getAttribute("class").split(" ")).anyMatch(cls -> cls.equalsIgnoreCase(cssClassName));
+        if (domNode instanceof HtmlElement) {
+            HtmlElement htmlEl = (HtmlElement) domNode;
+            if (htmlEl.hasAttribute("class")) {
+                return Arrays.stream(htmlEl.getAttribute("class").split(" ")).anyMatch(cls -> cls.equalsIgnoreCase(cssClassName));
             }
         }
         return false;
     }
 
     public static boolean hasTagName(DomNode domNode, String tagName) {
-        if (domNode instanceof HtmlElement el) {
-            return el.getTagName().equalsIgnoreCase(tagName);
+        if (domNode instanceof HtmlElement) {
+            HtmlElement htmlEl = (HtmlElement) domNode;
+            return htmlEl.getTagName().equalsIgnoreCase(tagName);
         }
         return false;
     }
@@ -50,7 +52,8 @@ public class HtmlUnitUtils {
     public static List<DomNode> getHtmlElementDescendants(DomNode parentElement, Predicate<DomNode> filter) {
         List<DomNode> found = new ArrayList<>();
         for (DomNode desc : parentElement.getHtmlElementDescendants()) {
-            if (desc instanceof HtmlElement htmlEl) {
+            if (desc instanceof HtmlElement) {
+                HtmlElement htmlEl = (HtmlElement) desc;
                 if (filter.test(htmlEl)) {
                     found.add(desc);
                 }
@@ -60,7 +63,8 @@ public class HtmlUnitUtils {
     }
 
     public static boolean hasAttributeWithExactValue(DomNode domNode, String attribute, String value) {
-        if (domNode instanceof HtmlElement element) {
+        if (domNode instanceof HtmlElement) {
+            HtmlElement element = (HtmlElement) domNode;
             return element.hasAttribute(attribute) && element.getAttribute(attribute).equals(value);
         } else {
             return false;
@@ -68,7 +72,8 @@ public class HtmlUnitUtils {
     }
 
     public static boolean hasAttributeWithValue(DomNode domNode, String attribute, String valueRegex) {
-        if (domNode instanceof HtmlElement element) {
+        if (domNode instanceof HtmlElement) {
+            HtmlElement element = (HtmlElement) domNode;
             if (element.hasAttribute(attribute)) {
                 return element.getAttribute(attribute).matches(valueRegex);
             }
@@ -77,7 +82,8 @@ public class HtmlUnitUtils {
     }
 
     public static boolean hasAttribute(DomNode domNode, String attribute) {
-        if (domNode instanceof HtmlElement element) {
+        if (domNode instanceof HtmlElement) {
+            HtmlElement element = (HtmlElement) domNode;
             return element.hasAttribute(attribute);
         } else {
             return false;
@@ -126,14 +132,16 @@ public class HtmlUnitUtils {
 
 
     public static Optional<DomNode> toDomNode(Object obj) {
-        if (obj instanceof DomNode node) {
+        if (obj instanceof DomNode) {
+            DomNode node = (DomNode) obj;
             return Optional.of(node);
         }
         return Optional.empty();
     }
 
     public static Optional<HtmlElement> toHtmlElement(Object obj) {
-        if (obj instanceof HtmlElement elem) {
+        if (obj instanceof HtmlElement) {
+            HtmlElement elem = (HtmlElement) obj;
             return Optional.of(elem);
         }
         return Optional.empty();
