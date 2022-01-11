@@ -37,10 +37,19 @@ public class DebuggableScraping {
 
     /**
      * Logs the source code of each found element as XML
-     * @return @return reference to this instance
+     * @return reference to this instance
      */
     public Scraping setLogFoundElementsSource(boolean enabled) {
         scraping.getServices().getGlobalDebugging().setLogFoundElementsSource(enabled);
+        return scraping;
+    }
+
+    /**
+     * Logs the count of found elements at each step
+     * @return reference to this instance
+     */
+    public Scraping setLogFoundElementsCount(boolean enabled) {
+        scraping.getServices().getGlobalDebugging().setLogFoundElementsCount(enabled);
         return scraping;
     }
 

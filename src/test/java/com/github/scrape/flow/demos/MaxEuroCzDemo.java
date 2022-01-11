@@ -73,6 +73,7 @@ public class MaxEuroCzDemo {
 
         scraping.getDebugOptions().setOnlyScrapeFirstElements(false)
                 .getDebugOptions().setLogFoundElementsSource(false)
+                .getDebugOptions().setLogFoundElementsCount(false)
                 .getOptions().setRequestRetries(2);
 
         scraping.setSequence(

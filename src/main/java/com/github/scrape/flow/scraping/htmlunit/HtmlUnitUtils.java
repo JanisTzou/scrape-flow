@@ -65,7 +65,7 @@ public class HtmlUnitUtils {
     public static boolean hasAttributeWithExactValue(DomNode domNode, String attribute, String value) {
         if (domNode instanceof HtmlElement) {
             HtmlElement element = (HtmlElement) domNode;
-            return element.hasAttribute(attribute) && element.getAttribute(attribute).equals(value);
+            return element.hasAttribute(attribute) && element.getAttribute(attribute).equalsIgnoreCase(value);
         } else {
             return false;
         }
