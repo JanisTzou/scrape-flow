@@ -17,7 +17,7 @@
 package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.scrape.flow.parallelism.StepOrder;
+import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 
 import javax.annotation.Nullable;

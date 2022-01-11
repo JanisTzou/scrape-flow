@@ -16,15 +16,15 @@
 
 package com.github.scrape.flow.data.publishing;
 
-import com.github.scrape.flow.parallelism.StepAndDataRelationshipTracker;
-import com.github.scrape.flow.parallelism.StepOrder;
+import com.github.scrape.flow.execution.StepAndDataRelationshipTracker;
+import com.github.scrape.flow.execution.StepOrder;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static com.github.scrape.flow.parallelism.StepAndDataRelationshipTracker.FinalizedModels;
+import static com.github.scrape.flow.execution.StepAndDataRelationshipTracker.FinalizedModels;
 
 @Log4j2
 public class ScrapedDataPublisher {

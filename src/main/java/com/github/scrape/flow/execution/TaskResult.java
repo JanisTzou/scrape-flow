@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.parallelism;
+package com.github.scrape.flow.execution;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 @RequiredArgsConstructor
 @Getter
-@ToString
-public class TaskError {
+public class TaskResult {
 
     private final Task task;
-    private final Throwable error;
 
 }

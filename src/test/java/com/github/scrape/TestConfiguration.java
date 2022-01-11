@@ -20,7 +20,7 @@ import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.github.scrape.flow.data.publishing.ScrapedDataPublisher;
 import com.github.scrape.flow.debugging.DebuggingOptions;
-import com.github.scrape.flow.parallelism.*;
+import com.github.scrape.flow.execution.*;
 import com.github.scrape.flow.scraping.Options;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;

@@ -18,7 +18,7 @@ package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.data.publishing.ScrapedDataPublisher;
 import com.github.scrape.flow.debugging.DebuggingOptions;
-import com.github.scrape.flow.parallelism.*;
+import com.github.scrape.flow.execution.*;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
 import com.github.scrape.flow.throttling.ThrottlingService;
 import lombok.Getter;

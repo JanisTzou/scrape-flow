@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.parallelism;
+package com.github.scrape.flow.execution;
 
 import org.junit.Test;
 

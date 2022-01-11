@@ -21,7 +21,7 @@ import com.github.scrape.flow.data.collectors.Collectors;
 import com.github.scrape.flow.data.collectors.ModelWrapper;
 import com.github.scrape.flow.data.publishing.ModelToPublish;
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
-import com.github.scrape.flow.parallelism.StepOrder;
+import com.github.scrape.flow.execution.StepOrder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 

@@ -16,7 +16,7 @@
 
 package com.github.scrape.flow.scraping;
 
-import com.github.scrape.flow.parallelism.StepOrder;
+import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitScrapingStep;
 import com.github.scrape.flow.scraping.htmlunit.ScrapingContext;
 
