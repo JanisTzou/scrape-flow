@@ -21,14 +21,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ExecutingTasksTracker {
 
-    private final Map<StepExecOrder, Task> tracked = new ConcurrentHashMap<>();
+    private final Map<StepOrder, Task> tracked = new ConcurrentHashMap<>();
 
     public void track(Task task) {
-        tracked.put(task.getStepExecOrder(), task);
+        tracked.put(task.getStepOrder(), task);
     }
 
     public void untrack(Task task) {
-        tracked.remove(task.getStepExecOrder());
+        tracked.remove(task.getStepOrder());
     }
 
     public int countOfExecutingTasks() {

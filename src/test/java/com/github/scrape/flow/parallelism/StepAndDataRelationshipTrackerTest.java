@@ -33,11 +33,11 @@ public class StepAndDataRelationshipTrackerTest {
     String model1 = "model1";
     String model2 = "model2";
 
-    StepExecOrder step_1 = StepExecOrder.from(1);
-    StepExecOrder step_1_1 = StepExecOrder.from(1, 1);
-    StepExecOrder step_1_2 = StepExecOrder.from(1, 2);
-    StepExecOrder step_1_2_1 = StepExecOrder.from(1, 2, 1);
-    StepExecOrder step_1_2_2 = StepExecOrder.from(1, 2, 2);
+    StepOrder step_1 = StepOrder.from(1);
+    StepOrder step_1_1 = StepOrder.from(1, 1);
+    StepOrder step_1_2 = StepOrder.from(1, 2);
+    StepOrder step_1_2_1 = StepOrder.from(1, 2, 1);
+    StepOrder step_1_2_2 = StepOrder.from(1, 2, 2);
 
     ActiveStepsTracker asTracker;
     StepAndDataRelationshipTracker sdrTracker;

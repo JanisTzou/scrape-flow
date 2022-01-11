@@ -19,7 +19,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.github.scrape.flow.data.collectors.Collector;
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 
 import java.util.List;
@@ -49,30 +49,30 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
 
 
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
+    protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             if (ctx.getNode() instanceof HtmlAnchor anch) {
                 String href = anch.getHrefAttribute();
                 if (href != null) {
                     String converted = convertParsedText(href);
-                    log.debug("{} - {}: Parsed href: {}", stepExecOrder, getName(), converted);
+                    log.debug("{} - {}: Parsed href: {}", stepOrder, getName(), converted);
 
                     setParsedValueToModel(this.getCollectors(), ctx, converted, getName(), stepDeclarationLine);
 
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
                     ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(converted).build();
-                    getHelper().execute(ctxCopy, nodesSearch, stepExecOrder, getExecuteIf(), services);
+                    getHelper().execute(ctxCopy, nodesSearch, stepOrder, getExecuteIf(), services);
                 }
             } else {
                 log.warn("No HtmlAnchor element provided -> cannot parse href value! Check the steps sequence above step {}", getName());
             }
         };
 
-        submitForExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
-        return stepExecOrder;
+        return stepOrder;
     }
 
     @Override

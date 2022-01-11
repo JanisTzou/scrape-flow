@@ -21,7 +21,7 @@ import com.github.scrape.flow.data.collectors.Collectors;
 import com.github.scrape.flow.data.collectors.ModelWrapper;
 import com.github.scrape.flow.data.publishing.ModelToPublish;
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -42,7 +42,7 @@ public class StepModelsHandler {
         return new StepModelsHandler(step.getName(), step.getClass(), step.getCollectors());
     }
 
-    StepModels createAndAccumulateModels(StepExecOrder currStepExecOrder, ContextModels currContextModels) {
+    StepModels createAndAccumulateModels(StepOrder currStepOrder, ContextModels currContextModels) {
 
         ContextModels nextContextModels = currContextModels.copy();
         List<ModelToPublish> modelToPublishList = new ArrayList<>();
@@ -74,7 +74,7 @@ public class StepModelsHandler {
                 if (CollectingParsedValueToModelStep.class.isAssignableFrom(stepType)) {
                     // has its own handling ...
                 } else {
-                    log.warn("{} - {}: Failed to find modelWrappers for containerClass and/or modelClass!", currStepExecOrder, stepName);
+                    log.warn("{} - {}: Failed to find modelWrappers for containerClass and/or modelClass!", currStepOrder, stepName);
                 }
             }
         }

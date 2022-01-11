@@ -19,7 +19,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.data.collectors.Collector;
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 
 import java.util.List;
@@ -52,29 +52,29 @@ public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseEl
 
 
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
+    protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             if (ctx.getNode() instanceof HtmlElement el && el.hasAttribute(attributeName)) {
                 String value = el.getAttribute(attributeName);
                 if (value != null) {
                     String converted = convertParsedText(value);
-                    log.debug("{} - {}: Parsed value: {}", stepExecOrder, getName(), converted);
+                    log.debug("{} - {}: Parsed value: {}", stepOrder, getName(), converted);
 
                     setParsedValueToModel(this.getCollectors(), ctx, converted, getName(), stepDeclarationLine);
 
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
-                    getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
+                    getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
                 }
             } else {
                 log.trace("{}: Node is not an HtmlElement or does not have attribute {}: node: {}", getName(), attributeName, ctx.getNode());
             }
         };
 
-        submitForExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
-        return stepExecOrder;
+        return stepOrder;
     }
 
     @Override

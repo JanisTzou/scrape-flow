@@ -19,11 +19,11 @@ package com.github.scrape.flow.parallelism;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class StepExecOrder {
+public class StepOrder {
 
-    public static final StepExecOrder INITIAL = new StepExecOrder(List.of(0));
+    public static final StepOrder INITIAL = new StepOrder(List.of(0));
 
-    public static final Comparator<StepExecOrder> NATURAL_COMPARATOR = (so1, so2) -> {
+    public static final Comparator<StepOrder> NATURAL_COMPARATOR = (so1, so2) -> {
         for (int idx = 0; idx < Math.min(so1.size(), so2.size()); idx++) {
             Integer sVal = so1.values.get(idx);
             Integer bVal = so2.values.get(idx);
@@ -50,15 +50,15 @@ public class StepExecOrder {
     private final List<Integer> values = new ArrayList<>();
 
 
-    static StepExecOrder from(Integer ... values) {
-        return new StepExecOrder(values);
+    static StepOrder from(Integer ... values) {
+        return new StepOrder(values);
     }
 
-    StepExecOrder(Integer ... values) {
+    StepOrder(Integer ... values) {
         this(Arrays.asList(values));
     }
 
-    private StepExecOrder(List<Integer> values) {
+    private StepOrder(List<Integer> values) {
         checkInvariants(values.size());
         this.values.addAll(values); // important to create a copy!
     }
@@ -69,16 +69,16 @@ public class StepExecOrder {
         }
     }
 
-    StepExecOrder nextAsSibling() {
+    StepOrder nextAsSibling() {
         int lastIdx = values.size() - 1;
         int newOrder = 1 + values.get(lastIdx);
-        StepExecOrder next = new StepExecOrder(values);
+        StepOrder next = new StepOrder(values);
         next.values.set(lastIdx, newOrder);
         return next;
     }
 
-    StepExecOrder nextAsChild() {
-        StepExecOrder next = new StepExecOrder(values);
+    StepOrder nextAsChild() {
+        StepOrder next = new StepOrder(values);
         next.values.add(1);
         return next;
     }
@@ -87,17 +87,17 @@ public class StepExecOrder {
         return size() > 1; // position 0 is root ...
     }
 
-    Optional<StepExecOrder> getParent() {
+    Optional<StepOrder> getParent() {
         if (hasParent()) {
-            StepExecOrder parent = new StepExecOrder(values.subList(0, values.size() - 1));
+            StepOrder parent = new StepOrder(values.subList(0, values.size() - 1));
             return Optional.of(parent);
         }
         return Optional.empty();
     }
 
-    public boolean isParentOf(StepExecOrder other) {
+    public boolean isParentOf(StepOrder other) {
         if (other.size() > this.size()) {
-            Optional<StepExecOrder> subOrder = other.getSubOrder(size());
+            Optional<StepOrder> subOrder = other.getSubOrder(size());
             if (subOrder.isPresent()) {
                 return this.equals(subOrder.get());
             }
@@ -105,7 +105,7 @@ public class StepExecOrder {
         return false;
     }
 
-    Optional<StepExecOrder> getSubOrder(int valuesToInclude) {
+    Optional<StepOrder> getSubOrder(int valuesToInclude) {
         if (valuesToInclude <= 0) {
             throw new IllegalStateException("Specified value must be greater than 0!");
         }
@@ -114,15 +114,15 @@ public class StepExecOrder {
         } else if (size() == valuesToInclude) {
             return Optional.of(this);
         } else {
-            return Optional.of(new StepExecOrder(this.values.subList(0, valuesToInclude)));
+            return Optional.of(new StepOrder(this.values.subList(0, valuesToInclude)));
         }
     }
 
-    public boolean isBefore(StepExecOrder other) {
+    public boolean isBefore(StepOrder other) {
         return NATURAL_COMPARATOR.compare(this, other) < 0;
     }
 
-    public boolean isAfter(StepExecOrder other) {
+    public boolean isAfter(StepOrder other) {
         return NATURAL_COMPARATOR.compare(this, other) > 0;
     }
 
@@ -138,9 +138,9 @@ public class StepExecOrder {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof StepExecOrder)) return false;
-        StepExecOrder stepExecOrder = (StepExecOrder) o;
-        return Objects.equals(values, stepExecOrder.values);
+        if (!(o instanceof StepOrder)) return false;
+        StepOrder stepOrder = (StepOrder) o;
+        return Objects.equals(values, stepOrder.values);
     }
 
     @Override

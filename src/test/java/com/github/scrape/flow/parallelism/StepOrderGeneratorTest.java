@@ -20,25 +20,25 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class StepExecOrderGeneratorTest {
+public class StepOrderGeneratorTest {
 
     @Test
     public void getNextStepOrderForChild() {
 
-        StepExecOrderGenerator sog = new StepExecOrderGenerator();
+        StepOrderGenerator sog = new StepOrderGenerator();
 
-        StepExecOrder parent = new StepExecOrder(1);
+        StepOrder parent = new StepOrder(1);
 
-        StepExecOrder so1 = sog.genNextOrderAfter(parent);
-        StepExecOrder so2 = sog.genNextOrderAfter(parent);
+        StepOrder so1 = sog.genNextOrderAfter(parent);
+        StepOrder so2 = sog.genNextOrderAfter(parent);
 
-        assertEquals(new StepExecOrder(1, 1), so1);
-        assertEquals(new StepExecOrder(1, 2), so2);
+        assertEquals(new StepOrder(1, 1), so1);
+        assertEquals(new StepOrder(1, 2), so2);
 
-        StepExecOrder so3 = sog.genNextOrderAfter(so2);
-        assertEquals(new StepExecOrder(1, 2, 1), so3);
+        StepOrder so3 = sog.genNextOrderAfter(so2);
+        assertEquals(new StepOrder(1, 2, 1), so3);
 
-        StepExecOrder so4 = sog.genNextOrderAfter(parent);
-        assertEquals(new StepExecOrder(1, 3), so4);
+        StepOrder so4 = sog.genNextOrderAfter(parent);
+        assertEquals(new StepOrder(1, 3), so4);
     }
 }

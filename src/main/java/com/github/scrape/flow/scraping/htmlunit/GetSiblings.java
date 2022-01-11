@@ -17,7 +17,7 @@
 package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.htmlunit.filters.*;
 import lombok.extern.log4j.Log4j2;
@@ -57,17 +57,17 @@ public class GetSiblings extends CommonOperationsStepBase<GetSiblings>
     }
 
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
+    protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> getEligibleSiblings(ctx);
-            getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
+            getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
         };
 
-        submitForExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
-        return stepExecOrder;
+        return stepOrder;
     }
 
     private List<DomNode> getEligibleSiblings(ScrapingContext ctx) {

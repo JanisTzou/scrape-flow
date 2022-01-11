@@ -16,7 +16,7 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.scraping.LoadingNewPage;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.SiteParser;
@@ -39,23 +39,23 @@ public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToPar
 
     // the URL must come from the parsing context!!
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
+    protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
 
         // TODO problem ... this does not track steps for us and also the data ...
         Runnable runnable = () -> {
             if (ctx.getParsedURL() != null) {
                 // TODO if this step type has collectors then we need similar logic as in Wrapper ...
-                siteParser.parse(ctx.getParsedURL(), ctx, this.getNextSteps(), stepExecOrder, services);
+                siteParser.parse(ctx.getParsedURL(), ctx, this.getNextSteps(), stepOrder, services);
 
             } else {
                 log.error("{}: Cannot navigate to next site - the previously parsed URL is null!", getName());
             }
         };
 
-        submitForExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
-        return stepExecOrder;
+        return stepOrder;
     }
 
 

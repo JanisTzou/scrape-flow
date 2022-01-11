@@ -18,7 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.extern.log4j.Log4j2;
 
@@ -53,19 +53,19 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
      * @param ctx must contain a reference to HtmlPage that might be paginated (contains some for of next link or button)
      */
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
+    protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
 
-        StepExecOrder prevStepExecOrder = ctx.getRootLoopedStepExecOrder() == null
-                ? ctx.getPrevStepExecOrder()
-                : ctx.getRootLoopedStepExecOrder();
+        StepOrder prevStepOrder = ctx.getRootLoopedStepOrder() == null
+                ? ctx.getPrevStepOrder()
+                : ctx.getRootLoopedStepOrder();
 
-        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(prevStepExecOrder);
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(prevStepOrder);
 
         checkPaginationTriggerAndLinkItToThisStep();
 
         Optional<HtmlPage> page = ctx.getNodeAsHtmlPage();
         if (page.isEmpty()) {
-            log.error("{} - {}: No HtmlPage provided by previous step! Cannot process page data and paginate to next pages!", stepExecOrder, getName());
+            log.error("{} - {}: No HtmlPage provided by previous step! Cannot process page data and paginate to next pages!", stepOrder, getName());
         }
 
         Runnable runnable = () -> {
@@ -73,31 +73,31 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
 
                 // GENERAL - just processes the received page
                 Supplier<List<DomNode>> nodesSearch = () -> List.of(page.get());
-                // important to set the recursiveRootStepExecOrder to null ... the general nextSteps and logic should not be affected by it ... it's only related to pagination
+                // important to set the recursiveRootStepOrder to null ... the general nextSteps and logic should not be affected by it ... it's only related to pagination
                 ScrapingContext plainCtx = ctx.toBuilder()
-                        .setRecursiveRootStepExecOrder(null)
+                        .setRecursiveRootStepOrder(null)
                         .build();
                 NextStepsHandler nextStepsHandler = new NextStepsWrappedInOneExclusiveBlock(); // we need to make absolutely sure that the next steps have finished before we go to next page
-                getHelper(nextStepsHandler).execute(plainCtx, nodesSearch, stepExecOrder, getExecuteIf(), services);
+                getHelper(nextStepsHandler).execute(plainCtx, nodesSearch, stepOrder, getExecuteIf(), services);
 
                 // PAGINATION
                 ScrapingContext paginatingCtx = ctx.toBuilder()
-                        .setPrevStepOrder(stepExecOrder)
-                        .setRecursiveRootStepExecOrder(prevStepExecOrder) // TODO reconsider?
+                        .setPrevStepOrder(stepOrder)
+                        .setRecursiveRootStepOrder(prevStepOrder) // TODO reconsider?
                         .setNode(page.get())
                         .build();
                 // TODO the pagination sequence does not support models currently ... if it does (e.g. for internal data propagation purposes) it will need to implement some for of data tracking ...
                 //  but it is questionably if we would like to design the data propagation as models if it's just for internal purposes ...
-//                services.getStepAndDataRelationshipTracker().track(stepExecOrder, generatedSteps, model, (ParsedDataListener<Object>) collecting.getDataListener());
+//                services.getStepAndDataRelationshipTracker().track(stepOrder, generatedSteps, model, (ParsedDataListener<Object>) collecting.getDataListener());
 
                 paginatingSequence.execute(paginatingCtx, services);
 
             }
         };
 
-        submitForExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
-        return stepExecOrder;
+        return stepOrder;
     }
 
     /**

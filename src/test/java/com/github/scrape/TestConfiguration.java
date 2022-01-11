@@ -18,7 +18,7 @@ package com.github.scrape;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.github.scrape.flow.data.publishing.DataPublisher;
+import com.github.scrape.flow.data.publishing.ScrapedDataPublisher;
 import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.parallelism.*;
 import com.github.scrape.flow.scraping.Options;
@@ -37,22 +37,22 @@ public class TestConfiguration {
 
     @Bean
     @Autowired
-    public ScrapingServices scrapingServices(StepExecOrderGenerator stepExecOrderGenerator,
+    public ScrapingServices scrapingServices(StepOrderGenerator stepOrderGenerator,
                                              ThrottlingService throttlingService,
                                              ActiveStepsTracker activeStepsTracker,
                                              StepAndDataRelationshipTracker stepAndDataRelationshipTracker,
                                              ExclusiveExecutionTracker exclusiveExecutionTracker,
-                                             DataPublisher dataPublisher,
+                                             ScrapedDataPublisher scrapedDataPublisher,
                                              TaskExecutor taskExecutor,
                                              Options options,
                                              DebuggingOptions globalDebugging,
                                              TaskService taskService) {
-        return new ScrapingServices(stepExecOrderGenerator,
+        return new ScrapingServices(stepOrderGenerator,
                 throttlingService,
                 activeStepsTracker,
                 stepAndDataRelationshipTracker,
                 exclusiveExecutionTracker,
-                dataPublisher,
+                scrapedDataPublisher,
                 taskExecutor,
                 options,
                 globalDebugging,
@@ -61,8 +61,8 @@ public class TestConfiguration {
     }
 
     @Bean
-    public StepExecOrderGenerator stepExecOrderGenerator() {
-        return new StepExecOrderGenerator();
+    public StepOrderGenerator stepOrderGenerator() {
+        return new StepOrderGenerator();
     }
 
     @Bean
@@ -87,8 +87,8 @@ public class TestConfiguration {
 
     @Bean
     @Autowired
-    public DataPublisher dataPublisher(StepAndDataRelationshipTracker stepAndDataRelationshipTracker) {
-        return new DataPublisher(stepAndDataRelationshipTracker);
+    public ScrapedDataPublisher dataPublisher(StepAndDataRelationshipTracker stepAndDataRelationshipTracker) {
+        return new ScrapedDataPublisher(stepAndDataRelationshipTracker);
     }
 
     @Bean
@@ -119,10 +119,10 @@ public class TestConfiguration {
     @Autowired
     public TaskService taskService(TaskExecutor taskExecutor,
                                    ActiveStepsTracker activeStepsTracker,
-                                   DataPublisher dataPublisher,
+                                   ScrapedDataPublisher scrapedDataPublisher,
                                    ScrapingRateLimiter scrapingRateLimiter,
                                    Options options) {
-        return new TaskService(taskExecutor, activeStepsTracker, dataPublisher, scrapingRateLimiter, options);
+        return new TaskService(taskExecutor, activeStepsTracker, scrapedDataPublisher, scrapingRateLimiter, options);
     }
 
     @Bean(destroyMethod = "close")

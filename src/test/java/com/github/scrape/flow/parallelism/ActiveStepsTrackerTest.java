@@ -24,10 +24,10 @@ import static org.junit.Assert.assertTrue;
 
 public class ActiveStepsTrackerTest {
 
-    StepExecOrder step_1 = StepExecOrder.from(1);
-    StepExecOrder step_1_1 = StepExecOrder.from(1, 1);
-    StepExecOrder step_1_2 = StepExecOrder.from(1, 2);
-    StepExecOrder step_1_2_1 = StepExecOrder.from(1, 2, 1);
+    StepOrder step_1 = StepOrder.from(1);
+    StepOrder step_1_1 = StepOrder.from(1, 1);
+    StepOrder step_1_2 = StepOrder.from(1, 2);
+    StepOrder step_1_2_1 = StepOrder.from(1, 2, 1);
 
     ActiveStepsTracker ast;
 

@@ -16,7 +16,7 @@
 
 package com.github.scrape.flow.scraping;
 
-import com.github.scrape.flow.data.publishing.DataPublisher;
+import com.github.scrape.flow.data.publishing.ScrapedDataPublisher;
 import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.parallelism.*;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
@@ -29,33 +29,33 @@ import lombok.Getter;
 @Getter
 public class ScrapingServices {
 
-    private final StepExecOrderGenerator stepExecOrderGenerator;
+    private final StepOrderGenerator stepOrderGenerator;
     private final ThrottlingService throttlingService;
     private final ActiveStepsTracker activeStepsTracker;
     private final StepAndDataRelationshipTracker stepAndDataRelationshipTracker;
     private final ExclusiveExecutionTracker exclusiveExecutionTracker;
-    private final DataPublisher dataPublisher;
+    private final ScrapedDataPublisher scrapedDataPublisher;
     private final Options options;
     private final DebuggingOptions globalDebugging;
     private final TaskExecutor taskExecutor;
     private final TaskService taskService;
 
-    public ScrapingServices(StepExecOrderGenerator stepExecOrderGenerator,
+    public ScrapingServices(StepOrderGenerator stepOrderGenerator,
                             ThrottlingService throttlingService,
                             ActiveStepsTracker activeStepsTracker,
                             StepAndDataRelationshipTracker stepAndDataRelationshipTracker,
                             ExclusiveExecutionTracker exclusiveExecutionTracker,
-                            DataPublisher dataPublisher,
+                            ScrapedDataPublisher scrapedDataPublisher,
                             TaskExecutor taskExecutor,
                             Options options,
                             DebuggingOptions globalDebugging,
                             TaskService taskService) {
-        this.stepExecOrderGenerator = stepExecOrderGenerator;
+        this.stepOrderGenerator = stepOrderGenerator;
         this.throttlingService = throttlingService;
         this.activeStepsTracker = activeStepsTracker;
         this.stepAndDataRelationshipTracker = stepAndDataRelationshipTracker;
         this.exclusiveExecutionTracker = exclusiveExecutionTracker;
-        this.dataPublisher = dataPublisher;
+        this.scrapedDataPublisher = scrapedDataPublisher;
         this.options = options;
         this.globalDebugging = globalDebugging;
         this.taskExecutor = taskExecutor;
@@ -63,16 +63,16 @@ public class ScrapingServices {
     }
 
     public ScrapingServices(ScrapingRateLimiter scrapingRateLimiter) {
-        this.stepExecOrderGenerator = new StepExecOrderGenerator();
+        this.stepOrderGenerator = new StepOrderGenerator();
         this.throttlingService = new ThrottlingService();
         this.activeStepsTracker = new ActiveStepsTracker();
         this.stepAndDataRelationshipTracker = new StepAndDataRelationshipTracker(activeStepsTracker);
         this.exclusiveExecutionTracker = new ExclusiveExecutionTracker(activeStepsTracker);
-        this.dataPublisher = new DataPublisher(stepAndDataRelationshipTracker);
+        this.scrapedDataPublisher = new ScrapedDataPublisher(stepAndDataRelationshipTracker);
         this.options = new Options();
         this.globalDebugging = new DebuggingOptions();
         taskExecutor = new TaskExecutor(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker);
-        taskService = new TaskService(taskExecutor, activeStepsTracker, dataPublisher, scrapingRateLimiter, options);
+        taskService = new TaskService(taskExecutor, activeStepsTracker, scrapedDataPublisher, scrapingRateLimiter, options);
     }
 
 }

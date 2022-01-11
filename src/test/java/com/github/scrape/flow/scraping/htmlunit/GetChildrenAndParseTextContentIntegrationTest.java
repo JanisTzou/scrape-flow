@@ -16,13 +16,12 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.scrape.TestConfiguration;
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.parallelism.TaskExecutor;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.Data;
@@ -61,7 +60,7 @@ public class GetChildrenAndParseTextContentIntegrationTest {
 
         HtmlPage page = TestUtils.loadTestPage("test_page_1.html", webClient);
         DomNode parent = (DomNode) page.getByXPath("/html/body/div/div").stream().findFirst().get();
-        ScrapingContext ctx = new ScrapingContext(StepExecOrder.INITIAL, parent);
+        ScrapingContext ctx = new ScrapingContext(StepOrder.INITIAL, parent);
 
         GetChildren testSequence = new GetChildren()
                 .addCollector(ScrapedValue::new, ScrapedValue.class, dataListenerMock)

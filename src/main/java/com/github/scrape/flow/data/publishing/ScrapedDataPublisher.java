@@ -17,7 +17,7 @@
 package com.github.scrape.flow.data.publishing;
 
 import com.github.scrape.flow.parallelism.StepAndDataRelationshipTracker;
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.*;
@@ -27,16 +27,16 @@ import java.util.stream.Collectors;
 import static com.github.scrape.flow.parallelism.StepAndDataRelationshipTracker.FinalizedModels;
 
 @Log4j2
-public class DataPublisher {
+public class ScrapedDataPublisher {
 
     private final StepAndDataRelationshipTracker stepAndDataRelationshipTracker;
 
-    private final Queue<StepExecOrder> publishingOrderQueue = new PriorityQueue<>(100, StepExecOrder.NATURAL_COMPARATOR);
+    private final Queue<StepOrder> publishingOrderQueue = new PriorityQueue<>(100, StepOrder.NATURAL_COMPARATOR);
     private final Queue<FinalizedModels> waitingToSendQueue = new PriorityQueue<>(100, FinalizedModels.NATURAL_COMPARATOR);
-    private final Set<StepExecOrder> waitingToSendSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Set<StepOrder> waitingToSendSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
 
-    public DataPublisher(StepAndDataRelationshipTracker stepAndDataRelationshipTracker) {
+    public ScrapedDataPublisher(StepAndDataRelationshipTracker stepAndDataRelationshipTracker) {
         this.stepAndDataRelationshipTracker = stepAndDataRelationshipTracker;
     }
 
@@ -48,19 +48,19 @@ public class DataPublisher {
      *
      * @param spawnedSteps steps that hold generated models to be populated by step execution with parsed data ...
      */
-    public synchronized void track(List<StepExecOrder> spawnedSteps) {
+    public synchronized void track(List<StepOrder> spawnedSteps) {
         publishingOrderQueue.addAll(spawnedSteps);
     }
 
 
     // TODO refactor this ...
 
-    public synchronized void notifyAfterStepFinished(StepExecOrder stepExecOrder) {
+    public synchronized void notifyAfterStepFinished(StepOrder stepOrder) {
 
-        log.debug("Received finished step notification: {}", stepExecOrder);
+        log.debug("Received finished step notification: {}", stepOrder);
 
         // as we are waiting this repeated returns same stuff ... we need to make sure that we do not use it twice ... as it is already waiting ...
-        List<FinalizedModels> finalizedData = stepAndDataRelationshipTracker.getModelsWithNoActiveSteps(stepExecOrder);
+        List<FinalizedModels> finalizedData = stepAndDataRelationshipTracker.getModelsWithNoActiveSteps(stepOrder);
 
         List<FinalizedModels> unknownFinalizedData = finalizedData.stream()
                 .filter(fm -> fm.getSpawned().getSteps().stream().noneMatch(waitingToSendSet::contains))
@@ -82,12 +82,12 @@ public class DataPublisher {
                 FinalizedModels nextWaiting = waitingToSendQueue.peek();
 
                 if (nextWaiting != null) {
-                    List<StepExecOrder> waitingSteps = nextWaiting.getSpawned().getSteps().stream().sorted(StepExecOrder.NATURAL_COMPARATOR).collect(Collectors.toList());
+                    List<StepOrder> waitingSteps = nextWaiting.getSpawned().getSteps().stream().sorted(StepOrder.NATURAL_COMPARATOR).collect(Collectors.toList());
 
                     if (!publishingOrderQueue.isEmpty()) {
 
-                        for (StepExecOrder waitingStep : waitingSteps) {
-                            StepExecOrder publishingHead = publishingOrderQueue.peek();
+                        for (StepOrder waitingStep : waitingSteps) {
+                            StepOrder publishingHead = publishingOrderQueue.peek();
                             log.debug("publishingHead: {}", publishingHead);
                             log.debug("waitingHead: {}", waitingSteps);
 
@@ -96,20 +96,20 @@ public class DataPublisher {
                                 publishingOrderQueue.poll();
                             } else {
                                 if (send) {
-                                    log.error("{} Unexpected state - not all steps from the FinalizedModels matched the head of the publishingOrder queue", stepExecOrder);
+                                    log.error("{} Unexpected state - not all steps from the FinalizedModels matched the head of the publishingOrder queue", stepOrder);
                                 }
                             }
                         }
 
                         if (send) {
-                            removeFromWaitingAndPublish(stepExecOrder, nextWaiting);
+                            removeFromWaitingAndPublish(stepOrder, nextWaiting);
                         } else {
                             log.debug("delaying sending finalized data: {}", waitingSteps);
                             break;
                         }
 
                     } else {
-                        removeFromWaitingAndPublish(stepExecOrder, nextWaiting);
+                        removeFromWaitingAndPublish(stepOrder, nextWaiting);
                     }
                 } else {
                     break;
@@ -120,18 +120,18 @@ public class DataPublisher {
     }
 
 
-    private void removeFromWaitingAndPublish(StepExecOrder stepExecOrder, FinalizedModels nextWaiting) {
+    private void removeFromWaitingAndPublish(StepOrder stepOrder, FinalizedModels nextWaiting) {
         waitingToSendQueue.poll();
         nextWaiting.getSpawned().getSteps().forEach(waitingToSendSet::remove);
-        publish(stepExecOrder, nextWaiting);
+        publish(stepOrder, nextWaiting);
     }
 
 
-    private void publish(StepExecOrder stepExecOrder, FinalizedModels data) {
+    private void publish(StepOrder stepOrder, FinalizedModels data) {
         for (ModelToPublish mtp : data.getSpawned().getModelToPublishList()) {
-            log.debug("{} has finalized data of type '{}'", stepExecOrder, mtp.getModel().getClass().getSimpleName());
+            log.debug("{} has finalized data of type '{}'", stepOrder, mtp.getModel().getClass().getSimpleName());
             if (mtp.getScrapedDataListener() != null) {
-                log.debug("{} About to publish data to listener for type '{}' after step finished", stepExecOrder, mtp.getModelClass().getSimpleName());
+                log.debug("{} About to publish data to listener for type '{}' after step finished", stepOrder, mtp.getModelClass().getSimpleName());
                 mtp.getScrapedDataListener().onScrapedData(mtp.getModel());
             }
         }

@@ -16,7 +16,7 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-public interface Validate<C extends HtmlUnitScrapingStep<C>> {
+public interface Validating<C extends HtmlUnitScrapingStep<C>> {
 
     void expectOne();
 

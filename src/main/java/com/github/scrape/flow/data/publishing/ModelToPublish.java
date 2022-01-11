@@ -19,7 +19,7 @@ package com.github.scrape.flow.data.publishing;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-// models that are mean to be published to registered listeners ...
+// models that are meant to be published to registered listeners ...
 @RequiredArgsConstructor
 @Getter
 public class ModelToPublish {

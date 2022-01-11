@@ -16,22 +16,21 @@
 
 package com.github.scrape.flow.parallelism;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 
-@RequiredArgsConstructor
-@Getter
-@ToString
+@Data
 public class TaskBasis {
 
-    private final StepExecOrder stepExecOrder;
+    private final StepOrder stepOrder;
 
     /**
      * Tasks with this setting will be executed with priority
      * The implementation should effectively disable the execution of
-     * tasks with subsequent stepExecOrder values which have with
+     * tasks with subsequent stepOrder values which have with
      * exclusive = false for the time exclusive tasks are running.
      */
     private final boolean exclusiveExecution;

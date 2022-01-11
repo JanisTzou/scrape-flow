@@ -16,7 +16,7 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 
 import java.util.List;
@@ -28,9 +28,9 @@ import java.util.stream.Collectors;
 public class NextStepsAsDefinedByUser implements NextStepsHandler {
 
     @Override
-    public List<StepExecOrder> execute(List<HtmlUnitScrapingStep<?>> nextSteps,
-                                       ScrapingContext nextCtx,
-                                       ScrapingServices services) {
+    public List<StepOrder> execute(List<HtmlUnitScrapingStep<?>> nextSteps,
+                                   ScrapingContext nextCtx,
+                                   ScrapingServices services) {
         return nextSteps.stream()
                 .map(step -> step.execute(nextCtx, services))
                 .collect(Collectors.toList());

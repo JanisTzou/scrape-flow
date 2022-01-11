@@ -16,7 +16,7 @@
 
 package com.github.scrape.flow.scraping;
 
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitScrapingStep;
 import com.github.scrape.flow.scraping.htmlunit.ScrapingContext;
 
@@ -31,6 +31,6 @@ public interface SiteParser {
     /**
      * For internal lib uses only
      */
-    void parse(String url, ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequence, StepExecOrder currStepExecOrder, ScrapingServices services);
+    void parse(String url, ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequence, StepOrder currStepOrder, ScrapingServices services);
 
 }

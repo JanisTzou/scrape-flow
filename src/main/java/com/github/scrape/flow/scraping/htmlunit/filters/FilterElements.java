@@ -17,7 +17,7 @@
 package com.github.scrape.flow.scraping.htmlunit.filters;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.htmlunit.CommonOperationsStepBase;
 import com.github.scrape.flow.scraping.htmlunit.ScrapingContext;
@@ -47,17 +47,17 @@ public class FilterElements extends CommonOperationsStepBase<FilterElements> {
     }
 
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
+    protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodeSupplier = () -> Stream.of(ctx.getNode()).filter(domNodePredicate).collect(Collectors.toList());
-            getHelper().execute(ctx, nodeSupplier, stepExecOrder, getExecuteIf(), services);
+            getHelper().execute(ctx, nodeSupplier, stepOrder, getExecuteIf(), services);
         };
 
-        submitForExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
-        return stepExecOrder;
+        return stepOrder;
     }
 
 }

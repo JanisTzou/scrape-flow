@@ -17,6 +17,7 @@
 package com.github.scrape.flow.parallelism;
 
 import com.github.scrape.flow.data.publishing.ModelToPublish;
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -40,7 +41,7 @@ public class StepAndDataRelationshipTracker {
      * The owning step order is the step that generated the data model object
      * Tha data model object is populated with parsed data in the child steps and until they have all finished the data cannot be published to listeners
      */
-    private final Map<StepExecOrder, SpawnedList> spawnedByParentStep = new ConcurrentHashMap<>();
+    private final Map<StepOrder, SpawnedList> spawnedByParentStep = new ConcurrentHashMap<>();
 
     private final ActiveStepsTracker activeStepsTracker;
 
@@ -56,7 +57,7 @@ public class StepAndDataRelationshipTracker {
      * @param spawnedSteps       steps created by the parent
      * @param modelToPublishList encapsulates the model object to which parsing steps assign acquired data
      */
-    public void track(StepExecOrder parent, List<StepExecOrder> spawnedSteps, List<ModelToPublish> modelToPublishList) {
+    public void track(StepOrder parent, List<StepOrder> spawnedSteps, List<ModelToPublish> modelToPublishList) {
         Spawned s = new Spawned(parent, spawnedSteps, modelToPublishList);
         log.debug("Tracking {}", s);
         spawnedByParentStep.compute(parent, (parent0, sl) -> {
@@ -83,7 +84,7 @@ public class StepAndDataRelationshipTracker {
      *                     This method will search the step hierarchy upwards from this step (through parents ...) and will check if all related step executions
      *                     have been finished ... if yes than the data parsed by all those steps can be returned inside the list of FinalizedData
      */
-    public List<FinalizedModels> getModelsWithNoActiveSteps(StepExecOrder finishedStep) {
+    public List<FinalizedModels> getModelsWithNoActiveSteps(StepOrder finishedStep) {
         List<FinalizedModels> dtpList = new ArrayList<>();
 
         List<RelatedSteps> rsList = getAllRelatedStepsTo(finishedStep);
@@ -107,10 +108,10 @@ public class StepAndDataRelationshipTracker {
      *
      * @param step any child step that has finished and might have completed the whole step hierarchy for some data model ...
      */
-    List<RelatedSteps> getAllRelatedStepsTo(StepExecOrder step) {
+    List<RelatedSteps> getAllRelatedStepsTo(StepOrder step) {
         List<RelatedSteps> relatedSteps = new ArrayList<>();
-        StepExecOrder prevParent = step;
-        Optional<StepExecOrder> parent = step.getParent();
+        StepOrder prevParent = step;
+        Optional<StepOrder> parent = step.getParent();
         while (parent.isPresent()) {
             SpawnedList sl = spawnedByParentStep.get(parent.get());
             if (sl != null) {
@@ -137,12 +138,12 @@ public class StepAndDataRelationshipTracker {
     public static class FinalizedModels {
 
         public static Comparator<FinalizedModels> NATURAL_COMPARATOR = (fm1, fm2) -> {
-            StepExecOrder so1 = fm1.spawned.getSteps().stream().min(StepExecOrder.NATURAL_COMPARATOR).get(); // must be present
-            StepExecOrder so2 = fm2.spawned.getSteps().stream().min(StepExecOrder.NATURAL_COMPARATOR).get();
-            return StepExecOrder.NATURAL_COMPARATOR.compare(so1, so2);
+            StepOrder so1 = fm1.spawned.getSteps().stream().min(StepOrder.NATURAL_COMPARATOR).get(); // must be present
+            StepOrder so2 = fm2.spawned.getSteps().stream().min(StepOrder.NATURAL_COMPARATOR).get();
+            return StepOrder.NATURAL_COMPARATOR.compare(so1, so2);
         };
 
-        private final StepExecOrder parent;
+        private final StepOrder parent;
         private final Spawned spawned;
 
         @Override
@@ -163,21 +164,20 @@ public class StepAndDataRelationshipTracker {
      * Children spawned by the owning step to which a data model was published.
      * They are the steps directly below the owning step
      */
-    @Getter
-    @ToString
+    @Data
     public static class Spawned {
 
-        private final StepExecOrder parent;
+        private final StepOrder parent;
 
         // listener associated with the given model so that it can be published
-        private final Set<StepExecOrder> steps = Collections.newSetFromMap(new ConcurrentHashMap<>());
+        private final Set<StepOrder> steps = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
         /**
          * Data modified by the active steps which we wanna publish to registered listeners when all the steps finish
          */
         private final List<ModelToPublish> modelToPublishList;
 
-        public Spawned(StepExecOrder parent, List<StepExecOrder> steps, List<ModelToPublish> modelToPublishList) {
+        public Spawned(StepOrder parent, List<StepOrder> steps, List<ModelToPublish> modelToPublishList) {
             this.parent = parent;
             this.steps.addAll(steps);
             this.modelToPublishList = modelToPublishList;
@@ -187,8 +187,8 @@ public class StepAndDataRelationshipTracker {
             if (this.steps.size() != other.steps.size()) {
                 return false;
             }
-            List<StepExecOrder> steps1 = this.steps.stream().sorted(StepExecOrder.NATURAL_COMPARATOR).collect(Collectors.toList());
-            List<StepExecOrder> steps2 = other.steps.stream().sorted(StepExecOrder.NATURAL_COMPARATOR).collect(Collectors.toList());
+            List<StepOrder> steps1 = this.steps.stream().sorted(StepOrder.NATURAL_COMPARATOR).collect(Collectors.toList());
+            List<StepOrder> steps2 = other.steps.stream().sorted(StepOrder.NATURAL_COMPARATOR).collect(Collectors.toList());
 
             return steps1.equals(steps2);
         }
@@ -199,7 +199,7 @@ public class StepAndDataRelationshipTracker {
     static class SpawnedList {
         private final List<Spawned> list = new CopyOnWriteArrayList<>(); // must be thread safe
 
-        Optional<Spawned> getSpawnedContaining(StepExecOrder order) {
+        Optional<Spawned> getSpawnedContaining(StepOrder order) {
             return list.stream().filter(s -> s.steps.contains(order)).findFirst();
         }
 
@@ -213,12 +213,10 @@ public class StepAndDataRelationshipTracker {
         }
     }
 
-    @RequiredArgsConstructor
-    @Getter
-    @ToString
+    @Data
     static class RelatedSteps {
 
-        private final StepExecOrder parent;
+        private final StepOrder parent;
         private final Spawned spawned;
 
     }

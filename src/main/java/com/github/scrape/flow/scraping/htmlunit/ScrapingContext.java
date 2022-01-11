@@ -18,7 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -42,7 +42,7 @@ public class ScrapingContext {
      * StepOrder value at the previous level of step hierarchy (so the step calling this step)
      */
     @Nonnull
-    private final StepExecOrder prevStepExecOrder;
+    private final StepOrder prevStepOrder;
 
     private DomNode node;
 
@@ -51,34 +51,34 @@ public class ScrapingContext {
 
     private String parsedText;
 
-    // should contain th efull URL so that it can be navigated to ...
+    // should contain the full URL so that it can be navigated to ...
     private String parsedURL;
 
     // used in special cases when we have looped step execution and we always want to set the prev step to some initial value ...
-    private StepExecOrder rootLoopedStepExecOrder;
+    private StepOrder rootLoopedStepOrder;
 
 
 
-    public ScrapingContext(StepExecOrder prevStepExecOrder, DomNode node) {
-        this(prevStepExecOrder, node, new ContextModels());
+    public ScrapingContext(StepOrder prevStepOrder, DomNode node) {
+        this(prevStepOrder, node, new ContextModels());
     }
 
-    public ScrapingContext(StepExecOrder prevStepExecOrder, DomNode node, ContextModels contextModels) {
-        this(prevStepExecOrder, node, contextModels, null, null, null);
+    public ScrapingContext(StepOrder prevStepOrder, DomNode node, ContextModels contextModels) {
+        this(prevStepOrder, node, contextModels, null, null, null);
     }
 
-    public ScrapingContext(@Nonnull StepExecOrder prevStepExecOrder,
+    public ScrapingContext(@Nonnull StepOrder prevStepOrder,
                            DomNode node,
                            @Nonnull ContextModels contextModels,
                            String parsedText,
                            String parsedURL,
-                           StepExecOrder rootLoopedStepExecOrder) {
-        this.prevStepExecOrder = Objects.requireNonNull(prevStepExecOrder);
+                           StepOrder rootLoopedStepOrder) {
+        this.prevStepOrder = Objects.requireNonNull(prevStepOrder);
         this.node = node;
         this.contextModels = Objects.requireNonNull(contextModels);
         this.parsedText = parsedText;
         this.parsedURL = parsedURL;
-        this.rootLoopedStepExecOrder = rootLoopedStepExecOrder;
+        this.rootLoopedStepOrder = rootLoopedStepOrder;
     }
 
     public Optional<HtmlPage> getNodeAsHtmlPage() {
@@ -92,29 +92,29 @@ public class ScrapingContext {
 
     public static class Builder {
 
-        private StepExecOrder prevStepExecOrder;
+        private StepOrder prevStepOrder;
         private DomNode node;
         private final ContextModels contextModelsCopy;
         private String parsedText;
         private String parsedURL;
-        private StepExecOrder recursiveRootStepExecOrder;
+        private StepOrder recursiveRootStepOrder;
 
-        private Builder(StepExecOrder prevStepExecOrder, DomNode node, ContextModels contextModelsCopy, String parsedText, String parsedURL,
-                       StepExecOrder recursiveRootStepExecOrder) {
-            this.prevStepExecOrder = prevStepExecOrder;
+        private Builder(StepOrder prevStepOrder, DomNode node, ContextModels contextModelsCopy, String parsedText, String parsedURL,
+                        StepOrder recursiveRootStepOrder) {
+            this.prevStepOrder = prevStepOrder;
             this.node = node;
             this.contextModelsCopy = contextModelsCopy;
             this.parsedText = parsedText;
             this.parsedURL = parsedURL;
-            this.recursiveRootStepExecOrder = recursiveRootStepExecOrder;
+            this.recursiveRootStepOrder = recursiveRootStepOrder;
         }
 
         private Builder(ScrapingContext ctx) {
-            this(ctx.prevStepExecOrder, ctx.node, ctx.contextModels.copy(), ctx.parsedText, ctx.parsedURL, ctx.rootLoopedStepExecOrder);
+            this(ctx.prevStepOrder, ctx.node, ctx.contextModels.copy(), ctx.parsedText, ctx.parsedURL, ctx.rootLoopedStepOrder);
         }
 
-        public Builder setPrevStepOrder(StepExecOrder stepExecOrder) {
-            this.prevStepExecOrder = stepExecOrder;
+        public Builder setPrevStepOrder(StepOrder stepOrder) {
+            this.prevStepOrder = stepOrder;
             return this;
         }
 
@@ -138,13 +138,13 @@ public class ScrapingContext {
             return this;
         }
 
-        public Builder setRecursiveRootStepExecOrder(StepExecOrder stepExecOrder) {
-            this.recursiveRootStepExecOrder = stepExecOrder;
+        public Builder setRecursiveRootStepOrder(StepOrder stepOrder) {
+            this.recursiveRootStepOrder = stepOrder;
             return this;
         }
 
         public ScrapingContext build() {
-            return new ScrapingContext(prevStepExecOrder, node, contextModelsCopy, parsedText, parsedURL, recursiveRootStepExecOrder);
+            return new ScrapingContext(prevStepOrder, node, contextModelsCopy, parsedText, parsedURL, recursiveRootStepOrder);
         }
     }
 }

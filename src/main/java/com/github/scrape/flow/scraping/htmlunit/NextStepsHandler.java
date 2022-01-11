@@ -16,13 +16,13 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 
 import java.util.List;
 
 public interface NextStepsHandler {
 
-    List<StepExecOrder> execute(List<HtmlUnitScrapingStep<?>> nextSteps, ScrapingContext nextCtx, ScrapingServices services);
+    List<StepOrder> execute(List<HtmlUnitScrapingStep<?>> nextSteps, ScrapingContext nextCtx, ScrapingServices services);
 
 }

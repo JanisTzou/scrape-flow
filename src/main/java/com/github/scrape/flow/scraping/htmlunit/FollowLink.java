@@ -19,7 +19,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.scraping.LoadingNewPage;
 import com.github.scrape.flow.scraping.RequestException;
 import com.github.scrape.flow.scraping.ScrapingServices;
@@ -43,8 +43,8 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
     }
 
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
+    protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             if (ctx.getNode() instanceof HtmlAnchor anch && anch.hasAttribute("href")) { // check for href to filter away sites that use JS to load next here ...
@@ -53,7 +53,7 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
                     try {
                         HtmlPage currPage = anch.getHtmlPageOrNull();
                         URL currUrl = currPage.getUrl();
-                        log.debug("{} - {}: Clicking HtmlAnchor element at {}", stepExecOrder, getName(), anch.getHrefAttribute());
+                        log.debug("{} - {}: Clicking HtmlAnchor element at {}", stepOrder, getName(), anch.getHrefAttribute());
 
                         // TODO we want to propagate this page in the context ... to the next steps ...
                         HtmlPage nextPage = anch.click();
@@ -64,7 +64,7 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
                             return Collections.emptyList();
                         } else {
 //                          System.out.println(nextPage.asXml());
-                            log.info("{} - {}: Loaded page URL after anchor clicked: {}", stepExecOrder, getName(), nextUrl.toString());
+                            log.info("{} - {}: Loaded page URL after anchor clicked: {}", stepOrder, getName(), nextUrl.toString());
                             return List.of(nextPage);
                         }
 
@@ -73,7 +73,7 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
                         throw new RequestException(e);
                     }
                 };
-                getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
+                getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
 
             } else {
                 log.warn("{}: No anchor element with href attribute provided -> cannot click element! Check the steps sequence above step {} " +
@@ -81,8 +81,8 @@ public class FollowLink extends CommonOperationsStepBase<FollowLink>
             }
         };
 
-        submitForExecution(stepExecOrder, runnable, services.getTaskService());
-        return stepExecOrder;
+        submitForExecution(stepOrder, runnable, services.getTaskService());
+        return stepOrder;
     }
 
     @Override

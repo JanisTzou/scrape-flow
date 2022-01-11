@@ -34,18 +34,18 @@ public class ExclusiveExecutionTracker {
     /**
      * holds the stack of root step orders that are to be executed exclusively
      */
-    private final Stack<StepExecOrder> taskRootOrderStack = new Stack<>();
+    private final Stack<StepOrder> taskRootOrderStack = new Stack<>();
 
 
-    void push(StepExecOrder rootExecOrder) {
-        taskRootOrderStack.push(rootExecOrder);
+    void push(StepOrder rootStepOrder) {
+        taskRootOrderStack.push(rootStepOrder);
     }
 
     void pop() {
         taskRootOrderStack.pop();
     }
 
-    Optional<StepExecOrder> peek() {
+    Optional<StepOrder> peek() {
         if (taskRootOrderStack.isEmpty()) {
             return Optional.empty();
         } else {
@@ -57,7 +57,7 @@ public class ExclusiveExecutionTracker {
     //  also this this violates command-query separation !!!
     public boolean canExecute(QueuedStepTask qst) {
         Task st = qst.getStepTask();
-        StepExecOrder order = st.getStepExecOrder();
+        StepOrder order = st.getStepOrder();
 
         if (taskRootOrderStack.isEmpty()) {
             if (st.isExclusiveExecution()) {
@@ -65,7 +65,7 @@ public class ExclusiveExecutionTracker {
             }
             return true;
         } else {
-            StepExecOrder exclusiveScopeRoot = taskRootOrderStack.peek();
+            StepOrder exclusiveScopeRoot = taskRootOrderStack.peek();
             if (order.isBefore(exclusiveScopeRoot)) {
                 // this is ok, there should be nothing in such a step that would depend on this subsequent step
                 return true;

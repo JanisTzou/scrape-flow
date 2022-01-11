@@ -152,7 +152,7 @@ public class TaskExecutor {
 
     private boolean isParentTaskFinished(QueuedStepTask next) {
         // super important that children do not skip parent tasks ... issues that are hard to debug ...
-        return next.getStepTask().getStepExecOrder().getParent().map(pt -> !activeStepsTracker.isActive(pt)).orElse(true);
+        return next.getStepTask().getStepOrder().getParent().map(pt -> !activeStepsTracker.isActive(pt)).orElse(true);
     }
 
     private boolean isWithinScrapingLimits(Task task) {

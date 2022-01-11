@@ -19,7 +19,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.data.collectors.Collectors;
 import com.github.scrape.flow.debugging.DebuggingOptions;
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.parallelism.TaskBasis;
 import com.github.scrape.flow.parallelism.TaskService;
 import com.github.scrape.flow.scraping.MakingHttpRequests;
@@ -73,7 +73,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
     }
 
 
-    protected abstract StepExecOrder execute(ScrapingContext ctx, ScrapingServices services);
+    protected abstract StepOrder execute(ScrapingContext ctx, ScrapingServices services);
 
     protected HtmlUnitStepHelper getHelper() {
         return new HtmlUnitStepHelper(this);
@@ -212,8 +212,8 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         return text != null ? parsedValueConversion.apply(text) : null;
     }
 
-    protected void submitForExecution(StepExecOrder stepExecOrder, Runnable runnable, TaskService taskService) {
-        TaskBasis stepTask = new TaskBasis(stepExecOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests);
+    protected void submitForExecution(StepOrder stepOrder, Runnable runnable, TaskService taskService) {
+        TaskBasis stepTask = new TaskBasis(stepOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests);
         taskService.submitForExecution(stepTask);
     }
 

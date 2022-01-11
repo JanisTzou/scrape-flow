@@ -16,7 +16,7 @@
 
 package com.github.scrape.flow.parallelism;
 
-import com.github.scrape.flow.data.publishing.DataPublisher;
+import com.github.scrape.flow.data.publishing.ScrapedDataPublisher;
 import com.github.scrape.flow.scraping.Options;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
 import lombok.RequiredArgsConstructor;
@@ -28,19 +28,19 @@ public class TaskService {
 
     private final TaskExecutor taskExecutor;
     private final ActiveStepsTracker activeStepsTracker;
-    private final DataPublisher dataPublisher;
+    private final ScrapedDataPublisher scrapedDataPublisher;
     private final ScrapingRateLimiter scrapingRateLimiter;
     private final Options options;
 
     public void submitForExecution(TaskBasis taskBasis) {
         Task task = createStepTask(taskBasis);
 
-        StepExecOrder execOrder = task.getStepExecOrder();
-        activeStepsTracker.track(execOrder, task.getStepName());
+        StepOrder stepOrder = task.getStepOrder();
+        activeStepsTracker.track(stepOrder, task.getStepName());
         taskExecutor.submit(
                 task,
-                r -> handleFinishedStep(execOrder),
-                e -> handleFinishedStep(execOrder) // even when we finish in error there might be successfully parsed other data that might be waiting to get published outside
+                r -> handleFinishedStep(stepOrder),
+                e -> handleFinishedStep(stepOrder) // even when we finish in error there might be successfully parsed other data that might be waiting to get published outside
         );
     }
 
@@ -56,9 +56,9 @@ public class TaskService {
         return task;
     }
 
-    private void handleFinishedStep(StepExecOrder stepExecOrder) {
-        activeStepsTracker.untrack(stepExecOrder);
-        dataPublisher.notifyAfterStepFinished(stepExecOrder);
+    private void handleFinishedStep(StepOrder stepOrder) {
+        activeStepsTracker.untrack(stepOrder);
+        scrapedDataPublisher.notifyAfterStepFinished(stepOrder);
     }
 
 }

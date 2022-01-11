@@ -19,7 +19,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.debugging.DebuggingOptions;
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.htmlunit.filters.FilterUtils;
 import lombok.extern.log4j.Log4j2;
@@ -45,7 +45,7 @@ public class HtmlUnitStepHelper {
 
     public void execute(ScrapingContext ctx,
                         Supplier<List<DomNode>> nodesSearch,
-                        StepExecOrder currStepExecOrder,
+                        StepOrder currStepOrder,
                         StepExecutionCondition condition,
                         ScrapingServices services) {
         try {
@@ -55,34 +55,34 @@ public class HtmlUnitStepHelper {
 
             List<DomNode> foundNodes = nodesSearch.get();
             List<DomNode> filteredNodes = FilterUtils.filter(foundNodes, step.filters, services.getGlobalDebugging());
-            logFoundCount(currStepExecOrder, filteredNodes.size(), services.getGlobalDebugging());
+            logFoundCount(currStepOrder, filteredNodes.size(), services.getGlobalDebugging());
 
             for (DomNode node : filteredNodes) {
 
                 logNodeSourceCode(node, services.getGlobalDebugging());
 
                 StepModelsHandler modelsHandler = StepModelsHandler.createFor(step);
-                StepModels stepModels = modelsHandler.createAndAccumulateModels(currStepExecOrder, ctx.getContextModels());
+                StepModels stepModels = modelsHandler.createAndAccumulateModels(currStepOrder, ctx.getContextModels());
 
-                List<StepExecOrder> generatedOrders = executeNextSteps(currStepExecOrder, node, ctx, stepModels.getNextContextModels(), services);
+                List<StepOrder> generatedOrders = executeNextSteps(currStepOrder, node, ctx, stepModels.getNextContextModels(), services);
 
                 // TODO this step is what is missing when we call HtmlUnitSiteParser or NavigateToPage step ... from another step ... if it has a collector set to it ...
                 //  decide which category of steps absolutely must use this and make it somehow nicely available ...
                 if (!stepModels.getModelToPublishList().isEmpty()) { // important
-                    services.getStepAndDataRelationshipTracker().track(currStepExecOrder, generatedOrders, stepModels.getModelToPublishList());
-                    services.getDataPublisher().track(generatedOrders);
+                    services.getStepAndDataRelationshipTracker().track(currStepOrder, generatedOrders, stepModels.getModelToPublishList());
+                    services.getScrapedDataPublisher().track(generatedOrders);
                 }
             }
 
         } catch (Exception e) {
-            log.error("{} - {}: Error executing step", currStepExecOrder, step.getName(), e);
+            log.error("{} - {}: Error executing step", currStepOrder, step.getName(), e);
         }
     }
 
 
-    private void logFoundCount(StepExecOrder currStepExecOrder, int count, DebuggingOptions globalDebugging) {
+    private void logFoundCount(StepOrder currStepOrder, int count, DebuggingOptions globalDebugging) {
         if (globalDebugging.isLogFoundElementsCount() || step.stepDebugging.isLogFoundElementsCount()) {
-            log.info("{} - {}: found {} nodes", currStepExecOrder, step.getName(), count);
+            log.info("{} - {}: found {} nodes", currStepOrder, step.getName(), count);
         }
     }
 
@@ -96,19 +96,19 @@ public class HtmlUnitStepHelper {
     }
 
 
-    private List<StepExecOrder> executeNextSteps(StepExecOrder currStepExecOrder,
-                                                 DomNode node,
-                                                 ScrapingContext ctx,
-                                                 ContextModels nextContextModels,
-                                                 ScrapingServices services) {
+    private List<StepOrder> executeNextSteps(StepOrder currStepOrder,
+                                             DomNode node,
+                                             ScrapingContext ctx,
+                                             ContextModels nextContextModels,
+                                             ScrapingServices services) {
         // TODO have a nextStepContextHandler ?
         ScrapingContext nextCtx = new ScrapingContext(
-                currStepExecOrder,
+                currStepOrder,
                 node,
                 nextContextModels.copy(),
                 null, // TODO send parsed text as well? Probably not, the parsed text should be possible to access differently ... (through model)
                 ctx.getParsedURL(),
-                ctx.getRootLoopedStepExecOrder()
+                ctx.getRootLoopedStepOrder()
         );
 
         return nextStepsHandler.execute(step.getNextSteps(), nextCtx, services);

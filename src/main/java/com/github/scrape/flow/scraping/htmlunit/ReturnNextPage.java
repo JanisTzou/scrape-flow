@@ -18,7 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.extern.log4j.Log4j2;
 
@@ -48,24 +48,24 @@ public class ReturnNextPage extends CommonOperationsStepBase<ReturnNextPage> {
      * @param services
      */
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
+    protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
 
-        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             Optional<HtmlPage> page = ctx.getNodeAsHtmlPage();
 
             if (page.isPresent()) {
                 Supplier<List<DomNode>> nodesSearch = () -> List.of(page.get());
-                getHelper().execute(ctx, nodesSearch, stepExecOrder, getExecuteIf(), services);
+                getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
             } else {
                 log.error("The previous step did not produce an HtmlPage! Cannot process next page data in step {}", getName());
             }
         };
 
-        submitForExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
-        return stepExecOrder;
+        return stepOrder;
     }
 
     // TODO remove this and somehow communicate this via the ScrapingContext ... we can have a callback step there ... that can be utilized by some steps

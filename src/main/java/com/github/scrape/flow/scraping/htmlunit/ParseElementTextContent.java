@@ -18,7 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.data.collectors.Collector;
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -40,8 +40,8 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
     }
 
     @Override
-    protected StepExecOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepExecOrder stepExecOrder = services.getStepExecOrderGenerator().genNextOrderAfter(ctx.getPrevStepExecOrder());
+    protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             String tc = null;
@@ -57,9 +57,9 @@ public class ParseElementTextContent extends HtmlUnitScrapingStep<ParseElementTe
             setParsedValueToModel(this.getCollectors(), ctx, transformed, getName(), stepDeclarationLine);
         };
 
-        submitForExecution(stepExecOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
-        return stepExecOrder;
+        return stepOrder;
     }
 
     @Override

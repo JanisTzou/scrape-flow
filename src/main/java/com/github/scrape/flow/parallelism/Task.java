@@ -28,15 +28,15 @@ import java.util.Comparator;
 public class Task implements Comparable<Task> {
 
     public static Comparator<Task> NATURAL_COMPARATOR = (st1, st2) -> {
-        return StepExecOrder.NATURAL_COMPARATOR.compare(st1.stepExecOrder, st2.stepExecOrder);
+        return StepOrder.NATURAL_COMPARATOR.compare(st1.stepOrder, st2.stepOrder);
     };
 
-    private final StepExecOrder stepExecOrder;
+    private final StepOrder stepOrder;
 
     /**
      * Tasks with this setting will be executed with priority
      * The implementation should effectively disable the execution of
-     * tasks with subsequent stepExecOrder values which have with
+     * tasks with subsequent stepOrder values which have with
      * exclusive = false for the time exclusive tasks are running.
      */
     private final boolean exclusiveExecution;
@@ -53,7 +53,7 @@ public class Task implements Comparable<Task> {
 
     public static Task from(TaskBasis basis, int retries, Duration retryBackoff) {
         return new Task(
-                basis.getStepExecOrder(),
+                basis.getStepOrder(),
                 basis.isExclusiveExecution(),
                 basis.getStepName(),
                 basis.getStepRunnable(),
@@ -72,7 +72,7 @@ public class Task implements Comparable<Task> {
     @Override
     public String toString() {
         return "StepTask{" +
-                "stepExecOrder=" + stepExecOrder +
+                "stepOrder=" + stepOrder +
                 ", exclusiveExecution=" + exclusiveExecution +
                 ", stepName='" + stepName + '\'' +
                 ", created=" + created +

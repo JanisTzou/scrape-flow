@@ -32,28 +32,28 @@ public class ActiveStepsTracker {
     /**
      * @return true if this or any child step is still being tracked; false otherwise
      */
-    public synchronized boolean isPartOfActiveStepSequence(StepExecOrder stepOrder) {
+    public synchronized boolean isPartOfActiveStepSequence(StepOrder stepOrder) {
         return patriciaTrie.prefixMap(stepOrder.asString()).size() > 0;
     }
 
-    public synchronized boolean isActive(StepExecOrder stepOrder) {
+    public synchronized boolean isActive(StepOrder stepOrder) {
         return patriciaTrie.get(stepOrder.asString()) != null;
     }
 
-    public synchronized void track(StepExecOrder stepExecOrder, String stepName) {
-        log.debug("tracking {} - {}", stepExecOrder, stepName);
-        patriciaTrie.put(stepExecOrder.asString(), new TrackedStepOrder(stepExecOrder, stepName));
+    public synchronized void track(StepOrder stepOrder, String stepName) {
+        log.debug("tracking {} - {}", stepOrder, stepName);
+        patriciaTrie.put(stepOrder.asString(), new TrackedStepOrder(stepOrder, stepName));
     }
 
-    public synchronized void untrack(StepExecOrder stepExecOrder) {
-        log.debug("untracked {}", stepExecOrder);
-        patriciaTrie.remove(stepExecOrder.asString()); // maybe enough ?
+    public synchronized void untrack(StepOrder stepOrder) {
+        log.debug("untracked {}", stepOrder);
+        patriciaTrie.remove(stepOrder.asString()); // maybe enough ?
     }
 
 
     @RequiredArgsConstructor
     public static class TrackedStepOrder {
-        private final StepExecOrder stepExecOrder;
+        private final StepOrder stepOrder;
         private final String name;
     }
 

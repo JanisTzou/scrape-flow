@@ -21,7 +21,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.scrape.flow.drivers.DriverManager;
-import com.github.scrape.flow.parallelism.StepExecOrder;
+import com.github.scrape.flow.parallelism.StepOrder;
 import com.github.scrape.flow.scraping.RequestException;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.SiteParserBase;
@@ -48,29 +48,29 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
     }
 
     @Override
-    public void parse(String url, ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequences, StepExecOrder currStepExecOrder, ScrapingServices services) {
-        loadPage(url, currStepExecOrder).ifPresent(page1 -> {
-            ScrapingContext nextCtx = ctx.toBuilder().setNode(page1).setPrevStepOrder(currStepExecOrder).build();
+    public void parse(String url, ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequences, StepOrder currStepOrder, ScrapingServices services) {
+        loadPage(url, currStepOrder).ifPresent(page1 -> {
+            ScrapingContext nextCtx = ctx.toBuilder().setNode(page1).setPrevStepOrder(currStepOrder).build();
             executeNextSteps(nextCtx, parsingSequences, services);
         });
     }
 
-    private Optional<HtmlPage> loadPage(String url, @Nullable StepExecOrder currStepExecOrder) {
+    private Optional<HtmlPage> loadPage(String url, @Nullable StepOrder currStepOrder) {
         final WebClient webClient = driverManager.getDriver();
-        return loadHtmlPage(url, webClient, currStepExecOrder);
+        return loadHtmlPage(url, webClient, currStepOrder);
     }
 
     private void parsePageAndFilterDataResults(HtmlPage page, List<HtmlUnitScrapingStep<?>> parsingSequences, ScrapingServices services) {
-        executeNextSteps(new ScrapingContext(StepExecOrder.INITIAL, page), parsingSequences, services);
+        executeNextSteps(new ScrapingContext(StepOrder.INITIAL, page), parsingSequences, services);
     }
 
     private void executeNextSteps(ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequences, ScrapingServices services) {
         parsingSequences.forEach(s -> s.execute(ctx, services));
     }
 
-    private Optional<HtmlPage> loadHtmlPage(String pageUrl, WebClient webClient, @Nullable StepExecOrder currStepExecOrder) {
+    private Optional<HtmlPage> loadHtmlPage(String pageUrl, WebClient webClient, @Nullable StepOrder currStepOrder) {
         // TODO someway somehow we need to make this retrievable ...
-        String logInfo = currStepExecOrder != null ? currStepExecOrder + " - " : "";
+        String logInfo = currStepOrder != null ? currStepOrder + " - " : "";
         try {
             log.debug("{}Loading page URL: {}", logInfo, pageUrl);
             URL url = new URL(pageUrl);
