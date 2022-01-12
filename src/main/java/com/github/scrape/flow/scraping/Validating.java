@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit;
+package com.github.scrape.flow.scraping;
 
-import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.ScrapingServices;
+public interface Validating<C extends ScrapingStepBase<C>> {
 
-import java.util.List;
+    void expectOne();
 
-public interface NextStepsHandler {
-
-    List<StepOrder> execute(List<HtmlUnitScrapingStep<?>> nextSteps, ScrapingContext nextCtx, ScrapingServices services);
+    void expectMany();
 
 }

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit;
+package com.github.scrape.flow.scraping;
 
-public class DebuggableStep<C extends HtmlUnitScrapingStep<C>> {
+public class DebuggableStep<C extends ScrapingStepBase<C>> {
 
     private final C step;
 

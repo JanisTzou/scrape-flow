@@ -16,9 +16,6 @@
 
 package com.github.scrape.flow.scraping;
 
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitScrapingStep;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitScrapingStepUpdater;
-import com.github.scrape.flow.scraping.htmlunit.StepsUtils;
 import com.github.scrape.flow.throttling.ScrapingRateLimiterImpl;
 import lombok.Getter;
 
@@ -38,7 +35,7 @@ public class Scraping {
     private final ScrapingServices services;
     private final SiteParser parser;
     // TODO the parsing sequence needs to be something generic - not HtmlUnit-specific ...
-    private HtmlUnitScrapingStep<?> scrapingSequence;
+    private ScrapingStepBase<?> scrapingSequence;
 
     // TODO add option to not crawl duplicate URLS ...
 
@@ -55,8 +52,9 @@ public class Scraping {
         this.parser = parser;
     }
 
-    public <T extends HtmlUnitScrapingStep<T>> Scraping setSequence(T sequence) {
-        this.scrapingSequence = new HtmlUnitScrapingStepUpdater<>(sequence).setScrapingSequence(StepsUtils.getStackTraceElementAt(2));
+    // TODO create another method for dynamic sites ? ... maybe put the parse here as well? So it is next to the
+    public <T extends ScrapingStepBase<T>> Scraping setSequence(T sequence) {
+        this.scrapingSequence = sequence;
         return this;
     }
 

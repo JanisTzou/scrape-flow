@@ -19,7 +19,9 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
+import com.github.scrape.flow.scraping.ScrapingStepBase;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.List;
@@ -28,7 +30,7 @@ import java.util.function.Supplier;
 
 // must be called at the end of a paginating sequence!
 @Log4j2
-public class ReturnNextPage extends CommonOperationsStepBase<ReturnNextPage> {
+public class ReturnNextPage extends HtmlUnitScrapingStep<ReturnNextPage> {
 
     private boolean callbackStepSet = false;
 
@@ -72,7 +74,7 @@ public class ReturnNextPage extends CommonOperationsStepBase<ReturnNextPage> {
     /**
      * Must be called at runtime - mutates this instance.
      */
-    void setCallbackToPageDataProcessingStep(HtmlUnitScrapingStep<?> processingStep) {
+    void setCallbackToPageDataProcessingStep(ScrapingStepBase<?> processingStep) {
         if (!this.callbackStepSet) {
             this.addNextStepMutably(processingStep);
             this.callbackStepSet = true;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit;
+package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.data.collectors.Collectors;
@@ -27,7 +27,7 @@ import java.util.function.BiConsumer;
 
 import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
-interface CollectingParsedValueToModelStep<C, V> {
+public interface CollectingParsedValueToModelStep<C, V> {
 
     org.apache.logging.log4j.Logger log = org.apache.logging.log4j.LogManager.getLogger(CollectingParsedValueToModelStep.class);
 

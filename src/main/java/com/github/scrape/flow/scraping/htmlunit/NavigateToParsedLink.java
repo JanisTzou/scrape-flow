@@ -17,13 +17,11 @@
 package com.github.scrape.flow.scraping.htmlunit;
 
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.LoadingNewPage;
-import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.SiteParser;
+import com.github.scrape.flow.scraping.*;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToParsedLink>
+public class NavigateToParsedLink extends HtmlUnitScrapingStep<NavigateToParsedLink>
         implements LoadingNewPage {
 
     private final SiteParser siteParser;
@@ -46,7 +44,7 @@ public class NavigateToParsedLink extends CommonOperationsStepBase<NavigateToPar
         Runnable runnable = () -> {
             if (ctx.getParsedURL() != null) {
                 // TODO if this step type has collectors then we need similar logic as in Wrapper ...
-                siteParser.parse(ctx.getParsedURL(), ctx, this.getNextSteps(), stepOrder, services);
+                siteParser.parse(ctx.getParsedURL(), ctx, ScrapingStepInternalProxy.of(this).getNextSteps(), stepOrder, services);
 
             } else {
                 log.error("{}: Cannot navigate to next site - the previously parsed URL is null!", getName());

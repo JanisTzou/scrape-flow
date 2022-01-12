@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit;
+package com.github.scrape.flow.scraping;
 
 import java.util.function.Predicate;
 
@@ -30,10 +30,10 @@ public interface ChainedStep<C>  {
      * is guaranteed when the client code publishes the output to registered listeners.
      * <br>
      * <br>
-     * <p>To enforce the execution order to be the same as the order of step declaration use {@link ChainedStep#nextExclusively(HtmlUnitScrapingStep)} - this can be used for  any steps needed.
+     * <p>To enforce the execution order to be the same as the order of step declaration use {@link ChainedStep#nextExclusively(ScrapingStepBase)} - this can be used for  any steps needed.
      *
      */
-    C next(HtmlUnitScrapingStep<?> nextStep);
+    C next(ScrapingStepBase<?> nextStep);
 
     /**
      * This method guarantees that the step sequence specified as a parameter will fully finish before any other steps declared after this step (at the same level) start being executed.
@@ -47,22 +47,22 @@ public interface ChainedStep<C>  {
      *
      * @return a copy of this step - this allows chaining multiple following steps to execute when that step finishes.
      */
-    C nextExclusively(HtmlUnitScrapingStep<?> nextStep);
+    C nextExclusively(ScrapingStepBase<?> nextStep);
 
     /**
      * @param condition accept an object that is expected to contain previously parsed data
      * @param nextStep step to execute if condition passes
      * @return a copy of this step - this allows chaining multiple following steps to execute when that step finishes.
      */
-    <T> C nextIf(Predicate<T> condition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep);
+    <T> C nextIf(Predicate<T> condition, Class<T> modelType, ScrapingStepBase<?> nextStep);
 
     /**
-     * Combines the behaviours of {@link ChainedStep#nextIf(Predicate, Class, HtmlUnitScrapingStep)}
-     * and {@link ChainedStep#nextExclusively(HtmlUnitScrapingStep)} - see there for more details
+     * Combines the behaviours of {@link ChainedStep#nextIf(Predicate, Class, ScrapingStepBase)}
+     * and {@link ChainedStep#nextExclusively(ScrapingStepBase)} - see there for more details
      * @param condition condition accept an object that is expected to contain previously parsed data
      * @param nextStep step to execute if condition passes
      * @return a copy of this step - this allows chaining multiple following steps to execute when that step finishes.
      */
-    <T> C nextIfExclusively(Predicate<T> condition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep);
+    <T> C nextIfExclusively(Predicate<T> condition, Class<T> modelType, ScrapingStepBase<?> nextStep);
 
 }

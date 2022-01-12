@@ -17,8 +17,6 @@
 package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitScrapingStep;
-import com.github.scrape.flow.scraping.htmlunit.ScrapingContext;
 
 import java.util.List;
 
@@ -26,11 +24,11 @@ public interface SiteParser {
 
     // TODO this looks pretty HtmlUnit-specific ...
 
-    void parse(String url, HtmlUnitScrapingStep<?> parsingSequence, ScrapingServices services);
+    void parse(String url, ScrapingStepBase<?> parsingSequence, ScrapingServices services);
 
     /**
      * For internal lib uses only
      */
-    void parse(String url, ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequence, StepOrder currStepOrder, ScrapingServices services);
+    void parse(String url, ScrapingContext ctx, List<ScrapingStepBase<?>> parsingSequence, StepOrder currStepOrder, ScrapingServices services);
 
 }

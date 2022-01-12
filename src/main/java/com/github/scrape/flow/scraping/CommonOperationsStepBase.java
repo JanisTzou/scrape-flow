@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit;
+package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
+import com.github.scrape.flow.scraping.htmlunit.StepsUtils;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -27,14 +28,16 @@ import java.util.function.Supplier;
 import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
 
-public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>> extends HtmlUnitScrapingStep<C>
+// TODO must accept both dynamic and static steps ...
+public abstract class CommonOperationsStepBase<C extends ScrapingStepBase<C>>
+        extends ScrapingStepBase<C>
         implements ChainedStep<C>, CollectingStep<C> {
 
     protected CommonOperationsStepBase() {
         this(null);
     }
 
-    protected CommonOperationsStepBase(List<HtmlUnitScrapingStep<?>> nextSteps) {
+    protected CommonOperationsStepBase(List<ScrapingStepBase<?>> nextSteps) {
         super(nextSteps);
     }
 
@@ -59,31 +62,31 @@ public abstract class CommonOperationsStepBase<C extends HtmlUnitScrapingStep<C>
     }
 
     @Override
-    public C next(HtmlUnitScrapingStep<?> nextStep) {
-        HtmlUnitScrapingStep<?> nextCopy = nextStep.copy()
+    public C next(ScrapingStepBase<?> nextStep) {
+        ScrapingStepBase<?> nextCopy = nextStep.copy()
                 .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3));
         return addNextStep(nextCopy);
     }
 
     @Override
-    public C nextExclusively(HtmlUnitScrapingStep<?> nextStep) {
-        HtmlUnitScrapingStep<?> nextCopy = nextStep.copy()
+    public C nextExclusively(ScrapingStepBase<?> nextStep) {
+        ScrapingStepBase<?> nextCopy = nextStep.copy()
                 .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3))
                 .setExclusiveExecution(true);
         return addNextStep(nextCopy);
     }
 
     @Override
-    public <T> C nextIf(Predicate<T> modelDataCondition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep) {
-        HtmlUnitScrapingStep<?> nextCopy = nextStep.copy()
+    public <T> C nextIf(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStepBase<?> nextStep) {
+        ScrapingStepBase<?> nextCopy = nextStep.copy()
                 .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3))
                 .setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType));
         return addNextStep(nextCopy);
     }
 
     @Override
-    public <T> C nextIfExclusively(Predicate<T> modelDataCondition, Class<T> modelType, HtmlUnitScrapingStep<?> nextStep) {
-        HtmlUnitScrapingStep<?> nextCopy = nextStep.copy()
+    public <T> C nextIfExclusively(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStepBase<?> nextStep) {
+        ScrapingStepBase<?> nextCopy = nextStep.copy()
                 .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3))
                 .setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType))
                 .setExclusiveExecution(true);

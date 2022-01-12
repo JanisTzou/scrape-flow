@@ -19,6 +19,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
 import com.github.scrape.flow.scraping.htmlunit.filters.FilterableByCommonCriteria;
@@ -27,7 +28,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class GetElementsByXPath extends CommonOperationsStepBase<GetElementsByXPath>
+public class GetElementsByXPath extends HtmlUnitScrapingStep<GetElementsByXPath>
         implements FilterableByCommonCriteria<GetElementsByXPath> {
 
     private final String xPath;

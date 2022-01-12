@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit;
+package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 

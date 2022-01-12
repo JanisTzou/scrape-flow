@@ -22,9 +22,7 @@ import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.scrape.flow.drivers.DriverManager;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.RequestException;
-import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.SiteParserBase;
+import com.github.scrape.flow.scraping.*;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
@@ -40,7 +38,7 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
     }
 
     @Override
-    public void parse(String url, HtmlUnitScrapingStep<?> parsingSequence, ScrapingServices services) {
+    public void parse(String url, ScrapingStepBase<?> parsingSequence, ScrapingServices services) {
         if (parsingSequence == null) {
             throw new IllegalStateException("parsingSequence not set for SiteParser!");
         }
@@ -48,7 +46,7 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
     }
 
     @Override
-    public void parse(String url, ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequences, StepOrder currStepOrder, ScrapingServices services) {
+    public void parse(String url, ScrapingContext ctx, List<ScrapingStepBase<?>> parsingSequences, StepOrder currStepOrder, ScrapingServices services) {
         loadPage(url, currStepOrder).ifPresent(page1 -> {
             ScrapingContext nextCtx = ctx.toBuilder().setNode(page1).setPrevStepOrder(currStepOrder).build();
             executeNextSteps(nextCtx, parsingSequences, services);
@@ -60,12 +58,12 @@ public class HtmlUnitSiteParser extends SiteParserBase<WebClient> {
         return loadHtmlPage(url, webClient, currStepOrder);
     }
 
-    private void parsePageAndFilterDataResults(HtmlPage page, List<HtmlUnitScrapingStep<?>> parsingSequences, ScrapingServices services) {
+    private void parsePageAndFilterDataResults(HtmlPage page, List<ScrapingStepBase<?>> parsingSequences, ScrapingServices services) {
         executeNextSteps(new ScrapingContext(StepOrder.INITIAL, page), parsingSequences, services);
     }
 
-    private void executeNextSteps(ScrapingContext ctx, List<HtmlUnitScrapingStep<?>> parsingSequences, ScrapingServices services) {
-        parsingSequences.forEach(s -> s.execute(ctx, services));
+    private void executeNextSteps(ScrapingContext ctx, List<ScrapingStepBase<?>> parsingSequences, ScrapingServices services) {
+        parsingSequences.forEach(s -> ScrapingStepInternalProxy.of(s).execute(ctx, services));
     }
 
     private Optional<HtmlPage> loadHtmlPage(String pageUrl, WebClient webClient, @Nullable StepOrder currStepOrder) {

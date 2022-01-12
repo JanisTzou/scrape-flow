@@ -51,6 +51,8 @@ public class MaxEuroCzDemo {
         final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
         final HtmlUnitSiteParser siteParser = new HtmlUnitSiteParser(driverManager);
 
+        // TODO perhaps the scraping should have access to all types of parsers ... both static and dynamic ...
+        //  the parse should not be part of the constructor here ...
         final Scraping scraping = new Scraping(siteParser, 10, TimeUnit.SECONDS);
 
 
@@ -75,8 +77,9 @@ public class MaxEuroCzDemo {
                 .getDebugOptions().setLogFoundElementsSource(false)
                 .getDebugOptions().setLogFoundElementsCount(false)
                 .getOptions().setRequestRetries(2);
+        // TODO maybe the static and dynamic parses should be specified as part of the options ?
 
-        scraping.setSequence(
+        scraping.setSequence( // TODO here we are passing a static site sequence ... but the parser is defined elsewhere ... how to deal with that?
                 Get.descendants().byTextContent("Mozaika skleněná")
                         .first()                                                // ... for some reason the menu is duplicated
                         .debugOptions().setLogFoundElementsSource(false)

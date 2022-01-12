@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
 
 import javax.annotation.Nullable;
@@ -27,7 +28,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class GetParent extends CommonOperationsStepBase<GetParent>
+public class GetParent extends HtmlUnitScrapingStep<GetParent>
     // TODO these filters do not ake sense for the parent as they are .... if we want to provide them, the implementation must go throguh all parents until it finds the one specified by the filters ...
     //  if ued as they are the filters might just filter away the one parent found ...
 //        implements

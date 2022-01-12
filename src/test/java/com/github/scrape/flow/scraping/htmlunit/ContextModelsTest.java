@@ -17,6 +17,7 @@
 package com.github.scrape.flow.scraping.htmlunit;
 
 import com.github.scrape.flow.data.collectors.ModelWrapper;
+import com.github.scrape.flow.scraping.ContextModels;
 import org.junit.Test;
 
 import java.util.Optional;

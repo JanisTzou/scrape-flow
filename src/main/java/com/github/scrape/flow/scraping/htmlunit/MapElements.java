@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.extern.log4j.Log4j2;
 
@@ -31,7 +32,7 @@ import java.util.function.Supplier;
  * Maps nodes acquired in the previous steps to other nodes ... e.g. children/parents/siblings etc ...
  */
 @Log4j2
-public class MapElements extends CommonOperationsStepBase<MapElements> {
+public class MapElements extends HtmlUnitScrapingStep<MapElements> {
 
     private final Function<DomNode, Optional<DomNode>> mapper;
 

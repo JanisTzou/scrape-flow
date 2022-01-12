@@ -20,7 +20,7 @@ import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.ScrapingServices;
+import com.github.scrape.flow.scraping.*;
 import com.github.scrape.flow.scraping.htmlunit.filters.FilterUtils;
 import lombok.extern.log4j.Log4j2;
 
@@ -81,7 +81,7 @@ public class HtmlUnitStepHelper {
 
 
     private void logFoundCount(StepOrder currStepOrder, int count, DebuggingOptions globalDebugging) {
-        if (globalDebugging.isLogFoundElementsCount() || step.getStepDebugging().isLogFoundElementsCount()) {
+        if (globalDebugging.isLogFoundElementsCount() || ScrapingStepInternalProxy.of(step).getStepDebugging().isLogFoundElementsCount()) {
             log.info("{} - {}: found {} nodes", currStepOrder, step.getName(), count);
         }
     }
@@ -89,9 +89,9 @@ public class HtmlUnitStepHelper {
 
     private void logNodeSourceCode(DomNode node, DebuggingOptions globalDebugging) {
         if (!(node instanceof Page)
-                && (globalDebugging.isLogFoundElementsSource() || step.getStepDebugging().isLogFoundElementsSource())
+                && (globalDebugging.isLogFoundElementsSource() || ScrapingStepInternalProxy.of(step).getStepDebugging().isLogFoundElementsSource())
         ) {
-            log.info("Source for step {} defined at line {} \n{}", step.getName(), step.getStepDeclarationLine(), node.asXml());
+            log.info("Source for step {} defined at line {} \n{}", step.getName(), ScrapingStepInternalProxy.of(step).getStepDeclarationLine(), node.asXml());
         }
     }
 
@@ -111,7 +111,7 @@ public class HtmlUnitStepHelper {
                 ctx.getRootLoopedStepOrder()
         );
 
-        return nextStepsHandler.execute(step.getNextSteps(), nextCtx, services);
+        return nextStepsHandler.execute(ScrapingStepInternalProxy.of(step).getNextSteps(), nextCtx, services);
     }
 
 }

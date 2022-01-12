@@ -19,6 +19,9 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.scraping.CollectingParsedValueToModelStep;
+import com.github.scrape.flow.scraping.ParsingStep;
+import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import org.apache.commons.text.StringEscapeUtils;
 

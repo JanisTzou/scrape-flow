@@ -20,6 +20,9 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.scraping.CollectingParsedValueToModelStep;
+import com.github.scrape.flow.scraping.ParsingStep;
+import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
 
 import java.util.List;
@@ -30,7 +33,7 @@ import java.util.function.Supplier;
 
 import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
-public class ParseElementAttributeValue extends CommonOperationsStepBase<ParseElementAttributeValue>
+public class ParseElementAttributeValue extends HtmlUnitScrapingStep<ParseElementAttributeValue>
         implements CollectingParsedValueToModelStep<ParseElementAttributeValue, String>,
         ParsingStep<ParseElementAttributeValue> {
 

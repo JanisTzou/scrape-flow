@@ -18,7 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.ScrapingServices;
+import com.github.scrape.flow.scraping.*;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -27,10 +27,10 @@ import java.util.function.Supplier;
 /**
  * Used just to test context propagation
  */
-public class StepBlock extends CommonOperationsStepBase<StepBlock>
+public class StepBlock extends HtmlUnitScrapingStep<StepBlock>
         implements ChainedStep<StepBlock>, CollectingStep<StepBlock> {
 
-    StepBlock(@Nullable List<HtmlUnitScrapingStep<?>> nextSteps) {
+    public StepBlock(@Nullable List<ScrapingStepBase<?>> nextSteps) {
         super(nextSteps);
     }
 

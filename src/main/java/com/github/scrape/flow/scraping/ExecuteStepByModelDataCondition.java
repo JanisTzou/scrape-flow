@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit;
+package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.data.collectors.ModelWrapper;
 import lombok.Getter;
@@ -37,7 +37,7 @@ class ExecuteStepByModelDataCondition implements StepExecutionCondition {
     }
 
     @Override
-    public boolean canExecute(HtmlUnitScrapingStep<?> step, ScrapingContext ctx) {
+    public boolean canExecute(ScrapingStepBase<?> step, ScrapingContext ctx) {
         try {
             Optional<ModelWrapper> model = ctx.getContextModels().getModelFor(modelType);
             if (model.isPresent()) {

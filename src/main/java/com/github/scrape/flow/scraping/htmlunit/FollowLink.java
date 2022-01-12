@@ -22,6 +22,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.LoadingNewPage;
 import com.github.scrape.flow.scraping.RequestException;
+import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.extern.log4j.Log4j2;
 
@@ -31,7 +32,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @Log4j2
-public class FollowLink extends CommonOperationsStepBase<FollowLink>
+public class FollowLink extends HtmlUnitScrapingStep<FollowLink>
         implements LoadingNewPage {
 
     FollowLink() {

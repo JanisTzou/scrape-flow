@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit;
+package com.github.scrape.flow.scraping;
 
 @FunctionalInterface
 public interface StepExecutionCondition {
 
-    StepExecutionCondition NO_CONDITIONS = (HtmlUnitScrapingStep<?> step, ScrapingContext ctx) -> true;
+    StepExecutionCondition NO_CONDITIONS = (ScrapingStepBase<?> step, ScrapingContext ctx) -> true;
 
-    boolean canExecute(HtmlUnitScrapingStep<?> step, ScrapingContext ctx);
+    boolean canExecute(ScrapingStepBase<?> step, ScrapingContext ctx);
 
 }

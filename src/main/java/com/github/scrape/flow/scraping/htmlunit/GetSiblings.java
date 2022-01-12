@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.htmlunit.filters.*;
 import lombok.extern.log4j.Log4j2;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @Log4j2
-public class GetSiblings extends CommonOperationsStepBase<GetSiblings>
+public class GetSiblings extends HtmlUnitScrapingStep<GetSiblings>
         implements FilterableByAttribute<GetSiblings>,
         FilterableByTag<GetSiblings>,
         FilterableByTextContent<GetSiblings>,

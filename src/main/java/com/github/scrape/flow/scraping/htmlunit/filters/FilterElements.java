@@ -18,9 +18,9 @@ package com.github.scrape.flow.scraping.htmlunit.filters;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.htmlunit.CommonOperationsStepBase;
-import com.github.scrape.flow.scraping.htmlunit.ScrapingContext;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitScrapingStep;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  * Filters nodes acquired in the previous steps by custom conditions
  */
 @Log4j2
-public class FilterElements extends CommonOperationsStepBase<FilterElements> {
+public class FilterElements extends HtmlUnitScrapingStep<FilterElements> {
 
     private final Predicate<DomNode> domNodePredicate;
 

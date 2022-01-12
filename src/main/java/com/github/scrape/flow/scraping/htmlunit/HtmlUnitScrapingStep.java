@@ -16,71 +16,28 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-import com.github.scrape.flow.data.collectors.Collector;
-import com.github.scrape.flow.data.collectors.Collectors;
 import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.execution.TaskBasis;
-import com.github.scrape.flow.execution.TaskService;
-import com.github.scrape.flow.scraping.MakingHttpRequests;
-import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.Throttling;
+import com.github.scrape.flow.scraping.*;
 import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
 import lombok.extern.log4j.Log4j2;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
 
 @Log4j2
-public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> implements Throttling {
-
-    protected static final Function<String, String> NO_VALUE_CONVERSION = s -> s;
-
-    private final List<HtmlUnitScrapingStep<?>> nextSteps;
-
-    protected boolean exclusiveExecution = false;
-
-    /**
-     * condition for the execution of this step
-     */
-    protected StepExecutionCondition executeIf = StepExecutionCondition.NO_CONDITIONS;
-
-    /**
-     * relevant for steps that do scrape textual values
-     */
-    protected Function<String, String> parsedValueConversion = NO_VALUE_CONVERSION; // by default return the string as-is
-
-    /**
-     * To be used on logging to give the user an accurate location of a problematic step
-     */
-    protected StackTraceElement stepDeclarationLine;
-    private Collectors collectors = new Collectors();
-
-    protected DebuggingOptions stepDebugging = new DebuggingOptions();
+public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>>
+        extends CommonOperationsStepBase<C>
+        implements Throttling {
 
     protected final List<Filter> filters = new CopyOnWriteArrayList<>();
 
-    /**
-     * for logging and debugging
-     */
-    private String name = getClass().getSimpleName() + "-unnamed-step";
-
-
-    protected HtmlUnitScrapingStep(List<HtmlUnitScrapingStep<?>> nextSteps) {
-        this.nextSteps = new ArrayList<>(Objects.requireNonNullElse(nextSteps, Collections.emptyList()));
+    public HtmlUnitScrapingStep() {
     }
 
-    protected HtmlUnitScrapingStep() {
-        this(null);
+    public HtmlUnitScrapingStep(List<ScrapingStepBase<?>> nextSteps) {
+        super(nextSteps);
     }
-
-
-    protected abstract StepOrder execute(ScrapingContext ctx, ScrapingServices services);
 
     protected HtmlUnitStepHelper getHelper() {
         return new HtmlUnitStepHelper(this);
@@ -90,84 +47,6 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         return new HtmlUnitStepHelper(this, nextStepsHandler);
     }
 
-    /**
-     * @return copy of this step
-     */
-    protected C setExclusiveExecution(boolean exclusiveExecution) {
-        return copyModifyAndGet(copy -> {
-            copy.exclusiveExecution = exclusiveExecution;
-            return copy;
-        });
-    }
-
-    /**
-     * @return copy of this step
-     */
-    protected C setStepDeclarationLine(StackTraceElement stepDeclarationLine) {
-        return copyModifyAndGet(copy -> {
-            copy.stepDeclarationLine = stepDeclarationLine;
-            return copy;
-        });
-    }
-
-    /**
-     * @return copy of this step
-     */
-    protected C setExecuteIf(StepExecutionCondition executeIf) {
-        return copyModifyAndGet(copy -> {
-            copy.executeIf = executeIf;
-            return copy;
-        });
-    }
-
-    /**
-     * @return copy of this step
-     */
-    protected C setParsedValueConversion(Function<String, String> conversion) {
-        return copyModifyAndGet(copy -> {
-            copy.parsedValueConversion = conversion;
-            return copy;
-        });
-    }
-
-    protected Collectors getCollectors() {
-        return collectors;
-    }
-
-    /**
-     * mutating - internal usage only
-     */
-    protected void setCollectorsMutably(Collectors collectors) {
-        this.collectors = collectors;
-    }
-
-    /**
-     * @return copy of this step
-     */
-    protected C addCollector(Collector cs) {
-        return copyModifyAndGet(copy -> {
-            Collectors csCopy = getCollectors().copy();
-            csCopy.add(cs);
-            copy.setCollectorsMutably(csCopy);
-            return copy;
-        });
-    }
-
-    protected List<HtmlUnitScrapingStep<?>> getNextSteps() {
-        return nextSteps;
-    }
-
-    /**
-     * @return copy of this step
-     */
-    protected C addNextStep(HtmlUnitScrapingStep<?> nextStep) {
-        HtmlUnitScrapingStep<?> nsCopy = nextStep.copy();
-        return copyModifyAndGet(copy -> {
-            copy.addNextStepMutably(nsCopy);
-            return copy;
-        });
-    }
-
     protected C addFilter(Filter filter) {
         return copyModifyAndGet(copy -> {
             copy.filters.add(filter);
@@ -175,86 +54,13 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>> im
         });
     }
 
-    /**
-     * Internal usage only
-     * Mutates this instance by adding the specific <code>nextStep</code>.
-     * Does not create a copy of either <code>this</code> step or <code>nextStep</code>.
-     * Should only be used at runtime (not at Assembly time)
-     */
-    protected void addNextStepMutably(HtmlUnitScrapingStep<?> nextStep) {
-        this.nextSteps.add(nextStep);
-    }
-
-    protected boolean isExclusiveExecution() {
-        return exclusiveExecution;
-    }
-
-    protected StepExecutionCondition getExecuteIf() {
-        return executeIf;
-    }
-
-    protected StackTraceElement getStepDeclarationLine() {
-        return stepDeclarationLine;
-    }
-
-    protected DebuggingOptions getStepDebugging() {
-        return stepDebugging;
-    }
-
     protected List<Filter> getFilters() {
         return filters;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    protected void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return a copy of this step with the given <code>name</code> set
-     */
-    public C stepName(String name) {
-        return copyModifyAndGet(copy -> {
-            copy.setName(name != null && !name.toLowerCase().contains("step") ? name + "-step" : name);
-            return copy;
-        });
-    }
-
-    protected String convertParsedText(String text) {
-        return text != null ? parsedValueConversion.apply(text) : null;
-    }
-
-    protected void submitForExecution(StepOrder stepOrder, Runnable runnable, TaskService taskService) {
-        TaskBasis stepTask = new TaskBasis(stepOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests);
-        taskService.submitForExecution(stepTask);
-    }
-
-    /**
-     * Enables logging the source codes if all the elements found by this step and processed.
-     */
-    @SuppressWarnings("unchecked")
-    public DebuggableStep<C> debugOptions() {
-        return new DebuggableStep<C>((C) this);
-    }
-
-    protected abstract C copy();
-
-    protected C copyModifyAndGet(UnaryOperator<C> copyMutation) {
-        return copyMutation.apply(this.copy());
-    }
-
     @SuppressWarnings("unchecked")
     protected C copyFieldValuesTo(HtmlUnitScrapingStep<?> other) {
-        other.executeIf = this.executeIf;
-        other.collectors = this.collectors.copy();
-        other.parsedValueConversion = this.parsedValueConversion;
-        other.name = this.name;
-        other.stepDeclarationLine = this.stepDeclarationLine;
-        other.nextSteps.addAll(this.nextSteps);
-        other.stepDebugging = stepDebugging.copy();
+        super.copyFieldValuesTo(other);
         other.filters.addAll(this.filters);
         return (C) other;
     }

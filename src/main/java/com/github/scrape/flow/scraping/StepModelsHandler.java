@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit;
+package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.data.collectors.Collectors;
@@ -38,11 +38,11 @@ public class StepModelsHandler {
     private final Class<?> stepType;
     private final Collectors stepCollectors;
 
-    public static StepModelsHandler createFor(HtmlUnitScrapingStep<?> step) {
+    public static StepModelsHandler createFor(ScrapingStepBase<?> step) {
         return new StepModelsHandler(step.getName(), step.getClass(), step.getCollectors());
     }
 
-    StepModels createAndAccumulateModels(StepOrder currStepOrder, ContextModels currContextModels) {
+    public StepModels createAndAccumulateModels(StepOrder currStepOrder, ContextModels currContextModels) {
 
         ContextModels nextContextModels = currContextModels.copy();
         List<ModelToPublish> modelToPublishList = new ArrayList<>();

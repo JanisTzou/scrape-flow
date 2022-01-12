@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit;
+package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.ScrapingServices;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * Runs the steps wrapped under one exclusive block. Useful in situations where we need to ensure that these steps run first before
- * e.g. the pagination step can proceed
+ * Runs the steps the way they were defined by the user (in terms of order, exclusiveness etc.)
  */
-public class NextStepsWrappedInOneExclusiveBlock implements NextStepsHandler {
+public class NextStepsAsDefinedByUser implements NextStepsHandler {
 
     @Override
-    public List<StepOrder> execute(List<HtmlUnitScrapingStep<?>> nextSteps,
+    public List<StepOrder> execute(List<ScrapingStepBase<?>> nextSteps,
                                    ScrapingContext nextCtx,
                                    ScrapingServices services) {
-        StepOrder stepOrder = new StepBlock(nextSteps).setExclusiveExecution(true).execute(nextCtx, services);
-        return List.of(stepOrder);
+        return nextSteps.stream()
+                .map(step -> step.execute(nextCtx, services))
+                .collect(Collectors.toList());
     }
 
 }

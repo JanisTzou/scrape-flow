@@ -20,7 +20,7 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.ScrapingServices;
+import com.github.scrape.flow.scraping.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 
 import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
-public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
+public class ParseElementHRef extends HtmlUnitScrapingStep<ParseElementHRef>
         implements CollectingParsedValueToModelStep<ParseElementHRef, String>,
         ParsingStep<ParseElementHRef> {
 
@@ -86,6 +86,8 @@ public class ParseElementHRef extends CommonOperationsStepBase<ParseElementHRef>
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.MANY));
     }
 
+    // TODO have two methods ? 1 named nextNavigateToStaticSite and other nextNavigateToDynamicSite
+    //  or should this just accept 2 types ? the static and dynamic version of the next step ?
     /**
      * Same as {@link ChainedStep#next(HtmlUnitScrapingStep)} but with a more meaningful name for the purpose.
      * For more specialised versions of <code>next()</code> see and use these the ones defined here {@link ChainedStep}

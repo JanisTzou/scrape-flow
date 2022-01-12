@@ -29,6 +29,8 @@ import java.util.List;
 @Ignore
 public class DriverManagerTest {
 
+    public static final String CHROME_DRIVER_FILE = "/Users/janis/Projects_Data/scrape-flow/chromedriver";
+
     @Test
     public void getDriver() {
     }
@@ -37,7 +39,7 @@ public class DriverManagerTest {
     public void test_that_restartDriverIfNeeded_Restarts_The_Driver_Only_When_Strategy_Condition_Met() throws InterruptedException {
 
         // given
-        SeleniumDriversFactory driversFactory = new SeleniumDriversFactory("TODO_provide_dir",false);
+        SeleniumDriversFactory driversFactory = new SeleniumDriversFactory(CHROME_DRIVER_FILE,false);
 
         int restartInMillis = 2_000;
 
@@ -80,7 +82,7 @@ public class DriverManagerTest {
     public void test_that_quitWebDriverIfIdle_Restarts_The_Driver_Only_When_Strategy_Condition_Met() throws InterruptedException {
 
         // given
-        SeleniumDriversFactory driversFactory = new SeleniumDriversFactory("TODO_provide_dir",false);
+        SeleniumDriversFactory driversFactory = new SeleniumDriversFactory(CHROME_DRIVER_FILE,false);
 
         int maxIdleIntervalMillis = 2_000;
 
@@ -128,9 +130,9 @@ public class DriverManagerTest {
 
         List<WebDriver> webDriverList = new ArrayList<>();
 
-        SeleniumDriversFactory driversFactory = new SeleniumDriversFactory("TODO_provide_dir",false);
+        SeleniumDriversFactory driversFactory = new SeleniumDriversFactory(CHROME_DRIVER_FILE,true);
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 1; i++) {
             WebDriver webDriver = driversFactory.startDriver();
             webDriver.get("https://www.sreality.cz/hledani/prodej/domy/praha?cena-od=0&cena-do=3000000&bez-aukce=1");
             webDriverList.add(webDriver);

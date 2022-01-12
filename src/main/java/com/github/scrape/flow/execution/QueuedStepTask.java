@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.function.Consumer;
 
-public class QueuedStepTask {
+class QueuedStepTask {
 
     public static final Comparator<QueuedStepTask> NATURAL_COMPARATOR = (qst1, qst2) -> Task.NATURAL_COMPARATOR.compare(qst1.getStepTask(), qst2.getStepTask());
 

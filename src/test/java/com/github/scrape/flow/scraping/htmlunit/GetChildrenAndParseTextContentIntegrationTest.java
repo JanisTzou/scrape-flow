@@ -23,6 +23,7 @@ import com.github.scrape.TestConfiguration;
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.execution.TaskExecutor;
+import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.Data;
 import org.junit.Test;

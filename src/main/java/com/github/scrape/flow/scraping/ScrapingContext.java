@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit;
+package com.github.scrape.flow.scraping;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -28,6 +28,7 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.Optional;
 
+// TODO refactor a base class out of this to support dynamic and static
 /**
  * Allows sharing information between parsing steps
  * Very careful how this is shared and populated (needs to be copied always when going from one step to next ...)

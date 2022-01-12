@@ -19,7 +19,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.ScrapingServices;
+import com.github.scrape.flow.scraping.*;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.List;
@@ -27,9 +27,9 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 @Log4j2
-public class Paginate extends CommonOperationsStepBase<Paginate> {
+public class Paginate extends HtmlUnitScrapingStep<Paginate> {
 
-    private HtmlUnitScrapingStep<?> paginatingSequence;
+    private ScrapingStepBase<?> paginatingSequence;
 
     private boolean servicesPropagatedToTrigger;
 
@@ -44,7 +44,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
     protected Paginate copy() {
         Paginate copy = new Paginate(servicesPropagatedToTrigger);
         if (this.paginatingSequence != null) {
-            copy.paginatingSequence = this.paginatingSequence.copy();
+            copy.paginatingSequence = ScrapingStepInternalProxy.of(this.paginatingSequence).copy();
         }
         return copyFieldValuesTo(copy);
     }
@@ -90,7 +90,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
                 //  but it is questionably if we would like to design the data propagation as models if it's just for internal purposes ...
 //                services.getStepAndDataRelationshipTracker().track(stepOrder, generatedSteps, model, (ParsedDataListener<Object>) collecting.getDataListener());
 
-                paginatingSequence.execute(paginatingCtx, services);
+                ScrapingStepInternalProxy.of(paginatingSequence).execute(paginatingCtx, services);
 
             }
         };
@@ -105,8 +105,7 @@ public class Paginate extends CommonOperationsStepBase<Paginate> {
      * In practice this is most often the action finding the "NEXT" button element and clicking it.
      */
     public Paginate setStepsLoadingNextPage(HtmlUnitScrapingStep<?> paginatingSequence) {
-        this.paginatingSequence = paginatingSequence.copy()
-                .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3));
+        this.paginatingSequence = ScrapingStepInternalProxy.of(paginatingSequence).copy();
         return this;
     }
 
