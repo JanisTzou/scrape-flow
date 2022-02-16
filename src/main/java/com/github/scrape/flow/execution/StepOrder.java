@@ -87,7 +87,7 @@ public class StepOrder {
         return size() > 1; // position 0 is root ...
     }
 
-    Optional<StepOrder> getParent() {
+    public Optional<StepOrder> getParent() {
         if (hasParent()) {
             StepOrder parent = new StepOrder(values.subList(0, values.size() - 1));
             return Optional.of(parent);

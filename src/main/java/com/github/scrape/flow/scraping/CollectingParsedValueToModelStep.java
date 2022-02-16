@@ -19,6 +19,8 @@ package com.github.scrape.flow.scraping;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.data.collectors.Collectors;
 import com.github.scrape.flow.data.collectors.ModelWrapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -29,7 +31,7 @@ import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
 public interface CollectingParsedValueToModelStep<C, V> {
 
-    org.apache.logging.log4j.Logger log = org.apache.logging.log4j.LogManager.getLogger(CollectingParsedValueToModelStep.class);
+    Logger log = LogManager.getLogger(CollectingParsedValueToModelStep.class);
 
     /**
      * specialisation of {@link CollectingStep#collectOne(BiConsumer, Class, Class)}

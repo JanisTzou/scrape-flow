@@ -18,15 +18,11 @@ package com.github.scrape.flow.demos.miscellaneous;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
-import com.github.scrape.flow.drivers.HtmlUnitDriverManager;
+import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.scraping.EntryPoint;
-import com.github.scrape.flow.scraping.Scraper;
 import com.github.scrape.flow.scraping.Scraping;
-import com.github.scrape.flow.scraping.htmlunit.GetDescendants;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteParser;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitUtils;
-import com.github.scrape.flow.scraping.htmlunit.NavigateToParsedLink;
+import com.github.scrape.flow.scraping.htmlunit.*;
+import com.github.scrape.flow.scraping.selenium.Selenium;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,12 +44,10 @@ public class MaxEuroCzDemo {
     @Test
     public void start() throws InterruptedException {
 
-        final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
-        final HtmlUnitSiteParser siteParser = new HtmlUnitSiteParser(driverManager);
+        final HtmlUnitDriverOperator driverOperator = new HtmlUnitDriverOperator(new HtmlUnitDriversFactory());
+        final HtmlUnitSiteLoader siteParser = new HtmlUnitSiteLoader(driverOperator);
 
-        // TODO perhaps the scraping should have access to all types of parsers ... both static and dynamic ...
-        //  the parse should not be part of the constructor here ...
-        final Scraping scraping = new Scraping(siteParser, 10, TimeUnit.SECONDS);
+        final Scraping scraping = new Scraping(10, TimeUnit.SECONDS);
 
 
         /*
@@ -80,41 +74,51 @@ public class MaxEuroCzDemo {
         // TODO maybe the static and dynamic parses should be specified as part of the options ?
 
         scraping.setSequence( // TODO here we are passing a static site sequence ... but the parser is defined elsewhere ... how to deal with that?
-                Get.descendants().byTextContent("Mozaika skleněná")
-                        .first()                                                // ... for some reason the menu is duplicated
-                        .debugOptions().setLogFoundElementsSource(false)
-                        .next(Do.mapElements(domNode -> Optional.ofNullable(domNode.getParentNode()))
-                                .next(Get.descendants().byTag("a")
-                                        .addCollector(Category::new, Category.class)
-                                        .next(Parse.textContent()
-                                                .collectOne(Category::setName, Category.class)
-                                        )
-                                        .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href)
-                                                .nextNavigate(
-                                                        toCategoryProductList(siteParser)
+                Do.navigateToUrl("https://www.maxeuro.cz/obklady-dlazby-mozaika-kat_1010.html")
+                        .next(Get.descendants().byTextContent("Mozaika skleněná")
+                                .first()                                                // ... for some reason the menu is duplicated
+                                .debugOptions().setLogFoundElementsSource(false)
+                                .next(Do.mapElements(domNode -> Optional.ofNullable(domNode.getParentNode()))
+                                        .next(Get.descendants().byTag("a")
+                                                .addCollector(Category::new, Category.class)
+                                                .next(Parse.textContent()
+                                                        .collectOne(Category::setName, Category.class)
+                                                )
+                                                .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href)
+                                                        .next(Selenium.Do.navigateToParsedLink() // toCategoryProductList(siteParser) // TODO revert
+                                                                .next(Selenium.Get.descendants()
+                                                                        .byTag("div")
+                                                                        .byClass("product-name")
+                                                                        .next(Selenium.Get.descendants().byTag("a")
+                                                                                .next(Selenium.Parse.hRef()
+                                                                                        .next(Selenium.Do.navigateToParsedLink())
+                                                                                )
+                                                                        )
+                                                                )
+                                                        )
                                                 )
                                         )
                                 )
                         )
-        );
 
+        );
 
         start(scraping);
     }
 
-    private NavigateToParsedLink toCategoryProductList(HtmlUnitSiteParser siteParser) {
+    private HtmlUnitNavigateToParsedLink toCategoryProductList(HtmlUnitSiteLoader siteParser) {
         return Do.navigateToParsedLink(siteParser)
                 .next(Do.paginate()
                         .setStepsLoadingNextPage(
                                 getPaginatingSequence()
                         )
-                        .next( // TODO these steps need to execute exclusively and before the loading page sequence
+                        .next(
                                 getProductListAndDetails(siteParser)
                         )
                 );
     }
 
-    private GetDescendants getProductListAndDetails(HtmlUnitSiteParser siteParser) {
+    private HtmlUnitGetDescendants getProductListAndDetails(HtmlUnitSiteLoader siteParser) {
 
         /*
             <div class="product col-xs-12 col-sm-6 col-md-4 col-lg-4 ">
@@ -142,7 +146,7 @@ public class MaxEuroCzDemo {
                                 )
                                 .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href).stepName("get-product-detail-url")
                                         .collectOne(Product::setDetailUrl, Product.class)
-                                        .nextNavigate(
+                                        .next(
                                                 toProductDetail(siteParser)
                                         )
                                 )
@@ -156,7 +160,7 @@ public class MaxEuroCzDemo {
     }
 
 
-    private GetDescendants getPaginatingSequence() {
+    private HtmlUnitGetDescendants getPaginatingSequence() {
 
         /*
             <ul class="pagination">
@@ -193,7 +197,7 @@ public class MaxEuroCzDemo {
     }
 
 
-    private NavigateToParsedLink toProductDetail(HtmlUnitSiteParser siteParser) {
+    private HtmlUnitNavigateToParsedLink toProductDetail(HtmlUnitSiteLoader siteParser) {
 
         /*
             <div class="text-justify" id="productDescription1">Mozaika skleněná žlutá obkladová - 144ks skleněných čtverečků<br>Obkladová
@@ -214,14 +218,9 @@ public class MaxEuroCzDemo {
     }
 
 
-    private void start(Scraping productsScraping) throws InterruptedException {
-        final String url = "https://www.maxeuro.cz/obklady-dlazby-mozaika-kat_1010.html";
-        final EntryPoint entryPoint = new EntryPoint(url, productsScraping);
-        final Scraper scraper = new Scraper();
-
-        scraper.start(entryPoint);
-
-        scraper.awaitCompletion(Duration.ofSeconds(200));
+    private void start(Scraping scraping) throws InterruptedException {
+        scraping.start();
+        scraping.awaitCompletion(Duration.ofMinutes(2));
         Thread.sleep(2000); // let logging finish ...
     }
 

@@ -28,7 +28,7 @@ import java.nio.file.Paths;
 public class TestUtils {
 
     public static HtmlPage loadTestPage(String fileName, WebClient webClient) throws URISyntaxException, IOException {
-        URL resource = GetChildrenAndParseTextContentIntegrationTest.class.getClassLoader().getResource(fileName);
+        URL resource = HtmlUnitGetChildrenAndParseTextContentIntegrationTest.class.getClassLoader().getResource(fileName);
         File file = Paths.get(resource.toURI()).toFile();
         return webClient.getPage("file:////" + file.getAbsolutePath());
     }

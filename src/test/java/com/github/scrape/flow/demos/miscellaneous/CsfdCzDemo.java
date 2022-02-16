@@ -17,13 +17,10 @@
 package com.github.scrape.flow.demos.miscellaneous;
 
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
-import com.github.scrape.flow.drivers.HtmlUnitDriverManager;
+import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.scraping.EntryPoint;
-import com.github.scrape.flow.scraping.Scraper;
 import com.github.scrape.flow.scraping.Scraping;
-import com.github.scrape.flow.scraping.htmlunit.GetDescendantsByCssSelector;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteParser;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendantsByCssSelector;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,27 +40,28 @@ public class CsfdCzDemo {
     @Test
     public void start() throws InterruptedException {
 
-        final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
+        final HtmlUnitDriverOperator driverOperator = new HtmlUnitDriverOperator(new HtmlUnitDriversFactory());
 
-        final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 3, TimeUnit.SECONDS)
+        final Scraping productsScraping = new Scraping(3, TimeUnit.SECONDS)
                 .setSequence(
-                        Get.descendantsBySelector("header.box-header")
-                                .first() // the first article list out of two
-                                .addCollector(Category::new, Category.class, new CategoryListener())
-                                .next(Parse.textContent()
-                                        .collectOne(Category::setName, Category.class)
-                                )
-                                .next(Get.parent()
-                                        .next(getArticles()
+                        Do.navigateToUrl("https://www.csfd.cz/novinky/")
+                                .next(Get.descendantsBySelector("header.box-header")
+                                        .first() // the first article list out of two
+                                        .addCollector(Category::new, Category.class, new CategoryListener())
+                                        .next(Parse.textContent()
+                                                .collectOne(Category::setName, Category.class)
+                                        )
+                                        .next(Get.parent()
+                                                .next(getArticles()
+                                                )
                                         )
                                 )
-
                 );
 
         start(productsScraping);
     }
 
-    private GetDescendantsByCssSelector getArticles() {
+    private HtmlUnitGetDescendantsByCssSelector getArticles() {
         return Get.descendantsBySelector("div.box-content")
                 .next(Get.descendants()
                         .byTag("article")
@@ -90,11 +88,7 @@ public class CsfdCzDemo {
     }
 
     private void start(Scraping productsScraping) throws InterruptedException {
-        final EntryPoint entryPoint = new EntryPoint("https://www.csfd.cz/novinky/", productsScraping);
-        final Scraper scraper = new Scraper();
-        scraper.start(entryPoint);
-
-        scraper.awaitCompletion(Duration.ofMinutes(5));
+        productsScraping.start(Duration.ofMinutes(5));
         Thread.sleep(2000); // let logging finish ...
     }
 

@@ -17,12 +17,10 @@
 package com.github.scrape.flow.demos.miscellaneous;
 
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
-import com.github.scrape.flow.drivers.HtmlUnitDriverManager;
+import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.scraping.EntryPoint;
-import com.github.scrape.flow.scraping.Scraper;
 import com.github.scrape.flow.scraping.Scraping;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteParser;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnit;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,31 +42,31 @@ public class IFortunaCzDemo {
     @Test
     public void start() throws InterruptedException {
 
-        final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
-
-        final Scraping matchesScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 5, TimeUnit.SECONDS)
+        final Scraping matchesScraping = new Scraping(5, TimeUnit.SECONDS)
                 .setSequence(
-                        Get.descendants().byAttr("id", "top-bets-tab-0")
-                                .next(Get.descendants().byTag("div").byClass("events-table-box")
-                                        .addCollector(Match::new, Match.class, new MatchListener())
-                                        .next(Get.descendants().byTag("tbody")
-                                                .next(Get.children().byTag("tr").first() // gets first row containing a single match data
-                                                        .next(Get.children().byTag("td").first()
-                                                                .next(Get.children().byTag("a") // match detail link
-                                                                        .next(Parse.hRef(href -> HTTPS_WWW_IFORTUNA_CZ + href)
-                                                                                .collectOne(Match::setDetailUrl, Match.class)
+                        HtmlUnit.Do.navigateToUrl("https://www.ifortuna.cz/")
+                                .next(Get.descendants().byAttr("id", "top-bets-tab-0")
+                                        .next(Get.descendants().byTag("div").byClass("events-table-box")
+                                                .addCollector(Match::new, Match.class, new MatchListener())
+                                                .next(Get.descendants().byTag("tbody")
+                                                        .next(Get.children().byTag("tr").first() // gets first row containing a single match data
+                                                                .next(Get.children().byTag("td").first()
+                                                                        .next(Get.children().byTag("a") // match detail link
+                                                                                .next(Parse.hRef(href -> HTTPS_WWW_IFORTUNA_CZ + href)
+                                                                                        .collectOne(Match::setDetailUrl, Match.class)
+                                                                                )
+                                                                        )
+                                                                        .next(Get.descendants().byTag("span").byClass("market-name") // match name (teams)
+                                                                                .next(Parse.textContent()
+                                                                                        .collectOne(Match::setName, Match.class)
+                                                                                )
                                                                         )
                                                                 )
-                                                                .next(Get.descendants().byTag("span").byClass("market-name") // match name (teams)
-                                                                        .next(Parse.textContent()
-                                                                                .collectOne(Match::setName, Match.class)
-                                                                        )
-                                                                )
-                                                        )
-                                                        .next(Get.children().byTag("td").byClass("col-date")  // match date
-                                                                .next(Get.descendants().byTag("span").byClass("event-datetime")
-                                                                        .next(Parse.textContent()
-                                                                                .collectOne(Match::setDate, Match.class)
+                                                                .next(Get.children().byTag("td").byClass("col-date")  // match date
+                                                                        .next(Get.descendants().byTag("span").byClass("event-datetime")
+                                                                                .next(Parse.textContent()
+                                                                                        .collectOne(Match::setDate, Match.class)
+                                                                                )
                                                                         )
                                                                 )
                                                         )
@@ -78,10 +76,7 @@ public class IFortunaCzDemo {
                 );
 
 
-        final EntryPoint entryPoint = new EntryPoint("https://www.ifortuna.cz/", matchesScraping);
-        final Scraper scraper = new Scraper();
-        scraper.start(entryPoint);
-        scraper.awaitCompletion(Duration.ofMinutes(5));
+        matchesScraping.start(Duration.ofMinutes(5));
         Thread.sleep(1000); // let logging finish
     }
 

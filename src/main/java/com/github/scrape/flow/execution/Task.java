@@ -16,6 +16,8 @@
 
 package com.github.scrape.flow.execution;
 
+import com.github.scrape.flow.drivers.SeleniumDriversManager;
+import com.github.scrape.flow.scraping.ScrapingType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -45,6 +47,8 @@ public class Task implements Comparable<Task> {
     private final Runnable stepRunnable;
     private final boolean throttlingAllowed;
     private final boolean makingHttpRequests;
+    private final ScrapingType scrapingType;
+    private final SeleniumDriversManager seleniumDriversManager;
 
     private final int retries;
     private final Duration retryBackoff;
@@ -59,6 +63,8 @@ public class Task implements Comparable<Task> {
                 basis.getStepRunnable(),
                 basis.isThrottlingAllowed(),
                 basis.isMakingHttpRequests(),
+                basis.getScrapingType(),
+                basis.getSeleniumDriversManager(),
                 retries,
                 retryBackoff
         );

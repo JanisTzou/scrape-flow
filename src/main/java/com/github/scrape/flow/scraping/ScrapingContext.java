@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
+import org.openqa.selenium.WebElement;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -45,7 +46,15 @@ public class ScrapingContext {
     @Nonnull
     private final StepOrder prevStepOrder;
 
+    // for HtmlUnit
     private DomNode node;
+
+    // TODO perhaps put this in a subclass for selenium ?
+    // for Selenium
+    private WebElement webElement;
+
+    // for Selenium
+    private Integer driverNo;
 
     @Nonnull
     private ContextModels contextModels;
@@ -58,24 +67,30 @@ public class ScrapingContext {
     // used in special cases when we have looped step execution and we always want to set the prev step to some initial value ...
     private StepOrder rootLoopedStepOrder;
 
-
+    public ScrapingContext(StepOrder prevStepOrder) {
+        this(prevStepOrder, null, null, null, new ContextModels(), null, null, null);
+    }
 
     public ScrapingContext(StepOrder prevStepOrder, DomNode node) {
         this(prevStepOrder, node, new ContextModels());
     }
 
     public ScrapingContext(StepOrder prevStepOrder, DomNode node, ContextModels contextModels) {
-        this(prevStepOrder, node, contextModels, null, null, null);
+        this(prevStepOrder, node, null, null, contextModels, null, null, null);
     }
 
     public ScrapingContext(@Nonnull StepOrder prevStepOrder,
                            DomNode node,
+                           WebElement webElement,
+                           Integer driverNo,
                            @Nonnull ContextModels contextModels,
                            String parsedText,
                            String parsedURL,
                            StepOrder rootLoopedStepOrder) {
         this.prevStepOrder = Objects.requireNonNull(prevStepOrder);
         this.node = node;
+        this.webElement = webElement;
+        this.driverNo = driverNo;
         this.contextModels = Objects.requireNonNull(contextModels);
         this.parsedText = parsedText;
         this.parsedURL = parsedURL;
@@ -95,15 +110,25 @@ public class ScrapingContext {
 
         private StepOrder prevStepOrder;
         private DomNode node;
+        private WebElement webElement;
+        private Integer driverNo;
         private final ContextModels contextModelsCopy;
         private String parsedText;
         private String parsedURL;
         private StepOrder recursiveRootStepOrder;
 
-        private Builder(StepOrder prevStepOrder, DomNode node, ContextModels contextModelsCopy, String parsedText, String parsedURL,
+        private Builder(StepOrder prevStepOrder,
+                        DomNode node,
+                        WebElement webElement,
+                        Integer driverNo,
+                        ContextModels contextModelsCopy,
+                        String parsedText,
+                        String parsedURL,
                         StepOrder recursiveRootStepOrder) {
             this.prevStepOrder = prevStepOrder;
             this.node = node;
+            this.webElement = webElement;
+            this.driverNo = driverNo;
             this.contextModelsCopy = contextModelsCopy;
             this.parsedText = parsedText;
             this.parsedURL = parsedURL;
@@ -111,7 +136,7 @@ public class ScrapingContext {
         }
 
         private Builder(ScrapingContext ctx) {
-            this(ctx.prevStepOrder, ctx.node, ctx.contextModels.copy(), ctx.parsedText, ctx.parsedURL, ctx.rootLoopedStepOrder);
+            this(ctx.prevStepOrder, ctx.node, ctx.webElement, ctx.driverNo, ctx.contextModels.copy(), ctx.parsedText, ctx.parsedURL, ctx.rootLoopedStepOrder);
         }
 
         public Builder setPrevStepOrder(StepOrder stepOrder) {
@@ -121,6 +146,16 @@ public class ScrapingContext {
 
         public Builder setNode(DomNode node) {
             this.node = node;
+            return this;
+        }
+
+        public Builder setWebElement(WebElement webElement) {
+            this.webElement = webElement;
+            return this;
+        }
+
+        public Builder setDriverNo(Integer driverNo) {
+            this.driverNo = driverNo;
             return this;
         }
 
@@ -145,7 +180,7 @@ public class ScrapingContext {
         }
 
         public ScrapingContext build() {
-            return new ScrapingContext(prevStepOrder, node, contextModelsCopy, parsedText, parsedURL, recursiveRootStepOrder);
+            return new ScrapingContext(prevStepOrder, node, webElement, driverNo, contextModelsCopy, parsedText, parsedURL, recursiveRootStepOrder);
         }
     }
 }

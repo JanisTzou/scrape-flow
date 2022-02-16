@@ -17,14 +17,12 @@
 package com.github.scrape.flow.demos.miscellaneous;
 
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
-import com.github.scrape.flow.drivers.HtmlUnitDriverManager;
+import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.scraping.EntryPoint;
-import com.github.scrape.flow.scraping.Scraper;
 import com.github.scrape.flow.scraping.Scraping;
-import com.github.scrape.flow.scraping.htmlunit.FollowLink;
-import com.github.scrape.flow.scraping.htmlunit.GetDescendants;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteParser;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFollowLink;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteLoader;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,60 +43,66 @@ public class TeleskopExpressDeDemo {
     @Test
     public void start() throws InterruptedException {
 
-        final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
+        final HtmlUnitDriverOperator driverOperator = new HtmlUnitDriverOperator(new HtmlUnitDriversFactory());
 
-        GetDescendants getNextPageLinkElemStep = Get.descendants().byAttr("title", " nächste Seite ").stepName("get-next-page-elem");
-        GetDescendants getProductTdElemsStep = Get.descendants().byClass("main").stepName("get-product-elems");
-        GetDescendants getProductCodeElemStep = Get.descendants().byClass("PRODUCTS_NAME").stepName("get-product-code-elem-1");
-        GetDescendants getProductPriceElemStep = Get.descendants().byClass("prod_preis").stepName("get-product-price-elem");
-        FollowLink clickNextPageLinkElem = Do.followLink().stepName("click-next-page-button");
-        GetDescendants getProductDetailTitleElem = Get.descendants().byAttr("itemprop", "name");
-        GetDescendants getProductDescriptionElem = Get.descendants().byAttr("id", "c0");
+        HtmlUnitGetDescendants getNextPageLinkElemStep = Get.descendants().byAttr("title", " nächste Seite ").stepName("get-next-page-elem");
+        HtmlUnitGetDescendants getProductTdElemsStep = Get.descendants().byClass("main").stepName("get-product-elems");
+        HtmlUnitGetDescendants getProductCodeElemStep = Get.descendants().byClass("PRODUCTS_NAME").stepName("get-product-code-elem-1");
+        HtmlUnitGetDescendants getProductPriceElemStep = Get.descendants().byClass("prod_preis").stepName("get-product-price-elem");
+        HtmlUnitFollowLink clickNextPageLinkElem = Do.followLink().stepName("click-next-page-button");
+        HtmlUnitGetDescendants getProductDetailTitleElem = Get.descendants().byAttr("itemprop", "name");
+        HtmlUnitGetDescendants getProductDescriptionElem = Get.descendants().byAttr("id", "c0");
 
-        final Scraping productsScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 1, TimeUnit.SECONDS)
+
+        String url = "https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html/page/2";
+//        String url = "https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html";
+
+        final Scraping productsScraping = new Scraping(1, TimeUnit.SECONDS)
                 .getDebugOptions().setOnlyScrapeFirstElements(false)
                 .getDebugOptions().setLogFoundElementsSource(false)
                 .setSequence(
-                        Do.paginate()
-                                .setStepsLoadingNextPage(
-                                        getNextPageLinkElemStep
-                                                .next(clickNextPageLinkElem
-                                                        .next(Do.returnNextPage())
+                        Do.navigateToUrl(url)
+                                .next(Do.paginate()
+                                        .setStepsLoadingNextPage(
+                                                getNextPageLinkElemStep
+                                                        .next(clickNextPageLinkElem
+                                                                .next(Do.returnNextPage())
+                                                        )
+                                        )
+                                        .next(getProductTdElemsStep
+                                                .addCollector(Product::new, Product.class, new ProductScrapedListener())
+                                                .next(getProductCodeElemStep
+                                                        .addCollector(ProductCode::new, ProductCode.class)
+                                                        .collectOne(Product::setProductCode, Product.class, ProductCode.class)
+                                                        .next(Parse.textContent().stepName("pet-2").collectOne(ProductCode::setValue, ProductCode.class))
                                                 )
-                                )
-                                .next(getProductTdElemsStep
-                                        .addCollector(Product::new, Product.class, new ProductScrapedListener())
-                                        .next(getProductCodeElemStep
-                                                .addCollector(ProductCode::new, ProductCode.class)
-                                                .collectOne(Product::setProductCode, Product.class, ProductCode.class)
-                                                .next(Parse.textContent().stepName("pet-2").collectOne(ProductCode::setValue, ProductCode.class))
-                                        )
-                                        .next(getProductPriceElemStep
-                                                .next(Parse.textContent().collectOne(Product::setPrice, Product.class))
-                                        )
-                                        .next(getProductCodeElemStep
-                                                .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal).stepName("parse-product-href")
-                                                        .collectOne(Product::setDetailUrl, Product.class)
-                                                        .nextNavigate(Do.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
-                                                                .next(getProductDetailTitleElem.stepName("get-product-detail-title")
-                                                                        .next(Parse.textContent().collectOne(Product::setTitle, Product.class))
-                                                                )
-                                                                .next(getProductDescriptionElem
-                                                                        .next(Parse.textContent().collectOne(Product::setDescription, Product.class))
-                                                                )
-                                                                .next(Get.descendants().byAttr("id", "MwStInfoMO")
-                                                                        .next(Get.descendants().byTag("a")
-                                                                                .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
-                                                                                        .nextNavigate(Do.navigateToParsedLink(new HtmlUnitSiteParser(driverManager))
-                                                                                                .next(Get.byXPath("/html/body/table/tbody")
-                                                                                                        .next(Get.children().byTag("tr").excludingFirstN(1) // rows doe each shipping service price; first row contains captions
-                                                                                                                .addCollector(ShippingCosts::new, ShippingCosts.class)
-                                                                                                                .collectMany((Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc), Product.class, ShippingCosts.class)
-                                                                                                                .next(Get.children().byTag("td").first()  // service name
-                                                                                                                        .next(Parse.textContent().stepName("get-shipping-service").collectOne(ShippingCosts::setService, ShippingCosts.class))
-                                                                                                                )
-                                                                                                                .next(Get.children().byTag("td").firstNth(2)  // service price
-                                                                                                                        .next(Parse.textContent().stepName("get-shipping-price").collectOne(ShippingCosts::setPrice, ShippingCosts.class))
+                                                .next(getProductPriceElemStep
+                                                        .next(Parse.textContent().collectOne(Product::setPrice, Product.class))
+                                                )
+                                                .next(getProductCodeElemStep
+                                                        .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal).stepName("parse-product-href")
+                                                                .collectOne(Product::setDetailUrl, Product.class)
+                                                                .next(Do.navigateToParsedLink(new HtmlUnitSiteLoader(driverOperator))
+                                                                        .next(getProductDetailTitleElem.stepName("get-product-detail-title")
+                                                                                .next(Parse.textContent().collectOne(Product::setTitle, Product.class))
+                                                                        )
+                                                                        .next(getProductDescriptionElem
+                                                                                .next(Parse.textContent().collectOne(Product::setDescription, Product.class))
+                                                                        )
+                                                                        .next(Get.descendants().byAttr("id", "MwStInfoMO")
+                                                                                .next(Get.descendants().byTag("a")
+                                                                                        .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
+                                                                                                .next(Do.navigateToParsedLink(new HtmlUnitSiteLoader(driverOperator))
+                                                                                                        .next(Get.byXPath("/html/body/table/tbody")
+                                                                                                                .next(Get.children().byTag("tr").excludingFirstN(1) // rows doe each shipping service price; first row contains captions
+                                                                                                                        .addCollector(ShippingCosts::new, ShippingCosts.class)
+                                                                                                                        .collectMany((Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc), Product.class, ShippingCosts.class)
+                                                                                                                        .next(Get.children().byTag("td").first()  // service name
+                                                                                                                                .next(Parse.textContent().stepName("get-shipping-service").collectOne(ShippingCosts::setService, ShippingCosts.class))
+                                                                                                                        )
+                                                                                                                        .next(Get.children().byTag("td").firstNth(2)  // service price
+                                                                                                                                .next(Parse.textContent().stepName("get-shipping-price").collectOne(ShippingCosts::setPrice, ShippingCosts.class))
+                                                                                                                        )
                                                                                                                 )
                                                                                                         )
                                                                                                 )
@@ -113,14 +117,7 @@ public class TeleskopExpressDeDemo {
                 );
 
 
-        String url = "https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html/page/2";
-//        String url = "https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html";
-        final EntryPoint entryPoint = new EntryPoint(url, productsScraping);
-        final Scraper scraper = new Scraper();
-
-        scraper.start(entryPoint);
-
-        scraper.awaitCompletion(Duration.ofMinutes(5));
+        productsScraping.start(Duration.ofMinutes(5));
         Thread.sleep(2000); // let logging finish ...
 
     }

@@ -20,9 +20,14 @@ import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.github.scrape.flow.data.publishing.ScrapedDataPublisher;
 import com.github.scrape.flow.debugging.DebuggingOptions;
+import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
+import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
+import com.github.scrape.flow.drivers.SeleniumDriversFactory;
+import com.github.scrape.flow.drivers.SeleniumDriversManager;
 import com.github.scrape.flow.execution.*;
 import com.github.scrape.flow.scraping.Options;
 import com.github.scrape.flow.scraping.ScrapingServices;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteLoader;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
 import com.github.scrape.flow.throttling.ScrapingRateLimiterImpl;
 import com.github.scrape.flow.throttling.ThrottlingService;
@@ -46,7 +51,9 @@ public class TestConfiguration {
                                              TaskExecutor taskExecutor,
                                              Options options,
                                              DebuggingOptions globalDebugging,
-                                             TaskService taskService) {
+                                             TaskService taskService,
+                                             SeleniumDriversManager seleniumDriversManager,
+                                             HtmlUnitSiteLoader htmlUnitSiteParser) {
         return new ScrapingServices(stepOrderGenerator,
                 throttlingService,
                 activeStepsTracker,
@@ -56,7 +63,9 @@ public class TestConfiguration {
                 taskExecutor,
                 options,
                 globalDebugging,
-                taskService
+                taskService,
+                seleniumDriversManager,
+                htmlUnitSiteParser
         );
     }
 
@@ -128,6 +137,18 @@ public class TestConfiguration {
     @Bean(destroyMethod = "close")
     public WebClient webClient() {
          return new WebClient(BrowserVersion.CHROME);
+    }
+
+    @Bean
+    @Autowired
+    public SeleniumDriversManager seleniumDriversManager() {
+        return new SeleniumDriversManager(new SeleniumDriversFactory("/Users/janis/Projects_Data/scrape-flow/chromedriver", false)); // TODO fix this mess
+    }
+
+    @Bean
+    @Autowired
+    public HtmlUnitSiteLoader htmlUnitSiteParser() {
+        return new HtmlUnitSiteLoader(new HtmlUnitDriverOperator(new HtmlUnitDriversFactory()));
     }
 
 }

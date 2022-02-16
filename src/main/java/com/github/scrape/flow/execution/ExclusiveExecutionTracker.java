@@ -55,8 +55,8 @@ public class ExclusiveExecutionTracker {
 
     // TODO this solution does not take into account nested exclusive steps (especially those that have intermediary non-exclusive steps between them and their exclusive parents )
     //  also this this violates command-query separation !!!
-    public boolean canExecute(QueuedStepTask qst) {
-        Task st = qst.getStepTask();
+    public boolean canExecute(QueuedTask qst) {
+        Task st = qst.getTask();
         StepOrder order = st.getStepOrder();
 
         if (taskRootOrderStack.isEmpty()) {

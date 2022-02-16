@@ -17,14 +17,12 @@
 package com.github.scrape.flow.demos.miscellaneous;
 
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
-import com.github.scrape.flow.drivers.HtmlUnitDriverManager;
+import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.scraping.EntryPoint;
-import com.github.scrape.flow.scraping.Scraper;
 import com.github.scrape.flow.scraping.Scraping;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteParser;
-import com.github.scrape.flow.scraping.htmlunit.NavigateToParsedLink;
-import com.github.scrape.flow.scraping.htmlunit.StepBlock;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteLoader;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitNavigateToParsedLink;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitStepBlock;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,33 +46,35 @@ public class BbcComDemo {
     @Test
     public void demo() throws InterruptedException {
 
-        final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
-        final HtmlUnitSiteParser parser = new HtmlUnitSiteParser(driverManager);
+        final HtmlUnitDriverOperator driverOperator = new HtmlUnitDriverOperator(new HtmlUnitDriversFactory());
+        final HtmlUnitSiteLoader parser = new HtmlUnitSiteLoader(driverOperator);
 
-        final Scraping scraping = new Scraping(parser, 5, TimeUnit.SECONDS)
+        final Scraping scraping = new Scraping(5, TimeUnit.SECONDS)
                 .setSequence(
-                        Get.descendants().byAttr("aria-label", "World")
-                                .first()
-                                .next(Get.descendants().byTag("ul")
+                        Do.navigateToUrl("https://www.bbc.com/news/world")
+                                .next(Get.descendants().byAttr("aria-label", "World")
                                         .first()
-                                        .next(Get.descendants().byTag("li")
-                                                .addCollector(Section::new, Section.class, new SectionListener())
-                                                .next(Get.descendants().byTag("a")
-                                                        .next(Parse.textContent()
-                                                                .collectOne(Section::setName, Section.class)
-                                                        )
-                                                        .next(Parse.hRef(href -> HTTPS_WWW_BBC_COM + href)
-                                                                .nextNavigate(goToEachSection(parser))
+                                        .next(Get.descendants().byTag("ul")
+                                                .first()
+                                                .next(Get.descendants().byTag("li")
+                                                        .addCollector(Section::new, Section.class, new SectionListener())
+                                                        .next(Get.descendants().byTag("a")
+                                                                .next(Parse.textContent()
+                                                                        .collectOne(Section::setName, Section.class)
+                                                                )
+                                                                .next(Parse.hRef(href -> HTTPS_WWW_BBC_COM + href)
+                                                                        .next(goToEachSection(parser))
+                                                                )
                                                         )
                                                 )
-                                        )
-                                )
+                                        ))
+
                 );
 
         start(scraping);
     }
 
-    private NavigateToParsedLink goToEachSection(HtmlUnitSiteParser parser) {
+    private HtmlUnitNavigateToParsedLink goToEachSection(HtmlUnitSiteLoader parser) {
         return Do.navigateToParsedLink(parser)
                 .next(Get.descendants().byAttr("id", "featured-contents")
                         .next(Get.siblings().next()
@@ -96,7 +96,7 @@ public class BbcComDemo {
                                                 )
                                                 .next(Parse.hRef(href -> href.contains("https") ? href : HTTPS_WWW_BBC_COM + href)
                                                         .collectOne(Article::setUrl, Article.class)
-                                                        .nextNavigate(toArticles(parser))
+                                                        .next(toArticles(parser))
                                                 )
 
                                         )
@@ -107,7 +107,7 @@ public class BbcComDemo {
     }
 
 
-    private NavigateToParsedLink toArticles(HtmlUnitSiteParser parser) {
+    private HtmlUnitNavigateToParsedLink toArticles(HtmlUnitSiteLoader parser) {
         return Do.navigateToParsedLink(parser)
                 .next(Get.descendants().byTag("article")
                         .nextExclusively(Get.descendants().byTextContent("Sport Africa") // category must be parsed before following steps can proceed -> exclusive call
@@ -126,7 +126,7 @@ public class BbcComDemo {
                 );
     }
 
-    private StepBlock parseSportArticle() {
+    private HtmlUnitStepBlock parseSportArticle() {
         return Flow.asBlock()
                 .next(Get.descendants().byAttr("id", "page")
                         .next(Parse.textContent()
@@ -140,7 +140,7 @@ public class BbcComDemo {
                 );
     }
 
-    private StepBlock parseNonSportArticle() {
+    private HtmlUnitStepBlock parseNonSportArticle() {
         return Flow.asBlock()
                 .next(Get.descendants().byAttr("id", "main-heading")
                         .next(Parse.textContent()
@@ -171,10 +171,7 @@ public class BbcComDemo {
 
 
     private void start(Scraping articlesScraping) throws InterruptedException {
-        final EntryPoint entryPoint = new EntryPoint("https://www.bbc.com/news/world", articlesScraping);
-        final Scraper scraper = new Scraper();
-        scraper.start(entryPoint);
-        scraper.awaitCompletion(Duration.ofMinutes(2));
+        articlesScraping.start(Duration.ofMinutes(2));
         Thread.sleep(1000); // let logging finish
     }
 

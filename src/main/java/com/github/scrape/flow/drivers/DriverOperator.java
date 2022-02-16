@@ -16,7 +16,11 @@
 
 package com.github.scrape.flow.drivers;
 
-public interface DriverOperator {
+public interface DriverOperator<T> {
+
+    T getDriver();
+
+    int webDriverId();
 
     boolean terminateDriver();
 

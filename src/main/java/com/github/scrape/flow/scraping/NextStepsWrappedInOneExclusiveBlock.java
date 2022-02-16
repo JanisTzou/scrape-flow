@@ -17,7 +17,7 @@
 package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.htmlunit.StepBlock;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitStepBlock;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ public class NextStepsWrappedInOneExclusiveBlock implements NextStepsHandler {
     public List<StepOrder> execute(List<ScrapingStepBase<?>> nextSteps,
                                    ScrapingContext nextCtx,
                                    ScrapingServices services) {
-        StepOrder stepOrder = new StepBlock(nextSteps).setExclusiveExecution(true).execute(nextCtx, services);
+        StepOrder stepOrder = new HtmlUnitStepBlock(nextSteps).setExclusiveExecution(true).execute(nextCtx, services);
         return List.of(stepOrder);
     }
 

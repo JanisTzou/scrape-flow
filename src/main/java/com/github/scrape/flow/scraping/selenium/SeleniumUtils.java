@@ -31,13 +31,20 @@ public class SeleniumUtils {
 
     private static final Logger log = LogManager.getLogger();
 
+    public static boolean hasTagName(WebElement webElement, String tagName) {
+        return webElement.getTagName().equalsIgnoreCase(tagName);
+    }
+
     public static boolean hasAttribute(WebElement webElement, String attrName) {
         return webElement.getAttribute(attrName) != null;
     }
 
-
     public static boolean hasAttributeWithValue(WebElement element, String attribute, String value) {
         return hasAttribute(element, attribute) && element.getAttribute(attribute).equals(value);
+    }
+
+    public static boolean hasCssClass(WebElement element, String value) {
+        return hasAttribute(element, "class") && element.getAttribute("class").equals(value);
     }
 
 

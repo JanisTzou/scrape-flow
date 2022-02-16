@@ -47,4 +47,8 @@ public class SeleniumDriversFactory implements DriversFactory<WebDriver> {
         return driverObj;
     }
 
+    @Override
+    public int maxDrivers() {
+        return 1; // TODO make user defined! ...
+    }
 }

@@ -20,4 +20,6 @@ public interface DriversFactory<T> {
 
     T startDriver();
 
+    int maxDrivers();
+
 }

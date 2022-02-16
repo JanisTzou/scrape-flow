@@ -36,4 +36,8 @@ public class HtmlUnitDriversFactory implements DriversFactory<WebClient> {
         return webClient;
     }
 
+    @Override
+    public int maxDrivers() {
+        return Integer.MAX_VALUE;
+    }
 }

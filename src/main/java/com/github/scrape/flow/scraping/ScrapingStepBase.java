@@ -19,6 +19,7 @@ package com.github.scrape.flow.scraping;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.data.collectors.Collectors;
 import com.github.scrape.flow.debugging.DebuggingOptions;
+import com.github.scrape.flow.drivers.SeleniumDriversManager;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.execution.TaskBasis;
 import com.github.scrape.flow.execution.TaskService;
@@ -187,6 +188,8 @@ public abstract class ScrapingStepBase<C extends ScrapingStepBase<C>> implements
         this.name = name;
     }
 
+    protected abstract ScrapingType getScrapingType();
+
     /**
      * @return a copy of this step with the given <code>name</code> set
      */
@@ -201,8 +204,8 @@ public abstract class ScrapingStepBase<C extends ScrapingStepBase<C>> implements
         return text != null ? parsedValueConversion.apply(text) : null;
     }
 
-    protected void submitForExecution(StepOrder stepOrder, Runnable runnable, TaskService taskService) {
-        TaskBasis stepTask = new TaskBasis(stepOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests);
+    protected void submitForExecution(StepOrder stepOrder, Runnable runnable, TaskService taskService, SeleniumDriversManager seleniumDriversManager) {
+        TaskBasis stepTask = new TaskBasis(stepOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests, getScrapingType(), seleniumDriversManager);
         taskService.submitForExecution(stepTask);
     }
 

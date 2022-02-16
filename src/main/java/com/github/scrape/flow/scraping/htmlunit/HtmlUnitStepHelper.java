@@ -21,14 +21,14 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.*;
-import com.github.scrape.flow.scraping.htmlunit.filters.FilterUtils;
+import com.github.scrape.flow.scraping.filters.FilterUtils;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.List;
 import java.util.function.Supplier;
 
 @Log4j2
-public class HtmlUnitStepHelper {
+public class HtmlUnitStepHelper extends StepHelperBase {
 
     private final HtmlUnitScrapingStep<?> step;
     private final NextStepsHandler nextStepsHandler;
@@ -55,7 +55,7 @@ public class HtmlUnitStepHelper {
 
             List<DomNode> foundNodes = nodesSearch.get();
             List<DomNode> filteredNodes = FilterUtils.filter(foundNodes, step.getFilters(), services.getGlobalDebugging());
-            logFoundCount(currStepOrder, filteredNodes.size(), services.getGlobalDebugging());
+            logFoundCount(currStepOrder, filteredNodes.size(), services.getGlobalDebugging(), step);
 
             for (DomNode node : filteredNodes) {
 
@@ -66,23 +66,11 @@ public class HtmlUnitStepHelper {
 
                 List<StepOrder> nextStepsOrders = executeNextSteps(currStepOrder, node, ctx, stepModels.getNextContextModels(), services);
 
-                // TODO this step is what is missing when we call HtmlUnitSiteParser or NavigateToPage step ... from another step ... if it has a collector set to it ...
-                //  decide which category of steps absolutely must use this and make it somehow nicely available ...
-                if (!stepModels.getModelToPublishList().isEmpty()) { // important
-                    services.getStepAndDataRelationshipTracker().track(currStepOrder, nextStepsOrders, stepModels.getModelToPublishList());
-                    services.getScrapedDataPublisher().enqueueStepsToAwaitDataPublishing(nextStepsOrders);
-                }
+                handleModels(currStepOrder, services, stepModels, nextStepsOrders);
             }
 
         } catch (Exception e) {
             log.error("{} - {}: Error executing step", currStepOrder, step.getName(), e);
-        }
-    }
-
-
-    private void logFoundCount(StepOrder currStepOrder, int count, DebuggingOptions globalDebugging) {
-        if (globalDebugging.isLogFoundElementsCount() || ScrapingStepInternalProxy.of(step).getStepDebugging().isLogFoundElementsCount()) {
-            log.info("{} - {}: found {} nodes", currStepOrder, step.getName(), count);
         }
     }
 
@@ -105,6 +93,8 @@ public class HtmlUnitStepHelper {
         ScrapingContext nextCtx = new ScrapingContext(
                 currStepOrder,
                 node,
+                null,
+                null,
                 nextContextModels.copy(),
                 null, // TODO send parsed text as well? Probably not, the parsed text should be possible to access differently ... (through model)
                 ctx.getParsedURL(),

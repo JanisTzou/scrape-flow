@@ -39,7 +39,7 @@ public class TaskExecutor {
 
     public static final Duration PERIODIC_EXEC_NEXT_TRIGGER_INTERVAL = Duration.ofMillis(100);
     public static final long COMPLETION_CHECK_FREQUENCY_MILLIS = 100L;
-    private final Queue<QueuedStepTask> taskQueue;
+    private final Queue<QueuedTask> taskQueue;
     private final ThrottlingService throttlingService;
     private final Duration periodicExecNextTriggerInterval;
     private final ExecutingTasksTracker executingTasksTracker;
@@ -74,13 +74,14 @@ public class TaskExecutor {
                  Supplier<LocalDateTime> nowSupplier,
                  ExecutingTasksTracker executingTasksTracker,
                  ExclusiveExecutionTracker exclusiveExecutionTracker,
-                 ActiveStepsTracker activeStepsTracker, ScrapingRateLimiter scrapingRateLimiter) {
+                 ActiveStepsTracker activeStepsTracker,
+                 ScrapingRateLimiter scrapingRateLimiter) {
         this.throttlingService = requestsPerSecondCounter;
         this.executingTasksTracker = executingTasksTracker;
         this.exclusiveExecutionTracker = exclusiveExecutionTracker;
         this.activeStepsTracker = activeStepsTracker;
         this.scrapingRateLimiter = scrapingRateLimiter;
-        this.taskQueue = new PriorityBlockingQueue<>(100, QueuedStepTask.NATURAL_COMPARATOR);
+        this.taskQueue = new PriorityBlockingQueue<>(100, QueuedTask.NATURAL_COMPARATOR);
         this.periodicExecNextTriggerInterval = periodicExecNextTriggerInterval;
         this.nowSupplier = nowSupplier;
         schedulePeriodicExecNextTrigger();
@@ -110,7 +111,12 @@ public class TaskExecutor {
     private synchronized void enqueueTask(Task task,
                                           Consumer<TaskResult> taskResultConsumer,
                                           Consumer<TaskError> taskErrorConsumer) {
-        taskQueue.add(new QueuedStepTask(task, taskResultConsumer, taskErrorConsumer, System.currentTimeMillis()));
+        if (task.getScrapingType().isSelenium()) { // TODO think where to put this better ... but it definitely needs to happen before the task starts executing ...
+            if (!task.isMakingHttpRequests()) { // if this is making http request it will need to reserve its own driver ...
+                task.getSeleniumDriversManager().reserveUsedDriverFor(task.getStepOrder()); // TODO how to go about this ... this is difficult to have here ...
+            }
+        }
+        taskQueue.add(new QueuedTask(task, taskResultConsumer, taskErrorConsumer, System.currentTimeMillis()));
         log.trace("New enqueued request info: {}", task.loggingInfo());
         logEnqueuedRequestCount();
     }
@@ -122,12 +128,12 @@ public class TaskExecutor {
         try {
             // how to manage the number of executing tasks?
 
-            QueuedStepTask next = taskQueue.peek();
+            QueuedTask next = taskQueue.peek();
 
             while (canExecute(next)) {
-                executingTasksTracker.track(next.getStepTask());
+                executingTasksTracker.track(next.getTask());
                 taskQueue.poll(); // remove from queue head
-                executeTaskAsync(next.getStepTask(),
+                executeTaskAsync(next.getTask(),
                         next.getTaskResultConsumer(),
                         next.getTaskErrorConsumer(),
                         next.getEnqueuedTimestamp()
@@ -142,18 +148,32 @@ public class TaskExecutor {
     /**
      * Non-throttlable tasks can proceed without limits. Throttlable tasks need to be limited in terms of how many are executed in parallel
      */
-    private boolean canExecute(QueuedStepTask next) {
+    private boolean canExecute(QueuedTask next) {
         if (next == null) {
             return false;
         }
-        return isParentTaskFinished(next)
+        Task task = next.getTask();
+        return isParentTaskFinished(task)
                 && exclusiveExecutionTracker.canExecute(next)
-                && isWithinScrapingLimits(next.getStepTask());
+                && isWithinScrapingLimits(task)
+                && couldReserveDriverFor(task); // IMPORTANT - this needs to be the last condition as it changes state of the drivers tracking!
     }
 
-    private boolean isParentTaskFinished(QueuedStepTask next) {
+    private boolean couldReserveDriverFor(Task task) {
+        if (isSeleniumTaskAndLoadingNewPage(task)) {
+            return task.getSeleniumDriversManager().reserveUnusedDriverFor(task.getStepOrder());
+        } else {
+            return true; // return true as this is only relevant for selenium, and we do not want to block execution of anything else based on this condition
+        }
+    }
+
+    private boolean isSeleniumTaskAndLoadingNewPage(Task task) {
+        return task.getScrapingType().isSelenium() && task.isMakingHttpRequests();   // TODO change this to isLoadingNewPage ...
+    }
+
+    private boolean isParentTaskFinished(Task task) {
         // super important that children do not skip parent tasks ... issues that are hard to debug ...
-        return next.getStepTask().getStepOrder().getParent().map(pt -> !activeStepsTracker.isActive(pt)).orElse(true);
+        return task.getStepOrder().getParent().map(pt -> !activeStepsTracker.isActive(pt)).orElse(true);
     }
 
     private boolean isWithinScrapingLimits(Task task) {
@@ -229,6 +249,10 @@ public class TaskExecutor {
     private Runnable taskFinishedHook(Task task) {
         return () -> {
             log.debug("Finished step {}", task.loggingInfo());
+//            if (isSeleniumTaskAndLoadingNewPage(task)) {
+            if (task.getScrapingType().isSelenium()) {
+                task.getSeleniumDriversManager().unreserveUsedDriverBy(task.getStepOrder());
+            }
             this.activeTaskCount.decrementAndGet();
             this.dequeueNextAndExecute();
         };

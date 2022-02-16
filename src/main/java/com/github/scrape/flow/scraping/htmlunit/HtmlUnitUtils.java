@@ -90,20 +90,20 @@ public class HtmlUnitUtils {
         }
     }
 
-    public static Optional<DomNode> findNthParent(DomNode domNode, Integer nth) {
+    public static Optional<DomNode> findNthAncestor(DomNode domNode, Integer nth) {
         if (nth != null && nth < 0) {
             throw new IllegalArgumentException("Cannot return nth child element for n = " + nth + " - nth must be a non-null and non-negative integer!");
         } else {
-            return findNthParentHelper(domNode, nth, 0);
+            return findNthAncestorHelper(domNode, nth, 0);
         }
     }
 
-    private static Optional<DomNode> findNthParentHelper(DomNode domNode, int nth, int count) {
+    private static Optional<DomNode> findNthAncestorHelper(DomNode domNode, int nth, int count) {
         if (count == nth) {
             return Optional.of(domNode);
         } else {
             if (domNode.getParentNode() != null) {
-                return findNthParentHelper(domNode.getParentNode(), nth, ++count);
+                return findNthAncestorHelper(domNode.getParentNode(), nth, ++count);
             } else {
                 return Optional.empty();
             }

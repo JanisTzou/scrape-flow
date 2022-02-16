@@ -17,5 +17,7 @@
 package com.github.scrape.flow.scraping.selenium;
 
 public interface SupplierOperation<T> {
+
     T executeAndGet() throws ProcessingException;
+
 }

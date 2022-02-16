@@ -16,13 +16,11 @@
 
 package com.github.scrape.flow.demos.miscellaneous;
 
-import com.github.scrape.flow.drivers.HtmlUnitDriverManager;
+import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.scraping.EntryPoint;
-import com.github.scrape.flow.scraping.Scraper;
 import com.github.scrape.flow.scraping.Scraping;
-import com.github.scrape.flow.scraping.htmlunit.GetDescendants;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteParser;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnit;
 import org.junit.Test;
 
 import java.time.Duration;
@@ -36,36 +34,34 @@ public class AktualneCzDemo {
     @Test
     public void start() throws InterruptedException {
 
-        final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
+        final HtmlUnitDriverOperator driverOperator = new HtmlUnitDriverOperator(new HtmlUnitDriversFactory());
 
-        final GetDescendants getArticleElements = Get.descendants().byAttr("data-ga4-type", "article");
-        final GetDescendants getArticleHeadlineElem = Get.descendants().byAttr("data-vr-headline");
-        final GetDescendants getArticleDescElem1 = Get.descendants().byClass("section-opener__desc");
-        final GetDescendants getArticleDescElem2 = Get.descendants().byClass("small-box__desc");
+        final HtmlUnitGetDescendants getArticleElements = Get.descendants().byAttr("data-ga4-type", "article");
+        final HtmlUnitGetDescendants getArticleHeadlineElem = Get.descendants().byAttr("data-vr-headline");
+        final HtmlUnitGetDescendants getArticleDescElem1 = Get.descendants().byClass("section-opener__desc");
+        final HtmlUnitGetDescendants getArticleDescElem2 = Get.descendants().byClass("small-box__desc");
 
-        final Scraping articlesScraping = new Scraping(new HtmlUnitSiteParser(driverManager), 5, TimeUnit.SECONDS)
+        final Scraping articlesScraping = new Scraping(5, TimeUnit.SECONDS)
                 .setSequence(
-                        getArticleElements
-                                .next(getArticleHeadlineElem.stepName("step-1")
-                                        .next(Parse.textContent())
-                                )
-                                .next(getArticleHeadlineElem.stepName("step-2")
-                                        .next(Parse.textContent())
-                                )
-                                .next(getArticleDescElem1
-                                        .next(Parse.textContent())
-                                )
-                                .next(getArticleDescElem2
-                                        .next(Parse.textContent())
-                                )
+                        HtmlUnit.Do.navigateToUrl("https://zpravy.aktualne.cz/zahranici/")
+                                .next(getArticleElements
+                                        .next(getArticleHeadlineElem.stepName("step-1")
+                                                .next(Parse.textContent())
+                                        )
+                                        .next(getArticleHeadlineElem.stepName("step-2")
+                                                .next(Parse.textContent())
+                                        )
+                                        .next(getArticleDescElem1
+                                                .next(Parse.textContent())
+                                        )
+                                        .next(getArticleDescElem2
+                                                .next(Parse.textContent())
+                                        ))
+
                 );
 
 
-        final EntryPoint entryPoint = new EntryPoint("https://zpravy.aktualne.cz/zahranici/", articlesScraping);
-
-        final Scraper scraper = new Scraper();
-        scraper.start(entryPoint);
-        scraper.awaitCompletion(Duration.ofMinutes(2));
+        articlesScraping.start(Duration.ofMinutes(2));
         Thread.sleep(1000); // let logging finish
     }
 

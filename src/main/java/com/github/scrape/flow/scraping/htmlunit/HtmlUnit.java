@@ -17,45 +17,45 @@
 package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.scrape.flow.scraping.htmlunit.filters.FilterElements;
+import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterElements;
 
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.scrape.flow.scraping.htmlunit.GetParent.Type;
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetAncestor.Type;
 
 public class HtmlUnit {
 
     public static class Get {
 
-        public static GetElementsByXPath byXPath(String xPath) {
-            return new GetElementsByXPath(xPath);
+        public static HtmlUnitGetElementsByXPath byXPath(String xPath) {
+            return new HtmlUnitGetElementsByXPath(xPath);
         }
 
-        public static GetParent parent() {
-            return new GetParent(Type.PARENT);
+        public static HtmlUnitGetAncestor parent() {
+            return new HtmlUnitGetAncestor(Type.PARENT);
         }
 
-        public static GetParent nthParent(int nth) {
-            return new GetParent(Type.NTH_PARENT, nth);
+        public static HtmlUnitGetAncestor ancestor(int nth) {
+            return new HtmlUnitGetAncestor(Type.NTH_ANCESTOR, nth);
         }
 
-        public static GetSiblings siblings() {
-            return new GetSiblings();
+        public static HtmlUnitGetSiblings siblings() {
+            return new HtmlUnitGetSiblings();
         }
 
-        public static GetDescendants descendants() {
-            return new GetDescendants();
+        public static HtmlUnitGetDescendants descendants() {
+            return new HtmlUnitGetDescendants();
         }
 
         // this needs to be here ... cannot go under the descendants even though it gets the descendants
-        public static GetDescendantsByCssSelector descendantsBySelector(String sccSelector) {
-            return new GetDescendantsByCssSelector(sccSelector);
+        public static HtmlUnitGetDescendantsByCssSelector descendantsBySelector(String sccSelector) {
+            return new HtmlUnitGetDescendantsByCssSelector(sccSelector);
         }
 
-        public static GetChildren children() {
-            return new GetChildren();
+        public static HtmlUnitGetChildren children() {
+            return new HtmlUnitGetChildren();
         }
 
     }
@@ -66,8 +66,8 @@ public class HtmlUnit {
      */
     public static class Filter {
 
-        public static FilterElements apply(Predicate<DomNode> domNodePredicate) {
-            return new FilterElements(domNodePredicate);
+        public static HtmlUnitFilterElements apply(Predicate<DomNode> domNodePredicate) {
+            return new HtmlUnitFilterElements(domNodePredicate);
         }
 
     }
@@ -75,28 +75,28 @@ public class HtmlUnit {
 
     public static class Parse {
 
-        public static ParseElementTextContent textContent() {
-            return new ParseElementTextContent();
+        public static HtmlUnitParseElementTextContent textContent() {
+            return new HtmlUnitParseElementTextContent();
         }
 
-        public static ParseElementTextContent textContent(Function<String, String> parsedTextConverter) {
-            return new ParseElementTextContent().setValueConversion(parsedTextConverter);
+        public static HtmlUnitParseElementTextContent textContent(Function<String, String> parsedTextConverter) {
+            return new HtmlUnitParseElementTextContent().setValueConversion(parsedTextConverter);
         }
 
-        public static ParseElementHRef hRef() {
-            return new ParseElementHRef();
+        public static HtmlUnitParseElementHRef hRef() {
+            return new HtmlUnitParseElementHRef();
         }
 
-        public static ParseElementHRef hRef(Function<String, String> parsedTextConverter) {
-            return new ParseElementHRef(parsedTextConverter);
+        public static HtmlUnitParseElementHRef hRef(Function<String, String> parsedTextConverter) {
+            return new HtmlUnitParseElementHRef(parsedTextConverter);
         }
 
-        public static ParseElementAttributeValue attrValue(String attrName, Function<String, String> parsedTextConverter) {
-            return new ParseElementAttributeValue(attrName, parsedTextConverter);
+        public static HtmlUnitParseElementAttributeValue attrValue(String attrName, Function<String, String> parsedTextConverter) {
+            return new HtmlUnitParseElementAttributeValue(attrName, parsedTextConverter);
         }
 
-        public static ParseElementAttributeValue attrValue(String attrName) {
-            return new ParseElementAttributeValue(attrName);
+        public static HtmlUnitParseElementAttributeValue attrValue(String attrName) {
+            return new HtmlUnitParseElementAttributeValue(attrName);
         }
 
     }
@@ -104,17 +104,17 @@ public class HtmlUnit {
 
     public static class Do {
 
-        public static MapElements mapElements(Function<DomNode, Optional<DomNode>> mapper) {
-            return new MapElements(mapper);
+        public static HtmlUnitMapElements mapElements(Function<DomNode, Optional<DomNode>> mapper) {
+            return new HtmlUnitMapElements(mapper);
         }
 
         /**
          * <p>Replaces the current page with a new one that is loaded after the link is followed.
          * <p><b>IMPORTANT</b>: use this only when there are no other steps working with the page.
-         * If not sure, use {@link Do#navigateToParsedLink(HtmlUnitSiteParser)}
+         * If not sure, use {@link Do#navigateToParsedLink(HtmlUnitSiteLoader)}
          */
-        public static FollowLink followLink() {
-            return new FollowLink();
+        public static HtmlUnitFollowLink followLink() {
+            return new HtmlUnitFollowLink();
         }
 
         /**
@@ -123,21 +123,25 @@ public class HtmlUnit {
          * Loads the site into a new page instance - this is important e.g. when we are scraping additional data from the same page.
          * If you are sure that parsing is finished at current page you at that point, use {@link Do#followLink()}
          */
-        public static NavigateToParsedLink navigateToParsedLink(HtmlUnitSiteParser siteParser) {
-            return new NavigateToParsedLink(siteParser);
+        public static HtmlUnitNavigateToParsedLink navigateToParsedLink(HtmlUnitSiteLoader siteParser) { // TODO it should not be necessary to pass the siteParser
+            return new HtmlUnitNavigateToParsedLink(siteParser);
         }
 
-        public static ReturnNextPage returnNextPage() {
-            return new ReturnNextPage();
+        public static HtmlUnitNavigateToUrl navigateToUrl(String url) {
+            return new HtmlUnitNavigateToUrl(url);
         }
 
-        public static Paginate paginate() {
-            return new Paginate();
+        public static HtmlUnitReturnNextPage returnNextPage() {
+            return new HtmlUnitReturnNextPage();
+        }
+
+        public static HtmlUnitPaginate paginate() {
+            return new HtmlUnitPaginate();
         }
 
 
-        public static DownloadImage downloadImage() {
-            return new DownloadImage();
+        public static HtmlUnitDownloadImage downloadImage() {
+            return new HtmlUnitDownloadImage();
             // TODO other types of files?
         }
     }
@@ -145,8 +149,8 @@ public class HtmlUnit {
 
     public static class Flow {
 
-        public static StepBlock asBlock() {
-            return new StepBlock();
+        public static HtmlUnitStepBlock asBlock() {
+            return new HtmlUnitStepBlock();
         }
 
     }

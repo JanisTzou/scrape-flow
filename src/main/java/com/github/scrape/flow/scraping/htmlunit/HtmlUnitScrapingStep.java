@@ -16,10 +16,9 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-import com.github.scrape.flow.debugging.DebuggingOptions;
-import com.github.scrape.flow.execution.StepOrder;
+import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.scraping.*;
-import com.github.scrape.flow.scraping.htmlunit.filters.Filter;
+import com.github.scrape.flow.scraping.filters.Filter;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>>
         extends CommonOperationsStepBase<C>
         implements Throttling {
 
-    protected final List<Filter> filters = new CopyOnWriteArrayList<>();
+    protected final List<Filter<DomNode>> filters = new CopyOnWriteArrayList<>();
 
     public HtmlUnitScrapingStep() {
     }
@@ -47,14 +46,14 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>>
         return new HtmlUnitStepHelper(this, nextStepsHandler);
     }
 
-    protected C addFilter(Filter filter) {
+    protected C addFilter(Filter<DomNode> filter) {
         return copyModifyAndGet(copy -> {
             copy.filters.add(filter);
             return copy;
         });
     }
 
-    protected List<Filter> getFilters() {
+    protected List<Filter<DomNode>> getFilters() {
         return filters;
     }
 
@@ -65,4 +64,8 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>>
         return (C) other;
     }
 
+    @Override
+    protected ScrapingType getScrapingType() {
+        return ScrapingType.HTMLUNIT;
+    }
 }

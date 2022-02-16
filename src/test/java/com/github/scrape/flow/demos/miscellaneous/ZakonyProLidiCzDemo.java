@@ -17,13 +17,11 @@
 package com.github.scrape.flow.demos.miscellaneous;
 
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
-import com.github.scrape.flow.drivers.HtmlUnitDriverManager;
+import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.scraping.EntryPoint;
-import com.github.scrape.flow.scraping.Scraper;
 import com.github.scrape.flow.scraping.Scraping;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteParser;
-import com.github.scrape.flow.scraping.htmlunit.NavigateToParsedLink;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteLoader;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitNavigateToParsedLink;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -55,8 +53,8 @@ public class ZakonyProLidiCzDemo {
     @Test
     public void start() throws InterruptedException {
 
-        final HtmlUnitDriverManager driverManager = new HtmlUnitDriverManager(new HtmlUnitDriversFactory());
-        final HtmlUnitSiteParser parser = new HtmlUnitSiteParser(driverManager);
+        final HtmlUnitDriverOperator driverOperator = new HtmlUnitDriverOperator(new HtmlUnitDriversFactory());
+        final HtmlUnitSiteLoader parser = new HtmlUnitSiteLoader(driverOperator);
 
 
         /*
@@ -82,29 +80,30 @@ public class ZakonyProLidiCzDemo {
 
          */
 
-        final Scraping scraping = new Scraping(parser, 2, TimeUnit.SECONDS)
+        final Scraping scraping = new Scraping(2, TimeUnit.SECONDS)
                 .getDebugOptions().setOnlyScrapeFirstElements(false)
                 .setSequence(
-                        Get.descendants().byAttr("id", "__Page")
-                                .next(Get.descendants().byClass("Name")
-                                        .addCollector(Kategorie::new, Kategorie.class, new KategorieListener())
-                                        .next(Parse.textContent()
-                                                .collectOne(Kategorie::setJmeno, Kategorie.class)
-                                        )
-                                        .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
-                                                .collectOne(Kategorie::setUrl, Kategorie.class)
-                                                .nextNavigate(toKategorie(parser)
+                        Do.navigateToUrl("https://www.zakonyprolidi.cz/obory")
+                                .next(Get.descendants().byAttr("id", "__Page")
+                                        .next(Get.descendants().byClass("Name")
+                                                .addCollector(Kategorie::new, Kategorie.class, new KategorieListener())
+                                                .next(Parse.textContent()
+                                                        .collectOne(Kategorie::setJmeno, Kategorie.class)
+                                                )
+                                                .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
+                                                        .collectOne(Kategorie::setUrl, Kategorie.class)
+                                                        .next(toKategorie(parser)
+                                                        )
                                                 )
                                         )
                                 )
-
                 );
 
 
         start(scraping);
     }
 
-    private NavigateToParsedLink toKategorie(HtmlUnitSiteParser parser) {
+    private HtmlUnitNavigateToParsedLink toKategorie(HtmlUnitSiteLoader parser) {
 
         /*
             <div class="BranchNodes">
@@ -138,7 +137,7 @@ public class ZakonyProLidiCzDemo {
                                         )
                                         .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
                                                 .collectOne(PodKategorie::setUrl, PodKategorie.class)
-                                                .nextNavigate(toPredpisyList(parser)
+                                                .next(toPredpisyList(parser)
                                                 )
                                         )
                                 )
@@ -171,7 +170,7 @@ public class ZakonyProLidiCzDemo {
 //
 //            )
 
-    private NavigateToParsedLink toPredpisyList(HtmlUnitSiteParser parser) {
+    private HtmlUnitNavigateToParsedLink toPredpisyList(HtmlUnitSiteLoader parser) {
 
             /*
                 <table class="DocGrid">
@@ -207,7 +206,7 @@ public class ZakonyProLidiCzDemo {
                                                 .next(Get.descendants().byTag("a")
                                                         .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
                                                                 .collectOne(PredpisInfo::setUrl, PredpisInfo.class)
-                                                                .nextNavigate(toPredpisDetail(parser)
+                                                                .next(toPredpisDetail(parser)
                                                                 )
                                                         )
                                                 )
@@ -230,7 +229,7 @@ public class ZakonyProLidiCzDemo {
     }
 
 
-    private NavigateToParsedLink toPredpisDetail(HtmlUnitSiteParser parser) {
+    private HtmlUnitNavigateToParsedLink toPredpisDetail(HtmlUnitSiteLoader parser) {
 
         /*
             <div class="Frags"><p class="L1 Intro"><a id="f2184409"></a>120</p>
@@ -265,11 +264,7 @@ public class ZakonyProLidiCzDemo {
     }
 
     private void start(Scraping productsScraping) throws InterruptedException {
-        final EntryPoint entryPoint = new EntryPoint("https://www.zakonyprolidi.cz/obory", productsScraping);
-        final Scraper scraper = new Scraper();
-        scraper.start(entryPoint);
-
-        scraper.awaitCompletion(Duration.ofMinutes(15));
+        productsScraping.start(Duration.ofMinutes(15));
         Thread.sleep(2000); // let logging finish ...
     }
 

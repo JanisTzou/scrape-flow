@@ -16,6 +16,8 @@
 
 package com.github.scrape.flow.execution;
 
+import com.github.scrape.flow.drivers.SeleniumDriversManager;
+import com.github.scrape.flow.scraping.ScrapingType;
 import lombok.Data;
 
 
@@ -36,5 +38,7 @@ public class TaskBasis {
     private final Runnable stepRunnable;
     private final boolean throttlingAllowed;
     private final boolean makingHttpRequests;
+    private final ScrapingType scrapingType;
+    private final SeleniumDriversManager seleniumDriversManager;
 
 }
