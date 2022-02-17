@@ -2,14 +2,19 @@
 
 # Scrape Flow
 
-Note: The library is still under development
+Note: The library is still under (heavy) development :-)
+
+A lot of the functionalities in this library started out as an experiment to see if this approach can cover a decent amount of scraping use cases. 
+As a result not much effort was given to proper testing which is added continuously when a part of code seems stable enough.
 
 ## Introduction
 
-Experimental library for asynchronous web scraping. What needs to be scraped is defined as a sequence of steps in a fluent and declarative way. 
-The resulting code has a tree-like structure that follows the parsed site's DOM structure and the levels of followed links.
+Experimental library for asynchronous web scraping. What needs to be scraped is defined as a sequence of steps in a
+fluent and declarative way. The resulting code has a tree-like structure that follows the parsed site's DOM structure
+and the levels of followed links.
 
-The library aims to solve common scraping problems which can become challenging when using generally available low-level libraries like HtmlUnit for asynchronous fault-tolerant scraping:
+The library aims to solve common scraping problems which can become challenging when using generally available low-level
+libraries like HtmlUnit for asynchronous fault-tolerant scraping:
 
 - following links
 - pagination
@@ -21,15 +26,25 @@ The library aims to solve common scraping problems which can become challenging 
 - publishing of scraped data to client code in the order in which it appeared on the scraped sites
 - utilities for debugging
 
-## Usage
+## Usage and Sample code
 
-To be added when project is more ready :-)
+The parsing is defined as a sequence of steps that are "concatenated" fluently and the logic they represent is executed when the scraping is explicitly started.
+Each step performs a specific action (e.g. navigating to a page at a given URL) and is followed by other steps (e.g. get all descendant elements 
+of the page root, optionally matching some criteria - tags, attributes etc.). When a step finishes it produces a result (e.g. all found descendants)
+which individually passed to the next specified step or steps. 
 
-## Sample code
+Apart from DOM traversal operations it is possible to specify at which points actual site content is to be parsed and how it is to be structured and published 
+to client code (collecting data using defined custom "collectors" and publishing it via custom listeners).
+
+For a simple use-case, all that is need to use the functionality is to create an instance of `Scraping` and to define the sequence use all the utilities provided by 
+ [HtmlUnit](src/main/java/com/github/scrape/flow/scraping/htmlunit/HtmlUnit.java) entry point class.
+
+For a very simple example see the code below and for more complex scenarios there are some demos found [here](src/test/java/com/github/scrape/flow/demos) entry point class.
 
 #### Example static site code snippet to scrape:
 
 ```html
+
 <body>
     <!--    ...  -->
     <nav class="regions" role="navigation" aria-label="World">
@@ -55,55 +70,62 @@ To be added when project is more ready :-)
 </body>
 ```
 
+#### Scraping code example:
 
-#### Scraping example:
+To scrape the names of each section from the page sample above and navigate to the detail of each section we can define
+the following scraping steps/sequence:
 
-To scrape the names of each section from the page sample above and navigate to the detail of each section we can define the following scraping steps/sequence:
 
 ```java
 
-    // some bootstrapping omitted ...
+public class Demo {
 
-    // When we start scraping, we will receive the loaded starting page - the sequence below
-    // can just define the DOM traversal with some other actions (parsing, navigation, data collection and publishing and more)
+    public static void main(String[] args) {
 
-    scraping.setSequence(
-        Get.descendants().byAttr("aria-label", "World")
-            .next(Get.descendants().byTag("li")
-                .addCollector(Section::new, Section.class, new ScrapedSectionListener())  // for each encountered list item a model is instantiated to hold the scraped data
-                .next(Get.descendants().byTag("a")
-                    .next(Parse.textContent()
-                        .collectOne(Section::setName, Section.class)  // defines where to put parsed content
+        new Scraping()
+            .setSequence(
+                Do.navigateToUrl("https://www.some-news-site.com")
+                    .next(Get.descendants().byAttr("aria-label", "World")
+                        .next(Get.descendants().byTag("li")
+                            .addCollector(Section::new, Section.class, new SectionListener())  // for each encountered list item a model is instantiated to hold the scraped data
+                            .next(Get.descendants().byTag("a")
+                                .next(Parse.textContent()
+                                    .collectOne(Section::setName, Section.class)  // defines where to put parsed content
+                                )
+                                .next(Parse.hRef(href -> "https://www.some-news-site.com" + href)
+                                    .next(goToEachSection()) 
+                                )
+                            )
+                        )
                     )
-                    .next(Parse.hRef(href -> "https://www.some-news-site.com" + href)
-                        .nextNavigate(goToEachSection())
-                    )
-                )
             )
-    );
+            .start(Duration.ofMinutes(2));  // await completion for up to 2 minutes
+
+    }
+    
+    
+
+}
 
 
-    // actually start scraping
-    scraper.start(scraping, "https://www.some-news-site.com/world");
-    scraper.awaitCompletion(Duration.ofMinutes(1));
 ```
 
 ```java
-    // Models to hold the scraped data
-    
-    public class Section {
-        private String name;
-        // getters and setters omitted
-    }
+// Models to hold the scraped data
+
+public class Section {
+    private String name;
+    // getters and setters omitted
+}
 ```
 
 ```java
-    // listener for publishing the scraped data
-    
-    public class ScrapedSectionListener implements ScrapedDataListener<Section> {
-        @Override
-        public void onScrapedData(Section data) {
-            // do something with parsed data
-        }
+// listener for publishing the scraped data
+
+public class SectionListener implements ScrapedDataListener<Section> {
+    @Override
+    public void onScrapedData(Section data) {
+        // do something with parsed data
     }
+}
  ```
