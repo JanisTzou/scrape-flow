@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.demos.miscellaneous;
+package com.github.scrape.flow.demos.by.sites;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
@@ -78,7 +78,7 @@ public class MaxEuroCzDemo {
                         .next(Get.descendants().byTextContent("Mozaika skleněná")
                                 .first()                                                // ... for some reason the menu is duplicated
                                 .debugOptions().setLogFoundElementsSource(false)
-                                .next(Do.mapElements(domNode -> Optional.ofNullable(domNode.getParentNode()))
+                                .next(Get.natively(domNode -> Optional.ofNullable(domNode.getParentNode()))
                                         .next(Get.descendants().byTag("a")
                                                 .addCollector(Category::new, Category.class)
                                                 .next(Parse.textContent()

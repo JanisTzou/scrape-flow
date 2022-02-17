@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.demos.miscellaneous;
+package com.github.scrape.flow.demos.by.sites;
 
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
-import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
-import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnit;
 import com.github.scrape.flow.utils.JsonUtils;
