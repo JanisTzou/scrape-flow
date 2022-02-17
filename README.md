@@ -2,14 +2,17 @@
 
 # Scrape Flow
 
-Note: The library is still under (heavy) development :-)
+## Disclaimer
 
-This library started out recently as an experiment to see if a fluent and declarative approach to web scraping can cover a decent amount of use-cases. 
+The library is still under (heavy) development :-).
+
+It started out recently as an experiment to see if a fluent and declarative approach to web scraping can cover a decent amount of use-cases. 
 As a result not much effort was (yet) given to proper tests which are added slowly (but continuously) when a part of code seems stable enough.
+Usage of the library in other projects is not recommended yet.
 
 ## Introduction
 
-Experimental library for asynchronous web scraping. What needs to be scraped is defined as a sequence of steps in a
+Scrape-Flow is a library for asynchronous web scraping. What needs to be scraped is defined as a sequence of steps in a
 fluent and declarative way. The resulting code has a tree-like structure that follows the parsed site's DOM structure
 and the levels of followed links.
 
