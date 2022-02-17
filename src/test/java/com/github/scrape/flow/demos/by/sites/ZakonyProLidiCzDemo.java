@@ -53,10 +53,6 @@ public class ZakonyProLidiCzDemo {
     @Test
     public void start() throws InterruptedException {
 
-        final HtmlUnitDriverOperator driverOperator = new HtmlUnitDriverOperator(new HtmlUnitDriversFactory());
-        final HtmlUnitSiteLoader parser = new HtmlUnitSiteLoader(driverOperator);
-
-
         /*
              <div class="BranchTree" id="__Page">
 
@@ -92,7 +88,7 @@ public class ZakonyProLidiCzDemo {
                                                 )
                                                 .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
                                                         .collectOne(Kategorie::setUrl, Kategorie.class)
-                                                        .next(toKategorie(parser)
+                                                        .next(toKategorie()
                                                         )
                                                 )
                                         )
@@ -103,7 +99,7 @@ public class ZakonyProLidiCzDemo {
         start(scraping);
     }
 
-    private HtmlUnitNavigateToParsedLink toKategorie(HtmlUnitSiteLoader parser) {
+    private HtmlUnitNavigateToParsedLink toKategorie() {
 
         /*
             <div class="BranchNodes">
@@ -125,7 +121,7 @@ public class ZakonyProLidiCzDemo {
             </div>
          */
 
-        return Do.navigateToParsedLink(parser)
+        return Do.navigateToParsedLink()
                 .next(Get.descendants().byClass("BranchNodes")
                         .first() // the first section - there are multiple BranchNodes ...
                         .next(Get.children().firstNth(2) // subcategory list is 2nd DIV
@@ -137,7 +133,7 @@ public class ZakonyProLidiCzDemo {
                                         )
                                         .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
                                                 .collectOne(PodKategorie::setUrl, PodKategorie.class)
-                                                .next(toPredpisyList(parser)
+                                                .next(toPredpisyList()
                                                 )
                                         )
                                 )
@@ -170,7 +166,7 @@ public class ZakonyProLidiCzDemo {
 //
 //            )
 
-    private HtmlUnitNavigateToParsedLink toPredpisyList(HtmlUnitSiteLoader parser) {
+    private HtmlUnitNavigateToParsedLink toPredpisyList() {
 
             /*
                 <table class="DocGrid">
@@ -192,7 +188,7 @@ public class ZakonyProLidiCzDemo {
                 </table>
              */
 
-        return Do.navigateToParsedLink(parser)
+        return Do.navigateToParsedLink()
                 .next(Get.descendants().byClass("DocGrid")
                         .first()
                         .next(Get.descendants().byTag("tbody")
@@ -206,7 +202,7 @@ public class ZakonyProLidiCzDemo {
                                                 .next(Get.descendants().byTag("a")
                                                         .next(Parse.hRef(href -> HTTPS_WWW_ZAKONYPROLIDI_CZ + href)
                                                                 .collectOne(PredpisInfo::setUrl, PredpisInfo.class)
-                                                                .next(toPredpisDetail(parser)
+                                                                .next(toPredpisDetail()
                                                                 )
                                                         )
                                                 )
@@ -229,7 +225,7 @@ public class ZakonyProLidiCzDemo {
     }
 
 
-    private HtmlUnitNavigateToParsedLink toPredpisDetail(HtmlUnitSiteLoader parser) {
+    private HtmlUnitNavigateToParsedLink toPredpisDetail() {
 
         /*
             <div class="Frags"><p class="L1 Intro"><a id="f2184409"></a>120</p>
@@ -250,7 +246,7 @@ public class ZakonyProLidiCzDemo {
             </div>
          */
 
-        return Do.navigateToParsedLink(parser)
+        return Do.navigateToParsedLink()
                 .next(Get.descendants().byClass("Frags")
                         .next(Get.children()
                                         .addCollector(Radek::new, Radek.class)

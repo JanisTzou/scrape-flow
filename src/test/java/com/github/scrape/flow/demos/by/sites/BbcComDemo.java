@@ -46,9 +46,6 @@ public class BbcComDemo {
     @Test
     public void demo() throws InterruptedException {
 
-        final HtmlUnitDriverOperator driverOperator = new HtmlUnitDriverOperator(new HtmlUnitDriversFactory());
-        final HtmlUnitSiteLoader parser = new HtmlUnitSiteLoader(driverOperator);
-
         final Scraping scraping = new Scraping(5, TimeUnit.SECONDS)
                 .setSequence(
                         Do.navigateToUrl("https://www.bbc.com/news/world")
@@ -63,19 +60,18 @@ public class BbcComDemo {
                                                                         .collectOne(Section::setName, Section.class)
                                                                 )
                                                                 .next(Parse.hRef(href -> HTTPS_WWW_BBC_COM + href)
-                                                                        .next(goToEachSection(parser))
+                                                                        .next(goToEachSection())
                                                                 )
                                                         )
                                                 )
                                         ))
 
                 );
-
         start(scraping);
     }
 
-    private HtmlUnitNavigateToParsedLink goToEachSection(HtmlUnitSiteLoader parser) {
-        return Do.navigateToParsedLink(parser)
+    private HtmlUnitNavigateToParsedLink goToEachSection() {
+        return Do.navigateToParsedLink()
                 .next(Get.descendants().byAttr("id", "featured-contents")
                         .next(Get.siblings().next()
                                 .next(Get.descendantsBySelector("div.gs-c-promo").stepName("listed-article")
@@ -96,7 +92,7 @@ public class BbcComDemo {
                                                 )
                                                 .next(Parse.hRef(href -> href.contains("https") ? href : HTTPS_WWW_BBC_COM + href)
                                                         .collectOne(Article::setUrl, Article.class)
-                                                        .next(toArticles(parser))
+                                                        .next(toArticles())
                                                 )
 
                                         )
@@ -107,8 +103,8 @@ public class BbcComDemo {
     }
 
 
-    private HtmlUnitNavigateToParsedLink toArticles(HtmlUnitSiteLoader parser) {
-        return Do.navigateToParsedLink(parser)
+    private HtmlUnitNavigateToParsedLink toArticles() {
+        return Do.navigateToParsedLink()
                 .next(Get.descendants().byTag("article")
                         .nextExclusively(Get.descendants().byTextContent("Sport Africa") // category must be parsed before following steps can proceed -> exclusive call
                                 .next(Parse.textContent()

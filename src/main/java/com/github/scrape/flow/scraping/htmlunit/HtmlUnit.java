@@ -35,9 +35,10 @@ import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetAncestor.Type;
 
 /**
  * Class providing convenient entry point to all operations used to traverse, parse and perform actions on the scraped page.
- * These operations are "concatenated" in a fluent way and they work with the notion of "current element".
- * This concept just expresses the fact that each individual element found by one operation is passed to the next operation as its
- * "current element" that it can perform further operations upon.
+ * These operations are "concatenated" in a fluent way.
+ * <br>
+ * They often work with the notion of "current element". This concept just expresses the fact that each individual element
+ * found by one operation is passed to the next operation as its "current element" that it can perform further operations upon.
  */
 public class HtmlUnit {
 
@@ -188,7 +189,7 @@ public class HtmlUnit {
         /**
          * <p>Replaces the current page with a new one that is loaded after the link is followed.
          * <p><b>IMPORTANT</b>: use this only when there are no other steps working with the page.
-         * If not sure, use {@link Do#navigateToParsedLink(HtmlUnitSiteLoader)}
+         * If not sure, use {@link Do#navigateToParsedLink()}
          */
         public static HtmlUnitFollowLink followLink() {
             return new HtmlUnitFollowLink();
@@ -200,8 +201,8 @@ public class HtmlUnit {
          * Loads the site into a new page instance - this is important e.g. when we are scraping additional data from the same page.
          * If you are sure that parsing is finished at current page you at that point, use {@link Do#followLink()}
          */
-        public static HtmlUnitNavigateToParsedLink navigateToParsedLink(HtmlUnitSiteLoader siteParser) { // TODO it should not be necessary to pass the siteParser
-            return new HtmlUnitNavigateToParsedLink(siteParser);
+        public static HtmlUnitNavigateToParsedLink navigateToParsedLink() {
+            return new HtmlUnitNavigateToParsedLink();
         }
 
         /**

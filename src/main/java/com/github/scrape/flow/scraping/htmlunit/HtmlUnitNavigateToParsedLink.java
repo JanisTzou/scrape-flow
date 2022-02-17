@@ -24,15 +24,12 @@ import lombok.extern.log4j.Log4j2;
 public class HtmlUnitNavigateToParsedLink extends HtmlUnitScrapingStep<HtmlUnitNavigateToParsedLink>
         implements LoadingNewPage {
 
-    private final SiteLoader siteLoader;
-
-    HtmlUnitNavigateToParsedLink(SiteLoader siteLoader) {
-        this.siteLoader = siteLoader;
+    HtmlUnitNavigateToParsedLink() {
     }
 
     @Override
     protected HtmlUnitNavigateToParsedLink copy() {
-        return copyFieldValuesTo(new HtmlUnitNavigateToParsedLink(siteLoader));
+        return copyFieldValuesTo(new HtmlUnitNavigateToParsedLink());
     }
 
     // the URL must come from the parsing context!!
@@ -44,7 +41,7 @@ public class HtmlUnitNavigateToParsedLink extends HtmlUnitScrapingStep<HtmlUnitN
         Runnable runnable = () -> {
             if (ctx.getParsedURL() != null) {
                 // TODO if this step type has collectors then we need similar logic as in Wrapper ...
-                siteLoader.loadPageAndExecuteNextSteps(ctx.getParsedURL(), ctx, ScrapingStepInternalProxy.of(this).getNextSteps(), stepOrder, services);
+                services.getHtmlUnitSiteLoader().loadPageAndExecuteNextSteps(ctx.getParsedURL(), ctx, ScrapingStepInternalProxy.of(this).getNextSteps(), stepOrder, services);
 
             } else {
                 log.error("{}: Cannot navigate to next site - the previously parsed URL is null!", getName());

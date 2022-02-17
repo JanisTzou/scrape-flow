@@ -22,7 +22,6 @@ import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFollowLink;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteLoader;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -82,7 +81,7 @@ public class TeleskopExpressDeDemo {
                                                 .next(getProductCodeElemStep
                                                         .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal).stepName("parse-product-href")
                                                                 .collectOne(Product::setDetailUrl, Product.class)
-                                                                .next(Do.navigateToParsedLink(new HtmlUnitSiteLoader(driverOperator))
+                                                                .next(Do.navigateToParsedLink()
                                                                         .next(getProductDetailTitleElem.stepName("get-product-detail-title")
                                                                                 .next(Parse.textContent().collectOne(Product::setTitle, Product.class))
                                                                         )
@@ -92,7 +91,7 @@ public class TeleskopExpressDeDemo {
                                                                         .next(Get.descendants().byAttr("id", "MwStInfoMO")
                                                                                 .next(Get.descendants().byTag("a")
                                                                                         .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal)
-                                                                                                .next(Do.navigateToParsedLink(new HtmlUnitSiteLoader(driverOperator))
+                                                                                                .next(Do.navigateToParsedLink()
                                                                                                         .next(Get.byXPath("/html/body/table/tbody")
                                                                                                                 .next(Get.children().byTag("tr").excludingFirstN(1) // rows doe each shipping service price; first row contains captions
                                                                                                                         .addCollector(ShippingCosts::new, ShippingCosts.class)

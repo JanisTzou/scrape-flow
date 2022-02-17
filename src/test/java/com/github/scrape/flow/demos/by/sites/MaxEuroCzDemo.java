@@ -44,9 +44,6 @@ public class MaxEuroCzDemo {
     @Test
     public void start() throws InterruptedException {
 
-        final HtmlUnitDriverOperator driverOperator = new HtmlUnitDriverOperator(new HtmlUnitDriversFactory());
-        final HtmlUnitSiteLoader siteParser = new HtmlUnitSiteLoader(driverOperator);
-
         final Scraping scraping = new Scraping(10, TimeUnit.SECONDS);
 
 
@@ -107,7 +104,7 @@ public class MaxEuroCzDemo {
     }
 
     private HtmlUnitNavigateToParsedLink toCategoryProductList(HtmlUnitSiteLoader siteParser) {
-        return Do.navigateToParsedLink(siteParser)
+        return Do.navigateToParsedLink()
                 .next(Do.paginate()
                         .setStepsLoadingNextPage(
                                 getPaginatingSequence()
@@ -209,7 +206,7 @@ public class MaxEuroCzDemo {
             </div>
          */
 
-        return Do.navigateToParsedLink(siteParser)
+        return Do.navigateToParsedLink()
                 .next(Get.descendants().byAttr("id", "productDescription1")
                         .next(Parse.textContent()
                                 .collectOne(Product::setDescription, Product.class)

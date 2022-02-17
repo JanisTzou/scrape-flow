@@ -46,7 +46,7 @@ public class ScrapingServices {
     private final TaskService taskService;
 
     private final SeleniumDriversManager seleniumDriversManager;
-    private final HtmlUnitSiteLoader htmlUnitSiteLoader; // TODO just temporary here ...
+    private final HtmlUnitSiteLoader htmlUnitSiteLoader;
 
     public ScrapingServices(StepOrderGenerator stepOrderGenerator,
                             ThrottlingService throttlingService,
