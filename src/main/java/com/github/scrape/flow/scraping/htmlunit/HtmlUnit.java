@@ -17,96 +17,173 @@
 package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.github.scrape.flow.scraping.CommonOperationsStepBase;
+import com.github.scrape.flow.scraping.ScrapingStepBase;
 import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterElements;
+import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterableSiblings;
+import org.apache.commons.text.StringEscapeUtils;
 
+import javax.imageio.ImageIO;
+import java.net.URL;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetAncestor.Type;
 
+/**
+ * Class providing convenient entry point to all operations used to traverse, parse and perform actions on the scraped page.
+ * These operations are "concatenated" in a fluent way and they work with the notion of "current element".
+ * This concept just expresses the fact that each individual element found by one operation is passed to the next operation as its
+ * "current element" that it can perform further operations upon.
+ */
 public class HtmlUnit {
 
+    /**
+     * Contains methods for DOM traversal. The DomNode from which the traversal takes place
+     * is generally provided by the previous step in the scraping sequence.
+     */
     public static class Get {
 
-        public static HtmlUnitGetElementsByXPath byXPath(String xPath) {
-            return new HtmlUnitGetElementsByXPath(xPath);
+        /**
+         * Searches the DOM for <code>HtmlElement</code>s based on specified <code>xPathExpr</code> expression from the current <code>HtmlElement</code>.
+         * Search is performed as specified in {@link DomNode#getByXPath(String)} and only <code>HtmlElement</code>s are filtered.
+         */
+        public static HtmlUnitGetElementsByXPath byXPath(String xPathExpr) {
+            return new HtmlUnitGetElementsByXPath(xPathExpr);
         }
 
+        /**
+         * Searches the DOM the parent <code>HtmlElement</code>s of the current <code>HtmlElement</code>. Search is performed as specified in
+         * {@link DomNode#getParentNode()}.
+         */
         public static HtmlUnitGetAncestor parent() {
             return new HtmlUnitGetAncestor(Type.PARENT);
         }
 
+        /**
+         * Searches the DOM upwards for nth ancestor of the current <code>HtmlElement</code>. Search is performed recursively as specified in
+         * {@link DomNode#getParentNode()}.
+         */
         public static HtmlUnitGetAncestor ancestor(int nth) {
             return new HtmlUnitGetAncestor(Type.NTH_ANCESTOR, nth);
         }
 
+        /**
+         * Searches the DOM for siblings of the current <code>HtmlElement</code> based on specified filter methods specified by {@link HtmlUnitFilterableSiblings}
+         * Search for sibling candidates is performed as specified by {@link DomNode#getPreviousElementSibling()} and {@link DomNode#getNextElementSibling()}.
+         */
         public static HtmlUnitGetSiblings siblings() {
             return new HtmlUnitGetSiblings();
         }
 
+        /**
+         * Searches the DOM for descendants of the current <code>HtmlElement</code>.
+         * Search for descendants is performed as specified by {@link DomNode#getHtmlElementDescendants()}.
+         */
         public static HtmlUnitGetDescendants descendants() {
             return new HtmlUnitGetDescendants();
         }
 
-        // this needs to be here ... cannot go under the descendants even though it gets the descendants
+        /**
+         * Searches the DOM for descendants of the current <code>HtmlElement</code> by specified <code>sccSelector</code>
+         * Search for descendants is performed as specified by {@link DomNode#querySelectorAll(String)} and only <code>HtmlElement</code>s are filtered.
+         */
         public static HtmlUnitGetDescendantsByCssSelector descendantsBySelector(String sccSelector) {
             return new HtmlUnitGetDescendantsByCssSelector(sccSelector);
         }
 
+        /**
+         * Searches the DOM for children of the current <code>HtmlElement</code>.
+         * Search for children is performed as specified by {@link DomNode#getChildNodes()} and only <code>HtmlElement</code>s are filtered.
+         */
         public static HtmlUnitGetChildren children() {
             return new HtmlUnitGetChildren();
+        }
+
+        /**
+         * Provides direct access to HtmlUnit's API's <code>DomNode</code> in cases when complex custom DOM traversal is needed.
+         * @param mapper mapps the current <code>DomNode</code> (usually a <code>HtmlElement</code>) to another <code>DomNode</code>
+         */
+        public static HtmlUnitGetElementsNatively natively(Function<DomNode, Optional<DomNode>> mapper) {
+            return new HtmlUnitGetElementsNatively(mapper);
         }
 
     }
 
 
     /**
-     * In case some complex custom filtering logic is needed these filters can be used
+     * In case some complex custom filtering logic is needed and provides direct access to HtmlUnit's API's <code>DomNode</code>
      */
     public static class Filter {
 
+        /**
+         * Applies the specified predicate on the current <code>DomNode</code> (usually an instance of <code>HtmlElement</code>)
+         */
         public static HtmlUnitFilterElements apply(Predicate<DomNode> domNodePredicate) {
             return new HtmlUnitFilterElements(domNodePredicate);
         }
 
     }
 
-
+    /**
+     * Contains methods for parsing data from DOM elements
+     */
     public static class Parse {
 
+        /**
+         * Parses the text content of the current <code>HtmlElement</code> as specified by {@link HtmlElement#getTextContent()} and unescapes
+         * the retrieved value using {@link StringEscapeUtils#unescapeHtml4(java.lang.String)}
+         */
         public static HtmlUnitParseElementTextContent textContent() {
             return new HtmlUnitParseElementTextContent();
         }
 
-        public static HtmlUnitParseElementTextContent textContent(Function<String, String> parsedTextConverter) {
-            return new HtmlUnitParseElementTextContent().setValueConversion(parsedTextConverter);
+        /**
+         * Same as {@link Parse#textContent()} but with the possibility to define a custom conversion of the parsed value
+         */
+        public static HtmlUnitParseElementTextContent textContent(Function<String, String> parsedValueConverter) {
+            return new HtmlUnitParseElementTextContent().setValueConversion(parsedValueConverter);
         }
 
+        /**
+         * Parses the href attribute value of the current <code>HtmlElement</code> as specified by {@link HtmlAnchor#getHrefAttribute()}.
+         * Note that the current element needs to be of type {@link HtmlAnchor}
+         */
         public static HtmlUnitParseElementHRef hRef() {
             return new HtmlUnitParseElementHRef();
         }
 
-        public static HtmlUnitParseElementHRef hRef(Function<String, String> parsedTextConverter) {
-            return new HtmlUnitParseElementHRef(parsedTextConverter);
+        /**
+         * Same as {@link Parse#hRef()} but with the possibility to define a custom conversion of the parsed value
+         */
+        public static HtmlUnitParseElementHRef hRef(Function<String, String> parsedValueConverter) {
+            return new HtmlUnitParseElementHRef(parsedValueConverter);
         }
 
-        public static HtmlUnitParseElementAttributeValue attrValue(String attrName, Function<String, String> parsedTextConverter) {
-            return new HtmlUnitParseElementAttributeValue(attrName, parsedTextConverter);
-        }
-
+        /**
+         * Parses the attribute value of the current <code>HtmlElement</code> as specified by {@link HtmlElement#getAttribute(String)}.
+         */
         public static HtmlUnitParseElementAttributeValue attrValue(String attrName) {
             return new HtmlUnitParseElementAttributeValue(attrName);
+        }
+
+        /**
+         * Same as {@link Parse#attrValue(String)} but with the possibility to define a custom conversion of the parsed value
+         */
+        public static HtmlUnitParseElementAttributeValue attrValue(String attrName, Function<String, String> parsedValueConverter) {
+            return new HtmlUnitParseElementAttributeValue(attrName, parsedValueConverter);
         }
 
     }
 
 
+    /**
+     * Contains methods for various actions that can be performed with regard to the loaded page or specific DOM elements
+     */
     public static class Do {
-
-        public static HtmlUnitMapElements mapElements(Function<DomNode, Optional<DomNode>> mapper) {
-            return new HtmlUnitMapElements(mapper);
-        }
 
         /**
          * <p>Replaces the current page with a new one that is loaded after the link is followed.
@@ -127,41 +204,63 @@ public class HtmlUnit {
             return new HtmlUnitNavigateToParsedLink(siteParser);
         }
 
+        /**
+         * Used as first step in the scraping sequence to navigate to the entry-point page from which all the rest of the scraping takes place
+         */
         public static HtmlUnitNavigateToUrl navigateToUrl(String url) {
             return new HtmlUnitNavigateToUrl(url);
         }
 
+        /**
+         * Used in pagination as the last step of the paginating sequence of steps
+         */
         public static HtmlUnitReturnNextPage returnNextPage() {
             return new HtmlUnitReturnNextPage();
         }
 
+        /**
+         * Used to define a sequence of steps taking care of the pagination itself (specified in {@link HtmlUnitPaginate#setStepsLoadingNextPage(HtmlUnitScrapingStep)})
+         * and also the sequence taking care of the scraping itself (specified using {@link CommonOperationsStepBase#next(ScrapingStepBase)} or its other specialisations.
+         */
         public static HtmlUnitPaginate paginate() {
             return new HtmlUnitPaginate();
         }
 
-
+        /**
+         * Used to download image into a {@code BufferedImage} using {@link ImageIO#read(URL)}.
+         * <br>
+         * Note that the URL of the image needs to be scraped by one of the prevous steps in the scraping sequence.
+         */
         public static HtmlUnitDownloadImage downloadImage() {
             return new HtmlUnitDownloadImage();
-            // TODO other types of files?
         }
+
     }
 
 
+    /**
+     * Contains methods that enable structuring the flow of the scraping
+     */
     public static class Flow {
 
+        /**
+         * Used to group multiple same-level steps under a single "artificial" parent step. Can be useful in some cases e.g.
+         * when there is a shared condition based on which a number of steps are executed, and we want that condition to be evaluated just once for all the affected steps.
+         */
         public static HtmlUnitStepBlock asBlock() {
             return new HtmlUnitStepBlock();
         }
 
     }
 
-
-    // TODO rename to When/If ?
-    public static class Conditions {
+    /**
+     * Contains methods representing conditions based on which scraping steps are performed
+     */
+    public static class Condition {
 
         // TODO define sets of conditions that we can use in next() ... to avoid dealing with DomNode ...
+        //  e.g. HasAnyDescendants of
 
-        // HasAnyDescendants of
     }
 
 }

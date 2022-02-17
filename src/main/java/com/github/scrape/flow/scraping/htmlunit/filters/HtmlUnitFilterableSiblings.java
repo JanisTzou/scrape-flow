@@ -96,4 +96,12 @@ public interface HtmlUnitFilterableSiblings<C extends HtmlUnitScrapingStep<C>> e
         return addFilter(new HtmlUnitFilterSiblingsLast());
     }
 
+
+    /**
+     * Returns all siblings of the current element. This is the default behaviour if no other filter is specified
+     */
+    default C all() {
+        return addFilter(new HtmlUnitFilterSiblingsAll());
+    }
+
 }

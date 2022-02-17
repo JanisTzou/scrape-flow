@@ -32,17 +32,17 @@ import java.util.function.Supplier;
  * Maps nodes acquired in the previous steps to other nodes ... e.g. children/parents/siblings etc ...
  */
 @Log4j2
-public class HtmlUnitMapElements extends HtmlUnitScrapingStep<HtmlUnitMapElements> {
+public class HtmlUnitGetElementsNatively extends HtmlUnitScrapingStep<HtmlUnitGetElementsNatively> {
 
     private final Function<DomNode, Optional<DomNode>> mapper;
 
-    HtmlUnitMapElements(Function<DomNode, Optional<DomNode>> mapper) {
+    HtmlUnitGetElementsNatively(Function<DomNode, Optional<DomNode>> mapper) {
         this.mapper = mapper;
     }
 
     @Override
-    protected HtmlUnitMapElements copy() {
-        return copyFieldValuesTo(new HtmlUnitMapElements(this.mapper));
+    protected HtmlUnitGetElementsNatively copy() {
+        return copyFieldValuesTo(new HtmlUnitGetElementsNatively(this.mapper));
     }
 
     @Override

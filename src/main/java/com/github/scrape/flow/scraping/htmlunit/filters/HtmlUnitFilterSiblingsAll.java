@@ -16,13 +16,17 @@
 
 package com.github.scrape.flow.scraping.htmlunit.filters;
 
-public interface HtmlUnitFilterableByCssClass<C> extends HtmlUnitFilterable<C> {
+import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.github.scrape.flow.scraping.filters.Filter;
 
-    /**
-     * Filters all found <code>HtmlElement</code>s having the specified SCC class
-     */
-    default C byClass(String className) {
-        return addFilter(new HtmlUnitFilterByCssClass(className));
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class HtmlUnitFilterSiblingsAll implements Filter<DomNode> {
+
+    @Override
+    public List<DomNode> filter(List<DomNode> allSiblings) {
+        return allSiblings;
     }
 
 }

@@ -20,19 +20,25 @@ import javax.annotation.Nullable;
 
 public interface HtmlUnitFilterableByAttribute<C> extends HtmlUnitFilterable<C> {
 
+    /**
+     * Filters all found <code>HtmlElement</code>s having the specified attr name and value
+     */
     default C byAttr(String name, @Nullable String value) {
         HtmlUnitFilterByAttribute filter = new HtmlUnitFilterByAttribute(name, value);
         return addFilter(filter);
     }
 
     /**
-     * Will  match the attribute value using {@link java.lang.String#matches(String regex)} -> regex must match whole value
+     * Filters all found <code>HtmlElement</code>s by their attr name and value regex using {@link java.lang.String#matches(String regex)} -> regex must match whole value
      */
     default C byAttrRegex(String name, String valueRegex) {
         HtmlUnitFilterByAttribute filter = new HtmlUnitFilterByAttribute(name, valueRegex);
         return addFilter(filter);
     }
 
+    /**
+     * Filters all found <code>HtmlElement</code>s having the specified attr name
+     */
     default C byAttr(String name) {
         HtmlUnitFilterByAttribute filter = new HtmlUnitFilterByAttribute(name);
         return addFilter(filter);

@@ -17,6 +17,7 @@
 package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
@@ -63,7 +64,7 @@ public class HtmlUnitGetAncestor extends HtmlUnitScrapingStep<HtmlUnitGetAncesto
             DomNode node = ctx.getNode();
             Supplier<List<DomNode>> nodesSearch = () -> {
                 if (type.equals(Type.PARENT)) {
-                    return Stream.of(node.getParentNode()).collect(Collectors.toList());
+                    return Stream.of(node.getParentNode()).filter(n -> n instanceof HtmlElement).collect(Collectors.toList());
                 } else if (type.equals(Type.NTH_ANCESTOR)) {
                     return HtmlUnitUtils.findNthAncestor(node, param).stream().collect(Collectors.toList());
                 }

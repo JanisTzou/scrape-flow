@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class HtmlUnitUtils {
 
@@ -46,7 +48,7 @@ public class HtmlUnitUtils {
     }
 
     public static List<DomNode> getDescendantsBySccSelector(DomNode domNode, String selector) {
-        return domNode.querySelectorAll(selector);
+        return domNode.querySelectorAll(selector).stream().filter(n -> n instanceof HtmlElement).collect(Collectors.toList());
     }
 
     public static List<DomNode> getHtmlElementDescendants(DomNode parentElement, Predicate<DomNode> filter) {
@@ -102,12 +104,20 @@ public class HtmlUnitUtils {
         if (count == nth) {
             return Optional.of(domNode);
         } else {
-            if (domNode.getParentNode() != null) {
+            if (domNode.getParentNode() != null && domNode instanceof HtmlElement) {
                 return findNthAncestorHelper(domNode.getParentNode(), nth, ++count);
             } else {
                 return Optional.empty();
             }
         }
+    }
+
+    public static List<DomNode> findAllSiblingElements(DomNode domNode) {
+        return Stream.concat(
+                        findPrevSiblingElements(domNode).stream(),
+                        findNextSiblingElements(domNode).stream()
+                )
+                .collect(Collectors.toList());
     }
 
     public static List<DomNode> findPrevSiblingElements(DomNode domNode) {

@@ -50,6 +50,10 @@ public class HtmlUnitGetSiblings extends HtmlUnitScrapingStep<HtmlUnitGetSibling
             HtmlUnitFilterSiblingsLast.class
     );
 
+    private static final List<Class<?>> ALL_SIBLINGS_FILTER_CLASSES = List.of(
+            HtmlUnitFilterSiblingsAll.class
+    );
+
     HtmlUnitGetSiblings() {
     }
 
@@ -77,9 +81,10 @@ public class HtmlUnitGetSiblings extends HtmlUnitScrapingStep<HtmlUnitGetSibling
             return HtmlUnitUtils.findPrevSiblingElements(ctx.getNode());
         } else if (filters.stream().anyMatch(f -> NEXT_SIBLINGS_FILTER_CLASSES.contains(f.getClass()))) {
             return HtmlUnitUtils.findNextSiblingElements(ctx.getNode());
+        } else if (filters.stream().anyMatch(f -> ALL_SIBLINGS_FILTER_CLASSES.contains(f.getClass()))) {
+            return HtmlUnitUtils.findAllSiblingElements(ctx.getNode());
         } else {
-            log.error("Failed to find a matching filter for siblings in {}. Will return all child nodes.", getName());
-            return ctx.getNode().getChildNodes();
+            return HtmlUnitUtils.findAllSiblingElements(ctx.getNode());
         }
     }
 

@@ -191,6 +191,7 @@ public abstract class ScrapingStepBase<C extends ScrapingStepBase<C>> implements
     protected abstract ScrapingType getScrapingType();
 
     /**
+     * Sets the name of this step to be used in logging. Useful for debugging purposes to identify problematic steps.
      * @return a copy of this step with the given <code>name</code> set
      */
     public C stepName(String name) {

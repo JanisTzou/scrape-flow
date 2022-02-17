@@ -31,16 +31,16 @@ import java.util.stream.Collectors;
 public class HtmlUnitGetElementsByXPath extends HtmlUnitScrapingStep<HtmlUnitGetElementsByXPath>
         implements HtmlUnitFilterableByCommonCriteria<HtmlUnitGetElementsByXPath> {
 
-    private final String xPath;
+    private final String xPathExpr;
 
 
-    HtmlUnitGetElementsByXPath(String xPath) {
-        this.xPath = xPath;
+    HtmlUnitGetElementsByXPath(String xPathExpr) {
+        this.xPathExpr = xPathExpr;
     }
 
     @Override
     protected HtmlUnitGetElementsByXPath copy() {
-        return copyFieldValuesTo(new HtmlUnitGetElementsByXPath(xPath));
+        return copyFieldValuesTo(new HtmlUnitGetElementsByXPath(xPathExpr));
     }
 
 
@@ -50,7 +50,7 @@ public class HtmlUnitGetElementsByXPath extends HtmlUnitScrapingStep<HtmlUnitGet
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () ->
-                    ctx.getNode().getByXPath(xPath).stream()
+                    ctx.getNode().getByXPath(xPathExpr).stream()
                             .flatMap(obj -> HtmlUnitUtils.toDomNode(obj).stream())
                             .filter(domNode -> domNode instanceof HtmlElement)  // important to include only html elements -> users for not expect to deal with other types when defining filtering operations (e.g. first() ... )
                             .collect(Collectors.toList());

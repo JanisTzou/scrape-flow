@@ -65,6 +65,10 @@ public class Scraping {
     }
 
     // TODO create another method for dynamic sites ? ... maybe put the parse here as well? So it is next to the
+
+    /**
+     * Enables specifying the scraping sequence to be executed
+     */
     public <T extends ScrapingStepBase<T>> Scraping setSequence(T sequence) {
         this.scrapingSequence = sequence;
         return this;

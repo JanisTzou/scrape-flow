@@ -18,6 +18,9 @@ package com.github.scrape.flow.scraping.htmlunit.filters;
 
 public interface HtmlUnitFilterableByTag<C> extends HtmlUnitFilterable<C> {
 
+    /**
+     * Filters all found <code>HtmlElement</code>s matching the specified tag
+     */
     default C byTag(String tag) {
         return addFilter(new HtmlUnitFilterByTag(tag));
     }

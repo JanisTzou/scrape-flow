@@ -18,12 +18,16 @@ package com.github.scrape.flow.scraping.htmlunit.filters;
 
 public interface HtmlUnitFilterableByTextContent<C> extends HtmlUnitFilterable<C> {
 
+    /**
+     * Filters all found <code>HtmlElement</code>s whose whole text content exactly matches the specified searchString (ignoring case)
+     */
     default C byTextContent(String searchString) {
         return addFilter(HtmlUnitFilterByTextContent.createForSearchString(searchString));
     }
 
     /**
-     * Will  match the text content using {@link java.lang.String#matches(String regex)} -> regex must match whole value
+     * Filters all found <code>HtmlElement</code>s whose text content exactly matches the specified regex.
+     * Internally {@link java.lang.String#matches(String regex)} is used -> regex must match whole value.
      */
     default C byTextContentRegex(String regex) {
         return addFilter(HtmlUnitFilterByTextContent.createForRegex(regex));
