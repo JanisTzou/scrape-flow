@@ -18,7 +18,7 @@ package com.github.scrape.flow.demos.by.sites;
 
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.Scraping;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnit;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,8 +29,8 @@ import org.junit.Test;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.Get;
-import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.Parse;
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.Get;
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.Parse;
 
 @Log4j2
 public class IFortunaCzDemo {
@@ -42,7 +42,7 @@ public class IFortunaCzDemo {
 
         final Scraping matchesScraping = new Scraping(5, TimeUnit.SECONDS)
                 .setSequence(
-                        HtmlUnit.Do.navigateToUrl("https://www.ifortuna.cz/")
+                        HtmlUnitFlow.Do.navigateToUrl("https://www.ifortuna.cz/")
                                 .next(Get.descendants().byAttr("id", "top-bets-tab-0")
                                         .next(Get.descendants().byTag("div").byClass("events-table-box")
                                                 .addCollector(Match::new, Match.class, new MatchListener())

@@ -18,7 +18,7 @@ package com.github.scrape.flow.scraping.selenium;
 
 import java.util.function.Function;
 
-public class Selenium {
+public class SeleniumFlow {
 
 
 

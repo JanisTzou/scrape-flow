@@ -23,11 +23,13 @@ libraries like HtmlUnit for asynchronous fault-tolerant scraping:
 - pagination
 - parallelism
 - selective sequential execution of scraping steps
-- throttling based on site responsiveness (To be implemented)
+- throttling based on site responsiveness (to be implemented)
 - retrial of failed requests
-- transitioning between static and JS-heavy site scraping (To be implemented)
+- seamless transitioning between static and JS-heavy site scraping
 - publishing of scraped data to client code in the order in which it appeared on the scraped sites
 - utilities for debugging
+
+For static sites scraping the library internally uses **HtmlUnit** while for dynamic sites **Selenium** is used.
 
 ## Usage and Sample Code
 
@@ -40,7 +42,7 @@ Apart from DOM traversal operations it is possible to specify at which points th
 to client code (collecting data using defined custom "collectors" and publishing it via custom listeners).
 
 For a simple use-case, all that is needed to use the functionality is to create an instance of `Scraping` and to define the sequence use all the utilities provided by 
- [HtmlUnit](src/main/java/com/github/scrape/flow/scraping/htmlunit/HtmlUnit.java) entry point class.
+ [HtmlUnitFlow](src/main/java/com/github/scrape/flow/scraping/htmlunit/HtmlUnitFlow.java) entry point class.
 
 For a very simple example see the code below and for more complex scenarios there are some demos found [here](src/test/java/com/github/scrape/flow/demos) entry point class.
 
@@ -80,6 +82,8 @@ the following scraping steps/sequence:
 
 
 ```java
+
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.*;
 
 public class Demo {
 

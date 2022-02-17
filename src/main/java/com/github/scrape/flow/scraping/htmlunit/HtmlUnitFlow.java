@@ -40,7 +40,7 @@ import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetAncestor.Type;
  * They often work with the notion of "current element". This concept just expresses the fact that each individual element
  * found by one operation is passed to the next operation as its "current element" that it can perform further operations upon.
  */
-public class HtmlUnit {
+public class HtmlUnitFlow {
 
     /**
      * Contains methods for DOM traversal. The DomNode from which the traversal takes place

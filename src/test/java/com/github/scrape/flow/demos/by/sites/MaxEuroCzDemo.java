@@ -18,11 +18,9 @@ package com.github.scrape.flow.demos.by.sites;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
-import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
-import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.*;
-import com.github.scrape.flow.scraping.selenium.Selenium;
+import com.github.scrape.flow.scraping.selenium.SeleniumFlow;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,7 +34,7 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.*;
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.*;
 
 public class MaxEuroCzDemo {
 
@@ -82,13 +80,13 @@ public class MaxEuroCzDemo {
                                                         .collectOne(Category::setName, Category.class)
                                                 )
                                                 .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href)
-                                                        .next(Selenium.Do.navigateToParsedLink() // toCategoryProductList(siteParser) // TODO revert
-                                                                .next(Selenium.Get.descendants()
+                                                        .next(SeleniumFlow.Do.navigateToParsedLink() // toCategoryProductList(siteParser) // TODO revert
+                                                                .next(SeleniumFlow.Get.descendants()
                                                                         .byTag("div")
                                                                         .byClass("product-name")
-                                                                        .next(Selenium.Get.descendants().byTag("a")
-                                                                                .next(Selenium.Parse.hRef()
-                                                                                        .next(Selenium.Do.navigateToParsedLink())
+                                                                        .next(SeleniumFlow.Get.descendants().byTag("a")
+                                                                                .next(SeleniumFlow.Parse.hRef()
+                                                                                        .next(SeleniumFlow.Do.navigateToParsedLink())
                                                                                 )
                                                                         )
                                                                 )

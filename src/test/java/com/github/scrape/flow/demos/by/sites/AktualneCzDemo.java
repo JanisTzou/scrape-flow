@@ -20,14 +20,14 @@ import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnit;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow;
 import org.junit.Test;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.Get;
-import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.Parse;
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.Get;
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.Parse;
 
 public class AktualneCzDemo {
 
@@ -43,7 +43,7 @@ public class AktualneCzDemo {
 
         final Scraping articlesScraping = new Scraping(5, TimeUnit.SECONDS)
                 .setSequence(
-                        HtmlUnit.Do.navigateToUrl("https://zpravy.aktualne.cz/zahranici/")
+                        HtmlUnitFlow.Do.navigateToUrl("https://zpravy.aktualne.cz/zahranici/")
                                 .next(getArticleElements
                                         .next(getArticleHeadlineElem.stepName("step-1")
                                                 .next(Parse.textContent())
