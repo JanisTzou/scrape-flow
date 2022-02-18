@@ -16,13 +16,12 @@
 
 package com.github.scrape.flow.execution;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-@RequiredArgsConstructor
-@Getter
-@ToString
+@Data
 public class TaskError {
 
     private final Task task;

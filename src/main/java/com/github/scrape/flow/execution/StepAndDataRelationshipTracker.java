@@ -18,6 +18,7 @@ package com.github.scrape.flow.execution;
 
 import com.github.scrape.flow.data.publishing.ModelToPublish;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.*;
@@ -29,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * the data head in this
  */
 @Log4j2
+@RequiredArgsConstructor
 public class StepAndDataRelationshipTracker {
 
     /**
@@ -38,11 +40,6 @@ public class StepAndDataRelationshipTracker {
     private final Map<StepOrder, SpawnedStepsModelsList> spawnedByParentStep = new ConcurrentHashMap<>();
 
     private final ActiveStepsTracker activeStepsTracker;
-
-
-    public StepAndDataRelationshipTracker(ActiveStepsTracker activeStepsTracker) {
-        this.activeStepsTracker = activeStepsTracker;
-    }
 
     /**
      * Call this only when the spawnedModel instance was just instantiated (-> do not call this from places where the data model was readily propagated ...)
@@ -125,8 +122,7 @@ public class StepAndDataRelationshipTracker {
 
     @Data
     static class RelatedSteps {
-
         private final SpawnedStepsModels spawnedStepsModels;
-
     }
+
 }

@@ -20,10 +20,7 @@ import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendantsByCssSelector;
 import com.github.scrape.flow.utils.JsonUtils;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -91,29 +88,20 @@ public class CsfdCzDemo {
     }
 
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @ToString
+    @Data
     public static class Category {
         private volatile String name;
     }
 
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @ToString
+    @Data
     public static class Article {
         private volatile String title;
         private volatile Category category;
         private volatile BufferedImage image;
     }
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @ToString
+    @Data
     public static class Movie {
         private volatile String title;
     }

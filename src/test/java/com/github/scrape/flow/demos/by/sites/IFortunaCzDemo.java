@@ -20,6 +20,7 @@ import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow;
 import com.github.scrape.flow.utils.JsonUtils;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -81,7 +82,7 @@ public class IFortunaCzDemo {
     }
 
 
-    @Getter @Setter @ToString
+    @Data
     public static class Match {
         private String name;
         private String detailUrl;

@@ -16,16 +16,16 @@
 
 package com.github.scrape.flow.data.collectors;
 
+import lombok.NoArgsConstructor;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@NoArgsConstructor
 public class Collectors {
 
     private final List<Collector> list = new CopyOnWriteArrayList<>();
-
-    public Collectors() {
-    }
 
     public Collectors copy() {
         Collectors copy = new Collectors();

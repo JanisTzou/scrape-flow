@@ -25,22 +25,22 @@ public class Options {
     private static final int REQUEST_RETRIES_MAX_DEFAULT = 1;
 
     @Getter
-    private volatile int requestRetries;
+    private volatile int maxRequestRetries;
 
     public Options() {
         this(REQUEST_RETRIES_MAX_DEFAULT);
     }
 
     public Options(Options options) {
-        this(options.requestRetries);
+        this(options.maxRequestRetries);
     }
 
-    private Options(int requestRetries) {
-        this.requestRetries = requestRetries;
+    private Options(int maxRequestRetries) {
+        this.maxRequestRetries = maxRequestRetries;
     }
 
-    public void setRequestRetries(int max) {
-        this.requestRetries = max;
+    public void setMaxRequestRetries(int max) {
+        this.maxRequestRetries = max;
     }
 
     public Options copy() {

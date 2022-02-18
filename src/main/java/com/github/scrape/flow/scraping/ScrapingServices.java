@@ -27,11 +27,13 @@ import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteLoader;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
 import com.github.scrape.flow.throttling.ThrottlingService;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Encapsulates service singleton classes that need to be accessible to all steps
  */
 @Getter
+@RequiredArgsConstructor
 public class ScrapingServices {
 
     private final StepOrderGenerator stepOrderGenerator;
@@ -44,35 +46,8 @@ public class ScrapingServices {
     private final DebuggingOptions globalDebugging;
     private final TaskExecutor taskExecutor;
     private final TaskService taskService;
-
     private final SeleniumDriversManager seleniumDriversManager;
     private final HtmlUnitSiteLoader htmlUnitSiteLoader;
-
-    public ScrapingServices(StepOrderGenerator stepOrderGenerator,
-                            ThrottlingService throttlingService,
-                            ActiveStepsTracker activeStepsTracker,
-                            StepAndDataRelationshipTracker stepAndDataRelationshipTracker,
-                            ExclusiveExecutionTracker exclusiveExecutionTracker,
-                            ScrapedDataPublisher scrapedDataPublisher,
-                            TaskExecutor taskExecutor,
-                            Options options,
-                            DebuggingOptions globalDebugging,
-                            TaskService taskService,
-                            SeleniumDriversManager seleniumDriversManager,
-                            HtmlUnitSiteLoader htmlUnitSiteLoader) {
-        this.stepOrderGenerator = stepOrderGenerator;
-        this.throttlingService = throttlingService;
-        this.activeStepsTracker = activeStepsTracker;
-        this.stepAndDataRelationshipTracker = stepAndDataRelationshipTracker;
-        this.exclusiveExecutionTracker = exclusiveExecutionTracker;
-        this.scrapedDataPublisher = scrapedDataPublisher;
-        this.options = options;
-        this.globalDebugging = globalDebugging;
-        this.taskExecutor = taskExecutor;
-        this.taskService = taskService;
-        this.seleniumDriversManager = seleniumDriversManager;
-        this.htmlUnitSiteLoader = htmlUnitSiteLoader;
-    }
 
     public ScrapingServices(ScrapingRateLimiter scrapingRateLimiter) {
         this.stepOrderGenerator = new StepOrderGenerator();

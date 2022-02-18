@@ -19,22 +19,16 @@ package com.github.scrape.flow.scraping.htmlunit.filters;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.scraping.Filter;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitUtils;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 public class HtmlUnitFilterByCssClass implements Filter<DomNode> {
 
     private final String className;
-
-    /**
-     * @throws NullPointerException if cssClass is null
-     */
-    HtmlUnitFilterByCssClass(String className) {
-        Objects.requireNonNull(className);
-        this.className = className;
-    }
 
     @Override
     public List<DomNode> filter(List<DomNode> list) {

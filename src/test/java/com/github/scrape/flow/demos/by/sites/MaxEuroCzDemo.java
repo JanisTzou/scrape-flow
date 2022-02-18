@@ -24,10 +24,7 @@ import com.github.scrape.flow.scraping.htmlunit.HtmlUnitNavigateToParsedLink;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitUtils;
 import com.github.scrape.flow.scraping.selenium.SeleniumFlow;
 import com.github.scrape.flow.utils.JsonUtils;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -222,26 +219,17 @@ public class MaxEuroCzDemo {
     }
 
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @ToString
+    @Data
     public static class Category {
         private volatile String name;
     }
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @ToString
+    @Data
     public static class SubCategory {
         private volatile String name;
     }
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @ToString
+    @Data
     public static class Product {
         private volatile Category category;
         private volatile SubCategory subCategory;

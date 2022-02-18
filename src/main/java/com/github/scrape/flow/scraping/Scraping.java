@@ -34,10 +34,7 @@ public class Scraping {
      * Should specific for one scraping instance
      */
     private final ScrapingServices services;
-    // TODO the parsing sequence needs to be something generic - not HtmlUnit-specific ...
     private ScrapingStepBase<?> scrapingSequence;
-
-    // TODO add option to not crawl duplicate URLS ...
 
     public Scraping() {
         this(new ScrapingServices(new ScrapingRateLimiterImpl(1, TimeUnit.SECONDS)));
@@ -63,8 +60,6 @@ public class Scraping {
     private void startSequenceExecution() {
         this.scrapingSequence.execute(new ScrapingContext(StepOrder.INITIAL), services);
     }
-
-    // TODO create another method for dynamic sites ? ... maybe put the parse here as well? So it is next to the
 
     /**
      * Enables specifying the scraping sequence to be executed

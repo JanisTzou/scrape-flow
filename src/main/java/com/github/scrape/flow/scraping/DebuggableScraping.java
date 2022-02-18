@@ -16,13 +16,12 @@
 
 package com.github.scrape.flow.scraping;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DebuggableScraping {
 
     private final Scraping scraping;
-
-    public DebuggableScraping(Scraping scraping) {
-        this.scraping = scraping;
-    }
 
     /**
      * Useful when we want to test the scraping sequence but want to globally limit the number of elements scraped.

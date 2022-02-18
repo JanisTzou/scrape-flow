@@ -23,10 +23,7 @@ import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFollowLink;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
 import com.github.scrape.flow.utils.JsonUtils;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -124,18 +121,12 @@ public class TeleskopExpressDeDemo {
     }
 
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @ToString
+    @Data
     public static class Brand {
         private volatile String name;
     }
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @ToString
+    @Data
     public static class Product {
         private volatile String title;
         private volatile String price;
@@ -145,16 +136,12 @@ public class TeleskopExpressDeDemo {
         private volatile List<ShippingCosts> shippingCosts = new ArrayList<>();
     }
 
-    @Setter
-    @Getter
-    @ToString
+    @Data
     public static class ProductCode {
         private volatile String value;
     }
 
-    @Setter
-    @Getter
-    @ToString
+    @Data
     public static class ShippingCosts {
         private volatile String service;
         private volatile String price;

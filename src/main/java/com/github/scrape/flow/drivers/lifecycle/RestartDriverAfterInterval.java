@@ -16,13 +16,12 @@
 
 package com.github.scrape.flow.drivers.lifecycle;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class RestartDriverAfterInterval implements DriverRestartStrategy {
 
     private final long maxIntervalSinceLastRestartInMillis;
-
-    public RestartDriverAfterInterval(long maxIntervalSinceLastRestartInMillis) {
-        this.maxIntervalSinceLastRestartInMillis = maxIntervalSinceLastRestartInMillis;
-    }
 
     @Override
     public boolean shouldRestart(long lastRestartTs) {

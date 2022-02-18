@@ -16,6 +16,9 @@
 
 package com.github.scrape.flow.debugging;
 
+import lombok.Getter;
+
+@Getter
 public class DebuggingOptions {
 
     private volatile boolean onlyScrapeFirstElements = false;
@@ -27,7 +30,7 @@ public class DebuggingOptions {
     public DebuggingOptions() {
     }
 
-    public DebuggingOptions(DebuggingOptions d) {
+    private DebuggingOptions(DebuggingOptions d) {
         this(d.onlyScrapeFirstElements,
                 d.onlyScrapeNFirstElements,
                 d.logFoundElementsSource,
@@ -68,18 +71,6 @@ public class DebuggingOptions {
      */
     public void setLogFoundElementsCount(boolean enabled) {
         this.logFoundElementsCount = enabled;
-    }
-
-    public boolean isOnlyScrapeFirstElements() {
-        return onlyScrapeFirstElements;
-    }
-
-    public boolean isLogFoundElementsSource() {
-        return logFoundElementsSource;
-    }
-
-    public boolean isLogFoundElementsCount() {
-        return logFoundElementsCount;
     }
 
     public DebuggingOptions copy() {

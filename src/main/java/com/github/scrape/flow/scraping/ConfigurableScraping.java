@@ -16,20 +16,20 @@
 
 package com.github.scrape.flow.scraping;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class ConfigurableScraping {
 
     private final Scraping scraping;
-
-    public ConfigurableScraping(Scraping scraping) {
-        this.scraping = scraping;
-    }
+    // TODO add option to not crawl duplicate URLS ...
 
     /**
      * limit the number of retries for a request when it fails (e.g. when loading a new page)
      * @return reference to this instance
      */
     public Scraping setRequestRetries(int max) {
-        scraping.getServices().getOptions().setRequestRetries(max);
+        scraping.getServices().getOptions().setMaxRequestRetries(max);
         return scraping;
     }
 

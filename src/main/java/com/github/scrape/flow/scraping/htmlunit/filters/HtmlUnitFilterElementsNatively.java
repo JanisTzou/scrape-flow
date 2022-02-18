@@ -21,6 +21,7 @@ import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitScrapingStep;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.List;
@@ -33,13 +34,10 @@ import java.util.stream.Stream;
  * Filters nodes acquired in the previous steps by custom conditions
  */
 @Log4j2
+@RequiredArgsConstructor
 public class HtmlUnitFilterElementsNatively extends HtmlUnitScrapingStep<HtmlUnitFilterElementsNatively> {
 
     private final Predicate<DomNode> domNodePredicate;
-
-    public HtmlUnitFilterElementsNatively(Predicate<DomNode> domNodePredicate) {
-        this.domNodePredicate = domNodePredicate;
-    }
 
     @Override
     protected HtmlUnitFilterElementsNatively copy() {

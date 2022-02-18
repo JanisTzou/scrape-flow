@@ -16,13 +16,12 @@
 
 package com.github.scrape.flow.scraping;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DebuggableStep<C extends ScrapingStepBase<C>> {
 
     private final C step;
-
-    public DebuggableStep(C step) {
-        this.step = step;
-    }
 
     public C setLogFoundElementsSource(boolean enabled) {
         return step.copyModifyAndGet(copy -> {

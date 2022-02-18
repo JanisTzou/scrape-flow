@@ -16,13 +16,12 @@
 
 package com.github.scrape.flow.drivers.lifecycle;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class QuitAfterIdleInterval implements DriverQuitStrategy {
 
     private final long maxIdleIntervalInMillis;
-
-    public QuitAfterIdleInterval(long maxIdleIntervalInMillis) {
-        this.maxIdleIntervalInMillis = maxIdleIntervalInMillis;
-    }
 
     @Override
     public boolean shouldQuit(long driverLastUsedTs) {

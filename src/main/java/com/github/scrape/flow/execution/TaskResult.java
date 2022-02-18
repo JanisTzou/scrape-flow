@@ -16,11 +16,11 @@
 
 package com.github.scrape.flow.execution;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
-@Getter
+@Data
 public class TaskResult {
 
     private final Task task;

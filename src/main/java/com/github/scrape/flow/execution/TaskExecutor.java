@@ -197,7 +197,7 @@ public class TaskExecutor {
                     logRequestError(task, error);
                     return error;
                 })
-                .retryWhen(Retry.backoff(task.getNumOfRetries(), task.getRetryBackoff()))
+                .retryWhen(Retry.backoff(task.getMaxRetries(), task.getRetryBackoff()))
                 .onErrorResume(error -> {
                     logDroppingRetrying(task, error);
                     logEnqueuedRequestCount();

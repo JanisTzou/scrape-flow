@@ -16,6 +16,7 @@
 
 package com.github.scrape.flow.data.collectors;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,17 +28,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * Wrapper around the model object that ensures that when the model returns populated with data
  * it is collected only once (thus avoiding duplicates in resulting collections od data)
  */
-@Getter
-@Setter
+@Data
 public class ModelWrapper {
 
     private final Object model;
     private final Class<?> modelClass;
-
-    public ModelWrapper(Object model, Class<?> modelClass) {
-        this.model = model;
-        this.modelClass = modelClass;
-    }
 
     /**
      * Stores all methods used to store parsed data into the model object, so we can provide warnings that a model field is overwritten multiple times.

@@ -46,7 +46,7 @@ public class TaskService {
 
     private Task createStepTask(TaskBasis taskBasis) {
         scrapingRateLimiter.getRequestFreq();
-        int retries = options.getRequestRetries();
+        int retries = options.getMaxRequestRetries();
         Task task;
         if (retries == 0) {
             task = Task.from(taskBasis, retries, Duration.ZERO);

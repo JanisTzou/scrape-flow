@@ -16,47 +16,22 @@
 
 package com.github.scrape.flow.execution;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.function.Consumer;
 
+@RequiredArgsConstructor
+@Getter
 class QueuedTask {
 
     public static final Comparator<QueuedTask> NATURAL_COMPARATOR = (qst1, qst2) -> Task.NATURAL_COMPARATOR.compare(qst1.getTask(), qst2.getTask());
-
 
     private final Task task;
     private final Consumer<TaskResult> taskResultConsumer;
     private final Consumer<TaskError> taskErrorConsumer;
     private final long enqueuedTimestamp;
 
-    public QueuedTask(Task task,
-                      Consumer<TaskResult> taskResultConsumer,
-                      Consumer<TaskError> taskErrorConsumer,
-                      long enqueuedTimestamp) {
-        this.task = task;
-        this.taskResultConsumer = taskResultConsumer;
-        this.taskErrorConsumer = taskErrorConsumer;
-        this.enqueuedTimestamp = enqueuedTimestamp;
-    }
-
-    public Task getTask() {
-        return task;
-    }
-
-    public Consumer<TaskResult> getTaskResultConsumer() {
-        return taskResultConsumer;
-    }
-
-    public Consumer<TaskError> getTaskErrorConsumer() {
-        return taskErrorConsumer;
-    }
-
-    public long getEnqueuedTimestamp() {
-        return enqueuedTimestamp;
-    }
-
-    public LocalDateTime getCreated() {
-        return task.getCreated();
-    }
 }

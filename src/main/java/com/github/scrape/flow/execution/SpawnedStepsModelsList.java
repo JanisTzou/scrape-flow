@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@Getter
 class SpawnedStepsModelsList {
 
     private final List<SpawnedStepsModels> list = new CopyOnWriteArrayList<>(); // must be thread safe

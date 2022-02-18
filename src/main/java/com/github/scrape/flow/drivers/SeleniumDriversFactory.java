@@ -17,23 +17,20 @@
 package com.github.scrape.flow.drivers;
 
 
+import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.util.concurrent.TimeUnit;
 
+@RequiredArgsConstructor
 public class SeleniumDriversFactory implements DriversFactory<WebDriver> {
 
     private static final String DRIVER_NAME_CHROME = "webdriver.chrome.driver";
 
     private final String chromeDriverDir;
     private final boolean isHeadless;
-
-    public SeleniumDriversFactory(String chromeDriverDir, boolean isHeadless) {
-        this.chromeDriverDir = chromeDriverDir;
-        this.isHeadless = isHeadless;
-    }
 
     @Override
     public WebDriver startDriver() {

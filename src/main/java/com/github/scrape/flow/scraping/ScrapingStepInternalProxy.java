@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.execution.StepOrder;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
@@ -25,14 +26,12 @@ import java.util.List;
  * used internally to perform package private operations on a step
  * ... to keep the public api of the step implementations clean of internal stuff ...
  */
+@RequiredArgsConstructor
 public class ScrapingStepInternalProxy<C extends ScrapingStepBase<C>> {
 
     private final C step;
 
-    private ScrapingStepInternalProxy(C step) {
-        this.step = step;
-    }
-
+    @SuppressWarnings("rawtypes")
     public static ScrapingStepInternalProxy<?> of(ScrapingStepBase<?> step) {
         return new ScrapingStepInternalProxy(step);
     }

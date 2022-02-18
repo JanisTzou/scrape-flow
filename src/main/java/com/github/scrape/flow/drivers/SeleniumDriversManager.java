@@ -20,22 +20,20 @@ import com.github.scrape.flow.drivers.lifecycle.QuitAfterIdleInterval;
 import com.github.scrape.flow.drivers.lifecycle.RestartDriverAfterInterval;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.selenium.StepAndDriversRelationshipTracker;
+import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.WebDriver;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+@RequiredArgsConstructor
 public class SeleniumDriversManager implements DriversManager<WebDriver> {
 
     private final SeleniumDriversFactory seleniumDriversFactory;
 
     private final StepAndDriversRelationshipTracker stepAndDriversRelationshipTracker = new StepAndDriversRelationshipTracker();
     private final Map<Integer, DriverOperator<WebDriver>> driverOperators = new ConcurrentHashMap<>();
-
-    public SeleniumDriversManager(SeleniumDriversFactory seleniumDriversFactory) {
-        this.seleniumDriversFactory = seleniumDriversFactory;
-    }
 
     @Override
     public Optional<DriverOperator<WebDriver>> getDriver(StepOrder stepOrder) {

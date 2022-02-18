@@ -20,10 +20,7 @@ import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitNavigateToParsedLink;
 import com.github.scrape.flow.utils.JsonUtils;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -263,28 +260,19 @@ public class ZakonyProLidiCzDemo {
         Thread.sleep(2000); // let logging finish ...
     }
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @ToString
+    @Data
     public static class Kategorie {
         private volatile String jmeno;
         private volatile String url;
     }
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @ToString
+    @Data
     public static class PodKategorie {
         private volatile String jmeno;
         private volatile String url;
     }
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @ToString
+    @Data
     public static class PredpisInfo {
         private volatile Kategorie kategorie;
         private volatile PodKategorie podKategorie;
@@ -294,19 +282,13 @@ public class ZakonyProLidiCzDemo {
         private volatile String platnostOd;
     }
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @ToString
+    @Data
     public static class Predpis {
         private volatile PredpisInfo info;
         private volatile List<Radek> text = Collections.synchronizedList(new ArrayList<>());
     }
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @ToString
+    @Data
     public static class Radek {
         // TODO css ...
         private volatile String text;

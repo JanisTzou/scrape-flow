@@ -60,9 +60,9 @@ public class TestConfiguration {
                 stepAndDataRelationshipTracker,
                 exclusiveExecutionTracker,
                 scrapedDataPublisher,
-                taskExecutor,
                 options,
                 globalDebugging,
+                taskExecutor,
                 taskService,
                 seleniumDriversManager,
                 htmlUnitSiteParser
@@ -136,7 +136,7 @@ public class TestConfiguration {
 
     @Bean(destroyMethod = "close")
     public WebClient webClient() {
-         return new WebClient(BrowserVersion.CHROME);
+        return new WebClient(BrowserVersion.CHROME);
     }
 
     @Bean

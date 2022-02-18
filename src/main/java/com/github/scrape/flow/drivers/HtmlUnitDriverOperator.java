@@ -17,7 +17,9 @@
 package com.github.scrape.flow.drivers;
 
 import com.gargoylesoftware.htmlunit.WebClient;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class HtmlUnitDriverOperator implements DriverOperator<WebClient> {
 
     /**
@@ -26,11 +28,6 @@ public class HtmlUnitDriverOperator implements DriverOperator<WebClient> {
      */
     private final ThreadLocal<WebClient> webClient = ThreadLocal.withInitial(this::startNewDriver);
     private final HtmlUnitDriversFactory driversFactory;
-
-
-    public HtmlUnitDriverOperator(HtmlUnitDriversFactory driversFactory) {
-        this.driversFactory = driversFactory;
-    }
 
     @Override
     public int webDriverId() {

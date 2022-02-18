@@ -19,12 +19,10 @@ package com.github.scrape.flow.drivers;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
+import lombok.NoArgsConstructor;
 
-
+@NoArgsConstructor
 public class HtmlUnitDriversFactory implements DriversFactory<WebClient> {
-
-    public HtmlUnitDriversFactory() {
-    }
 
     @Override
     public WebClient startDriver() {

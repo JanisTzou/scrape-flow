@@ -21,10 +21,7 @@ import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitNavigateToParsedLink;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitStepBlock;
 import com.github.scrape.flow.utils.JsonUtils;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -171,26 +168,18 @@ public class BbcComDemo {
     }
 
 
-    @NoArgsConstructor
-    @Getter
-    @Setter
-    @ToString
+    @Data
     public static class Section {
         private String name;
     }
 
-    @NoArgsConstructor
-    @Getter
-    @Setter
-    @ToString
+    @Data
     public static class Promo {
         private String heading;
         private String summary;
     }
 
-    @NoArgsConstructor
-    @Getter
-    @Setter
+    @Data
     public static class Article {
         private String url;
         private Section region;

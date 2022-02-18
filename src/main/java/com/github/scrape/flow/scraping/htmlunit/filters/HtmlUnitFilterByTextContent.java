@@ -19,21 +19,18 @@ package com.github.scrape.flow.scraping.htmlunit.filters;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.DomText;
 import com.github.scrape.flow.scraping.Filter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Log4j2
+@RequiredArgsConstructor
 public class HtmlUnitFilterByTextContent implements Filter<DomNode> {
 
     private final String searchString;
     private final String regex;
-
-    private HtmlUnitFilterByTextContent(String searchString, String regex) {
-        this.searchString = searchString;
-        this.regex = regex;
-    }
 
     static HtmlUnitFilterByTextContent createForSearchString(String searchString) {
         return new HtmlUnitFilterByTextContent(searchString, null);

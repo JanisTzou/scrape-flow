@@ -18,15 +18,16 @@ package com.github.scrape.flow.execution;
 
 import com.github.scrape.flow.drivers.SeleniumDriversManager;
 import com.github.scrape.flow.scraping.ScrapingType;
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 
-@RequiredArgsConstructor
-@Getter
+@Data
 public class Task implements Comparable<Task> {
 
     public static Comparator<Task> NATURAL_COMPARATOR = (st1, st2) -> {
@@ -50,7 +51,7 @@ public class Task implements Comparable<Task> {
     private final ScrapingType scrapingType;
     private final SeleniumDriversManager seleniumDriversManager;
 
-    private final int retries;
+    private final int maxRetries;
     private final Duration retryBackoff;
 
     private final LocalDateTime created = LocalDateTime.now();
@@ -75,8 +76,7 @@ public class Task implements Comparable<Task> {
         return NATURAL_COMPARATOR.compare(this, o);
     }
 
-    @Override
-    public String toString() {
+    public String loggingInfo() {
         return "StepTask{" +
                 "stepOrder=" + stepOrder +
                 ", exclusiveExecution=" + exclusiveExecution +
@@ -85,15 +85,4 @@ public class Task implements Comparable<Task> {
                 '}';
     }
 
-    public String loggingInfo() {
-        return toString();
-    }
-
-    public long getNumOfRetries() {
-        return retries;
-    }
-
-    public Duration getRetryBackoff() {
-        return retryBackoff;
-    }
 }
