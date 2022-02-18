@@ -16,12 +16,9 @@
 
 package com.github.scrape.flow.scraping.selenium;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitScrapingStep;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;

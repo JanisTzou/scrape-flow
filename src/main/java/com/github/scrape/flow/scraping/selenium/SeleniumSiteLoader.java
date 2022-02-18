@@ -16,9 +16,7 @@
 
 package com.github.scrape.flow.scraping.selenium;
 
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.scrape.flow.drivers.DriverOperator;
-import com.github.scrape.flow.drivers.DriversManager;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.*;
 import lombok.extern.log4j.Log4j2;

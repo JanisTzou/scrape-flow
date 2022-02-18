@@ -18,7 +18,6 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.scraping.*;
-import com.github.scrape.flow.scraping.Filter;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.List;

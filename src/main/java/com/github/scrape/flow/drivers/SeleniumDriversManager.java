@@ -18,8 +18,8 @@ package com.github.scrape.flow.drivers;
 
 import com.github.scrape.flow.drivers.lifecycle.QuitAfterIdleInterval;
 import com.github.scrape.flow.drivers.lifecycle.RestartDriverAfterInterval;
-import com.github.scrape.flow.scraping.selenium.StepAndDriversRelationshipTracker;
 import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.scraping.selenium.StepAndDriversRelationshipTracker;
 import org.openqa.selenium.WebDriver;
 
 import java.util.Map;

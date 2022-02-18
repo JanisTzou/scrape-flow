@@ -17,9 +17,9 @@
 package com.github.scrape.flow.scraping.selenium;
 
 import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.scraping.Filter;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.Filter;
 import com.github.scrape.flow.scraping.selenium.filters.SeleniumFilterable;
 import com.github.scrape.flow.scraping.selenium.filters.SeleniumFilterableByCommonCriteria;
 import org.openqa.selenium.By;

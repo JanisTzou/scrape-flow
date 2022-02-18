@@ -19,8 +19,8 @@ package com.github.scrape.flow.demos.by.sites;
 import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
 import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
 import com.github.scrape.flow.scraping.Scraping;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
 import org.junit.Test;
 
 import java.time.Duration;

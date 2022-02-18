@@ -16,8 +16,6 @@
 
 package com.github.scrape.flow.scraping;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
-
 import java.util.List;
 
 
