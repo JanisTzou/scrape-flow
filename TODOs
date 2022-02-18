@@ -1,17 +1,13 @@
-https://stackoverflow.com/questions/49731830/is-it-good-to-build-library-or-api-using-spring-framework
-... use Spring for testing ...
+Some ideas and TODOs that do not fit anywhere else:
 
-TODO how to make data that is not structured hierarchically hierarchical?
- e.g. here the categoies are structured as simple table rows ...:  https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html/page/1
+TODO make data that is not structured hierarchically hierarchical?
+ e.g. here the different categories of data are structured as simple flat table rows ...:
+ https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html/page/1
 
-// TODO log duplicated URLs found ? e.g. with BBC there was some problem like that ... for no obvious reason ...
+// TODO handle duplicated URLs found?
+
 // TODO all public facing stuff should throw ex if passes param must not be nul and is null ...
 
-// TODO it might be nice to provide progress in the logs ... like scraped 10/125 Urls ... (if the finitie number of urls is available)
-
-// TODO simplified bootstrapping of main components
-
 // TODO expose library specific components in classes called xxxConfigurer so that use can e.g. configure proxies etc ... i the cae of HtmlUnit we need to enable configuring the WebClient
-
 
 // HtmlUnit FAQs: https://htmlunit.sourceforge.io/faq.html

@@ -63,9 +63,9 @@ public class HtmlUnitStepHelper extends StepHelperBase {
                 StepModelsHandler modelsHandler = StepModelsHandler.createFor(step);
                 StepModels stepModels = modelsHandler.createAndAccumulateModels(currStepOrder, ctx.getContextModels());
 
-                List<StepOrder> nextStepsOrders = executeNextSteps(currStepOrder, node, ctx, stepModels.getNextContextModels(), services);
+                SpawnedSteps spawnedSteps = executeNextSteps(currStepOrder, node, ctx, stepModels.getNextContextModels(), services);
 
-                handleModels(currStepOrder, services, stepModels, nextStepsOrders);
+                handleModels(currStepOrder, services, stepModels, spawnedSteps);
             }
 
         } catch (Exception e) {
@@ -83,11 +83,11 @@ public class HtmlUnitStepHelper extends StepHelperBase {
     }
 
 
-    private List<StepOrder> executeNextSteps(StepOrder currStepOrder,
-                                             DomNode node,
-                                             ScrapingContext ctx,
-                                             ContextModels nextContextModels,
-                                             ScrapingServices services) {
+    private SpawnedSteps executeNextSteps(StepOrder currStepOrder,
+                                          DomNode node,
+                                          ScrapingContext ctx,
+                                          ContextModels nextContextModels,
+                                          ScrapingServices services) {
         // TODO have a nextStepContextHandler ?
         ScrapingContext nextCtx = new ScrapingContext(
                 currStepOrder,
@@ -100,7 +100,7 @@ public class HtmlUnitStepHelper extends StepHelperBase {
                 ctx.getRootLoopedStepOrder()
         );
 
-        return nextStepsHandler.execute(ScrapingStepInternalProxy.of(step).getNextSteps(), nextCtx, services);
+        return nextStepsHandler.execute(currStepOrder, ScrapingStepInternalProxy.of(step).getNextSteps(), nextCtx, services);
     }
 
 }

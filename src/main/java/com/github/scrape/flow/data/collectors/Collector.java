@@ -34,11 +34,6 @@ public class Collector {
 
     private final ScrapedDataListener<Object> scrapedDataListener;
 
-//    private final boolean onlyCustomTypesAllowed; // TODO ...
-
-    // when this collects the single values parsed directly from the site
-//    private final CollectedModelType collectedModelType;
-
     @SuppressWarnings("unchecked")
     public Collector(Supplier<?> modelSupplier,
                      Class<?> modelClass,
@@ -69,14 +64,6 @@ public class Collector {
     public enum AccumulatorType {
         ONE,
         MANY
-    }
-
-    public enum CollectedModelType {
-        // models/types that the lib used defines to store the parsed data
-        GENERATED_USED_DEFINED,
-
-        // the actual single values parsed from the sites - most often Strings
-        PARSED
     }
 
 }

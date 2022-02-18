@@ -27,12 +27,14 @@ import java.util.stream.Collectors;
 public class NextStepsAsDefinedByUser implements NextStepsHandler {
 
     @Override
-    public List<StepOrder> execute(List<ScrapingStepBase<?>> nextSteps,
-                                   ScrapingContext nextCtx,
-                                   ScrapingServices services) {
-        return nextSteps.stream()
+    public SpawnedSteps execute(StepOrder currStepOrder,
+                                List<ScrapingStepBase<?>> nextSteps,
+                                ScrapingContext nextCtx,
+                                ScrapingServices services) {
+        List<StepOrder> stepOrders = nextSteps.stream()
                 .map(step -> step.execute(nextCtx, services))
                 .collect(Collectors.toList());
+        return new SpawnedSteps(currStepOrder, stepOrders);
     }
 
 }

@@ -29,15 +29,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class HtmlUnitGetAncestor extends HtmlUnitScrapingStep<HtmlUnitGetAncestor>
-    // TODO these filters do not ake sense for the parent as they are .... if we want to provide them, the implementation must go throguh all parents until it finds the one specified by the filters ...
-    //  if ued as they are the filters might just filter away the one parent found ...
-//        implements
-//        FilterableByAttribute<GetParent>,
-//        FilterableByTag<GetParent>,
-//        FilterableByTextContent<GetParent>,
-//        FilterableByCssClass<GetParent>
-{
+public class HtmlUnitGetAncestor extends HtmlUnitScrapingStep<HtmlUnitGetAncestor> {
+    // TODO make possible to use general filters (by tag, class, attr ...) ... for this we need to split this into two
+    //  separate implementations - one for parent and one for ancestors (only ancestors should support filters)
 
     private final Type type;
     private final Integer param;
@@ -83,9 +77,4 @@ public class HtmlUnitGetAncestor extends HtmlUnitScrapingStep<HtmlUnitGetAncesto
         NTH_ANCESTOR,
     }
 
-    // TODO see comment above ... about filters ...
-//    @Override
-//    public GetParent addFilter(Filter filter) {
-//        return super.addFilter(filter);
-//    }
 }

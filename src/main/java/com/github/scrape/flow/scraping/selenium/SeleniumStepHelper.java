@@ -63,9 +63,9 @@ public class SeleniumStepHelper extends StepHelperBase {
                 StepModelsHandler modelsHandler = StepModelsHandler.createFor(step);
                 StepModels stepModels = modelsHandler.createAndAccumulateModels(currStepOrder, ctx.getContextModels());
 
-                List<StepOrder> nextStepsOrders = executeNextSteps(currStepOrder, elem, ctx, webDriverId, stepModels.getNextContextModels(), services);
+                SpawnedSteps spawnedSteps = executeNextSteps(currStepOrder, elem, ctx, webDriverId, stepModels.getNextContextModels(), services);
 
-                handleModels(currStepOrder, services, stepModels, nextStepsOrders);
+                handleModels(currStepOrder, services, stepModels, spawnedSteps);
             }
 
         } catch (Exception e) {
@@ -82,12 +82,12 @@ public class SeleniumStepHelper extends StepHelperBase {
     }
 
 
-    private List<StepOrder> executeNextSteps(StepOrder currStepOrder,
-                                             WebElement webElement,
-                                             ScrapingContext ctx,
-                                             int webDriverId,
-                                             ContextModels nextContextModels,
-                                             ScrapingServices services) {
+    private SpawnedSteps executeNextSteps(StepOrder currStepOrder,
+                                          WebElement webElement,
+                                          ScrapingContext ctx,
+                                          int webDriverId,
+                                          ContextModels nextContextModels,
+                                          ScrapingServices services) {
         ScrapingContext nextCtx = new ScrapingContext(
                 currStepOrder,
                 null,
@@ -102,7 +102,7 @@ public class SeleniumStepHelper extends StepHelperBase {
         // TODO associate web driver id with step order, here?
         //  if yes, then do so only for steps that do not load page? (... those will get their own driver doen the line ...)
 
-        return nextStepsHandler.execute(ScrapingStepInternalProxy.of(step).getNextSteps(), nextCtx, services);
+        return nextStepsHandler.execute(currStepOrder, ScrapingStepInternalProxy.of(step).getNextSteps(), nextCtx, services);
     }
 
 }

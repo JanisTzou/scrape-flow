@@ -22,6 +22,9 @@ import java.util.List;
 
 public interface NextStepsHandler {
 
-    List<StepOrder> execute(List<ScrapingStepBase<?>> nextSteps, ScrapingContext nextCtx, ScrapingServices services);
+    SpawnedSteps execute(StepOrder currStepOrder,
+                         List<ScrapingStepBase<?>> nextSteps,
+                         ScrapingContext nextCtx,
+                         ScrapingServices services);
 
 }

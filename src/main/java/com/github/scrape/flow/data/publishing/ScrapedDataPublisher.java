@@ -18,23 +18,26 @@ package com.github.scrape.flow.data.publishing;
 
 import com.github.scrape.flow.execution.StepAndDataRelationshipTracker;
 import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.scraping.SpawnedSteps;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static com.github.scrape.flow.execution.StepAndDataRelationshipTracker.FinalizedModels;
+import com.github.scrape.flow.execution.FinalizedModels;
 
 @Log4j2
 public class ScrapedDataPublisher {
 
     private final StepAndDataRelationshipTracker stepAndDataRelationshipTracker;
 
-    // order in which
+    // determines the order in which data can be published for all steps
     private final Queue<StepOrder> publishingOrderQueue = new PriorityQueue<>(100, StepOrder.NATURAL_COMPARATOR);
-    private final Queue<FinalizedModels> waitingToSendQueue = new PriorityQueue<>(100, FinalizedModels.NATURAL_COMPARATOR);
-    private final Set<StepOrder> waitingToSendSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
+    // contains data that is waiting to be published if some earlier step is yet to finished and get published first
+    private final Queue<FinalizedModels> waitingToPublishQueue = new PriorityQueue<>(100, FinalizedModels.NATURAL_COMPARATOR);
+    private final Set<StepOrder> waitingToPublishSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
 
     public ScrapedDataPublisher(StepAndDataRelationshipTracker stepAndDataRelationshipTracker) {
@@ -46,66 +49,61 @@ public class ScrapedDataPublisher {
      *
      * @param steps hold generated models to be populated by subsequent step execution with parsed data ...
      */
-    public synchronized void enqueueStepsToAwaitDataPublishing(List<StepOrder> steps) {
-        publishingOrderQueue.addAll(steps);
+    public synchronized void enqueueStepsToAwaitDataPublishing(SpawnedSteps steps) {
+        publishingOrderQueue.addAll(steps.getSteps());
     }
 
+    public synchronized void publishDataAfterStepFinished(StepOrder finishedStep) {
 
-    // TODO refactor this ...
-    // TODO bind this logic to a single thread and make only the publishing parallel ? ... so we can avoid synchronisation
-    public synchronized void notifyAfterStepFinished(StepOrder stepOrder) {
+        log.debug("Received finished step notification: {}", finishedStep);
 
-        log.debug("Received finished step notification: {}", stepOrder);
+        List<FinalizedModels> newFinalized = resolveNewFinalized(finishedStep);
 
-        // as we are waiting this repeated returns same stuff ... we need to make sure that we do not use it twice ... as it is already waiting ...
+        addToWaitingToPublishSet(newFinalized);
+        untrackStepAndDataRelationship(newFinalized);
+
+        handlePublishing(finishedStep, newFinalized);
+    }
+
+    private List<FinalizedModels> resolveNewFinalized(StepOrder stepOrder) {
+        // as we are waiting this repeatedly returns same stuff ... we need to make sure that we do not use it twice ... as it is already waiting ...
         List<FinalizedModels> finalizedData = stepAndDataRelationshipTracker.getModelsWithNoActiveSteps(stepOrder);
 
-        List<FinalizedModels> unknownFinalizedData = finalizedData.stream()
-                .filter(fm -> fm.getSpawned().getSteps().stream().noneMatch(waitingToSendSet::contains))
+        return finalizedData.stream()
+                .filter(fm -> fm.getModels().getSteps().stream().noneMatch(waitingToPublishSet::contains))
                 .collect(Collectors.toList());
+    }
 
-        for (FinalizedModels finalized : unknownFinalizedData) {
-            waitingToSendSet.addAll(finalized.getSpawned().getSteps());
+    private void addToWaitingToPublishSet(List<FinalizedModels> newFinalized) {
+        for (FinalizedModels fin : newFinalized) {
+            waitingToPublishSet.addAll(fin.getModels().getSteps());
         }
+    }
 
+    private void untrackStepAndDataRelationship(List<FinalizedModels> newFinalized) {
         // no longer needed there ... we take care of tracking this ...
-        unknownFinalizedData.forEach(fm -> stepAndDataRelationshipTracker.untrack(fm.getSpawned()));
+        newFinalized.forEach(fin -> stepAndDataRelationshipTracker.untrack(fin.getModels()));
+    }
 
-        if (!unknownFinalizedData.isEmpty()) {
-            waitingToSendQueue.addAll(unknownFinalizedData);
+    private void handlePublishing(StepOrder stepOrder, List<FinalizedModels> newFinalized) {
+        if (!newFinalized.isEmpty()) {
+            waitingToPublishQueue.addAll(newFinalized);
 
             while (true) {
 
-                boolean send = false;
-                FinalizedModels nextWaiting = waitingToSendQueue.peek();
+                FinalizedModels nextWaiting = waitingToPublishQueue.peek();
 
                 if (nextWaiting != null) {
-                    List<StepOrder> waitingSteps = nextWaiting.getSpawned().getSteps().stream().sorted(StepOrder.NATURAL_COMPARATOR).collect(Collectors.toList());
+                    List<StepOrder> waitingSteps = nextWaiting.getModels().getSteps().stream().sorted(StepOrder.NATURAL_COMPARATOR).collect(Collectors.toList());
 
                     if (!publishingOrderQueue.isEmpty()) {
-
-                        for (StepOrder waitingStep : waitingSteps) {
-                            StepOrder publishingHead = publishingOrderQueue.peek();
-                            log.debug("publishingHead: {}", publishingHead);
-                            log.debug("waitingHead: {}", waitingSteps);
-
-                            if (publishingHead != null && publishingHead.equals(waitingStep)) { // if there is no bug then this should natively for all the sorted steps ...
-                                send = true;
-                                publishingOrderQueue.poll();
-                            } else {
-                                if (send) {
-                                    log.error("{} Unexpected state - not all steps from the FinalizedModels matched the head of the publishingOrder queue", stepOrder);
-                                }
-                            }
-                        }
-
-                        if (send) {
+                        boolean publish = pollPublishingQueueIfPublishingPossible(stepOrder, waitingSteps);
+                        if (publish) {
                             removeFromWaitingAndPublish(stepOrder, nextWaiting);
                         } else {
                             log.debug("delaying sending finalized data: {}", waitingSteps);
                             break;
                         }
-
                     } else {
                         removeFromWaitingAndPublish(stepOrder, nextWaiting);
                     }
@@ -117,17 +115,34 @@ public class ScrapedDataPublisher {
         }
     }
 
+    private boolean pollPublishingQueueIfPublishingPossible(StepOrder stepOrder, List<StepOrder> waitingSteps) {
+        boolean publish = false;
+        for (StepOrder waitingStep : waitingSteps) {
+            StepOrder publishingHead = publishingOrderQueue.peek();
+            log.debug("publishingHead: {}", publishingHead);
+            log.debug("waitingHead: {}", waitingSteps);
 
-    // TODO publish on Schedulers.parallel() ?
+            if (publishingHead != null && publishingHead.equals(waitingStep)) { // if there is no bug then this should natively for all the sorted steps ...
+                publish = true;
+                publishingOrderQueue.poll();
+            } else {
+                if (publish) {
+                    log.error("{} Unexpected state - not all steps from the FinalizedModels matched the head of the publishingOrder queue", stepOrder);
+                }
+            }
+        }
+        return publish;
+    }
+
     private void removeFromWaitingAndPublish(StepOrder stepOrder, FinalizedModels nextWaiting) {
-        waitingToSendQueue.poll();
-        nextWaiting.getSpawned().getSteps().forEach(waitingToSendSet::remove);
+        waitingToPublishQueue.poll();
+        nextWaiting.getModels().getSteps().forEach(waitingToPublishSet::remove);
         publish(stepOrder, nextWaiting);
     }
 
 
     private void publish(StepOrder stepOrder, FinalizedModels data) {
-        for (ModelToPublish mtp : data.getSpawned().getModelToPublishList()) {
+        for (ModelToPublish mtp : data.getModels().getModelToPublishList()) {
             log.debug("{} has finalized data of type '{}'", stepOrder, mtp.getModel().getClass().getSimpleName());
             if (mtp.getScrapedDataListener() != null) {
                 log.debug("{} About to publish data to listener for type '{}' after step finished", stepOrder, mtp.getModelClass().getSimpleName());

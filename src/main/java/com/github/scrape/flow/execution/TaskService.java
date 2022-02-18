@@ -58,7 +58,7 @@ public class TaskService {
 
     private void handleFinishedStep(StepOrder stepOrder) {
         activeStepsTracker.untrack(stepOrder);
-        scrapedDataPublisher.notifyAfterStepFinished(stepOrder);
+        scrapedDataPublisher.publishDataAfterStepFinished(stepOrder);
     }
 
 }

@@ -20,17 +20,15 @@ import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.execution.StepOrder;
 import lombok.extern.log4j.Log4j2;
 
-import java.util.List;
-
 @Log4j2
 public class StepHelperBase {
 
-    protected void handleModels(StepOrder currStepOrder, ScrapingServices services, StepModels stepModels, List<StepOrder> nextStepsOrders) {
+    protected void handleModels(StepOrder currStepOrder, ScrapingServices services, StepModels stepModels, SpawnedSteps spawnedSteps) {
         // TODO this step is what is missing when we call HtmlUnitSiteParser or NavigateToPage step ... from another step ... if it has a collector set to it ...
         //  decide which category of steps absolutely must use this and make it somehow nicely available ...
         if (!stepModels.getModelToPublishList().isEmpty()) { // important
-            services.getStepAndDataRelationshipTracker().track(currStepOrder, nextStepsOrders, stepModels.getModelToPublishList());
-            services.getScrapedDataPublisher().enqueueStepsToAwaitDataPublishing(nextStepsOrders);
+            services.getStepAndDataRelationshipTracker().track(currStepOrder, spawnedSteps.getSteps(), stepModels.getModelToPublishList());
+            services.getScrapedDataPublisher().enqueueStepsToAwaitDataPublishing(spawnedSteps);
         }
     }
 

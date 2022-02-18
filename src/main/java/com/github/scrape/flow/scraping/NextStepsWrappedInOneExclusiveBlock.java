@@ -28,11 +28,12 @@ import java.util.List;
 public class NextStepsWrappedInOneExclusiveBlock implements NextStepsHandler {
 
     @Override
-    public List<StepOrder> execute(List<ScrapingStepBase<?>> nextSteps,
-                                   ScrapingContext nextCtx,
-                                   ScrapingServices services) {
+    public SpawnedSteps execute(StepOrder currStepOrder,
+                                List<ScrapingStepBase<?>> nextSteps,
+                                ScrapingContext nextCtx,
+                                ScrapingServices services) {
         StepOrder stepOrder = new HtmlUnitStepBlock(nextSteps).setExclusiveExecution(true).execute(nextCtx, services);
-        return List.of(stepOrder);
+        return new SpawnedSteps(currStepOrder, stepOrder);
     }
 
 }

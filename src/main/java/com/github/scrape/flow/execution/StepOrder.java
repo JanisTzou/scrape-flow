@@ -50,7 +50,7 @@ public class StepOrder {
     private final List<Integer> values = new ArrayList<>();
 
 
-    static StepOrder from(Integer ... values) {
+    public static StepOrder from(Integer ... values) {
         return new StepOrder(values);
     }
 

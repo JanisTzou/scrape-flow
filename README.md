@@ -34,7 +34,7 @@ libraries like HtmlUnit for asynchronous fault-tolerant scraping:
 
 ## Usage and Sample Code
 
-The parsing is defined as a sequence of steps that are "concatenated" fluently and the logic they represent is executed when the scraping is explicitly started.
+The parsing is defined as a sequence of steps that are chained fluently and the logic they represent is executed when the scraping is explicitly started.
 Each step performs a specific action (e.g. navigating to a page at a given URL) and is followed by other steps (e.g. get all descendant elements 
 of the page root, optionally matching some criteria - tags, attributes etc.). When a step finishes it produces a result (e.g. all found descendants)
 which are individually passed to the next specified step or steps. 
@@ -96,7 +96,7 @@ public class Demo {
                     .next(Get.descendants().byAttr("aria-label", "World")
                         .next(Get.descendants().byTag("li")
                             .addCollector(Section::new, Section.class, new SectionListener())  // for each encountered list item a model is instantiated to hold the scraped data
-                            .next(Get.descendants().byTag("a")
+                            .next(Get.children().byTag("a")
                                 .next(Parse.textContent()
                                     .collectOne(Section::setName, Section.class)  // defines where to put parsed content
                                 )
