@@ -4,10 +4,10 @@
 
 ## Disclaimer
 
-The library is still under (heavy) development :-).
+The library is still under development :-).
 
 It started out recently as an experiment to see if a fluent and declarative approach to web scraping can cover a decent amount of use-cases. 
-As a result not much effort was (yet) given to proper tests which are added slowly (but continuously) when a part of code seems stable enough.
+As a result not much effort has been yet given to proper tests which are added when a part of code seems stable enough.
 Usage of the library in other projects is not recommended yet.
 
 ## Introduction
@@ -42,8 +42,8 @@ which are individually passed to the next specified step or steps.
 Apart from DOM traversal operations it is possible to specify at which points the actual site content is to be parsed and how it is to be structured and published 
 to client code (collecting data using defined custom "collectors" and publishing it via custom listeners).
 
-For a simple use-case, all that is needed to use the functionality is to create an instance of `Scraping` and to define the sequence use all the utilities provided by 
- [HtmlUnitFlow](src/main/java/com/github/scrape/flow/scraping/htmlunit/HtmlUnitFlow.java) entry point class.
+For a simple use-case, all that is needed to use the functionality is to create an instance of `Scraping`, and next you can use all the features exposed by the class
+ [HtmlUnitFlow](src/main/java/com/github/scrape/flow/scraping/htmlunit/HtmlUnitFlow.java) to define the sequence steps.
 
 For a very simple example see the code below and for more complex scenarios there are some more [demos](src/test/java/com/github/scrape/flow/demos).
 
