@@ -17,7 +17,7 @@
 package com.github.scrape.flow.scraping.selenium.filters;
 
 
-import com.github.scrape.flow.scraping.filters.Filter;
+import com.github.scrape.flow.scraping.Filter;
 import org.openqa.selenium.WebElement;
 
 public interface SeleniumFilterable<C> {

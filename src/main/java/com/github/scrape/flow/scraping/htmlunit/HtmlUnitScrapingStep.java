@@ -18,7 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.scraping.*;
-import com.github.scrape.flow.scraping.filters.Filter;
+import com.github.scrape.flow.scraping.Filter;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.List;
@@ -46,7 +46,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>>
         return new HtmlUnitStepHelper(this, nextStepsHandler);
     }
 
-    protected C addFilter(Filter<DomNode> filter) {
+    protected C doAddFilter(Filter<DomNode> filter) {
         return copyModifyAndGet(copy -> {
             copy.filters.add(filter);
             return copy;

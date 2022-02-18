@@ -18,7 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit.filters;
 
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.scrape.flow.scraping.filters.Filter;
+import com.github.scrape.flow.scraping.Filter;
 
 public interface HtmlUnitFilterable<C> {
 

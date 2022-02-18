@@ -25,11 +25,10 @@ import java.util.SortedMap;
 
 import static org.junit.Assert.assertEquals;
 
-public class PatritiaTreeDemo {
-
+public class PatritiaTreeExperiments {
 
     @Test
-    public void demo() {
+    public void experiments() {
 
         final Trie<String, String> patriciaTrie = new PatriciaTrie<>();
 

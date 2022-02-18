@@ -20,7 +20,7 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.filters.Filter;
+import com.github.scrape.flow.scraping.Filter;
 import com.github.scrape.flow.scraping.htmlunit.filters.*;
 import lombok.extern.log4j.Log4j2;
 
@@ -90,8 +90,8 @@ public class HtmlUnitGetSiblings extends HtmlUnitScrapingStep<HtmlUnitGetSibling
 
 
     @Override
-    public HtmlUnitGetSiblings addFilter(Filter filter) {
-        return super.addFilter(filter);
+    public HtmlUnitGetSiblings addFilter(Filter<DomNode> filter) {
+        return super.doAddFilter(filter);
     }
 
 }

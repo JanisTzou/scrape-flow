@@ -21,7 +21,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.filters.Filter;
+import com.github.scrape.flow.scraping.Filter;
 import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterable;
 import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterableByCommonCriteria;
 
@@ -63,8 +63,8 @@ public class HtmlUnitGetChildren extends HtmlUnitScrapingStep<HtmlUnitGetChildre
 
 
     @Override
-    public HtmlUnitGetChildren addFilter(Filter filter) {
-        return super.addFilter(filter);
+    public HtmlUnitGetChildren addFilter(Filter<DomNode> filter) {
+        return super.doAddFilter(filter);
     }
 
 }

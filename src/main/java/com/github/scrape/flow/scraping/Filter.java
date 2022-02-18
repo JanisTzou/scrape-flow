@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.filters;
+package com.github.scrape.flow.scraping;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 

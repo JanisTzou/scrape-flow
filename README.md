@@ -1,6 +1,6 @@
 ![build status](https://github.com/JanisTzou/scrape-flow/actions/workflows/main.yml/badge.svg)
 
-# Scrape Flow
+# ScrapeFlow
 
 ## Disclaimer
 
@@ -19,17 +19,18 @@ and the levels of followed links.
 The library aims to solve common scraping problems which can become challenging when using generally available low-level
 libraries like HtmlUnit for asynchronous fault-tolerant scraping:
 
+- static sites scraping - internally using HtmlUnit
+- dynamic sites scraping - internally using Selenium (*implementation in progress*)
 - following links
 - pagination
 - parallelism
 - selective sequential execution of scraping steps
-- throttling based on site responsiveness (to be implemented)
+- throttling based on site responsiveness (*to be implemented*)
 - retrial of failed requests
 - seamless transitioning between static and JS-heavy site scraping
 - publishing of scraped data to client code in the order in which it appeared on the scraped sites
 - utilities for debugging
 
-For static sites scraping the library internally uses **HtmlUnit** while for dynamic sites **Selenium** is used.
 
 ## Usage and Sample Code
 
@@ -44,7 +45,7 @@ to client code (collecting data using defined custom "collectors" and publishing
 For a simple use-case, all that is needed to use the functionality is to create an instance of `Scraping` and to define the sequence use all the utilities provided by 
  [HtmlUnitFlow](src/main/java/com/github/scrape/flow/scraping/htmlunit/HtmlUnitFlow.java) entry point class.
 
-For a very simple example see the code below and for more complex scenarios there are some demos found [here](src/test/java/com/github/scrape/flow/demos) entry point class.
+For a very simple example see the code below and for more complex scenarios there are some more [demos](src/test/java/com/github/scrape/flow/demos).
 
 #### Example static site code snippet to scrape:
 

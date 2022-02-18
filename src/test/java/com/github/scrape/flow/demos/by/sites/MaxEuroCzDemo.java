@@ -80,7 +80,7 @@ public class MaxEuroCzDemo {
                                                         .collectOne(Category::setName, Category.class)
                                                 )
                                                 .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href)
-                                                        .next(SeleniumFlow.Do.navigateToParsedLink() // toCategoryProductList(siteParser) // TODO revert
+                                                        .next(SeleniumFlow.Do.navigateToParsedLink() // toCategoryProductList() // TODO revert
                                                                 .next(SeleniumFlow.Get.descendants()
                                                                         .byTag("div")
                                                                         .byClass("product-name")
@@ -101,19 +101,19 @@ public class MaxEuroCzDemo {
         start(scraping);
     }
 
-    private HtmlUnitNavigateToParsedLink toCategoryProductList(HtmlUnitSiteLoader siteParser) {
+    private HtmlUnitNavigateToParsedLink toCategoryProductList() {
         return Do.navigateToParsedLink()
                 .next(Do.paginate()
                         .setStepsLoadingNextPage(
                                 getPaginatingSequence()
                         )
                         .next(
-                                getProductListAndDetails(siteParser)
+                                getProductListAndDetails()
                         )
                 );
     }
 
-    private HtmlUnitGetDescendants getProductListAndDetails(HtmlUnitSiteLoader siteParser) {
+    private HtmlUnitGetDescendants getProductListAndDetails() {
 
         /*
             <div class="product col-xs-12 col-sm-6 col-md-4 col-lg-4 ">
@@ -142,7 +142,7 @@ public class MaxEuroCzDemo {
                                 .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href).stepName("get-product-detail-url")
                                         .collectOne(Product::setDetailUrl, Product.class)
                                         .next(
-                                                toProductDetail(siteParser)
+                                                toProductDetail()
                                         )
                                 )
                         )
@@ -192,7 +192,7 @@ public class MaxEuroCzDemo {
     }
 
 
-    private HtmlUnitNavigateToParsedLink toProductDetail(HtmlUnitSiteLoader siteParser) {
+    private HtmlUnitNavigateToParsedLink toProductDetail() {
 
         /*
             <div class="text-justify" id="productDescription1">Mozaika skleněná žlutá obkladová - 144ks skleněných čtverečků<br>Obkladová

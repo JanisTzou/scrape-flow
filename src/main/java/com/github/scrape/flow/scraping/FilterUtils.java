@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.filters;
+package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.debugging.DebuggingOptions;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
