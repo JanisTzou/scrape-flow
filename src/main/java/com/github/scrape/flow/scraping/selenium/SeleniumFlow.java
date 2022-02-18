@@ -21,7 +21,6 @@ import java.util.function.Function;
 public class SeleniumFlow {
 
 
-
     public static class Get {
 
         public static SeleniumGetAncestor parent() {
@@ -50,8 +49,8 @@ public class SeleniumFlow {
             return new SeleniumParseElementHRef();
         }
 
-        public static SeleniumParseElementHRef hRef(Function<String, String> parsedTextConverter) {
-            return new SeleniumParseElementHRef(parsedTextConverter);
+        public static SeleniumParseElementHRef hRef(Function<String, String> parsedValueMapper) {
+            return new SeleniumParseElementHRef(parsedValueMapper);
         }
 
         public static SeleniumParseElementTextContent textContent() {

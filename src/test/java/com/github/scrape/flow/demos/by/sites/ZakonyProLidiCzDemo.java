@@ -143,7 +143,7 @@ public class ZakonyProLidiCzDemo {
 //                         NOT WORKING .... required JS ...
 //                        .setStepsLoadingNextPage(
 //                                GetElements.Descendants.ByAttribute.nameAndValue("title", "Jdi na Další")
-//                                        .next(Filter.apply(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode, "class", "disabled", true))
+//                                        .next(Filter.natively(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode, "class", "disabled", true))
 //                                                .next(Actions.followLink()
 //                                                        .next(Actions.returnNextPage())
 //                                                )
@@ -155,7 +155,7 @@ public class ZakonyProLidiCzDemo {
 //    Do.paginate()
 //            .setStepsLoadingNextPage(
 //            Get.descendants().byAttr("title", "Jdi na Další")
-//                                        .next(Filter.apply(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode, "class", "disabled", true))
+//                                        .next(Filter.natively(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode, "class", "disabled", true))
 //            .next(Do.followLink()
 //                                                        .next(Do.returnNextPage())
 //            )

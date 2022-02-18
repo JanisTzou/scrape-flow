@@ -41,7 +41,7 @@ public class HtmlUnitParseElementAttributeValue extends HtmlUnitScrapingStep<Htm
 
     HtmlUnitParseElementAttributeValue(String attributeName, Function<String, String> parsedValueConversion) {
         this.attributeName = attributeName;
-        this.parsedValueConversion = Objects.requireNonNullElse(parsedValueConversion, NO_VALUE_CONVERSION);
+        this.parsedValueMapper = Objects.requireNonNullElse(parsedValueConversion, NO_VALUE_CONVERSION);
     }
 
     HtmlUnitParseElementAttributeValue(String attributeName) {
@@ -50,7 +50,7 @@ public class HtmlUnitParseElementAttributeValue extends HtmlUnitScrapingStep<Htm
 
     @Override
     protected HtmlUnitParseElementAttributeValue copy() {
-        return copyFieldValuesTo(new HtmlUnitParseElementAttributeValue(attributeName, parsedValueConversion));
+        return copyFieldValuesTo(new HtmlUnitParseElementAttributeValue(attributeName, parsedValueMapper));
     }
 
 
@@ -64,7 +64,7 @@ public class HtmlUnitParseElementAttributeValue extends HtmlUnitScrapingStep<Htm
                 if (el.hasAttribute(attributeName)) {
                     String value = el.getAttribute(attributeName);
                     if (value != null) {
-                        String converted = convertParsedText(value);
+                        String converted = mapParsedValue(value);
                         log.debug("{} - {}: Parsed value: {}", stepOrder, getName(), converted);
 
                         setParsedValueToModel(this.getCollectors(), ctx, converted, getName(), stepDeclarationLine);
@@ -96,8 +96,8 @@ public class HtmlUnitParseElementAttributeValue extends HtmlUnitScrapingStep<Htm
     }
 
     @Override
-    public HtmlUnitParseElementAttributeValue setValueConversion(Function<String, String> parsedTextMapper) {
-        return setParsedValueConversion(parsedTextMapper);
+    public HtmlUnitParseElementAttributeValue setValueMapper(Function<String, String> parsedTextMapper) {
+        return setParsedValueMapper(parsedTextMapper);
     }
 
 }

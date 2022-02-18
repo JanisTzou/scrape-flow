@@ -54,7 +54,7 @@ public class StepOrder {
         return new StepOrder(values);
     }
 
-    StepOrder(Integer ... values) {
+    private StepOrder(Integer ... values) {
         this(Arrays.asList(values));
     }
 

@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class HtmlUnitGetChildren extends HtmlUnitScrapingStep<HtmlUnitGetChildren>
-        implements HtmlUnitFilterableByCommonCriteria<HtmlUnitGetChildren>, HtmlUnitFilterable<HtmlUnitGetChildren> {
+        implements HtmlUnitFilterableByCommonCriteria<HtmlUnitGetChildren> {
 
     HtmlUnitGetChildren() {
     }

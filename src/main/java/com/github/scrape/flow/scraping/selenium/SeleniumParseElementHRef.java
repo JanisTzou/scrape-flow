@@ -22,7 +22,6 @@ import com.github.scrape.flow.scraping.CollectingParsedValueToModelStep;
 import com.github.scrape.flow.scraping.ParsingStep;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitScrapingStep;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
@@ -38,7 +37,7 @@ public class SeleniumParseElementHRef extends SeleniumScrapingStep<SeleniumParse
         ParsingStep<SeleniumParseElementHRef> {
 
     SeleniumParseElementHRef(Function<String, String> parsedValueConversion) {
-        this.parsedValueConversion = Objects.requireNonNullElse(parsedValueConversion, NO_VALUE_CONVERSION);
+        this.parsedValueMapper = Objects.requireNonNullElse(parsedValueConversion, NO_VALUE_CONVERSION);
     }
 
     SeleniumParseElementHRef() {
@@ -47,7 +46,7 @@ public class SeleniumParseElementHRef extends SeleniumScrapingStep<SeleniumParse
 
     @Override
     protected SeleniumParseElementHRef copy() {
-        return copyFieldValuesTo(new SeleniumParseElementHRef(parsedValueConversion));
+        return copyFieldValuesTo(new SeleniumParseElementHRef(parsedValueMapper));
     }
 
 
@@ -59,7 +58,7 @@ public class SeleniumParseElementHRef extends SeleniumScrapingStep<SeleniumParse
             if (SeleniumUtils.hasAttribute(ctx.getWebElement(), "href")) {
                 String href = ctx.getWebElement().getAttribute("href");
                 if (href != null) {
-                    String converted = convertParsedText(href);
+                    String converted = mapParsedValue(href);
                     log.debug("{} - {}: Parsed href: {}", stepOrder, getName(), converted);
 
                     setParsedValueToModel(this.getCollectors(), ctx, converted, getName(), stepDeclarationLine);
@@ -89,8 +88,8 @@ public class SeleniumParseElementHRef extends SeleniumScrapingStep<SeleniumParse
     }
 
     @Override
-    public SeleniumParseElementHRef setValueConversion(Function<String, String> parsedTextMapper) {
-        return setParsedValueConversion(parsedTextMapper);
+    public SeleniumParseElementHRef setValueMapper(Function<String, String> parsedTextMapper) {
+        return setParsedValueMapper(parsedTextMapper);
     }
 
 }

@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class HtmlUnitGetDescendants extends HtmlUnitScrapingStep<HtmlUnitGetDescendants>
-        implements HtmlUnitFilterableByCommonCriteria<HtmlUnitGetDescendants>, HtmlUnitFilterable<HtmlUnitGetDescendants> {
+        implements HtmlUnitFilterableByCommonCriteria<HtmlUnitGetDescendants> {
 
 
     HtmlUnitGetDescendants() {

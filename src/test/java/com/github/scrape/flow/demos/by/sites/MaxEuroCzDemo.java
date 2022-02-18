@@ -179,7 +179,7 @@ public class MaxEuroCzDemo {
 
         return Get.descendants().byClass("pagination")
                 .next(Get.descendants().byTextContent("»")  // returns anchor
-                        .next(Filter.apply(domNode -> !isDisabled(domNode))
+                        .next(Filter.natively(domNode -> !isDisabled(domNode))
                                 .next(Do.followLink()
                                         .next(Do.returnNextPage())
                                 )

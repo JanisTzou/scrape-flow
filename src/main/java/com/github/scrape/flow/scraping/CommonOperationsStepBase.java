@@ -28,7 +28,6 @@ import java.util.function.Supplier;
 import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
 
-// TODO must accept both dynamic and static steps ...
 public abstract class CommonOperationsStepBase<C extends ScrapingStepBase<C>>
         extends ScrapingStepBase<C>
         implements ChainedStep<C>, CollectingStep<C> {

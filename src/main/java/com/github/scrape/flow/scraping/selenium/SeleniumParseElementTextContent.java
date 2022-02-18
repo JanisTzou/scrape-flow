@@ -53,7 +53,7 @@ public class SeleniumParseElementTextContent extends SeleniumScrapingStep<Seleni
                 tc = StringEscapeUtils.unescapeHtml4(tc).trim(); // TODO is this necessary ?
             }
 
-            String transformed = convertParsedText(tc);
+            String transformed = mapParsedValue(tc);
 
             setParsedValueToModel(this.getCollectors(), ctx, transformed, getName(), stepDeclarationLine);
         };
@@ -75,9 +75,9 @@ public class SeleniumParseElementTextContent extends SeleniumScrapingStep<Seleni
 
 
     @Override
-    public SeleniumParseElementTextContent setValueConversion(Function<String, String> parsedTextMapper) {
+    public SeleniumParseElementTextContent setValueMapper(Function<String, String> parsedTextMapper) {
         return copyModifyAndGet(copy -> {
-            copy.parsedValueConversion = parsedTextMapper;
+            copy.parsedValueMapper = parsedTextMapper;
             return copy;
         });
     }

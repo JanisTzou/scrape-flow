@@ -33,8 +33,7 @@ public class HtmlUnitGetSiblings extends HtmlUnitScrapingStep<HtmlUnitGetSibling
         HtmlUnitFilterableByTag<HtmlUnitGetSiblings>,
         HtmlUnitFilterableByTextContent<HtmlUnitGetSiblings>,
         HtmlUnitFilterableByCssClass<HtmlUnitGetSiblings>,
-        HtmlUnitFilterableSiblings<HtmlUnitGetSiblings>,
-        HtmlUnitFilterable<HtmlUnitGetSiblings> {
+        HtmlUnitFilterableSiblings<HtmlUnitGetSiblings> {
 
     private static final List<Class<?>> PREV_SIBLINGS_FILTER_CLASSES = List.of(
             HtmlUnitFilterSiblingsPrevN.class,

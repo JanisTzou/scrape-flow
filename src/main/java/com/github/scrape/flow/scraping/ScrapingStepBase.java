@@ -47,7 +47,7 @@ public abstract class ScrapingStepBase<C extends ScrapingStepBase<C>> implements
     /**
      * relevant for steps that do scrape textual values
      */
-    protected Function<String, String> parsedValueConversion = NO_VALUE_CONVERSION; // by default return the string as-is
+    protected Function<String, String> parsedValueMapper = NO_VALUE_CONVERSION; // by default return the string as-is
 
     /**
      * To be used on logging to give the user an accurate location of a problematic step
@@ -109,9 +109,9 @@ public abstract class ScrapingStepBase<C extends ScrapingStepBase<C>> implements
     /**
      * @return copy of this step
      */
-    protected C setParsedValueConversion(Function<String, String> conversion) {
+    protected C setParsedValueMapper(Function<String, String> conversion) {
         return copyModifyAndGet(copy -> {
-            copy.parsedValueConversion = conversion;
+            copy.parsedValueMapper = conversion;
             return copy;
         });
     }
@@ -201,8 +201,8 @@ public abstract class ScrapingStepBase<C extends ScrapingStepBase<C>> implements
         });
     }
 
-    protected String convertParsedText(String text) {
-        return text != null ? parsedValueConversion.apply(text) : null;
+    protected String mapParsedValue(String value) {
+        return value != null ? parsedValueMapper.apply(value) : null;
     }
 
     protected void submitForExecution(StepOrder stepOrder, Runnable runnable, TaskService taskService, SeleniumDriversManager seleniumDriversManager) {
@@ -227,7 +227,7 @@ public abstract class ScrapingStepBase<C extends ScrapingStepBase<C>> implements
     protected C copyFieldValuesTo(ScrapingStepBase<?> other) {
         other.executeIf = this.executeIf;
         other.collectors = this.collectors.copy();
-        other.parsedValueConversion = this.parsedValueConversion;
+        other.parsedValueMapper = this.parsedValueMapper;
         other.name = this.name;
         other.stepDeclarationLine = this.stepDeclarationLine;
         other.nextSteps.addAll(this.nextSteps);

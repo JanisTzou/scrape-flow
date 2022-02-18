@@ -35,7 +35,7 @@ public class HtmlUnitParseElementHRef extends HtmlUnitScrapingStep<HtmlUnitParse
         ParsingStep<HtmlUnitParseElementHRef> {
 
     HtmlUnitParseElementHRef(Function<String, String> parsedValueConversion) {
-        this.parsedValueConversion = Objects.requireNonNullElse(parsedValueConversion, NO_VALUE_CONVERSION);
+        this.parsedValueMapper = Objects.requireNonNullElse(parsedValueConversion, NO_VALUE_CONVERSION);
     }
 
     HtmlUnitParseElementHRef() {
@@ -44,7 +44,7 @@ public class HtmlUnitParseElementHRef extends HtmlUnitScrapingStep<HtmlUnitParse
 
     @Override
     protected HtmlUnitParseElementHRef copy() {
-        return copyFieldValuesTo(new HtmlUnitParseElementHRef(parsedValueConversion));
+        return copyFieldValuesTo(new HtmlUnitParseElementHRef(parsedValueMapper));
     }
 
 
@@ -57,7 +57,7 @@ public class HtmlUnitParseElementHRef extends HtmlUnitScrapingStep<HtmlUnitParse
                 HtmlAnchor anch = (HtmlAnchor) ctx.getNode();
                 String href = anch.getHrefAttribute();
                 if (href != null) {
-                    String converted = convertParsedText(href);
+                    String converted = mapParsedValue(href);
                     log.debug("{} - {}: Parsed href: {}", stepOrder, getName(), converted);
 
                     setParsedValueToModel(this.getCollectors(), ctx, converted, getName(), stepDeclarationLine);
@@ -87,8 +87,8 @@ public class HtmlUnitParseElementHRef extends HtmlUnitScrapingStep<HtmlUnitParse
     }
 
     @Override
-    public HtmlUnitParseElementHRef setValueConversion(Function<String, String> parsedTextMapper) {
-        return setParsedValueConversion(parsedTextMapper);
+    public HtmlUnitParseElementHRef setValueMapper(Function<String, String> parsedTextMapper) {
+        return setParsedValueMapper(parsedTextMapper);
     }
 
 }

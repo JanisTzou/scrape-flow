@@ -21,7 +21,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.scraping.CommonOperationsStepBase;
 import com.github.scrape.flow.scraping.ScrapingStepBase;
-import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterElements;
+import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterElementsNatively;
 import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterableSiblings;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -43,7 +43,7 @@ import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetAncestor.Type;
 public class HtmlUnitFlow {
 
     /**
-     * Contains methods for DOM traversal. The DomNode from which the traversal takes place
+     * Contains methods for DOM traversal. The <code>DomNode</code> or <code>HtmlElement</code> from which the traversal takes place
      * is generally provided by the previous step in the scraping sequence.
      */
     public static class Get {
@@ -106,7 +106,7 @@ public class HtmlUnitFlow {
 
         /**
          * Provides direct access to HtmlUnit's API's <code>DomNode</code> in cases when complex custom DOM traversal is needed.
-         * @param mapper mapps the current <code>DomNode</code> (usually a <code>HtmlElement</code>) to another <code>DomNode</code>
+         * @param mapper maps the current <code>DomNode</code> (usually a <code>HtmlElement</code>) to another <code>DomNode</code>
          */
         public static HtmlUnitGetElementsNatively natively(Function<DomNode, Optional<DomNode>> mapper) {
             return new HtmlUnitGetElementsNatively(mapper);
@@ -116,15 +116,15 @@ public class HtmlUnitFlow {
 
 
     /**
-     * In case some complex custom filtering logic is needed and provides direct access to HtmlUnit's API's <code>DomNode</code>
+     * Contains methods for additional filtering of accessed DOM elements
      */
     public static class Filter {
 
         /**
-         * Applies the specified predicate on the current <code>DomNode</code> (usually an instance of <code>HtmlElement</code>)
+         * Applies the specified filter on the current <code>DomNode</code> (usually an instance of <code>HtmlElement</code>)
          */
-        public static HtmlUnitFilterElements apply(Predicate<DomNode> domNodePredicate) {
-            return new HtmlUnitFilterElements(domNodePredicate);
+        public static HtmlUnitFilterElementsNatively natively(Predicate<DomNode> filter) {
+            return new HtmlUnitFilterElementsNatively(filter);
         }
 
     }
@@ -143,10 +143,10 @@ public class HtmlUnitFlow {
         }
 
         /**
-         * Same as {@link Parse#textContent()} but with the possibility to define a custom conversion of the parsed value
+         * Same as {@link Parse#textContent()} but with the possibility to define a custom mapper of the parsed value
          */
-        public static HtmlUnitParseElementTextContent textContent(Function<String, String> parsedValueConverter) {
-            return new HtmlUnitParseElementTextContent().setValueConversion(parsedValueConverter);
+        public static HtmlUnitParseElementTextContent textContent(Function<String, String> parsedValueMapper) {
+            return new HtmlUnitParseElementTextContent().setValueMapper(parsedValueMapper);
         }
 
         /**
@@ -158,10 +158,10 @@ public class HtmlUnitFlow {
         }
 
         /**
-         * Same as {@link Parse#hRef()} but with the possibility to define a custom conversion of the parsed value
+         * Same as {@link Parse#hRef()} but with the possibility to define a custom mapper of the parsed value
          */
-        public static HtmlUnitParseElementHRef hRef(Function<String, String> parsedValueConverter) {
-            return new HtmlUnitParseElementHRef(parsedValueConverter);
+        public static HtmlUnitParseElementHRef hRef(Function<String, String> parsedValueMapper) {
+            return new HtmlUnitParseElementHRef(parsedValueMapper);
         }
 
         /**
@@ -172,10 +172,10 @@ public class HtmlUnitFlow {
         }
 
         /**
-         * Same as {@link Parse#attrValue(String)} but with the possibility to define a custom conversion of the parsed value
+         * Same as {@link Parse#attrValue(String)} but with the possibility to define a custom mapper of the parsed value
          */
-        public static HtmlUnitParseElementAttributeValue attrValue(String attrName, Function<String, String> parsedValueConverter) {
-            return new HtmlUnitParseElementAttributeValue(attrName, parsedValueConverter);
+        public static HtmlUnitParseElementAttributeValue attrValue(String attrName, Function<String, String> parsedValueMapper) {
+            return new HtmlUnitParseElementAttributeValue(attrName, parsedValueMapper);
         }
 
     }

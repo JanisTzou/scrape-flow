@@ -24,6 +24,6 @@ public interface ParsingStep<C> {
      * @param parsedTextMapper maps the parsed string to another string
      * @return copy of this step with the mapper added to it
      */
-    C setValueConversion(Function<String, String> parsedTextMapper);
+    C setValueMapper(Function<String, String> parsedTextMapper);
 
 }

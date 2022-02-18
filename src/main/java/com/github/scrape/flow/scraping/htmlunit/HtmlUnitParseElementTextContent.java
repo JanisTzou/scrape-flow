@@ -56,7 +56,7 @@ public class HtmlUnitParseElementTextContent extends HtmlUnitScrapingStep<HtmlUn
                 }
             }
 
-            String transformed = convertParsedText(tc);
+            String transformed = mapParsedValue(tc);
 
             setParsedValueToModel(this.getCollectors(), ctx, transformed, getName(), stepDeclarationLine);
         };
@@ -78,9 +78,9 @@ public class HtmlUnitParseElementTextContent extends HtmlUnitScrapingStep<HtmlUn
 
 
     @Override
-    public HtmlUnitParseElementTextContent setValueConversion(Function<String, String> parsedTextMapper) {
+    public HtmlUnitParseElementTextContent setValueMapper(Function<String, String> parsedValueMapper) {
         return copyModifyAndGet(copy -> {
-            copy.parsedValueConversion = parsedTextMapper;
+            copy.parsedValueMapper = parsedValueMapper;
             return copy;
         });
     }

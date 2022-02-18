@@ -27,10 +27,10 @@ public class StepOrderTest {
 
     @Test
     public void testSortingByNaturalComparator() {
-        StepOrder so1 = new StepOrder(1, 1, 1);
-        StepOrder so2 = new StepOrder(1, 2, 1);
-        StepOrder so3 = new StepOrder(1, 2, 2);
-        StepOrder so4 = new StepOrder(1, 2, 2, 4);
+        StepOrder so1 = StepOrder.from(1, 1, 1);
+        StepOrder so2 = StepOrder.from(1, 2, 1);
+        StepOrder so3 = StepOrder.from(1, 2, 2);
+        StepOrder so4 = StepOrder.from(1, 2, 2, 4);
 
         List<StepOrder> stepOrders = listOf(so1, so2, so3, so4);
 
@@ -43,8 +43,8 @@ public class StepOrderTest {
 
     @Test
     public void testSortingByNaturalComparator2() {
-        StepOrder so1 = new StepOrder(0, 1, 1, 1, 1, 2, 1, 1, 2, 1);
-        StepOrder so2 = new StepOrder(0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1);
+        StepOrder so1 = StepOrder.from(0, 1, 1, 1, 1, 2, 1, 1, 2, 1);
+        StepOrder so2 = StepOrder.from(0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1);
 
         List<StepOrder> stepOrders = listOf(so1, so2);
 
@@ -55,10 +55,10 @@ public class StepOrderTest {
 
     @Test
     public void testSortingByNaturalComparator3() {
-        StepOrder so1 = new StepOrder(0, 1, 1, 2, 1, 1, 3);
-        StepOrder so2 = new StepOrder(0, 1, 1, 2, 1, 1, 2);
-        StepOrder so3 = new StepOrder(0, 1, 1);
-        StepOrder so4 = new StepOrder(0, 1, 2, 2);
+        StepOrder so1 = StepOrder.from(0, 1, 1, 2, 1, 1, 3);
+        StepOrder so2 = StepOrder.from(0, 1, 1, 2, 1, 1, 2);
+        StepOrder so3 = StepOrder.from(0, 1, 1);
+        StepOrder so4 = StepOrder.from(0, 1, 2, 2);
 
         Queue<StepOrder> publishingOrder = new PriorityQueue<>(100, StepOrder.NATURAL_COMPARATOR);
 
@@ -75,14 +75,14 @@ public class StepOrderTest {
 
     @Test
     public void nextAtNewLevel() {
-        StepOrder so1 = new StepOrder(1, 1, 1);
-        assertEquals(new StepOrder(1, 1, 1, 1), so1.nextAsChild());
+        StepOrder so1 = StepOrder.from(1, 1, 1);
+        assertEquals(StepOrder.from(1, 1, 1, 1), so1.nextAsChild());
     }
 
     @Test
     public void nextAtSameLevel() {
-        StepOrder so1 = new StepOrder(1, 1, 1);
-        assertEquals(new StepOrder(1, 1, 2), so1.nextAsSibling());
+        StepOrder so1 = StepOrder.from(1, 1, 1);
+        assertEquals(StepOrder.from(1, 1, 2), so1.nextAsSibling());
     }
 
     private List<StepOrder> listOf(StepOrder... sos) {
@@ -98,7 +98,7 @@ public class StepOrderTest {
                 for (int k = 0; k < 10; k++) {
                     for (int l = 0; l < 10; l++) {
                         for (int m = 0; m < 10; m++) {
-                            stepOrders.add(new StepOrder(i, j, k, l, m));
+                            stepOrders.add(StepOrder.from(i, j, k, l, m));
                         }
                     }
                 }
@@ -123,32 +123,32 @@ public class StepOrderTest {
 
     @Test
     public void asString() {
-        assertEquals("1-1-1-", new StepOrder(1, 1, 1).asString());
+        assertEquals("1-1-1-", StepOrder.from(1, 1, 1).asString());
     }
 
     @Test
     public void subOrder() {
-        assertEquals(new StepOrder(1, 2, 2), new StepOrder(1, 2, 2, 4).getSubOrder(3).get());
+        assertEquals(StepOrder.from(1, 2, 2), StepOrder.from(1, 2, 2, 4).getSubOrder(3).get());
 
-        assertFalse(new StepOrder(1, 2, 2, 4).getSubOrder(5).isPresent());
+        assertFalse(StepOrder.from(1, 2, 2, 4).getSubOrder(5).isPresent());
     }
 
     @Test
     public void isParentOf() {
-        assertTrue(new StepOrder(1, 2, 2).isParentOf(new StepOrder(1, 2, 2, 4)));
-        assertFalse(new StepOrder(1, 2, 2).isParentOf(new StepOrder(1, 2, 2)));
-        assertFalse(new StepOrder(1, 2, 2, 4).isParentOf(new StepOrder(1, 2, 2)));
+        assertTrue(StepOrder.from(1, 2, 2).isParentOf(StepOrder.from(1, 2, 2, 4)));
+        assertFalse(StepOrder.from(1, 2, 2).isParentOf(StepOrder.from(1, 2, 2)));
+        assertFalse(StepOrder.from(1, 2, 2, 4).isParentOf(StepOrder.from(1, 2, 2)));
     }
 
     @Test
     public void isBefore() {
-        assertTrue(new StepOrder(1, 2, 2).isBefore(new StepOrder(1, 2, 2, 4)));
-        assertFalse(new StepOrder(1, 2, 2, 1).isBefore(new StepOrder(1, 2, 2)));
+        assertTrue(StepOrder.from(1, 2, 2).isBefore(StepOrder.from(1, 2, 2, 4)));
+        assertFalse(StepOrder.from(1, 2, 2, 1).isBefore(StepOrder.from(1, 2, 2)));
     }
 
     @Test
     public void isAfter() {
-        assertTrue(new StepOrder(1, 2, 2, 1).isAfter(new StepOrder(1, 2, 2)));
-        assertFalse(new StepOrder(1, 2, 2).isAfter(new StepOrder(1, 2, 2, 4)));
+        assertTrue(StepOrder.from(1, 2, 2, 1).isAfter(StepOrder.from(1, 2, 2)));
+        assertFalse(StepOrder.from(1, 2, 2).isAfter(StepOrder.from(1, 2, 2, 4)));
     }
 }

@@ -33,17 +33,17 @@ import java.util.stream.Stream;
  * Filters nodes acquired in the previous steps by custom conditions
  */
 @Log4j2
-public class HtmlUnitFilterElements extends HtmlUnitScrapingStep<HtmlUnitFilterElements> {
+public class HtmlUnitFilterElementsNatively extends HtmlUnitScrapingStep<HtmlUnitFilterElementsNatively> {
 
     private final Predicate<DomNode> domNodePredicate;
 
-    public HtmlUnitFilterElements(Predicate<DomNode> domNodePredicate) {
+    public HtmlUnitFilterElementsNatively(Predicate<DomNode> domNodePredicate) {
         this.domNodePredicate = domNodePredicate;
     }
 
     @Override
-    protected HtmlUnitFilterElements copy() {
-        return copyFieldValuesTo(new HtmlUnitFilterElements(domNodePredicate));
+    protected HtmlUnitFilterElementsNatively copy() {
+        return copyFieldValuesTo(new HtmlUnitFilterElementsNatively(domNodePredicate));
     }
 
     @Override

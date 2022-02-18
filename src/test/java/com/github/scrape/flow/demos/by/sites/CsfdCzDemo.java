@@ -79,7 +79,7 @@ public class CsfdCzDemo {
                         .next(Get.descendantsBySelector("header.article-header")
                                 .next(Get.children().first()
                                         .next(Parse.textContent()
-                                                .setValueConversion(str -> str.replace("\t", "").replace("\n", " "))
+                                                .setValueMapper(str -> str.replace("\t", "").replace("\n", " "))
                                                 .collectOne(Article::setTitle, Article.class)
                                         )
                                 )

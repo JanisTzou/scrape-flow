@@ -27,18 +27,18 @@ public class StepOrderGeneratorTest {
 
         StepOrderGenerator sog = new StepOrderGenerator();
 
-        StepOrder parent = new StepOrder(1);
+        StepOrder parent = StepOrder.from(1);
 
         StepOrder so1 = sog.genNextOrderAfter(parent);
         StepOrder so2 = sog.genNextOrderAfter(parent);
 
-        assertEquals(new StepOrder(1, 1), so1);
-        assertEquals(new StepOrder(1, 2), so2);
+        assertEquals(StepOrder.from(1, 1), so1);
+        assertEquals(StepOrder.from(1, 2), so2);
 
         StepOrder so3 = sog.genNextOrderAfter(so2);
-        assertEquals(new StepOrder(1, 2, 1), so3);
+        assertEquals(StepOrder.from(1, 2, 1), so3);
 
         StepOrder so4 = sog.genNextOrderAfter(parent);
-        assertEquals(new StepOrder(1, 3), so4);
+        assertEquals(StepOrder.from(1, 3), so4);
     }
 }

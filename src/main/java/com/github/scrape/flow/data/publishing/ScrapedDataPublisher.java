@@ -89,7 +89,7 @@ public class ScrapedDataPublisher {
                             log.debug("publishingHead: {}", publishingHead);
                             log.debug("waitingHead: {}", waitingSteps);
 
-                            if (publishingHead != null && publishingHead.equals(waitingStep)) { // if there is no bug then this should apply for all the sorted steps ...
+                            if (publishingHead != null && publishingHead.equals(waitingStep)) { // if there is no bug then this should natively for all the sorted steps ...
                                 send = true;
                                 publishingOrderQueue.poll();
                             } else {
