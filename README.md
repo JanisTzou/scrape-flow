@@ -12,7 +12,7 @@ Usage of the library in other projects is not recommended yet.
 
 ## Introduction
 
-Scrape-Flow is a library for asynchronous web scraping. What needs to be scraped is defined as a sequence of steps in a
+ScrapeFlow is a library for asynchronous web scraping. What needs to be scraped is defined as a sequence of steps in a
 fluent and declarative way. The resulting code has a tree-like structure that follows the parsed site's DOM structure
 and the levels of followed links.
 

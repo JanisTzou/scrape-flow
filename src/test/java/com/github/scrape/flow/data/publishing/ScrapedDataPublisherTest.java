@@ -67,7 +67,7 @@ public class ScrapedDataPublisherTest {
 
         publisher.publishDataAfterStepFinished(this.step_1_1);
 
-        Mockito.verify(mockListener, Mockito.times(0));
+        Mockito.verifyNoInteractions(mockListener);
 
     }
 
