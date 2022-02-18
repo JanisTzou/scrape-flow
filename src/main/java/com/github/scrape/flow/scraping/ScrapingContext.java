@@ -29,7 +29,6 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.Optional;
 
-// TODO refactor a base class out of this to support dynamic and static
 /**
  * Allows sharing information between parsing steps
  * Very careful how this is shared and populated (needs to be copied always when going from one step to next ...)
@@ -49,7 +48,6 @@ public class ScrapingContext {
     // for HtmlUnit
     private DomNode node;
 
-    // TODO perhaps put this in a subclass for selenium ?
     // for Selenium
     private WebElement webElement;
 
@@ -59,8 +57,6 @@ public class ScrapingContext {
     @Nonnull
     private ContextModels contextModels;
 
-    private String parsedText;
-
     // should contain the full URL so that it can be navigated to ...
     private String parsedURL;
 
@@ -68,7 +64,7 @@ public class ScrapingContext {
     private StepOrder rootLoopedStepOrder;
 
     public ScrapingContext(StepOrder prevStepOrder) {
-        this(prevStepOrder, null, null, null, new ContextModels(), null, null, null);
+        this(prevStepOrder, null, null, null, new ContextModels(), null, null);
     }
 
     public ScrapingContext(StepOrder prevStepOrder, DomNode node) {
@@ -76,7 +72,7 @@ public class ScrapingContext {
     }
 
     public ScrapingContext(StepOrder prevStepOrder, DomNode node, ContextModels contextModels) {
-        this(prevStepOrder, node, null, null, contextModels, null, null, null);
+        this(prevStepOrder, node, null, null, contextModels, null, null);
     }
 
     public ScrapingContext(@Nonnull StepOrder prevStepOrder,
@@ -84,7 +80,6 @@ public class ScrapingContext {
                            WebElement webElement,
                            Integer driverNo,
                            @Nonnull ContextModels contextModels,
-                           String parsedText,
                            String parsedURL,
                            StepOrder rootLoopedStepOrder) {
         this.prevStepOrder = Objects.requireNonNull(prevStepOrder);
@@ -92,7 +87,6 @@ public class ScrapingContext {
         this.webElement = webElement;
         this.driverNo = driverNo;
         this.contextModels = Objects.requireNonNull(contextModels);
-        this.parsedText = parsedText;
         this.parsedURL = parsedURL;
         this.rootLoopedStepOrder = rootLoopedStepOrder;
     }
@@ -113,7 +107,6 @@ public class ScrapingContext {
         private WebElement webElement;
         private Integer driverNo;
         private final ContextModels contextModelsCopy;
-        private String parsedText;
         private String parsedURL;
         private StepOrder recursiveRootStepOrder;
 
@@ -122,7 +115,6 @@ public class ScrapingContext {
                         WebElement webElement,
                         Integer driverNo,
                         ContextModels contextModelsCopy,
-                        String parsedText,
                         String parsedURL,
                         StepOrder recursiveRootStepOrder) {
             this.prevStepOrder = prevStepOrder;
@@ -130,13 +122,12 @@ public class ScrapingContext {
             this.webElement = webElement;
             this.driverNo = driverNo;
             this.contextModelsCopy = contextModelsCopy;
-            this.parsedText = parsedText;
             this.parsedURL = parsedURL;
             this.recursiveRootStepOrder = recursiveRootStepOrder;
         }
 
         private Builder(ScrapingContext ctx) {
-            this(ctx.prevStepOrder, ctx.node, ctx.webElement, ctx.driverNo, ctx.contextModels.copy(), ctx.parsedText, ctx.parsedURL, ctx.rootLoopedStepOrder);
+            this(ctx.prevStepOrder, ctx.node, ctx.webElement, ctx.driverNo, ctx.contextModels.copy(), ctx.parsedURL, ctx.rootLoopedStepOrder);
         }
 
         public Builder setPrevStepOrder(StepOrder stepOrder) {
@@ -164,11 +155,6 @@ public class ScrapingContext {
             return this;
         }
 
-        public Builder setParsedText(String parsedText) {
-            this.parsedText = parsedText;
-            return this;
-        }
-
         public Builder setParsedURL(String parsedURL) {
             this.parsedURL = parsedURL;
             return this;
@@ -180,7 +166,7 @@ public class ScrapingContext {
         }
 
         public ScrapingContext build() {
-            return new ScrapingContext(prevStepOrder, node, webElement, driverNo, contextModelsCopy, parsedText, parsedURL, recursiveRootStepOrder);
+            return new ScrapingContext(prevStepOrder, node, webElement, driverNo, contextModelsCopy, parsedURL, recursiveRootStepOrder);
         }
     }
 }

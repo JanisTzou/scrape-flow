@@ -94,7 +94,7 @@ public class SeleniumStepHelper extends StepHelperBase {
                 webElement,
                 webDriverId,
                 nextContextModels.copy(),
-                null, // TODO send parsed text as well? Probably not, the parsed text should be possible to access differently ... (through model)
+                // TODO send parsed text as well? Probably not, the parsed text should be possible to access differently ... (through model)
                 ctx.getParsedURL(),
                 ctx.getRootLoopedStepOrder()
         );

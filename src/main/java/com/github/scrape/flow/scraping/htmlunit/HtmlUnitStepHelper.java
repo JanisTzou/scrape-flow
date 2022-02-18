@@ -88,14 +88,12 @@ public class HtmlUnitStepHelper extends StepHelperBase {
                                           ScrapingContext ctx,
                                           ContextModels nextContextModels,
                                           ScrapingServices services) {
-        // TODO have a nextStepContextHandler ?
         ScrapingContext nextCtx = new ScrapingContext(
                 currStepOrder,
                 node,
                 null,
                 null,
                 nextContextModels.copy(),
-                null, // TODO send parsed text as well? Probably not, the parsed text should be possible to access differently ... (through model)
                 ctx.getParsedURL(),
                 ctx.getRootLoopedStepOrder()
         );
