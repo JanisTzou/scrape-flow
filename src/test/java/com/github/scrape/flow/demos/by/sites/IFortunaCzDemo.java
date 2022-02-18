@@ -24,6 +24,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.Duration;
@@ -37,6 +38,7 @@ public class IFortunaCzDemo {
 
     public static final String HTTPS_WWW_IFORTUNA_CZ = "https://www.ifortuna.cz";
 
+    @Ignore
     @Test
     public void start() throws InterruptedException {
 

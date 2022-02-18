@@ -21,6 +21,7 @@ import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.Duration;
@@ -31,6 +32,7 @@ import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.Parse;
 
 public class AktualneCzDemo {
 
+    @Ignore
     @Test
     public void start() throws InterruptedException {
 

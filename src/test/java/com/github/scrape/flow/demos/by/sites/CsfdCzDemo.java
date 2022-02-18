@@ -17,8 +17,6 @@
 package com.github.scrape.flow.demos.by.sites;
 
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
-import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
-import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendantsByCssSelector;
 import com.github.scrape.flow.utils.JsonUtils;
@@ -27,6 +25,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.awt.image.BufferedImage;
@@ -37,10 +36,9 @@ import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.*;
 
 public class CsfdCzDemo {
 
+    @Ignore
     @Test
     public void start() throws InterruptedException {
-
-        final HtmlUnitDriverOperator driverOperator = new HtmlUnitDriverOperator(new HtmlUnitDriversFactory());
 
         final Scraping productsScraping = new Scraping(3, TimeUnit.SECONDS)
                 .setSequence(

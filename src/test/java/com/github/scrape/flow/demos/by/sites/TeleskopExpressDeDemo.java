@@ -28,6 +28,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.Duration;
@@ -39,6 +40,7 @@ import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.*;
 
 public class TeleskopExpressDeDemo {
 
+    @Ignore
     @Test
     public void start() throws InterruptedException {
 

@@ -25,6 +25,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.Duration;
@@ -47,6 +48,7 @@ public class ZakonyProLidiCzDemo {
         log.info(line);
     }
 
+    @Ignore
     @Test
     public void start() throws InterruptedException {
 

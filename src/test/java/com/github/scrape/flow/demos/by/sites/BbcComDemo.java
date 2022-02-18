@@ -26,6 +26,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.Duration;
@@ -40,6 +41,7 @@ public class BbcComDemo {
 
     public static final String HTTPS_WWW_BBC_COM = "https://www.bbc.com";
 
+    @Ignore
     @Test
     public void demo() throws InterruptedException {
 

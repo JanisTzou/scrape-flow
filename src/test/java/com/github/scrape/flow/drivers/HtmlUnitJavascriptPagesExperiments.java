@@ -26,8 +26,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertTrue;
 
-public class HtmlUnitJavascriptPagesTest {
-
+public class HtmlUnitJavascriptPagesExperiments {
 
     @Ignore
     @Test
