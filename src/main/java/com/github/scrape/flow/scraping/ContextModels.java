@@ -18,10 +18,9 @@ package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.data.collectors.ModelWrapper;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayDeque;
-import java.util.Objects;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Holds the generated models in a sequence of step executions so they are accessible from the parsingContext.
@@ -29,27 +28,27 @@ import java.util.Optional;
  */
 public class ContextModels {
 
-    @Nonnull
-    private final ArrayDeque<ModelWrapper> deque;
+    private final List<ModelWrapper> models;
 
     public ContextModels() {
-        this.deque = new ArrayDeque<>();
+        this.models = new CopyOnWriteArrayList<>();
     }
 
-    private ContextModels(ArrayDeque<ModelWrapper> deque) {
-        this.deque = Objects.requireNonNullElse(deque, new ArrayDeque<>());
+    private ContextModels(List<ModelWrapper> models) {
+        this();
+        this.models.addAll(models);
     }
 
     public synchronized ContextModels copy() {
-        return new ContextModels(this.deque.clone());
+        return new ContextModels(this.models);
     }
 
-    public synchronized void push(Object model, Class<?> modelType) {
-        deque.push(new ModelWrapper(model, modelType));
+    public synchronized void add(Object model, Class<?> modelType) {
+        models.add(new ModelWrapper(model, modelType));
     }
 
     public synchronized  <T> Optional<ModelWrapper> getModelFor(Class<T> modelType) {
-        return deque.stream()
+        return models.stream()
                 .filter(mw -> mw.getModelClass().equals(modelType))
                 .findFirst();
     }

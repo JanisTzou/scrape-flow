@@ -27,8 +27,8 @@ import java.util.function.Predicate;
 @Log4j2
 class ExecuteStepByModelDataCondition implements StepExecutionCondition {
 
-    protected final Predicate<Object> predicate;
-    protected final Class<?> modelType;
+    private final Predicate<Object> predicate;
+    private final Class<?> modelType;
 
     @SuppressWarnings("unchecked")
     public ExecuteStepByModelDataCondition(Predicate<?> predicate, Class<?> modelType) {
@@ -37,9 +37,9 @@ class ExecuteStepByModelDataCondition implements StepExecutionCondition {
     }
 
     @Override
-    public boolean canExecute(ScrapingStepBase<?> step, ScrapingContext ctx) {
+    public boolean canExecute(ScrapingStep<?> step, ContextModels contextModels) {
         try {
-            Optional<ModelWrapper> model = ctx.getContextModels().getModelFor(modelType);
+            Optional<ModelWrapper> model = contextModels.getModelFor(modelType);
             if (model.isPresent()) {
                 log.trace("{}: Found model and will execute condition", step.getName());
                 boolean canExecute = predicate.test(model.get().getModel());

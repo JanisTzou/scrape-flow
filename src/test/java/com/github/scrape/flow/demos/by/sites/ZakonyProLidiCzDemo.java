@@ -20,7 +20,7 @@ import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitNavigateToParsedLink;
 import com.github.scrape.flow.utils.JsonUtils;
-import lombok.*;
+import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -73,7 +73,7 @@ public class ZakonyProLidiCzDemo {
          */
 
         final Scraping scraping = new Scraping(2, TimeUnit.SECONDS)
-                .getDebugOptions().setOnlyScrapeFirstElements(false)
+                .getDebugOptions().onlyScrapeFirstElements(false)
                 .setSequence(
                         Do.navigateToUrl("https://www.zakonyprolidi.cz/obory")
                                 .next(Get.descendants().byAttr("id", "__Page")

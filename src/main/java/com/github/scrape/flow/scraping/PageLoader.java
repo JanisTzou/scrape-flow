@@ -20,11 +20,11 @@ import com.github.scrape.flow.execution.StepOrder;
 
 import java.util.List;
 
-public interface NextStepsHandler {
+public interface PageLoader {
 
-    SpawnedSteps execute(StepOrder currStepOrder,
-                         List<ScrapingStep<?>> nextSteps,
-                         ScrapingContext nextCtx,
-                         ScrapingServices services);
+    /**
+     * For internal lib uses only
+     */
+    void loadPageAndExecuteNextSteps(String url, ScrapingContext ctx, List<ScrapingStep<?>> parsingSequence, StepOrder currStepOrder, ScrapingServices services);
 
 }

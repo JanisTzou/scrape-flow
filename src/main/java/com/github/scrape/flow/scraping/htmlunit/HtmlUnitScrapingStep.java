@@ -33,7 +33,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>>
     public HtmlUnitScrapingStep() {
     }
 
-    public HtmlUnitScrapingStep(List<ScrapingStepBase<?>> nextSteps) {
+    public HtmlUnitScrapingStep(List<ScrapingStep<?>> nextSteps) {
         super(nextSteps);
     }
 

@@ -145,13 +145,15 @@ public class ScrapingContext {
             return this;
         }
 
+        @SuppressWarnings("unused")
         public Builder setDriverNo(Integer driverNo) {
             this.driverNo = driverNo;
             return this;
         }
 
+        @SuppressWarnings("unused")
         public Builder addModel(Object model, Class<?> modelClass) {
-            this.contextModelsCopy.push(model, modelClass);
+            this.contextModelsCopy.add(model, modelClass);
             return this;
         }
 

@@ -28,15 +28,15 @@ import java.util.function.Supplier;
 import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
 
-public abstract class CommonOperationsStepBase<C extends ScrapingStepBase<C>>
-        extends ScrapingStepBase<C>
+public abstract class CommonOperationsStepBase<C extends ScrapingStep<C>>
+        extends ScrapingStep<C>
         implements ChainedStep<C>, CollectingStep<C> {
 
     protected CommonOperationsStepBase() {
         this(null);
     }
 
-    protected CommonOperationsStepBase(List<ScrapingStepBase<?>> nextSteps) {
+    protected CommonOperationsStepBase(List<ScrapingStep<?>> nextSteps) {
         super(nextSteps);
     }
 
@@ -61,40 +61,37 @@ public abstract class CommonOperationsStepBase<C extends ScrapingStepBase<C>>
     }
 
     @Override
-    public C next(ScrapingStepBase<?> nextStep) {
-        ScrapingStepBase<?> nextCopy = nextStep.copy()
+    public C next(ScrapingStep<?> nextStep) {
+        ScrapingStep<?> nextCopy = nextStep.copy()
                 .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3));
         return addNextStep(nextCopy);
     }
 
     @Override
-    public C nextExclusively(ScrapingStepBase<?> nextStep) {
-        ScrapingStepBase<?> nextCopy = nextStep.copy()
+    public C nextExclusively(ScrapingStep<?> nextStep) {
+        ScrapingStep<?> nextCopy = nextStep.copy()
                 .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3))
                 .setExclusiveExecution(true);
         return addNextStep(nextCopy);
     }
 
     @Override
-    public <T> C nextIf(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStepBase<?> nextStep) {
-        ScrapingStepBase<?> nextCopy = nextStep.copy()
+    public <T> C nextIf(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
+        ScrapingStep<?> nextCopy = nextStep.copy()
                 .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3))
                 .setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType));
         return addNextStep(nextCopy);
     }
 
     @Override
-    public <T> C nextIfExclusively(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStepBase<?> nextStep) {
-        ScrapingStepBase<?> nextCopy = nextStep.copy()
+    public <T> C nextIfExclusively(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
+        ScrapingStep<?> nextCopy = nextStep.copy()
                 .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3))
                 .setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType))
                 .setExclusiveExecution(true);
         return addNextStep(nextCopy);
 
     }
-
-    // TODO create method nextSequentially() useful when we want to visit different urls one by one and many other ... possibly?
-
 
     // TODO think about these ...
 //    public C expectFindingNone();

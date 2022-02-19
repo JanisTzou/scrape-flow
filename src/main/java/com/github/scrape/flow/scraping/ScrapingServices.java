@@ -23,7 +23,7 @@ import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
 import com.github.scrape.flow.drivers.SeleniumDriversFactory;
 import com.github.scrape.flow.drivers.SeleniumDriversManager;
 import com.github.scrape.flow.execution.*;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteLoader;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitPageLoader;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
 import com.github.scrape.flow.throttling.ThrottlingService;
 import lombok.Getter;
@@ -47,7 +47,7 @@ public class ScrapingServices {
     private final TaskExecutor taskExecutor;
     private final TaskService taskService;
     private final SeleniumDriversManager seleniumDriversManager;
-    private final HtmlUnitSiteLoader htmlUnitSiteLoader;
+    private final HtmlUnitPageLoader htmlUnitSiteLoader;
 
     public ScrapingServices(ScrapingRateLimiter scrapingRateLimiter) {
         this.stepOrderGenerator = new StepOrderGenerator();
@@ -61,7 +61,7 @@ public class ScrapingServices {
         taskExecutor = new TaskExecutor(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker);
         taskService = new TaskService(taskExecutor, activeStepsTracker, scrapedDataPublisher, scrapingRateLimiter, options);
         this.seleniumDriversManager = new SeleniumDriversManager(new SeleniumDriversFactory("/Users/janis/Projects_Data/scrape-flow/chromedriver", false)); // TODO fix this mess
-        this.htmlUnitSiteLoader = new HtmlUnitSiteLoader(new HtmlUnitDriverOperator(new HtmlUnitDriversFactory()));
+        this.htmlUnitSiteLoader = new HtmlUnitPageLoader(new HtmlUnitDriverOperator(new HtmlUnitDriversFactory()));
     }
 
 }

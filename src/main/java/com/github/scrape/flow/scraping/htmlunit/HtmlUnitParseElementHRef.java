@@ -38,7 +38,7 @@ public class HtmlUnitParseElementHRef extends HtmlUnitScrapingStep<HtmlUnitParse
         ParsingStep<HtmlUnitParseElementHRef> {
 
     HtmlUnitParseElementHRef(Function<String, String> parsedValueConversion) {
-        this.parsedValueMapper = Objects.requireNonNullElse(parsedValueConversion, NO_VALUE_CONVERSION);
+        this.parsedValueMapper = Objects.requireNonNullElse(parsedValueConversion, NO_MAPPING);
     }
 
     HtmlUnitParseElementHRef() {

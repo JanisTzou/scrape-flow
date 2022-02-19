@@ -16,15 +16,16 @@
 
 package com.github.scrape.flow.scraping;
 
-import com.github.scrape.flow.execution.StepOrder;
-
 import java.util.List;
 
-public interface SiteLoader {
+import static org.mockito.Mockito.mock;
 
-    /**
-     * For internal lib uses only
-     */
-    void loadPageAndExecuteNextSteps(String url, ScrapingContext ctx, List<ScrapingStepBase<?>> parsingSequence, StepOrder currStepOrder, ScrapingServices services);
+public abstract class NextStepsHandlerTestBase {
+
+    protected ScrapingStep<?> step1 = mock(ScrapingStep.class);
+    protected ScrapingStep<?> step2 = mock(ScrapingStep.class);
+    protected List<ScrapingStep<?>> steps = List.of(step1, step2);
+    protected ScrapingContext context = mock(ScrapingContext.class);
+    protected ScrapingServices services = mock(ScrapingServices.class);
 
 }

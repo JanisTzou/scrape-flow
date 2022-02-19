@@ -35,7 +35,7 @@ public abstract class SeleniumScrapingStep<C extends SeleniumScrapingStep<C>>
     public SeleniumScrapingStep() {
     }
 
-    public SeleniumScrapingStep(List<ScrapingStepBase<?>> nextSteps) {
+    public SeleniumScrapingStep(List<ScrapingStep<?>> nextSteps) {
         super(nextSteps);
     }
 

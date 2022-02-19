@@ -21,7 +21,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.ScrapingStepBase;
+import com.github.scrape.flow.scraping.ScrapingStep;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.List;
@@ -74,7 +74,7 @@ public class HtmlUnitReturnNextPage extends HtmlUnitScrapingStep<HtmlUnitReturnN
     /**
      * Must be called at runtime - mutates this instance.
      */
-    void setCallbackToPageDataProcessingStep(ScrapingStepBase<?> processingStep) {
+    void setCallbackToPageDataProcessingStep(ScrapingStep<?> processingStep) {
         if (!this.callbackStepSet) {
             this.addNextStepMutably(processingStep);
             this.callbackStepSet = true;

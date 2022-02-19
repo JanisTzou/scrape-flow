@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 public class HtmlUnitStepBlock extends HtmlUnitScrapingStep<HtmlUnitStepBlock>
         implements ChainedStep<HtmlUnitStepBlock>, CollectingStep<HtmlUnitStepBlock> {
 
-    public HtmlUnitStepBlock(@Nullable List<ScrapingStepBase<?>> nextSteps) {
+    public HtmlUnitStepBlock(@Nullable List<ScrapingStep<?>> nextSteps) {
         super(nextSteps);
     }
 

@@ -31,11 +31,11 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-public abstract class ScrapingStepBase<C extends ScrapingStepBase<C>> implements Throttling {
+public abstract class ScrapingStep<C extends ScrapingStep<C>> implements Throttling {
 
-    protected static final Function<String, String> NO_VALUE_CONVERSION = s -> s;
+    protected static final Function<String, String> NO_MAPPING = s -> s;
 
-    private final List<ScrapingStepBase<?>> nextSteps;
+    private final List<ScrapingStep<?>> nextSteps;
 
     protected boolean exclusiveExecution = false;
 
@@ -47,7 +47,7 @@ public abstract class ScrapingStepBase<C extends ScrapingStepBase<C>> implements
     /**
      * relevant for steps that do scrape textual values
      */
-    protected Function<String, String> parsedValueMapper = NO_VALUE_CONVERSION; // by default return the string as-is
+    protected Function<String, String> parsedValueMapper = NO_MAPPING; // by default return the string as-is
 
     /**
      * To be used on logging to give the user an accurate location of a problematic step
@@ -64,11 +64,11 @@ public abstract class ScrapingStepBase<C extends ScrapingStepBase<C>> implements
     private String name = getClass().getSimpleName() + "-unnamed-step";
 
 
-    protected ScrapingStepBase(List<ScrapingStepBase<?>> nextSteps) {
+    protected ScrapingStep(List<ScrapingStep<?>> nextSteps) {
         this.nextSteps = new ArrayList<>(Objects.requireNonNullElse(nextSteps, Collections.emptyList()));
     }
 
-    protected ScrapingStepBase() {
+    protected ScrapingStep() {
         this(null);
     }
 
@@ -79,6 +79,7 @@ public abstract class ScrapingStepBase<C extends ScrapingStepBase<C>> implements
     /**
      * @return copy of this step
      */
+    @SuppressWarnings("SameParameterValue")
     protected C setExclusiveExecution(boolean exclusiveExecution) {
         return copyModifyAndGet(copy -> {
             copy.exclusiveExecution = exclusiveExecution;
@@ -139,15 +140,15 @@ public abstract class ScrapingStepBase<C extends ScrapingStepBase<C>> implements
         });
     }
 
-    protected List<ScrapingStepBase<?>> getNextSteps() {
+    protected List<ScrapingStep<?>> getNextSteps() {
         return nextSteps;
     }
 
     /**
      * @return copy of this step
      */
-    protected C addNextStep(ScrapingStepBase<?> nextStep) {
-        ScrapingStepBase<?> nsCopy = nextStep.copy();
+    protected C addNextStep(ScrapingStep<?> nextStep) {
+        ScrapingStep<?> nsCopy = nextStep.copy();
         return copyModifyAndGet(copy -> {
             copy.addNextStepMutably(nsCopy);
             return copy;
@@ -160,7 +161,7 @@ public abstract class ScrapingStepBase<C extends ScrapingStepBase<C>> implements
      * Does not create a copy of either <code>this</code> step or <code>nextStep</code>.
      * Should only be used at runtime (not at Assembly time)
      */
-    protected void addNextStepMutably(ScrapingStepBase<?> nextStep) {
+    protected void addNextStepMutably(ScrapingStep<?> nextStep) {
         this.nextSteps.add(nextStep);
     }
 
@@ -215,7 +216,7 @@ public abstract class ScrapingStepBase<C extends ScrapingStepBase<C>> implements
      */
     @SuppressWarnings("unchecked")
     public DebuggableStep<C> debugOptions() {
-        return new DebuggableStep<C>((C) this);
+        return new DebuggableStep<>((C) this);
     }
 
 
@@ -224,7 +225,7 @@ public abstract class ScrapingStepBase<C extends ScrapingStepBase<C>> implements
     }
 
     @SuppressWarnings("unchecked")
-    protected C copyFieldValuesTo(ScrapingStepBase<?> other) {
+    protected C copyFieldValuesTo(ScrapingStep<?> other) {
         other.executeIf = this.executeIf;
         other.collectors = this.collectors.copy();
         other.parsedValueMapper = this.parsedValueMapper;

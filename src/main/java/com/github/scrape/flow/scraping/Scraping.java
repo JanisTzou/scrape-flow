@@ -34,7 +34,7 @@ public class Scraping {
      * Should specific for one scraping instance
      */
     private final ScrapingServices services;
-    private ScrapingStepBase<?> scrapingSequence;
+    private ScrapingStep<?> scrapingSequence;
 
     public Scraping() {
         this(new ScrapingServices(new ScrapingRateLimiterImpl(1, TimeUnit.SECONDS)));
@@ -64,12 +64,13 @@ public class Scraping {
     /**
      * Enables specifying the scraping sequence to be executed
      */
-    public <T extends ScrapingStepBase<T>> Scraping setSequence(T sequence) {
+    public <T extends ScrapingStep<T>> Scraping setSequence(T sequence) {
         this.scrapingSequence = sequence;
         return this;
     }
 
     // should be only exposed to the scraper responsible for running this Scraping instance
+    @SuppressWarnings("UnusedReturnValue")
     public boolean awaitCompletion(Duration timeout) {
         return services.getTaskExecutor().awaitCompletion(timeout);
     }

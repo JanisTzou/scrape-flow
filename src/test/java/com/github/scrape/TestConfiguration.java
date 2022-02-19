@@ -27,7 +27,7 @@ import com.github.scrape.flow.drivers.SeleniumDriversManager;
 import com.github.scrape.flow.execution.*;
 import com.github.scrape.flow.scraping.Options;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitSiteLoader;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitPageLoader;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
 import com.github.scrape.flow.throttling.ScrapingRateLimiterImpl;
 import com.github.scrape.flow.throttling.ThrottlingService;
@@ -53,7 +53,7 @@ public class TestConfiguration {
                                              DebuggingOptions globalDebugging,
                                              TaskService taskService,
                                              SeleniumDriversManager seleniumDriversManager,
-                                             HtmlUnitSiteLoader htmlUnitSiteParser) {
+                                             HtmlUnitPageLoader htmlUnitSiteParser) {
         return new ScrapingServices(stepOrderGenerator,
                 throttlingService,
                 activeStepsTracker,
@@ -147,8 +147,8 @@ public class TestConfiguration {
 
     @Bean
     @Autowired
-    public HtmlUnitSiteLoader htmlUnitSiteParser() {
-        return new HtmlUnitSiteLoader(new HtmlUnitDriverOperator(new HtmlUnitDriversFactory()));
+    public HtmlUnitPageLoader htmlUnitSiteParser() {
+        return new HtmlUnitPageLoader(new HtmlUnitDriverOperator(new HtmlUnitDriversFactory()));
     }
 
 }

@@ -18,6 +18,8 @@ package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitStepBlock;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
@@ -25,15 +27,28 @@ import java.util.List;
  * Runs the steps wrapped under one exclusive block. Useful in situations where we need to ensure that these steps run first before
  * e.g. the pagination step can proceed
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class NextStepsWrappedInOneExclusiveBlock implements NextStepsHandler {
+
+    private final ExclusiveBlockFactory exclusiveBlockFactory;
+
+    public NextStepsWrappedInOneExclusiveBlock() {
+        this(new ExclusiveBlockFactory());
+    }
 
     @Override
     public SpawnedSteps execute(StepOrder currStepOrder,
-                                List<ScrapingStepBase<?>> nextSteps,
+                                List<ScrapingStep<?>> nextSteps,
                                 ScrapingContext nextCtx,
                                 ScrapingServices services) {
-        StepOrder stepOrder = new HtmlUnitStepBlock(nextSteps).setExclusiveExecution(true).execute(nextCtx, services);
+        StepOrder stepOrder = exclusiveBlockFactory.wrapInExclusiveBlock(nextSteps).execute(nextCtx, services);
         return new SpawnedSteps(currStepOrder, stepOrder);
+    }
+
+    static class ExclusiveBlockFactory {
+        HtmlUnitStepBlock wrapInExclusiveBlock(List<ScrapingStep<?>> nextSteps) {
+            return new HtmlUnitStepBlock(nextSteps).setExclusiveExecution(true);
+        }
     }
 
 }

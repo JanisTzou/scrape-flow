@@ -48,7 +48,7 @@ public class SeleniumStepHelper extends StepHelperBase {
                         StepExecutionCondition condition,
                         ScrapingServices services) {
         try {
-            if (!condition.canExecute(step, ctx)) {
+            if (!condition.canExecute(step, ctx.getContextModels())) {
                 return;
             }
 

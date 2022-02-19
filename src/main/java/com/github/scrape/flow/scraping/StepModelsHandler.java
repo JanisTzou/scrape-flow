@@ -38,7 +38,7 @@ public class StepModelsHandler {
     private final Class<?> stepType;
     private final Collectors stepCollectors;
 
-    public static StepModelsHandler createFor(ScrapingStepBase<?> step) {
+    public static StepModelsHandler createFor(ScrapingStep<?> step) {
         return new StepModelsHandler(step.getName(), step.getClass(), step.getCollectors());
     }
 
@@ -55,7 +55,7 @@ public class StepModelsHandler {
             if (scrapedDataListener != null) {
                 modelToPublishList.add(new ModelToPublish(model, modelClass, scrapedDataListener));
             }
-            nextContextModels.push(model, modelClass);
+            nextContextModels.add(model, modelClass);
         }
 
         // populate containers with generated models ...
@@ -71,6 +71,7 @@ public class StepModelsHandler {
             if (container.isPresent() && accumulatedModel.isPresent()) {
                 accumulator.accept(container.get().getModel(), accumulatedModel.get().getModel());
             } else if (container.isPresent()) {
+                //noinspection StatementWithEmptyBody
                 if (CollectingParsedValueToModelStep.class.isAssignableFrom(stepType)) {
                     // has its own handling ...
                 } else {

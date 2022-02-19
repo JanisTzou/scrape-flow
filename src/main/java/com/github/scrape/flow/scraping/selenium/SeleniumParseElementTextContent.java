@@ -50,7 +50,7 @@ public class SeleniumParseElementTextContent extends SeleniumScrapingStep<Seleni
             WebElement webElement = ctx.getWebElement();
             String tc = webElement.getText();
             if (tc != null) {
-                tc = StringEscapeUtils.unescapeHtml4(tc).trim(); // TODO is this necessary ?
+                tc = StringEscapeUtils.unescapeHtml4(tc).trim();
             }
 
             String transformed = mapParsedValue(tc);

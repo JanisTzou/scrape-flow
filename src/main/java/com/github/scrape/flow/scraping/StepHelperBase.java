@@ -33,7 +33,7 @@ public class StepHelperBase {
     }
 
 
-    protected void logFoundCount(StepOrder currStepOrder, int count, DebuggingOptions globalDebugging, ScrapingStepBase<?> step) {
+    protected void logFoundCount(StepOrder currStepOrder, int count, DebuggingOptions globalDebugging, ScrapingStep<?> step) {
         if (globalDebugging.isLogFoundElementsCount() || ScrapingStepInternalProxy.of(step).getStepDebugging().isLogFoundElementsCount()) {
             log.info("{} - {}: found {} nodes/elements", currStepOrder, step.getName(), count);
         }

@@ -37,7 +37,7 @@ public class SeleniumParseElementHRef extends SeleniumScrapingStep<SeleniumParse
         ParsingStep<SeleniumParseElementHRef> {
 
     SeleniumParseElementHRef(Function<String, String> parsedValueConversion) {
-        this.parsedValueMapper = Objects.requireNonNullElse(parsedValueConversion, NO_VALUE_CONVERSION);
+        this.parsedValueMapper = Objects.requireNonNullElse(parsedValueConversion, NO_MAPPING);
     }
 
     SeleniumParseElementHRef() {

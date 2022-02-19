@@ -24,7 +24,7 @@ import com.github.scrape.flow.scraping.htmlunit.HtmlUnitNavigateToParsedLink;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitUtils;
 import com.github.scrape.flow.scraping.selenium.SeleniumFlow;
 import com.github.scrape.flow.utils.JsonUtils;
-import lombok.*;
+import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -61,17 +61,17 @@ public class MaxEuroCzDemo {
             </li>
          */
 
-        scraping.getDebugOptions().setOnlyScrapeFirstElements(false)
-                .getDebugOptions().setLogFoundElementsSource(false)
-                .getDebugOptions().setLogFoundElementsCount(false)
-                .getOptions().setRequestRetries(2);
+        scraping.getDebugOptions().onlyScrapeFirstElements(false)
+                .getDebugOptions().logFoundElementsSource(false)
+                .getDebugOptions().logFoundElementsCount(false)
+                .getOptions().setMaxRequestRetries(2);
         // TODO maybe the static and dynamic parses should be specified as part of the options ?
 
         scraping.setSequence( // TODO here we are passing a static site sequence ... but the parser is defined elsewhere ... how to deal with that?
                 Do.navigateToUrl("https://www.maxeuro.cz/obklady-dlazby-mozaika-kat_1010.html")
                         .next(Get.descendants().byTextContent("Mozaika skleněná")
                                 .first()                                                // ... for some reason the menu is duplicated
-                                .debugOptions().setLogFoundElementsSource(false)
+                                .debugOptions().logFoundElementsSource(false)
                                 .next(Get.natively(domNode -> Optional.ofNullable(domNode.getParentNode()))
                                         .next(Get.descendants().byTag("a")
                                                 .addCollector(Category::new, Category.class)

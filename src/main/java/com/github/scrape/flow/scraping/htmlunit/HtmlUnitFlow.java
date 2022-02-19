@@ -20,7 +20,7 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.scraping.CommonOperationsStepBase;
-import com.github.scrape.flow.scraping.ScrapingStepBase;
+import com.github.scrape.flow.scraping.ScrapingStep;
 import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterElementsNatively;
 import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterableSiblings;
 import org.apache.commons.text.StringEscapeUtils;
@@ -221,7 +221,7 @@ public class HtmlUnitFlow {
 
         /**
          * Used to define a sequence of steps taking care of the pagination itself (specified in {@link HtmlUnitPaginate#setStepsLoadingNextPage(HtmlUnitScrapingStep)})
-         * and also the sequence taking care of the scraping itself (specified using {@link CommonOperationsStepBase#next(ScrapingStepBase)} or its other specialisations.
+         * and also the sequence taking care of the scraping itself (specified using {@link CommonOperationsStepBase#next(ScrapingStep)} or its other specialisations.
          */
         public static HtmlUnitPaginate paginate() {
             return new HtmlUnitPaginate();

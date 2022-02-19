@@ -41,7 +41,7 @@ public class HtmlUnitParseElementAttributeValue extends HtmlUnitScrapingStep<Htm
 
     HtmlUnitParseElementAttributeValue(String attributeName, Function<String, String> parsedValueConversion) {
         this.attributeName = attributeName;
-        this.parsedValueMapper = Objects.requireNonNullElse(parsedValueConversion, NO_VALUE_CONVERSION);
+        this.parsedValueMapper = Objects.requireNonNullElse(parsedValueConversion, NO_MAPPING);
     }
 
     HtmlUnitParseElementAttributeValue(String attributeName) {

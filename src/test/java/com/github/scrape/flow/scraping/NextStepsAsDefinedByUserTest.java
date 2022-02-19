@@ -16,15 +16,23 @@
 
 package com.github.scrape.flow.scraping;
 
-import com.github.scrape.flow.drivers.DriverOperator;
-import lombok.RequiredArgsConstructor;
+import com.github.scrape.flow.execution.StepOrder;
+import org.junit.Test;
+import org.mockito.Mockito;
 
-/**
- * Parses data from a given site/URL based on provided parsingStrategies
- */
-@RequiredArgsConstructor
-public abstract class SiteLoaderBase<T> implements SiteLoader {
+import java.util.List;
 
-    protected final DriverOperator<T> driverOperator;
+import static org.mockito.Mockito.*;
+
+public class NextStepsAsDefinedByUserTest extends NextStepsHandlerTestBase {
+
+    @Test
+    public void eachStepIsExecuted() {
+        NextStepsAsDefinedByUser nextStepsHandler = new NextStepsAsDefinedByUser();
+        nextStepsHandler.execute(StepOrder.INITIAL, steps, context, services);
+
+        steps.forEach(step -> verify(step, times(1)).execute(context, services));
+
+    }
 
 }

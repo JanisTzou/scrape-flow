@@ -29,15 +29,15 @@ import java.util.List;
 import java.util.Optional;
 
 @Log4j2
-public class SeleniumSiteLoader extends SiteLoaderBase<WebDriver> {
+public class SeleniumPageLoader extends PageLoaderBase<WebDriver> {
 
-    public SeleniumSiteLoader(DriverOperator<WebDriver> driverOperator) {
+    public SeleniumPageLoader(DriverOperator<WebDriver> driverOperator) {
         super(driverOperator);
     }
 
 
     @Override
-    public void loadPageAndExecuteNextSteps(String url, ScrapingContext ctx, List<ScrapingStepBase<?>> parsingSequences, StepOrder currStepOrder, ScrapingServices services) {
+    public void loadPageAndExecuteNextSteps(String url, ScrapingContext ctx, List<ScrapingStep<?>> parsingSequences, StepOrder currStepOrder, ScrapingServices services) {
         loadPage(url, currStepOrder).ifPresent(rootWebElement -> {
             ScrapingContext nextCtx = ctx.toBuilder().setWebElement(rootWebElement).setPrevStepOrder(currStepOrder).build();
             executeNextSteps(nextCtx, parsingSequences, services);
@@ -50,7 +50,7 @@ public class SeleniumSiteLoader extends SiteLoaderBase<WebDriver> {
         return loadHtmlPage(url, webDriver, currStepOrder);
     }
 
-    private void executeNextSteps(ScrapingContext ctx, List<ScrapingStepBase<?>> parsingSequences, ScrapingServices services) {
+    private void executeNextSteps(ScrapingContext ctx, List<ScrapingStep<?>> parsingSequences, ScrapingServices services) {
         parsingSequences.forEach(s -> ScrapingStepInternalProxy.of(s).execute(ctx, services));
     }
 

@@ -28,7 +28,7 @@ public class NextStepsAsDefinedByUser implements NextStepsHandler {
 
     @Override
     public SpawnedSteps execute(StepOrder currStepOrder,
-                                List<ScrapingStepBase<?>> nextSteps,
+                                List<ScrapingStep<?>> nextSteps,
                                 ScrapingContext nextCtx,
                                 ScrapingServices services) {
         List<StepOrder> stepOrders = nextSteps.stream()

@@ -19,8 +19,8 @@ package com.github.scrape.flow.scraping;
 @FunctionalInterface
 public interface StepExecutionCondition {
 
-    StepExecutionCondition NO_CONDITIONS = (ScrapingStepBase<?> step, ScrapingContext ctx) -> true;
+    StepExecutionCondition NO_CONDITIONS = (ScrapingStep<?> step, ContextModels models) -> true;
 
-    boolean canExecute(ScrapingStepBase<?> step, ScrapingContext ctx);
+    boolean canExecute(ScrapingStep<?> step, ContextModels contextModels);
 
 }

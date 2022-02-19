@@ -16,31 +16,25 @@
 
 package com.github.scrape.flow.scraping;
 
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 @ToString
+@Getter
+@Setter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Options {
 
     private static final int REQUEST_RETRIES_MAX_DEFAULT = 1;
 
-    @Getter
     private volatile int maxRequestRetries;
+    private volatile boolean ignoreDuplicateURLs;  // TODO implement logic to actually ignore duplicates ...
 
     public Options() {
-        this(REQUEST_RETRIES_MAX_DEFAULT);
+        this(REQUEST_RETRIES_MAX_DEFAULT, false);
     }
 
     public Options(Options options) {
-        this(options.maxRequestRetries);
-    }
-
-    private Options(int maxRequestRetries) {
-        this.maxRequestRetries = maxRequestRetries;
-    }
-
-    public void setMaxRequestRetries(int max) {
-        this.maxRequestRetries = max;
+        this(options.maxRequestRetries, options.ignoreDuplicateURLs);
     }
 
     public Options copy() {

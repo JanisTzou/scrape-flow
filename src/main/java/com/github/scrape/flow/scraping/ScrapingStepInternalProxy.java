@@ -27,12 +27,12 @@ import java.util.List;
  * ... to keep the public api of the step implementations clean of internal stuff ...
  */
 @RequiredArgsConstructor
-public class ScrapingStepInternalProxy<C extends ScrapingStepBase<C>> {
+public class ScrapingStepInternalProxy<C extends ScrapingStep<C>> {
 
     private final C step;
 
-    @SuppressWarnings("rawtypes")
-    public static ScrapingStepInternalProxy<?> of(ScrapingStepBase<?> step) {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static ScrapingStepInternalProxy<?> of(ScrapingStep<?> step) {
         return new ScrapingStepInternalProxy(step);
     }
 
@@ -45,7 +45,7 @@ public class ScrapingStepInternalProxy<C extends ScrapingStepBase<C>> {
         return step.copy();
     }
 
-    public List<ScrapingStepBase<?>> getNextSteps() {
+    public List<ScrapingStep<?>> getNextSteps() {
         return step.getNextSteps();
     }
 

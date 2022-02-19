@@ -14,25 +14,31 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit;
+package com.github.scrape.flow.scraping;
 
-import com.github.scrape.flow.scraping.ScrapingStep;
 import org.junit.Test;
 
-import java.util.Optional;
-
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
-public class StepsUtilsTest {
+public class ExecuteStepByModelDataConditionTest {
 
     @Test
-    public void findStepOfTypeInSequence() {
+    public void canExecute() {
 
-        ScrapingStep<?> sequence = new HtmlUnitPaginate().next(new HtmlUnitReturnNextPage());
+        ScrapingStep<?> step = mock(ScrapingStep.class);
+        ContextModels contextModels = new ContextModels();
+        String modelData = "123";
+        ExecuteStepByModelDataCondition condition = new ExecuteStepByModelDataCondition(val -> val.equals(modelData), String.class);
 
-        Optional<HtmlUnitReturnNextPage> returnNextPageStep = StepsUtils.findStepOfTypeInSequence(sequence, HtmlUnitReturnNextPage.class);
+        assertFalse(condition.canExecute(step, contextModels));
 
-        assertTrue(returnNextPageStep.isPresent());
+        contextModels.add(modelData, String.class);
+
+        assertTrue(condition.canExecute(step, contextModels));
 
     }
+
+
 }

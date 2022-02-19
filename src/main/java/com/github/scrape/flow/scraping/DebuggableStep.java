@@ -16,25 +16,44 @@
 
 package com.github.scrape.flow.scraping;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AccessLevel;
+import lombok.Getter;
 
-@RequiredArgsConstructor
-public class DebuggableStep<C extends ScrapingStepBase<C>> {
+public class DebuggableStep<C extends ScrapingStep<C>> {
 
-    private final C step;
+    @Getter(value = AccessLevel.PACKAGE)
+    private C step;
 
-    public C setLogFoundElementsSource(boolean enabled) {
-        return step.copyModifyAndGet(copy -> {
+    DebuggableStep(C step) {
+        this.step = step;
+    }
+
+    /**
+     * This turns on logging of the XML for found elements.
+     * <br>
+     * Disabled by default.
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    public C logFoundElementsSource(boolean enabled) {
+        this.step = step.copyModifyAndGet(copy -> {
             copy.stepDebugging.setLogFoundElementsSource(enabled);
             return copy;
         });
+        return this.step;
     }
 
-    public C setLogFoundElementsCount(boolean enabled) {
-        return step.copyModifyAndGet(copy -> {
+    /**
+     * This turns on logging count found elements.
+     * <br>
+     * Disabled by default.
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    public C logFoundElementsCount(boolean enabled) {
+        this.step = step.copyModifyAndGet(copy -> {
             copy.stepDebugging.setLogFoundElementsCount(enabled);
             return copy;
         });
+        return this.step;
     }
 
 }

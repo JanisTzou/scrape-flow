@@ -16,15 +16,15 @@
 
 package com.github.scrape.flow.scraping;
 
-import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.drivers.DriverOperator;
+import lombok.RequiredArgsConstructor;
 
-import java.util.List;
+/**
+ * Parses data from a given site/URL based on provided parsingStrategies
+ */
+@RequiredArgsConstructor
+public abstract class PageLoaderBase<T> implements PageLoader {
 
-public interface NextStepsHandler {
-
-    SpawnedSteps execute(StepOrder currStepOrder,
-                         List<ScrapingStep<?>> nextSteps,
-                         ScrapingContext nextCtx,
-                         ScrapingServices services);
+    protected final DriverOperator<T> driverOperator;
 
 }

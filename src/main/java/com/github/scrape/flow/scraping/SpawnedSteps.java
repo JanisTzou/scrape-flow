@@ -21,6 +21,7 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 @Data
@@ -31,7 +32,7 @@ public class SpawnedSteps {
 
     public SpawnedSteps(StepOrder parent, List<StepOrder> steps) {
         this.parent = parent;
-        this.steps = new ArrayList<>(steps);
+        this.steps = new CopyOnWriteArrayList<>(steps);
     }
 
     public SpawnedSteps(StepOrder parent, StepOrder spawnedStep) {

@@ -16,7 +16,7 @@
 
 package com.github.scrape.flow.scraping;
 
-public interface Validating<C extends ScrapingStepBase<C>> {
+public interface Validating<C extends ScrapingStep<C>> {
 
     void expectOne();
 

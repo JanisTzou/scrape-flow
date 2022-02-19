@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit;
+package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.data.collectors.ModelWrapper;
-import com.github.scrape.flow.scraping.ContextModels;
 import org.junit.Test;
 
 import java.util.Optional;
@@ -32,13 +31,15 @@ public class ContextModelsTest {
 
         ContextModels models = new ContextModels();
 
-        String model = "test";
-        models.push(model, String.class);
+        String strModel = "test";
+        models.add(strModel, String.class);
+        Object objModel = new Object();
+        models.add(objModel, Object.class);
 
         Optional<ModelWrapper> modelWrapper = models.getModelFor(String.class);
 
         assertTrue(modelWrapper.isPresent());
-        assertEquals(model, modelWrapper.get().getModel());
+        assertEquals(strModel, modelWrapper.get().getModel());
 
     }
 }

@@ -16,9 +16,13 @@
 
 package com.github.scrape.flow.debugging;
 
-import lombok.Getter;
+import lombok.*;
 
 @Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DebuggingOptions {
 
     private volatile boolean onlyScrapeFirstElements = false;
@@ -27,9 +31,6 @@ public class DebuggingOptions {
     private volatile boolean logSourceCodeOfLoadedPage = false;
     private volatile boolean logFoundElementsCount = false;
 
-    public DebuggingOptions() {
-    }
-
     private DebuggingOptions(DebuggingOptions d) {
         this(d.onlyScrapeFirstElements,
                 d.onlyScrapeNFirstElements,
@@ -37,40 +38,6 @@ public class DebuggingOptions {
                 d.logSourceCodeOfLoadedPage,
                 d.logFoundElementsCount
         );
-    }
-
-    private DebuggingOptions(boolean onlyScrapeFirstElements,
-                             boolean onlyScrapeNFirstElements,
-                             boolean logFoundElementsSource,
-                             boolean logSourceCodeOfLoadedPage,
-                             boolean logFoundElementsCount) {
-        this.onlyScrapeFirstElements = onlyScrapeFirstElements;
-        this.onlyScrapeNFirstElements = onlyScrapeNFirstElements;
-        this.logFoundElementsSource = logFoundElementsSource;
-        this.logSourceCodeOfLoadedPage = logSourceCodeOfLoadedPage;
-        this.logFoundElementsCount = logFoundElementsCount;
-    }
-
-    /**
-     * When we have a long sequence, that we want to test, this will traverse the scraping sequence by always using
-     * the first found element and continuing from there - and ignore all other found elements in the same step f there were many
-     */
-    public void setOnlyScrapeFirstElements(boolean enabled) {
-        this.onlyScrapeFirstElements = enabled;
-    }
-
-    /**
-     * This turns on logging of the XML for found elements
-     */
-    public void setLogFoundElementsSource(boolean enabled) {
-        this.logFoundElementsSource = enabled;
-    }
-
-    /**
-     * This turns on logging count found elements
-     */
-    public void setLogFoundElementsCount(boolean enabled) {
-        this.logFoundElementsCount = enabled;
     }
 
     public DebuggingOptions copy() {

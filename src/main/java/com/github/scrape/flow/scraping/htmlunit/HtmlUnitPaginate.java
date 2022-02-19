@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 @Log4j2
 public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
 
-    private ScrapingStepBase<?> paginatingSequence;
+    private ScrapingStep<?> paginatingSequence;
 
     private boolean servicesPropagatedToTrigger;
 

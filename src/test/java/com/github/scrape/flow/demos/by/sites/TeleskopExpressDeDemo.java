@@ -23,7 +23,7 @@ import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFollowLink;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
 import com.github.scrape.flow.utils.JsonUtils;
-import lombok.*;
+import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -56,8 +56,8 @@ public class TeleskopExpressDeDemo {
 //        String url = "https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html";
 
         final Scraping productsScraping = new Scraping(1, TimeUnit.SECONDS)
-                .getDebugOptions().setOnlyScrapeFirstElements(false)
-                .getDebugOptions().setLogFoundElementsSource(false)
+                .getDebugOptions().onlyScrapeFirstElements(false)
+                .getDebugOptions().logFoundElementsSource(false)
                 .setSequence(
                         Do.navigateToUrl(url)
                                 .next(Do.paginate()

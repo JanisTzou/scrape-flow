@@ -18,18 +18,23 @@ package com.github.scrape.flow.scraping;
 
 import lombok.RequiredArgsConstructor;
 
+@SuppressWarnings("UnusedReturnValue")
 @RequiredArgsConstructor
 public class ConfigurableScraping {
 
     private final Scraping scraping;
-    // TODO add option to not crawl duplicate URLS ...
 
     /**
      * limit the number of retries for a request when it fails (e.g. when loading a new page)
      * @return reference to this instance
      */
-    public Scraping setRequestRetries(int max) {
+    public Scraping setMaxRequestRetries(int max) {
         scraping.getServices().getOptions().setMaxRequestRetries(max);
+        return scraping;
+    }
+
+    public Scraping setIgnoreDuplicateURLs(boolean enabled) {
+        scraping.getServices().getOptions().setIgnoreDuplicateURLs(enabled);
         return scraping;
     }
 
