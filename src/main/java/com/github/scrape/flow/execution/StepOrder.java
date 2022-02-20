@@ -69,7 +69,7 @@ public class StepOrder {
         }
     }
 
-    StepOrder nextAsSibling() {
+    public StepOrder nextAsSibling() {
         int lastIdx = values.size() - 1;
         int newOrder = 1 + values.get(lastIdx);
         StepOrder next = new StepOrder(values);
@@ -77,7 +77,7 @@ public class StepOrder {
         return next;
     }
 
-    StepOrder nextAsChild() {
+    public StepOrder nextAsChild() {
         StepOrder next = new StepOrder(values);
         next.values.add(1);
         return next;

@@ -26,18 +26,18 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class HtmlUnitGetChildrenTest {
+public class HtmlUnitGetDescendantsTest {
 
-    private final HtmlUnitGetChildren getChildren = new HtmlUnitGetChildren();
+    private final HtmlUnitGetDescendants getDescendants = new HtmlUnitGetDescendants();
 
     @Test
-    public void childNodesAreFound() throws IOException, URISyntaxException {
+    public void descendantNodesAreFound() throws IOException, URISyntaxException {
         HtmlPage page = TestUtils.loadTestPage("test_page_1.html");
         DomNode parent = (DomNode) page.getByXPath("/html/body/div").stream().findFirst().get();
 
-        List<DomNode> foundNodes = getChildren.nodesSearch(parent).get();
+        List<DomNode> foundNodes = getDescendants.nodesSearch(parent).get();
 
-        assertEquals(4, foundNodes.size());
+        assertEquals(6, foundNodes.size());
     }
 
 }

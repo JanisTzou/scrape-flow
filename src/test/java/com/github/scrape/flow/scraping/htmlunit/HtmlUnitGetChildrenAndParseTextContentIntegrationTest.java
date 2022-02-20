@@ -29,7 +29,6 @@ import lombok.Data;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -40,6 +39,7 @@ import java.time.Duration;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 
 @RunWith(SpringRunner.class)
@@ -53,7 +53,8 @@ public class HtmlUnitGetChildrenAndParseTextContentIntegrationTest {
     @Autowired
     private WebClient webClient;
 
-    private ScrapedDataListener<ScrapedValue> dataListenerMock = Mockito.mock(ScrapedDataListener.class);
+    @SuppressWarnings("unchecked")
+    private final ScrapedDataListener<ScrapedValue> dataListenerMock = mock(ScrapedDataListener.class);
 
 
     @Test
@@ -73,7 +74,7 @@ public class HtmlUnitGetChildrenAndParseTextContentIntegrationTest {
         taskExecutor.awaitCompletion(Duration.ofSeconds(1));
 
         ArgumentCaptor<ScrapedValue> argument = ArgumentCaptor.forClass(ScrapedValue.class);
-        Mockito.verify(dataListenerMock, Mockito.times(2)).onScrapedData(argument.capture());
+        verify(dataListenerMock, times(2)).onScrapedData(argument.capture());
         List<ScrapedValue> parsedValues = argument.getAllValues();
         assertEquals(2, parsedValues.size());
         assertEquals("div-3-1_text", parsedValues.get(0).getVal());

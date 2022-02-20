@@ -51,33 +51,8 @@ public class HtmlUnitFollowLink extends HtmlUnitScrapingStep<HtmlUnitFollowLink>
             if (ctx.getNode() instanceof HtmlAnchor) {
                 HtmlAnchor anch = (HtmlAnchor) ctx.getNode();
                 if (anch.hasAttribute("href")) {
-
-                    Supplier<List<DomNode>> nodesSearch = () -> {
-                        try {
-                            HtmlPage currPage = anch.getHtmlPageOrNull();
-                            URL currUrl = currPage.getUrl();
-                            log.debug("{} - {}: Clicking HtmlAnchor element at {}", stepOrder, getName(), anch.getHrefAttribute());
-
-                            // TODO we want to propagate this page in the context ... to the next steps ...
-                            HtmlPage nextPage = anch.click();
-                            URL nextUrl = nextPage.getUrl();
-
-                            if (currUrl.equals(nextUrl)) {
-                                log.info("Page is the same after clicking anchor element! Still at URL {}", currUrl);
-                                return Collections.emptyList();
-                            } else {
-//                          System.out.println(nextPage.asXml());
-                                log.info("{} - {}: Loaded page URL after anchor clicked: {}", stepOrder, getName(), nextUrl.toString());
-                                return List.of(nextPage);
-                            }
-
-                        } catch (Exception e) {
-                            log.error("{}: Error while clicking element {}", getName(), anch, e);
-                            throw new RequestException(e);
-                        }
-                    };
-                    getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
-
+                    Supplier<List<DomNode>> nextPageSupplier = clickLinkAndGetNextPage(stepOrder, anch);
+                    getHelper().execute(ctx, nextPageSupplier, stepOrder, getExecuteIf(), services);
                 } else {
                     logWarn();
                 }
@@ -88,6 +63,32 @@ public class HtmlUnitFollowLink extends HtmlUnitScrapingStep<HtmlUnitFollowLink>
 
         submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());
         return stepOrder;
+    }
+
+    Supplier<List<DomNode>> clickLinkAndGetNextPage(StepOrder stepOrder, HtmlAnchor anch) {
+        return () -> {
+            try {
+                HtmlPage currPage = anch.getHtmlPageOrNull();
+                URL currUrl = currPage.getUrl();
+                log.debug("{} - {}: Clicking HtmlAnchor element at {}", stepOrder, getName(), anch.getHrefAttribute());
+
+                HtmlPage nextPage = anch.click();
+                URL nextUrl = nextPage.getUrl();
+
+                if (currUrl.equals(nextUrl)) {
+                    log.info("Page is the same after clicking anchor element! Still at URL {}", currUrl);
+                    return Collections.emptyList();
+                } else {
+//                  System.out.println(nextPage.asXml());
+                    log.info("{} - {}: Loaded page URL after anchor clicked: {}", stepOrder, getName(), nextUrl.toString());
+                    return List.of(nextPage);
+                }
+
+            } catch (Exception e) {
+                log.error("{}: Error while clicking element {}", getName(), anch, e);
+                throw new RequestException(e);
+            }
+        };
     }
 
     private void logWarn() {

@@ -78,7 +78,7 @@ public class HtmlUnitStepHelper extends StepHelperBase {
         if (!(node instanceof Page)
                 && (globalDebugging.isLogFoundElementsSource() || ScrapingStepInternalProxy.of(step).getStepDebugging().isLogFoundElementsSource())
         ) {
-            log.info("Source for step {} defined at line {} \n{}", step.getName(), ScrapingStepInternalProxy.of(step).getStepDeclarationLine(), node.asXml());
+            log.info("Source for step {} \n{}", step.getName(), node.asXml());
         }
     }
 

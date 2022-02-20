@@ -48,7 +48,7 @@ public interface CollectingParsedValueToModelStep<C, V> {
     <T> C collectMany(BiConsumer<T, V> modelMutation, Class<T> containerType);
 
 
-    default <T> void setParsedValueToModel(Collectors collectors, ScrapingContext ctx, T parsedValue, String stepName, StackTraceElement stepDeclarationLine) {
+    default <T> void setParsedValueToModel(Collectors collectors, ScrapingContext ctx, T parsedValue, String stepName) {
         try {
             if (parsedValue == null) {
                 log.warn("{}: Parsed value is null -> cannot set to model ...", stepName);
@@ -60,8 +60,8 @@ public interface CollectingParsedValueToModelStep<C, V> {
                 if (mw.isPresent()) {
                     boolean valueIllegallySetMultipleTimes = col.getAccumulatorType().equals(AccumulatorType.ONE) && mw.get().isAlreadyApplied(collectors);
                     if (valueIllegallySetMultipleTimes) {
-                        log.error("Wrong parsed data collector setup detected in the step sequence related to model of class type '{}' related to line: {}! " +
-                                " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided", mw.get().getModel().getClass().getSimpleName(), stepDeclarationLine);
+                        log.error("Wrong parsed data collector setup detected in the step sequence related to model of class type '{}'! " +
+                                " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided", mw.get().getModel().getClass().getSimpleName());
                     } else {
                         col.getAccumulator().accept(mw.get().getModel(), parsedValue);
                         mw.get().addAppliedAccumulator(collectors);

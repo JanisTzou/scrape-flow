@@ -43,16 +43,20 @@ public class HtmlUnitGetDescendants extends HtmlUnitScrapingStep<HtmlUnitGetDesc
         StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<DomNode>> nodesSearch = () -> {
-                // important to include only html elements -> users for not expect to deal with other types when defining filtering operations (e.g. first() ... )
-                return HtmlUnitUtils.getHtmlElementDescendants(ctx.getNode(), n -> true);
-            };
+            Supplier<List<DomNode>> nodesSearch = nodesSearch(ctx.getNode());
             getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
         };
 
         submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());
 
         return stepOrder;
+    }
+
+    Supplier<List<DomNode>> nodesSearch(DomNode parent) {
+        return () -> {
+            // important to include only html elements -> users for not expect to deal with other types when defining filtering operations (e.g. first() ... )
+            return HtmlUnitUtils.getHtmlElementDescendants(parent, n -> true);
+        };
     }
 
     @Override

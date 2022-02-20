@@ -51,11 +51,10 @@ public class HtmlUnitDownloadImage extends HtmlUnitScrapingStep<HtmlUnitDownload
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
 
-            URL imageURL = null;
             try {
-                imageURL = new URL(ctx.getParsedURL());
+                URL imageURL = new URL(ctx.getParsedURL());
                 BufferedImage bufferedImage = ImageIO.read(imageURL);
-                setParsedValueToModel(this.getCollectors(), ctx, bufferedImage, getName(), stepDeclarationLine);
+                setParsedValueToModel(this.getCollectors(), ctx, bufferedImage, getName());
 
                 log.debug("Success downloading image");
             } catch (Exception e) {

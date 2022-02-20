@@ -121,7 +121,7 @@ public class TestConfiguration {
                                      ExclusiveExecutionTracker exclusiveExecutionTracker,
                                      ScrapingRateLimiter scrapingRateLimiter,
                                      ActiveStepsTracker activeStepsTracker) {
-        return new TaskExecutor(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker);
+        return new TaskExecutorSingleQueue(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker);
     }
 
     @Bean
@@ -147,7 +147,7 @@ public class TestConfiguration {
 
     @Bean
     @Autowired
-    public HtmlUnitPageLoader htmlUnitSiteParser() {
+    public HtmlUnitPageLoader htmlUnitPageLoader() {
         return new HtmlUnitPageLoader(new HtmlUnitDriverOperator(new HtmlUnitDriversFactory()));
     }
 

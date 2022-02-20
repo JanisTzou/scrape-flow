@@ -62,15 +62,12 @@ public abstract class CommonOperationsStepBase<C extends ScrapingStep<C>>
 
     @Override
     public C next(ScrapingStep<?> nextStep) {
-        ScrapingStep<?> nextCopy = nextStep.copy()
-                .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3));
-        return addNextStep(nextCopy);
+        return addNextStep(nextStep.copy());
     }
 
     @Override
     public C nextExclusively(ScrapingStep<?> nextStep) {
         ScrapingStep<?> nextCopy = nextStep.copy()
-                .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3))
                 .setExclusiveExecution(true);
         return addNextStep(nextCopy);
     }
@@ -78,7 +75,6 @@ public abstract class CommonOperationsStepBase<C extends ScrapingStep<C>>
     @Override
     public <T> C nextIf(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
         ScrapingStep<?> nextCopy = nextStep.copy()
-                .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3))
                 .setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType));
         return addNextStep(nextCopy);
     }
@@ -86,7 +82,6 @@ public abstract class CommonOperationsStepBase<C extends ScrapingStep<C>>
     @Override
     public <T> C nextIfExclusively(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
         ScrapingStep<?> nextCopy = nextStep.copy()
-                .setStepDeclarationLine(StepsUtils.getStackTraceElementAt(3))
                 .setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType))
                 .setExclusiveExecution(true);
         return addNextStep(nextCopy);

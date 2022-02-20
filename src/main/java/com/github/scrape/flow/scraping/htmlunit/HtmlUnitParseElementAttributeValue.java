@@ -67,7 +67,7 @@ public class HtmlUnitParseElementAttributeValue extends HtmlUnitScrapingStep<Htm
                         String converted = mapParsedValue(value);
                         log.debug("{} - {}: Parsed value: {}", stepOrder, getName(), converted);
 
-                        setParsedValueToModel(this.getCollectors(), ctx, converted, getName(), stepDeclarationLine);
+                        setParsedValueToModel(this.getCollectors(), ctx, converted, getName());
 
                         Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
                         getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);

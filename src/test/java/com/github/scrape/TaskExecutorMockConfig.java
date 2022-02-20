@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.execution;
+package com.github.scrape;
 
-import java.time.Duration;
-import java.util.function.Consumer;
+import com.github.scrape.flow.execution.TaskExecutor;
+import com.github.scrape.flow.execution.TaskExecutorSingleQueue;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-public interface TaskExecutor {
+import static org.mockito.Mockito.mock;
 
-    void submit(Task task,
-                Consumer<TaskResult> taskResultConsumer,
-                Consumer<TaskError> taskErrorConsumer);
+@Configuration
+public class TaskExecutorMockConfig {
 
+    @Bean
+    public TaskExecutor taskExecutor() {
+        return mock(TaskExecutorSingleQueue.class);
+    }
 
-    boolean awaitCompletion(Duration timeout);
 }

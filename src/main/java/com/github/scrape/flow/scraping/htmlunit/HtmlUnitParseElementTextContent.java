@@ -58,7 +58,7 @@ public class HtmlUnitParseElementTextContent extends HtmlUnitScrapingStep<HtmlUn
 
             String transformed = mapParsedValue(tc);
 
-            setParsedValueToModel(this.getCollectors(), ctx, transformed, getName(), stepDeclarationLine);
+            setParsedValueToModel(this.getCollectors(), ctx, transformed, getName());
         };
 
         submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());

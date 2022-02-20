@@ -49,10 +49,6 @@ public class ScrapingStepInternalProxy<C extends ScrapingStep<C>> {
         return step.getNextSteps();
     }
 
-    public StackTraceElement getStepDeclarationLine() {
-        return step.getStepDeclarationLine();
-    }
-
     public DebuggingOptions getStepDebugging() {
         return step.getStepDebugging();
     }

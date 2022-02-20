@@ -63,7 +63,7 @@ public class HtmlUnitParseElementHRef extends HtmlUnitScrapingStep<HtmlUnitParse
                     String converted = mapParsedValue(href);
                     log.debug("{} - {}: Parsed href: {}", stepOrder, getName(), converted);
 
-                    setParsedValueToModel(this.getCollectors(), ctx, converted, getName(), stepDeclarationLine);
+                    setParsedValueToModel(this.getCollectors(), ctx, converted, getName());
 
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
                     ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(converted).build();

@@ -77,7 +77,7 @@ public class SeleniumStepHelper extends StepHelperBase {
     private void logNodeSourceCode(WebElement element, DebuggingOptions globalDebugging) {
         if (globalDebugging.isLogFoundElementsSource()) {
             // TODO is this even possible ? Seems not to be ... if yes, then only log elements that are not the root .. html tag ...
-            log.info("Source for step {} defined at line {} \n{}", step.getName(), ScrapingStepInternalProxy.of(step).getStepDeclarationLine(), element);
+            log.info("Source for step {} \n{}", step.getName(), element);
         }
     }
 

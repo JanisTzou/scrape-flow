@@ -49,11 +49,6 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> implements Throttl
      */
     protected Function<String, String> parsedValueMapper = NO_MAPPING; // by default return the string as-is
 
-    /**
-     * To be used on logging to give the user an accurate location of a problematic step
-     */
-    protected StackTraceElement stepDeclarationLine;
-
     private Collectors collectors = new Collectors();
 
     protected DebuggingOptions stepDebugging = new DebuggingOptions();
@@ -83,16 +78,6 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> implements Throttl
     protected C setExclusiveExecution(boolean exclusiveExecution) {
         return copyModifyAndGet(copy -> {
             copy.exclusiveExecution = exclusiveExecution;
-            return copy;
-        });
-    }
-
-    /**
-     * @return copy of this step
-     */
-    protected C setStepDeclarationLine(StackTraceElement stepDeclarationLine) {
-        return copyModifyAndGet(copy -> {
-            copy.stepDeclarationLine = stepDeclarationLine;
             return copy;
         });
     }
@@ -173,10 +158,6 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> implements Throttl
         return executeIf;
     }
 
-    protected StackTraceElement getStepDeclarationLine() {
-        return stepDeclarationLine;
-    }
-
     protected DebuggingOptions getStepDebugging() {
         return stepDebugging;
     }
@@ -230,7 +211,6 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> implements Throttl
         other.collectors = this.collectors.copy();
         other.parsedValueMapper = this.parsedValueMapper;
         other.name = this.name;
-        other.stepDeclarationLine = this.stepDeclarationLine;
         other.nextSteps.addAll(this.nextSteps);
         other.stepDebugging = stepDebugging.copy();
         return (C) other;
