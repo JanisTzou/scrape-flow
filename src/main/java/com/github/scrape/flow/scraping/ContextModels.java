@@ -39,15 +39,15 @@ public class ContextModels {
         this.models.addAll(models);
     }
 
-    public synchronized ContextModels copy() {
+    public ContextModels copy() {
         return new ContextModels(this.models);
     }
 
-    public synchronized void add(Object model, Class<?> modelType) {
+    public void add(Object model, Class<?> modelType) {
         models.add(new ModelWrapper(model, modelType));
     }
 
-    public synchronized  <T> Optional<ModelWrapper> getModelFor(Class<T> modelType) {
+    public <T> Optional<ModelWrapper> getModelFor(Class<T> modelType) {
         return models.stream()
                 .filter(mw -> mw.getModelClass().equals(modelType))
                 .findFirst();
