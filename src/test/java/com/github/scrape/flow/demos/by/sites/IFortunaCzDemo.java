@@ -18,12 +18,8 @@ package com.github.scrape.flow.demos.by.sites;
 
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.Scraping;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -31,8 +27,7 @@ import org.junit.Test;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.Get;
-import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.Parse;
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.*;
 
 @Log4j2
 public class IFortunaCzDemo {
@@ -45,7 +40,7 @@ public class IFortunaCzDemo {
 
         final Scraping matchesScraping = new Scraping(5, TimeUnit.SECONDS)
                 .setSequence(
-                        HtmlUnitFlow.Do.navigateToUrl("https://www.ifortuna.cz/")
+                        Do.navigateToUrl("https://www.ifortuna.cz/")
                                 .next(Get.descendants().byAttr("id", "top-bets-tab-0")
                                         .next(Get.descendants().byTag("div").byClass("events-table-box")
                                                 .addCollector(Match::new, Match.class, new MatchListener())
@@ -54,19 +49,19 @@ public class IFortunaCzDemo {
                                                                 .next(Get.children().byTag("td").first()
                                                                         .next(Get.children().byTag("a") // match detail link
                                                                                 .next(Parse.hRef(href -> HTTPS_WWW_IFORTUNA_CZ + href)
-                                                                                        .collectOne(Match::setDetailUrl, Match.class)
+                                                                                        .collectValue(Match::setDetailUrl, Match.class)
                                                                                 )
                                                                         )
                                                                         .next(Get.descendants().byTag("span").byClass("market-name") // match name (teams)
                                                                                 .next(Parse.textContent()
-                                                                                        .collectOne(Match::setName, Match.class)
+                                                                                        .collectValue(Match::setName, Match.class)
                                                                                 )
                                                                         )
                                                                 )
                                                                 .next(Get.children().byTag("td").byClass("col-date")  // match date
                                                                         .next(Get.descendants().byTag("span").byClass("event-datetime")
                                                                                 .next(Parse.textContent()
-                                                                                        .collectOne(Match::setDate, Match.class)
+                                                                                        .collectValue(Match::setDate, Match.class)
                                                                                 )
                                                                         )
                                                                 )

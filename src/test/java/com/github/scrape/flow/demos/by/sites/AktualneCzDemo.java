@@ -16,8 +16,6 @@
 
 package com.github.scrape.flow.demos.by.sites;
 
-import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
-import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
@@ -35,8 +33,6 @@ public class AktualneCzDemo {
     @Ignore
     @Test
     public void start() throws InterruptedException {
-
-        final HtmlUnitDriverOperator driverOperator = new HtmlUnitDriverOperator(new HtmlUnitDriversFactory());
 
         final HtmlUnitGetDescendants getArticleElements = Get.descendants().byAttr("data-ga4-type", "article");
         final HtmlUnitGetDescendants getArticleHeadlineElem = Get.descendants().byAttr("data-vr-headline");

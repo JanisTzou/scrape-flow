@@ -20,7 +20,6 @@ import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.github.scrape.flow.drivers.DriverOperator;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.*;
 import lombok.extern.log4j.Log4j2;
@@ -31,23 +30,27 @@ import java.util.List;
 import java.util.Optional;
 
 @Log4j2
-public class HtmlUnitPageLoader extends PageLoaderBase<WebClient> {
+public class HtmlUnitPageLoader implements PageLoader<WebClient> {
 
-    public HtmlUnitPageLoader(DriverOperator<WebClient> driverOperator) {
-        super(driverOperator);
+    public HtmlUnitPageLoader() {
     }
 
 
     @Override
-    public void loadPageAndExecuteNextSteps(String url, ScrapingContext ctx, List<ScrapingStep<?>> nextSteps, StepOrder currStepOrder, ScrapingServices services) {
-        loadPage(url, currStepOrder).ifPresent(page1 -> {
+    public void loadPageAndExecuteNextSteps(String url,
+                                            ScrapingContext ctx,
+                                            List<ScrapingStep<?>> nextSteps,
+                                            StepOrder currStepOrder,
+                                            ScrapingServices services,
+                                            WebClient client) {
+        loadPage(url, currStepOrder, client).ifPresent(page1 -> {
             ScrapingContext nextCtx = ctx.toBuilder().setNode(page1).setPrevStepOrder(currStepOrder).build();
             executeNextSteps(nextCtx, nextSteps, services);
         });
     }
 
-    private Optional<HtmlPage> loadPage(String url, @Nullable StepOrder currStepOrder) {
-        final WebClient webClient = driverOperator.getDriver();
+    private Optional<HtmlPage> loadPage(String url,
+                                        @Nullable StepOrder currStepOrder, WebClient webClient) {
         return loadHtmlPage(url, webClient, currStepOrder);
     }
 

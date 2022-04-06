@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.drivers;
+package com.github.scrape.flow.scraping;
 
-import com.github.scrape.flow.execution.StepOrder;
+public enum ClientType {
 
-import java.util.Optional;
+    HTMLUNIT,
+    SELENIUM
+    ;
 
-public interface DriversManager<T> {
+    public boolean isSelenium() {
+        return this.equals(SELENIUM);
+    }
 
-    Optional<DriverOperator<T>> getDriver(StepOrder stepOrder) ;
+    public boolean isHtmlUnit() {
+        return this.equals(HTMLUNIT);
+    }
 
 }

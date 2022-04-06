@@ -92,7 +92,6 @@ public class HtmlUnitStepHelper extends StepHelperBase {
                 currStepOrder,
                 node,
                 null,
-                null,
                 nextContextModels.copy(),
                 ctx.getParsedURL(),
                 ctx.getRootLoopedStepOrder()

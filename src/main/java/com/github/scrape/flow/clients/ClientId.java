@@ -1,4 +1,5 @@
 /*
+
  * Copyright 2021 Janis Tzoumas
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +15,18 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.drivers.lifecycle;
+package com.github.scrape.flow.clients;
 
-public interface DriverQuitStrategy {
+import com.github.scrape.flow.scraping.ClientType;
+import lombok.Data;
 
-    boolean shouldQuit(long driverLastUsedTs);
+/**
+ * Represents the client so it can be uniquely identified and assigned to (=reserved for) a given subsequence of steps
+ */
+@Data
+public class ClientId {
+
+    private final ClientType clientType;
+    private final int clientNo;
 
 }

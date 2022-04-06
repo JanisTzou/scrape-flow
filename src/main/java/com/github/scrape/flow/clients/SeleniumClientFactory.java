@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.drivers;
+package com.github.scrape.flow.clients;
 
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
-public class SeleniumDriversFactory implements DriversFactory<WebDriver> {
+public class SeleniumClientFactory implements ClientFactory<WebDriver> {
 
     private static final String DRIVER_NAME_CHROME = "webdriver.chrome.driver";
 
@@ -46,6 +46,6 @@ public class SeleniumDriversFactory implements DriversFactory<WebDriver> {
 
     @Override
     public int maxDrivers() {
-        return 1; // TODO make user defined! ...
+        return 2; // TODO make user defined! ...
     }
 }

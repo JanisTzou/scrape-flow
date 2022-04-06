@@ -67,7 +67,7 @@ public class HtmlUnitGetChildrenAndParseTextContentIntegrationTest {
         HtmlUnitGetChildren testSequence = new HtmlUnitGetChildren()
                 .addCollector(ScrapedValue::new, ScrapedValue.class, dataListenerMock)
                 .next(HtmlUnitFlow.Parse.textContent()
-                        .collectOne(ScrapedValue::setVal, ScrapedValue.class)
+                        .collectValue(ScrapedValue::setVal, ScrapedValue.class)
                 );
 
         testSequence.execute(ctx, scrapingServices);

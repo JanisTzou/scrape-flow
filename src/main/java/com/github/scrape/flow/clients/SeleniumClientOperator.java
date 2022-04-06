@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.drivers;
+package com.github.scrape.flow.clients;
 
-import com.github.scrape.flow.drivers.lifecycle.DriverQuitStrategy;
-import com.github.scrape.flow.drivers.lifecycle.DriverRestartStrategy;
+import com.github.scrape.flow.clients.lifecycle.DriverQuitStrategy;
+import com.github.scrape.flow.clients.lifecycle.DriverRestartStrategy;
+import com.github.scrape.flow.scraping.ClientType;
 import lombok.extern.log4j.Log4j2;
 import org.openqa.selenium.WebDriver;
 
@@ -27,26 +28,23 @@ import org.openqa.selenium.WebDriver;
  * some other actor quits the driver when other is in the middle of scraping
  */
 @Log4j2
-public class SeleniumDriverOperator implements DriverOperator<WebDriver> {
+public class SeleniumClientOperator implements ClientOperator<WebDriver> {
 
     public static final String DEFAULT_PAGE_URL = "data:,";
-    private volatile WebDriver driver;
-    private final int driverNo;
+    private final int clientNo;
     private final DriverRestartStrategy restartStrategy;
     private final DriverQuitStrategy quitStrategy;
-    private final SeleniumDriversFactory driversFactory;
+    private final SeleniumClientFactory driversFactory;
+    private volatile WebDriver driver;
+    private volatile boolean reserved = false;
     private volatile long lastUsedTs;
     private volatile long lastRestartTs;
-    // no flag about the driver being currently active should be needed as it is owned
 
-
-    // TODO what if here we manage all the drivers and track if they are active in some steps or not?
-
-    public SeleniumDriverOperator(int driverNo,
+    public SeleniumClientOperator(int clientNo,
                                   DriverRestartStrategy restartStrategy,
                                   DriverQuitStrategy driverQuitStrategy,
-                                  SeleniumDriversFactory driversFactory) {
-        this.driverNo = driverNo;
+                                  SeleniumClientFactory driversFactory) {
+        this.clientNo = clientNo;
 
         this.restartStrategy = restartStrategy;
         this.quitStrategy = driverQuitStrategy;
@@ -56,7 +54,7 @@ public class SeleniumDriverOperator implements DriverOperator<WebDriver> {
     }
 
 
-    public WebDriver getDriver() {
+    public WebDriver getClient() {
         lastUsedTs = System.currentTimeMillis();
         if (driver == null) {
             this.driver = startNewDriver();
@@ -67,9 +65,30 @@ public class SeleniumDriverOperator implements DriverOperator<WebDriver> {
     }
 
     @Override
-    public int webDriverId() {
-        return driverNo;
+    public int getClientNo() {
+        return clientNo;
     }
+
+    @Override
+    public boolean isReserved() {
+        return this.reserved;
+    }
+
+    @Override
+    public void reserve() {
+        this.reserved = true;
+    }
+
+    @Override
+    public void unReserve() {
+        this.reserved = false;
+    }
+
+    @Override
+    public ClientId getClientId() {
+        return new ClientId(ClientType.SELENIUM, getClientNo());
+    }
+
 
     @Override
     public boolean restartDriverIfNeeded() {

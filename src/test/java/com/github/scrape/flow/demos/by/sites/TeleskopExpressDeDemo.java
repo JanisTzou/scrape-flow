@@ -17,8 +17,6 @@
 package com.github.scrape.flow.demos.by.sites;
 
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
-import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
-import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFollowLink;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
@@ -40,8 +38,6 @@ public class TeleskopExpressDeDemo {
     @Ignore
     @Test
     public void start() throws InterruptedException {
-
-        final HtmlUnitDriverOperator driverOperator = new HtmlUnitDriverOperator(new HtmlUnitDriversFactory());
 
         HtmlUnitGetDescendants getNextPageLinkElemStep = Get.descendants().byAttr("title", " nächste Seite ").stepName("get-next-page-elem");
         HtmlUnitGetDescendants getProductTdElemsStep = Get.descendants().byClass("main").stepName("get-product-elems");
@@ -71,21 +67,21 @@ public class TeleskopExpressDeDemo {
                                                 .addCollector(Product::new, Product.class, new ProductScrapedListener())
                                                 .next(getProductCodeElemStep
                                                         .addCollector(ProductCode::new, ProductCode.class)
-                                                        .collectOne(Product::setProductCode, Product.class, ProductCode.class)
-                                                        .next(Parse.textContent().stepName("pet-2").collectOne(ProductCode::setValue, ProductCode.class))
+                                                        .collectValue(Product::setProductCode, Product.class, ProductCode.class)
+                                                        .next(Parse.textContent().stepName("pet-2").collectValue(ProductCode::setValue, ProductCode.class))
                                                 )
                                                 .next(getProductPriceElemStep
-                                                        .next(Parse.textContent().collectOne(Product::setPrice, Product.class))
+                                                        .next(Parse.textContent().collectValue(Product::setPrice, Product.class))
                                                 )
                                                 .next(getProductCodeElemStep
                                                         .next(Parse.hRef(hrefVal -> "https://www.teleskop-express.de/shop/" + hrefVal).stepName("parse-product-href")
-                                                                .collectOne(Product::setDetailUrl, Product.class)
+                                                                .collectValue(Product::setDetailUrl, Product.class)
                                                                 .next(Do.navigateToParsedLink()
                                                                         .next(getProductDetailTitleElem.stepName("get-product-detail-title")
-                                                                                .next(Parse.textContent().collectOne(Product::setTitle, Product.class))
+                                                                                .next(Parse.textContent().collectValue(Product::setTitle, Product.class))
                                                                         )
                                                                         .next(getProductDescriptionElem
-                                                                                .next(Parse.textContent().collectOne(Product::setDescription, Product.class))
+                                                                                .next(Parse.textContent().collectValue(Product::setDescription, Product.class))
                                                                         )
                                                                         .next(Get.descendants().byAttr("id", "MwStInfoMO")
                                                                                 .next(Get.descendants().byTag("a")
@@ -94,12 +90,12 @@ public class TeleskopExpressDeDemo {
                                                                                                         .next(Get.byXPath("/html/body/table/tbody")
                                                                                                                 .next(Get.children().byTag("tr").excludingFirstN(1) // rows doe each shipping service price; first row contains captions
                                                                                                                         .addCollector(ShippingCosts::new, ShippingCosts.class)
-                                                                                                                        .collectMany((Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc), Product.class, ShippingCosts.class)
+                                                                                                                        .collectValues((Product p, ShippingCosts sc) -> p.getShippingCosts().add(sc), Product.class, ShippingCosts.class)
                                                                                                                         .next(Get.children().byTag("td").first()  // service name
-                                                                                                                                .next(Parse.textContent().stepName("get-shipping-service").collectOne(ShippingCosts::setService, ShippingCosts.class))
+                                                                                                                                .next(Parse.textContent().stepName("get-shipping-service").collectValue(ShippingCosts::setService, ShippingCosts.class))
                                                                                                                         )
                                                                                                                         .next(Get.children().byTag("td").firstNth(2)  // service price
-                                                                                                                                .next(Parse.textContent().stepName("get-shipping-price").collectOne(ShippingCosts::setPrice, ShippingCosts.class))
+                                                                                                                                .next(Parse.textContent().stepName("get-shipping-price").collectValue(ShippingCosts::setPrice, ShippingCosts.class))
                                                                                                                         )
                                                                                                                 )
                                                                                                         )

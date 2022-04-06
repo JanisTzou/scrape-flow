@@ -16,6 +16,7 @@
 
 package com.github.scrape.flow.scraping.selenium;
 
+import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.CollectingParsedValueToModelStep;
@@ -65,31 +66,36 @@ public class SeleniumParseElementHRef extends SeleniumScrapingStep<SeleniumParse
 
                     Supplier<List<WebElement>> nodesSearch = () -> List.of(ctx.getWebElement()); // just resend the node ...
                     ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(converted).build();
-                    getHelper().execute(ctxCopy, ctxCopy.getDriverNo(), nodesSearch, stepOrder, getExecuteIf(), services);
+                    getHelper().execute(ctxCopy, nodesSearch, stepOrder, getExecuteIf(), services);
                 }
             } else {
                 log.warn("No HtmlAnchor element provided -> cannot parse href value! Check the steps sequence above step {}", getName());
             }
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
         return stepOrder;
     }
 
     @Override
-    public <T> SeleniumParseElementHRef collectOne(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> SeleniumParseElementHRef collectValue(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.ONE));
     }
 
     @Override
-    public <T> SeleniumParseElementHRef collectMany(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> SeleniumParseElementHRef collectValues(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.MANY));
     }
 
     @Override
     public SeleniumParseElementHRef setValueMapper(Function<String, String> parsedTextMapper) {
         return setParsedValueMapper(parsedTextMapper);
+    }
+
+    @Override
+    protected ClientReservationType getClientReservationType() {
+        return ClientReservationType.READING;
     }
 
 }

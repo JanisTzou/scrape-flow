@@ -66,8 +66,8 @@ public abstract class SeleniumScrapingStep<C extends SeleniumScrapingStep<C>>
     }
 
     @Override
-    protected ScrapingType getScrapingType() {
-        return ScrapingType.SELENIUM;
+    protected ClientType getClientType() {
+        return ClientType.SELENIUM;
     }
 
 

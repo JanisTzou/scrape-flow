@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.drivers;
+package com.github.scrape.flow.clients;
 
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
@@ -22,7 +22,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class HtmlUnitDriversFactory implements DriversFactory<WebClient> {
+public class HtmlUnitClientFactory implements ClientFactory<WebClient> {
 
     @Override
     public WebClient startDriver() {
@@ -36,6 +36,7 @@ public class HtmlUnitDriversFactory implements DriversFactory<WebClient> {
 
     @Override
     public int maxDrivers() {
-        return Integer.MAX_VALUE;
+        return Integer.MAX_VALUE;  // TODO change ...
+//        return 1;  // TODO change ...
     }
 }

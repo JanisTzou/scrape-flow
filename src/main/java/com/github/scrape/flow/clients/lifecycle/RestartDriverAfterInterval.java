@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping;
+package com.github.scrape.flow.clients.lifecycle;
 
-public enum ScrapingType {
+import lombok.RequiredArgsConstructor;
 
-    HTMLUNIT,
-    SELENIUM
-    ;
+@RequiredArgsConstructor
+public class RestartDriverAfterInterval implements DriverRestartStrategy {
 
-    public boolean isSelenium() {
-        return this.equals(SELENIUM);
+    private final long maxIntervalSinceLastRestartInMillis;
+
+    @Override
+    public boolean shouldRestart(long lastRestartTs) {
+        long now = System.currentTimeMillis();
+        return isTimeLimitWithoutRestartExceeded(lastRestartTs, now);
     }
 
+    private boolean isTimeLimitWithoutRestartExceeded(long lastRestartTs, long now) {
+        return (now - (lastRestartTs + maxIntervalSinceLastRestartInMillis)) > 0;
+    }
 }

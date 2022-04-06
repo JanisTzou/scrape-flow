@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.Filter;
 import com.github.scrape.flow.scraping.ScrapingContext;
@@ -57,7 +58,7 @@ public class HtmlUnitGetElementsByXPath extends HtmlUnitScrapingStep<HtmlUnitGet
             getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
         return stepOrder;
     }
@@ -67,4 +68,8 @@ public class HtmlUnitGetElementsByXPath extends HtmlUnitScrapingStep<HtmlUnitGet
         return super.doAddFilter(filter);
     }
 
+    @Override
+    protected ClientReservationType getClientReservationType() {
+        return ClientReservationType.READING;
+    }
 }

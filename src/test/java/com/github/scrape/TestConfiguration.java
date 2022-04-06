@@ -18,12 +18,9 @@ package com.github.scrape;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.github.scrape.flow.clients.*;
 import com.github.scrape.flow.data.publishing.ScrapedDataPublisher;
 import com.github.scrape.flow.debugging.DebuggingOptions;
-import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
-import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.drivers.SeleniumDriversFactory;
-import com.github.scrape.flow.drivers.SeleniumDriversManager;
 import com.github.scrape.flow.execution.*;
 import com.github.scrape.flow.scraping.Options;
 import com.github.scrape.flow.scraping.ScrapingServices;
@@ -31,7 +28,6 @@ import com.github.scrape.flow.scraping.htmlunit.HtmlUnitPageLoader;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
 import com.github.scrape.flow.throttling.ScrapingRateLimiterImpl;
 import com.github.scrape.flow.throttling.ThrottlingService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -41,10 +37,11 @@ import java.util.concurrent.TimeUnit;
 public class TestConfiguration {
 
     @Bean
-    @Autowired
     public ScrapingServices scrapingServices(StepOrderGenerator stepOrderGenerator,
                                              ThrottlingService throttlingService,
                                              ActiveStepsTracker activeStepsTracker,
+                                             ClientReservationTracker clientReservationTracker,
+                                             ClientReservationHandler clientReservationHandler,
                                              StepAndDataRelationshipTracker stepAndDataRelationshipTracker,
                                              ExclusiveExecutionTracker exclusiveExecutionTracker,
                                              ScrapedDataPublisher scrapedDataPublisher,
@@ -52,11 +49,15 @@ public class TestConfiguration {
                                              Options options,
                                              DebuggingOptions globalDebugging,
                                              TaskService taskService,
-                                             SeleniumDriversManager seleniumDriversManager,
+                                             SeleniumClientManager seleniumClientManager,
+                                             HtmlUnitClientManager htmlUnitClientManager,
                                              HtmlUnitPageLoader htmlUnitSiteParser) {
-        return new ScrapingServices(stepOrderGenerator,
+        return new ScrapingServices(
+                stepOrderGenerator,
                 throttlingService,
                 activeStepsTracker,
+                clientReservationTracker,
+                clientReservationHandler,
                 stepAndDataRelationshipTracker,
                 exclusiveExecutionTracker,
                 scrapedDataPublisher,
@@ -64,7 +65,8 @@ public class TestConfiguration {
                 globalDebugging,
                 taskExecutor,
                 taskService,
-                seleniumDriversManager,
+                seleniumClientManager,
+                htmlUnitClientManager,
                 htmlUnitSiteParser
         );
     }
@@ -85,6 +87,18 @@ public class TestConfiguration {
     }
 
     @Bean
+    public ClientReservationTracker clientReservationTracker() {
+        return new ClientReservationTracker();
+    }
+
+    @Bean
+    public ClientReservationHandler clientsReservationHandler(ClientReservationTracker reservationTracker,
+                                                              SeleniumClientManager seleniumClientManager,
+                                                              HtmlUnitClientManager htmlUnitClientManager) {
+        return new ClientReservationHandler(reservationTracker, seleniumClientManager, htmlUnitClientManager);
+    }
+
+    @Bean
     public StepAndDataRelationshipTracker stepAndDataRelationshipTracker(ActiveStepsTracker activeStepsTracker) {
         return new StepAndDataRelationshipTracker(activeStepsTracker);
     }
@@ -95,7 +109,6 @@ public class TestConfiguration {
     }
 
     @Bean
-    @Autowired
     public ScrapedDataPublisher dataPublisher(StepAndDataRelationshipTracker stepAndDataRelationshipTracker) {
         return new ScrapedDataPublisher(stepAndDataRelationshipTracker);
     }
@@ -116,16 +129,15 @@ public class TestConfiguration {
     }
 
     @Bean
-    @Autowired
     public TaskExecutor taskExecutor(ThrottlingService throttlingService,
                                      ExclusiveExecutionTracker exclusiveExecutionTracker,
                                      ScrapingRateLimiter scrapingRateLimiter,
-                                     ActiveStepsTracker activeStepsTracker) {
-        return new TaskExecutorSingleQueue(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker);
+                                     ActiveStepsTracker activeStepsTracker,
+                                     ClientReservationHandler clientReservationHandler) {
+        return new TaskExecutorSingleQueue(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker, clientReservationHandler);
     }
 
     @Bean
-    @Autowired
     public TaskService taskService(TaskExecutor taskExecutor,
                                    ActiveStepsTracker activeStepsTracker,
                                    ScrapedDataPublisher scrapedDataPublisher,
@@ -140,15 +152,13 @@ public class TestConfiguration {
     }
 
     @Bean
-    @Autowired
-    public SeleniumDriversManager seleniumDriversManager() {
-        return new SeleniumDriversManager(new SeleniumDriversFactory("/Users/janis/Projects_Data/scrape-flow/chromedriver", false)); // TODO fix this mess
+    public SeleniumClientManager seleniumDriversManager() {
+        return new SeleniumClientManager(new SeleniumClientFactory("/Users/janis/Projects_Data/scrape-flow/chromedriver", false)); // TODO fix this mess
     }
 
     @Bean
-    @Autowired
     public HtmlUnitPageLoader htmlUnitPageLoader() {
-        return new HtmlUnitPageLoader(new HtmlUnitDriverOperator(new HtmlUnitDriversFactory()));
+        return new HtmlUnitPageLoader();
     }
 
 }

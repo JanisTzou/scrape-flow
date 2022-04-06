@@ -17,6 +17,7 @@
 package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.CollectingParsedValueToModelStep;
@@ -61,18 +62,18 @@ public class HtmlUnitParseElementTextContent extends HtmlUnitScrapingStep<HtmlUn
             setParsedValueToModel(this.getCollectors(), ctx, transformed, getName());
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
         return stepOrder;
     }
 
     @Override
-    public <T> HtmlUnitParseElementTextContent collectOne(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> HtmlUnitParseElementTextContent collectValue(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.ONE));
     }
 
     @Override
-    public <T> HtmlUnitParseElementTextContent collectMany(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> HtmlUnitParseElementTextContent collectValues(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.MANY));
     }
 
@@ -83,6 +84,11 @@ public class HtmlUnitParseElementTextContent extends HtmlUnitScrapingStep<HtmlUn
             copy.parsedValueMapper = parsedValueMapper;
             return copy;
         });
+    }
+
+    @Override
+    protected ClientReservationType getClientReservationType() {
+        return ClientReservationType.READING;
     }
 
 }

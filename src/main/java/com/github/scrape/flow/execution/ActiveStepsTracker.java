@@ -22,7 +22,7 @@ import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 
 /**
- * Tracks all the steps that are still active - they might be executing or waiting to be executed
+ * Tracks all the steps that are still 'active' - they might be executing or waiting to be executed
  */
 @Log4j2
 public class ActiveStepsTracker {

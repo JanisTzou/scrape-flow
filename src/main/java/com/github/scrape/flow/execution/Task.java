@@ -16,12 +16,10 @@
 
 package com.github.scrape.flow.execution;
 
-import com.github.scrape.flow.drivers.SeleniumDriversManager;
-import com.github.scrape.flow.scraping.ScrapingType;
+import com.github.scrape.flow.clients.ClientReservationRequest;
+import com.github.scrape.flow.clients.ClientReservationType;
+import com.github.scrape.flow.scraping.ClientType;
 import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -48,8 +46,8 @@ public class Task implements Comparable<Task> {
     private final Runnable stepRunnable;
     private final boolean throttlingAllowed;
     private final boolean makingHttpRequests;
-    private final ScrapingType scrapingType;
-    private final SeleniumDriversManager seleniumDriversManager;
+    private final ClientType clientType;
+    private final ClientReservationType clientReservationType;
 
     private final int maxRetries;
     private final Duration retryBackoff;
@@ -64,11 +62,15 @@ public class Task implements Comparable<Task> {
                 basis.getStepRunnable(),
                 basis.isThrottlingAllowed(),
                 basis.isMakingHttpRequests(),
-                basis.getScrapingType(),
-                basis.getSeleniumDriversManager(),
+                basis.getClientType(),
+                basis.getClientReservationType(),
                 retries,
                 retryBackoff
         );
+    }
+
+    public ClientReservationRequest getClientReservationRequest() {
+        return new ClientReservationRequest(stepOrder, clientReservationType, clientType);
     }
 
     @Override

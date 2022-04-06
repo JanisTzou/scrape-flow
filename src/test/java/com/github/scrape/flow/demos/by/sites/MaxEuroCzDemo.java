@@ -76,7 +76,7 @@ public class MaxEuroCzDemo {
                                         .next(Get.descendants().byTag("a")
                                                 .addCollector(Category::new, Category.class)
                                                 .next(Parse.textContent()
-                                                        .collectOne(Category::setName, Category.class)
+                                                        .collectValue(Category::setName, Category.class)
                                                 )
                                                 .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href)
                                                         .next(SeleniumFlow.Do.navigateToParsedLink() // toCategoryProductList() // TODO revert
@@ -132,14 +132,14 @@ public class MaxEuroCzDemo {
 
         return Get.descendants().byClass("product").stepName("product-search")
                 .addCollector(Product::new, Product.class, new ProductListenerScraped())
-                .collectOne(Product::setCategory, Product.class, Category.class)
+                .collectValue(Product::setCategory, Product.class, Category.class)
                 .next(Get.descendants().byClass("product-name")
                         .next(Get.descendants().byTag("a")
                                 .next(Parse.textContent()
-                                        .collectOne(Product::setName, Product.class)
+                                        .collectValue(Product::setName, Product.class)
                                 )
                                 .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href).stepName("get-product-detail-url")
-                                        .collectOne(Product::setDetailUrl, Product.class)
+                                        .collectValue(Product::setDetailUrl, Product.class)
                                         .next(
                                                 toProductDetail()
                                         )
@@ -148,7 +148,7 @@ public class MaxEuroCzDemo {
                 )
                 .next(Get.descendants().byClass("cena")
                         .next(Parse.textContent(txt -> txt.replace(" ", "").replace("Kč(m2)", "").replace(",", ".").replace("Kč(bm)", ""))
-                                .collectOne(Product::setPrice, Product.class)
+                                .collectValue(Product::setPrice, Product.class)
                         )
                 );
     }
@@ -206,7 +206,7 @@ public class MaxEuroCzDemo {
         return Do.navigateToParsedLink()
                 .next(Get.descendants().byAttr("id", "productDescription1")
                         .next(Parse.textContent()
-                                .collectOne(Product::setDescription, Product.class)
+                                .collectValue(Product::setDescription, Product.class)
                         )
                 );
     }

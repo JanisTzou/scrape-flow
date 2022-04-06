@@ -14,28 +14,49 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.drivers;
+package com.github.scrape.flow.clients;
 
 import com.gargoylesoftware.htmlunit.WebClient;
-import lombok.RequiredArgsConstructor;
+import com.github.scrape.flow.scraping.ClientType;
 
-@RequiredArgsConstructor
-public class HtmlUnitDriverOperator implements DriverOperator<WebClient> {
+public class HtmlUnitClientOperator implements ClientOperator<WebClient> {
 
-    /**
-     * WebClient docs:
-     * Note: a WebClient instance is not thread safe. It is intended to be used from a single thread
-     */
-    private final ThreadLocal<WebClient> webClient = ThreadLocal.withInitial(this::startNewDriver);
-    private final HtmlUnitDriversFactory driversFactory;
+    private final int clientNo;
+    private final WebClient webClient;
+    private volatile boolean reserved = false;
 
-    @Override
-    public int webDriverId() {
-        return 0; // not relevant ? // TODO
+    public HtmlUnitClientOperator(int clientNo, HtmlUnitClientFactory driversFactory) {
+        this.clientNo = clientNo;
+        this.webClient = driversFactory.startDriver();
     }
 
-    public WebClient getDriver() {
-        return webClient.get();
+    @Override
+    public int getClientNo() {
+        return clientNo;
+    }
+
+    @Override
+    public ClientId getClientId() {
+        return new ClientId(ClientType.HTMLUNIT, getClientNo());
+    }
+
+    @Override
+    public boolean isReserved() {
+        return this.reserved;
+    }
+
+    @Override
+    public void reserve() {
+        this.reserved = true;
+    }
+
+    @Override
+    public void unReserve() {
+        this.reserved = false;
+    }
+
+    public WebClient getClient() {
+        return webClient;
     }
 
     @Override
@@ -66,15 +87,9 @@ public class HtmlUnitDriverOperator implements DriverOperator<WebClient> {
         // not needed
     }
 
-    private WebClient startNewDriver() {
-        return driversFactory.startDriver();
-    }
-
-
     @Override
     public boolean terminateDriver() {
-        webClient.get().close();
-        webClient.remove(); // important
+        webClient.close();
         return true;
     }
 

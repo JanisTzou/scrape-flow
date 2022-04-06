@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.drivers;
+package com.github.scrape.flow.clients.lifecycle;
 
-public interface DriversFactory<T> {
+public class RestartDriverImmediately implements DriverRestartStrategy {
 
-    T startDriver();
-
-    int maxDrivers();
+    @Override
+    public boolean shouldRestart(long driverLastUsedTs) {
+        return true;
+    }
 
 }

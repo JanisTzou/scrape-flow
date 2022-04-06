@@ -21,7 +21,6 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.scraping.CommonOperationsStepBase;
 import com.github.scrape.flow.scraping.ScrapingStep;
-import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterElementsNatively;
 import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterableSiblings;
 import org.apache.commons.text.StringEscapeUtils;
 

@@ -81,7 +81,6 @@ For a very simple example see the code below and for more complex scenarios ther
 To scrape the names of each section from the page sample above and navigate to the detail of each section we can define
 the following scraping steps/sequence:
 
-
 ```java
 
 import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.*;
@@ -91,27 +90,26 @@ public class Demo {
     public static void main(String[] args) {
 
         new Scraping()
-            .setSequence(
-                Do.navigateToUrl("https://www.some-news-site.com")
-                    .next(Get.descendants().byAttr("aria-label", "World")
-                        .next(Get.descendants().byTag("li")
-                            .addCollector(Section::new, Section.class, new SectionListener())  // for each encountered list item a model is instantiated to hold the scraped data
-                            .next(Get.children().byTag("a")
-                                .next(Parse.textContent()
-                                    .collectOne(Section::setName, Section.class)  // defines where to put parsed content
+                .setSequence(
+                        Do.navigateToUrl("https://www.some-news-site.com")
+                                .next(Get.descendants().byAttr("aria-label", "World")
+                                        .next(Get.descendants().byTag("li")
+                                                .addCollector(Section::new, Section.class, new SectionListener())  // for each encountered list item a model is instantiated to hold the scraped data
+                                                .next(Get.children().byTag("a")
+                                                        .next(Parse.textContent()
+                                                                .collectValue(Section::setName, Section.class)  // defines where to put parsed content
+                                                        )
+                                                        .next(Parse.hRef(href -> "https://www.some-news-site.com" + href)
+                                                                .next(goToEachSection())   // impl. omitted
+                                                        )
+                                                )
+                                        )
                                 )
-                                .next(Parse.hRef(href -> "https://www.some-news-site.com" + href)
-                                    .next(goToEachSection())   // impl. omitted
-                                )
-                            )
-                        )
-                    )
-            )
-            .start(Duration.ofMinutes(2));  // await completion for up to 2 minutes
+                )
+                .start(Duration.ofMinutes(2));  // await completion for up to 2 minutes
 
     }
-    
-    
+
 
 }
 

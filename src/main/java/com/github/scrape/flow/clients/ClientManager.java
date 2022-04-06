@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.drivers.lifecycle;
+package com.github.scrape.flow.clients;
 
-public class RestartDriverImmediately implements DriverRestartStrategy {
+import java.util.Optional;
 
-    @Override
-    public boolean shouldRestart(long driverLastUsedTs) {
-        return true;
-    }
+public interface ClientManager<T> {
+
+    ClientOperator<T> getClient(int clientNo);
+
+    Optional<ClientOperator<T>> getUnreservedClient();
 
 }

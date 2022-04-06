@@ -16,6 +16,7 @@
 
 package com.github.scrape.flow.scraping.selenium;
 
+import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.Filter;
 import com.github.scrape.flow.scraping.ScrapingContext;
@@ -46,10 +47,10 @@ public class SeleniumGetDescendants extends SeleniumScrapingStep<SeleniumGetDesc
 
         Runnable runnable = () -> {
             Supplier<List<WebElement>> nodesSearch = () -> ctx.getWebElement().findElements(By.xpath(".//*"));
-            getHelper().execute(ctx, ctx.getDriverNo(), nodesSearch, stepOrder, getExecuteIf(), services);
+            getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
         return stepOrder;
     }
@@ -57,6 +58,11 @@ public class SeleniumGetDescendants extends SeleniumScrapingStep<SeleniumGetDesc
     @Override
     public SeleniumGetDescendants addFilter(Filter<WebElement> filter) {
         return super.addFilter(filter);
+    }
+
+    @Override
+    protected ClientReservationType getClientReservationType() {
+        return ClientReservationType.READING;
     }
 
 }

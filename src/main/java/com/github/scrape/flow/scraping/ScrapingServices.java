@@ -16,12 +16,9 @@
 
 package com.github.scrape.flow.scraping;
 
+import com.github.scrape.flow.clients.*;
 import com.github.scrape.flow.data.publishing.ScrapedDataPublisher;
 import com.github.scrape.flow.debugging.DebuggingOptions;
-import com.github.scrape.flow.drivers.HtmlUnitDriverOperator;
-import com.github.scrape.flow.drivers.HtmlUnitDriversFactory;
-import com.github.scrape.flow.drivers.SeleniumDriversFactory;
-import com.github.scrape.flow.drivers.SeleniumDriversManager;
 import com.github.scrape.flow.execution.*;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitPageLoader;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
@@ -39,6 +36,8 @@ public class ScrapingServices {
     private final StepOrderGenerator stepOrderGenerator;
     private final ThrottlingService throttlingService;
     private final ActiveStepsTracker activeStepsTracker;
+    private final ClientReservationTracker clientReservationTracker;
+    private final ClientReservationHandler clientReservationHandler;
     private final StepAndDataRelationshipTracker stepAndDataRelationshipTracker;
     private final ExclusiveExecutionTracker exclusiveExecutionTracker;
     private final ScrapedDataPublisher scrapedDataPublisher;
@@ -46,22 +45,27 @@ public class ScrapingServices {
     private final DebuggingOptions globalDebugging;
     private final TaskExecutor taskExecutor;
     private final TaskService taskService;
-    private final SeleniumDriversManager seleniumDriversManager;
+    private final SeleniumClientManager seleniumClientManager;
+    private final HtmlUnitClientManager htmlUnitClientManager;
     private final HtmlUnitPageLoader htmlUnitSiteLoader;
 
     public ScrapingServices(ScrapingRateLimiter scrapingRateLimiter) {
         this.stepOrderGenerator = new StepOrderGenerator();
         this.throttlingService = new ThrottlingService();
         this.activeStepsTracker = new ActiveStepsTracker();
+        this.clientReservationTracker = new ClientReservationTracker();
         this.stepAndDataRelationshipTracker = new StepAndDataRelationshipTracker(activeStepsTracker);
         this.exclusiveExecutionTracker = new ExclusiveExecutionTracker(activeStepsTracker);
         this.scrapedDataPublisher = new ScrapedDataPublisher(stepAndDataRelationshipTracker);
         this.options = new Options();
         this.globalDebugging = new DebuggingOptions();
-        taskExecutor = new TaskExecutorSingleQueue(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker);
+        this.seleniumClientManager = new SeleniumClientManager(new SeleniumClientFactory("/Users/janis/Projects_Data/scrape-flow/chromedriver", false)); // TODO fix this mess
+        HtmlUnitClientFactory clientFactory = new HtmlUnitClientFactory();
+        this.htmlUnitClientManager = new HtmlUnitClientManager(clientFactory);
+        this.clientReservationHandler = new ClientReservationHandler(clientReservationTracker, seleniumClientManager, htmlUnitClientManager);
+        taskExecutor = new TaskExecutorSingleQueue(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker, clientReservationHandler);
         taskService = new TaskService(taskExecutor, activeStepsTracker, scrapedDataPublisher, scrapingRateLimiter, options);
-        this.seleniumDriversManager = new SeleniumDriversManager(new SeleniumDriversFactory("/Users/janis/Projects_Data/scrape-flow/chromedriver", false)); // TODO fix this mess
-        this.htmlUnitSiteLoader = new HtmlUnitPageLoader(new HtmlUnitDriverOperator(new HtmlUnitDriversFactory()));
+        this.htmlUnitSiteLoader = new HtmlUnitPageLoader();
     }
 
 }

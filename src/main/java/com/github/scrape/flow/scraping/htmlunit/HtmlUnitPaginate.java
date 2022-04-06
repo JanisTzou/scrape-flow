@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.*;
 import lombok.extern.log4j.Log4j2;
@@ -95,7 +96,7 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
             }
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
         return stepOrder;
     }
@@ -125,6 +126,11 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
                 }
             }
         }
+    }
+
+    @Override
+    protected ClientReservationType getClientReservationType() {
+        return ClientReservationType.MODIFYING;
     }
 
 

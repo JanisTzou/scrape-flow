@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.CollectingParsedValueToModelStep;
@@ -74,24 +75,29 @@ public class HtmlUnitParseElementHRef extends HtmlUnitScrapingStep<HtmlUnitParse
             }
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
         return stepOrder;
     }
 
     @Override
-    public <T> HtmlUnitParseElementHRef collectOne(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> HtmlUnitParseElementHRef collectValue(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.ONE));
     }
 
     @Override
-    public <T> HtmlUnitParseElementHRef collectMany(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> HtmlUnitParseElementHRef collectValues(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.MANY));
     }
 
     @Override
     public HtmlUnitParseElementHRef setValueMapper(Function<String, String> parsedTextMapper) {
         return setParsedValueMapper(parsedTextMapper);
+    }
+
+    @Override
+    protected ClientReservationType getClientReservationType() {
+        return ClientReservationType.READING;
     }
 
 }

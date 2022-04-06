@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.drivers;
+package com.github.scrape.flow.clients;
 
-import com.github.scrape.flow.drivers.lifecycle.QuitAfterIdleInterval;
-import com.github.scrape.flow.drivers.lifecycle.RestartDriverAfterInterval;
+import com.github.scrape.flow.clients.lifecycle.QuitAfterIdleInterval;
+import com.github.scrape.flow.clients.lifecycle.RestartDriverAfterInterval;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -27,7 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Ignore
-public class SeleniumDriverOperatorTest {
+@Deprecated // TODO rework after Selenium functionality has settled ...
+public class SeleniumClientOperatorTest {
 
     public static final String CHROME_DRIVER_FILE = "/Users/janis/Projects_Data/scrape-flow/chromedriver";
 
@@ -39,18 +40,18 @@ public class SeleniumDriverOperatorTest {
     public void test_that_restartDriverIfNeeded_Restarts_The_Driver_Only_When_Strategy_Condition_Met() throws InterruptedException {
 
         // given
-        SeleniumDriversFactory driversFactory = new SeleniumDriversFactory(CHROME_DRIVER_FILE,false);
+        SeleniumClientFactory driversFactory = new SeleniumClientFactory(CHROME_DRIVER_FILE,false);
 
         int restartInMillis = 2_000;
 
-        SeleniumDriverOperator operator = new SeleniumDriverOperator(
+        SeleniumClientOperator operator = new SeleniumClientOperator(
                 1,
                 new RestartDriverAfterInterval(restartInMillis),
                 new QuitAfterIdleInterval(0),
                 driversFactory
         );
 
-        WebDriver driver1 = operator.getDriver();
+        WebDriver driver1 = operator.getClient();
         Assert.assertNotNull(driver1);
 
         // when
@@ -61,7 +62,7 @@ public class SeleniumDriverOperatorTest {
         // then
         Assert.assertFalse(result);
 
-        WebDriver driver2 = operator.getDriver();
+        WebDriver driver2 = operator.getClient();
         Assert.assertNotNull(driver2);
         Assert.assertEquals(driver1, driver2);
 
@@ -73,7 +74,7 @@ public class SeleniumDriverOperatorTest {
         // then
         Assert.assertTrue(result);
 
-        WebDriver driver3 = operator.getDriver();
+        WebDriver driver3 = operator.getClient();
         Assert.assertNotNull(driver3);
         Assert.assertNotEquals(driver2, driver3);
 
@@ -84,18 +85,18 @@ public class SeleniumDriverOperatorTest {
     public void test_that_quitWebDriverIfIdle_Restarts_The_Driver_Only_When_Strategy_Condition_Met() throws InterruptedException {
 
         // given
-        SeleniumDriversFactory driversFactory = new SeleniumDriversFactory(CHROME_DRIVER_FILE,false);
+        SeleniumClientFactory driversFactory = new SeleniumClientFactory(CHROME_DRIVER_FILE,false);
 
         int maxIdleIntervalMillis = 2_000;
 
-        SeleniumDriverOperator operator = new SeleniumDriverOperator(
+        SeleniumClientOperator operator = new SeleniumClientOperator(
                 1,
                 new RestartDriverAfterInterval(0),
                 new QuitAfterIdleInterval(maxIdleIntervalMillis),
                 driversFactory
         );
 
-        WebDriver driver1 = operator.getDriver();
+        WebDriver driver1 = operator.getClient();
         Assert.assertNotNull(driver1);
 
         // when
@@ -114,7 +115,7 @@ public class SeleniumDriverOperatorTest {
         // then
         Assert.assertTrue(result);
 
-        WebDriver driver2 = operator.getDriver();
+        WebDriver driver2 = operator.getClient();
         Assert.assertNotNull(driver2);
         Assert.assertNotEquals(driver1, driver2);
 
@@ -134,7 +135,7 @@ public class SeleniumDriverOperatorTest {
 
         List<WebDriver> webDriverList = new ArrayList<>();
 
-        SeleniumDriversFactory driversFactory = new SeleniumDriversFactory(CHROME_DRIVER_FILE,true);
+        SeleniumClientFactory driversFactory = new SeleniumClientFactory(CHROME_DRIVER_FILE,true);
 
         for (int i = 0; i < 1; i++) {
             WebDriver webDriver = driversFactory.startDriver();

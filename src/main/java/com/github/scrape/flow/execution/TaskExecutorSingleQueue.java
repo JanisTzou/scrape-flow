@@ -16,6 +16,7 @@
 
 package com.github.scrape.flow.execution;
 
+import com.github.scrape.flow.clients.ClientReservationHandler;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
 import com.github.scrape.flow.throttling.ThrottlingService;
 import lombok.extern.log4j.Log4j2;
@@ -49,20 +50,23 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
     private final AtomicInteger activeTaskCount = new AtomicInteger(0);
     // TODO number should be at least the number of open windows in chrome ...
     //  depends how we will handle windows ... vs threads ...
+    //  in fact we should not have separate threads for loading stuff ...
     private static final Scheduler blockingTasksScheduler = Schedulers.newBoundedElastic(Runtime.getRuntime().availableProcessors(), Integer.MAX_VALUE, "io-worker", 60, true);
     private volatile Supplier<LocalDateTime> nowSupplier;
+    private final ClientReservationHandler clientReservationHandler;
 
     public TaskExecutorSingleQueue(ThrottlingService throttlingService,
                                    ExclusiveExecutionTracker exclusiveExecutionTracker,
                                    ScrapingRateLimiter scrapingRateLimiter,
-                                   ActiveStepsTracker activeStepsTracker) {
+                                   ActiveStepsTracker activeStepsTracker,
+                                   ClientReservationHandler clientReservationHandler) {
         this(throttlingService,
                 PERIODIC_EXEC_NEXT_TRIGGER_INTERVAL, // sensible default
                 LocalDateTime::now,
                 new ExecutingTasksTracker(),
                 exclusiveExecutionTracker,
                 activeStepsTracker,
-                scrapingRateLimiter);
+                scrapingRateLimiter, clientReservationHandler);
     }
 
     /**
@@ -75,12 +79,14 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
                             ExecutingTasksTracker executingTasksTracker,
                             ExclusiveExecutionTracker exclusiveExecutionTracker,
                             ActiveStepsTracker activeStepsTracker,
-                            ScrapingRateLimiter scrapingRateLimiter) {
+                            ScrapingRateLimiter scrapingRateLimiter,
+                            ClientReservationHandler clientReservationHandler) {
         this.throttlingService = requestsPerSecondCounter;
         this.executingTasksTracker = executingTasksTracker;
         this.exclusiveExecutionTracker = exclusiveExecutionTracker;
         this.activeStepsTracker = activeStepsTracker;
         this.scrapingRateLimiter = scrapingRateLimiter;
+        this.clientReservationHandler = clientReservationHandler;
         this.taskQueue = new PriorityBlockingQueue<>(100, QueuedTask.NATURAL_COMPARATOR);
         this.periodicExecNextTriggerInterval = periodicExecNextTriggerInterval;
         this.nowSupplier = nowSupplier;
@@ -112,11 +118,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
     private synchronized void enqueueTask(Task task,
                                           Consumer<TaskResult> taskResultConsumer,
                                           Consumer<TaskError> taskErrorConsumer) {
-        if (task.getScrapingType().isSelenium()) { // TODO think where to put this better ... but it definitely needs to happen before the task starts executing ...
-            if (!task.isMakingHttpRequests()) { // if this is making http request it will need to reserve its own driver ...
-                task.getSeleniumDriversManager().reserveUsedDriverFor(task.getStepOrder()); // TODO how to go about this ... this is difficult to have here ...
-            }
-        }
+        clientReservationHandler.makeReservationPlaceholder(task.getClientReservationRequest());
         taskQueue.add(new QueuedTask(task, taskResultConsumer, taskErrorConsumer, System.currentTimeMillis()));
         log.trace("New enqueued request info: {}", task.loggingInfo());
         logEnqueuedRequestCount();
@@ -132,6 +134,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
             QueuedTask next = taskQueue.peek();
 
             while (canExecute(next)) {
+                clientReservationHandler.activateReservation(next.getTask().getClientReservationRequest());
                 executingTasksTracker.track(next.getTask());
                 taskQueue.poll(); // remove from queue head
                 executeTaskAsync(next.getTask(),
@@ -157,19 +160,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
         return isParentTaskFinished(task)
                 && exclusiveExecutionTracker.canExecute(next)
                 && isWithinScrapingLimits(task)
-                && couldReserveDriverFor(task); // IMPORTANT - this needs to be the last condition as it changes state of the drivers tracking!
-    }
-
-    private boolean couldReserveDriverFor(Task task) {
-        if (isSeleniumTaskAndLoadingNewPage(task)) {
-            return task.getSeleniumDriversManager().reserveUnusedDriverFor(task.getStepOrder());
-        } else {
-            return true; // return true as this is only relevant for selenium, and we do not want to block execution of anything else based on this condition
-        }
-    }
-
-    private boolean isSeleniumTaskAndLoadingNewPage(Task task) {
-        return task.getScrapingType().isSelenium() && task.isMakingHttpRequests();   // TODO change this to isLoadingNewPage ...
+                && clientReservationHandler.canActivateReservation(task.getClientReservationRequest());
     }
 
     private boolean isParentTaskFinished(Task task) {
@@ -250,10 +241,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
     private Runnable taskFinishedHook(Task task) {
         return () -> {
             log.debug("Finished step {}", task.loggingInfo());
-//            if (isSeleniumTaskAndLoadingNewPage(task)) {
-            if (task.getScrapingType().isSelenium()) {
-                task.getSeleniumDriversManager().unreserveUsedDriverBy(task.getStepOrder());
-            }
+            clientReservationHandler.finishReservation(task.getStepOrder());
             this.activeTaskCount.decrementAndGet();
             this.dequeueNextAndExecute();
         };

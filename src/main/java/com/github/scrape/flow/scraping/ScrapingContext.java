@@ -51,9 +51,6 @@ public class ScrapingContext {
     // for Selenium
     private WebElement webElement;
 
-    // for Selenium
-    private Integer driverNo;
-
     @Nonnull
     private ContextModels contextModels;
 
@@ -64,7 +61,7 @@ public class ScrapingContext {
     private StepOrder rootLoopedStepOrder;
 
     public ScrapingContext(StepOrder prevStepOrder) {
-        this(prevStepOrder, null, null, null, new ContextModels(), null, null);
+        this(prevStepOrder, null, null, new ContextModels(), null, null);
     }
 
     public ScrapingContext(StepOrder prevStepOrder, DomNode node) {
@@ -72,20 +69,18 @@ public class ScrapingContext {
     }
 
     public ScrapingContext(StepOrder prevStepOrder, DomNode node, ContextModels contextModels) {
-        this(prevStepOrder, node, null, null, contextModels, null, null);
+        this(prevStepOrder, node, null, contextModels, null, null);
     }
 
     public ScrapingContext(@Nonnull StepOrder prevStepOrder,
                            DomNode node,
                            WebElement webElement,
-                           Integer driverNo,
                            @Nonnull ContextModels contextModels,
                            String parsedURL,
                            StepOrder rootLoopedStepOrder) {
         this.prevStepOrder = Objects.requireNonNull(prevStepOrder);
         this.node = node;
         this.webElement = webElement;
-        this.driverNo = driverNo;
         this.contextModels = Objects.requireNonNull(contextModels);
         this.parsedURL = parsedURL;
         this.rootLoopedStepOrder = rootLoopedStepOrder;
@@ -105,7 +100,6 @@ public class ScrapingContext {
         private StepOrder prevStepOrder;
         private DomNode node;
         private WebElement webElement;
-        private Integer driverNo;
         private final ContextModels contextModelsCopy;
         private String parsedURL;
         private StepOrder recursiveRootStepOrder;
@@ -113,21 +107,19 @@ public class ScrapingContext {
         private Builder(StepOrder prevStepOrder,
                         DomNode node,
                         WebElement webElement,
-                        Integer driverNo,
                         ContextModels contextModelsCopy,
                         String parsedURL,
                         StepOrder recursiveRootStepOrder) {
             this.prevStepOrder = prevStepOrder;
             this.node = node;
             this.webElement = webElement;
-            this.driverNo = driverNo;
             this.contextModelsCopy = contextModelsCopy;
             this.parsedURL = parsedURL;
             this.recursiveRootStepOrder = recursiveRootStepOrder;
         }
 
         private Builder(ScrapingContext ctx) {
-            this(ctx.prevStepOrder, ctx.node, ctx.webElement, ctx.driverNo, ctx.contextModels.copy(), ctx.parsedURL, ctx.rootLoopedStepOrder);
+            this(ctx.prevStepOrder, ctx.node, ctx.webElement, ctx.contextModels.copy(), ctx.parsedURL, ctx.rootLoopedStepOrder);
         }
 
         public Builder setPrevStepOrder(StepOrder stepOrder) {
@@ -142,12 +134,6 @@ public class ScrapingContext {
 
         public Builder setWebElement(WebElement webElement) {
             this.webElement = webElement;
-            return this;
-        }
-
-        @SuppressWarnings("unused")
-        public Builder setDriverNo(Integer driverNo) {
-            this.driverNo = driverNo;
             return this;
         }
 
@@ -168,7 +154,7 @@ public class ScrapingContext {
         }
 
         public ScrapingContext build() {
-            return new ScrapingContext(prevStepOrder, node, webElement, driverNo, contextModelsCopy, parsedURL, recursiveRootStepOrder);
+            return new ScrapingContext(prevStepOrder, node, webElement, contextModelsCopy, parsedURL, recursiveRootStepOrder);
         }
     }
 }

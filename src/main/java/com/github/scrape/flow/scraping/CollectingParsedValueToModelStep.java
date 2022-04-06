@@ -34,18 +34,18 @@ public interface CollectingParsedValueToModelStep<C, V> {
     Logger log = LogManager.getLogger(CollectingParsedValueToModelStep.class);
 
     /**
-     * specialisation of {@link CollectingStep#collectOne(BiConsumer, Class, Class)}
+     * specialisation of {@link CollectingStep#collectValue(BiConsumer, Class, Class)}
      *
      * @return a copy of this step
      */
-    <T> C collectOne(BiConsumer<T, V> modelMutation, Class<T> containerType);
+    <T> C collectValue(BiConsumer<T, V> modelMutation, Class<T> containerType);
 
     /**
-     * specialisation of {@link CollectingStep#collectMany(BiConsumer, Class, Class)}
+     * specialisation of {@link CollectingStep#collectValues(BiConsumer, Class, Class)}
      *
      * @return a copy of this step
      */
-    <T> C collectMany(BiConsumer<T, V> modelMutation, Class<T> containerType);
+    <T> C collectValues(BiConsumer<T, V> modelMutation, Class<T> containerType);
 
 
     default <T> void setParsedValueToModel(Collectors collectors, ScrapingContext ctx, T parsedValue, String stepName) {

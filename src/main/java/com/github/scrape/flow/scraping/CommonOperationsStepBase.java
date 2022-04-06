@@ -18,7 +18,6 @@ package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
-import com.github.scrape.flow.scraping.htmlunit.StepsUtils;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -41,12 +40,12 @@ public abstract class CommonOperationsStepBase<C extends ScrapingStep<C>>
     }
 
     @Override
-    public <R, T> C collectOne(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType) {
+    public <R, T> C collectValue(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType) {
         return addCollector(new Collector(accumulator, modelType, containerType, AccumulatorType.ONE));
     }
 
     @Override
-    public <R, T> C collectMany(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType) {
+    public <R, T> C collectValues(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType) {
         return addCollector(new Collector(accumulator, modelType, containerType, AccumulatorType.MANY));
     }
 

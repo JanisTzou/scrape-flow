@@ -16,6 +16,7 @@
 
 package com.github.scrape.flow.scraping.selenium;
 
+import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.CollectingParsedValueToModelStep;
@@ -58,18 +59,18 @@ public class SeleniumParseElementTextContent extends SeleniumScrapingStep<Seleni
             setParsedValueToModel(this.getCollectors(), ctx, transformed, getName());
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
         return stepOrder;
     }
 
     @Override
-    public <T> SeleniumParseElementTextContent collectOne(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> SeleniumParseElementTextContent collectValue(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.ONE));
     }
 
     @Override
-    public <T> SeleniumParseElementTextContent collectMany(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> SeleniumParseElementTextContent collectValues(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.MANY));
     }
 
@@ -81,5 +82,11 @@ public class SeleniumParseElementTextContent extends SeleniumScrapingStep<Seleni
             return copy;
         });
     }
+
+    @Override
+    protected ClientReservationType getClientReservationType() {
+        return ClientReservationType.READING;
+    }
+
 
 }

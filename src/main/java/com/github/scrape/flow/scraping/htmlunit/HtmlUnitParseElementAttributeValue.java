@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.CollectingParsedValueToModelStep;
@@ -80,18 +81,18 @@ public class HtmlUnitParseElementAttributeValue extends HtmlUnitScrapingStep<Htm
             }
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
         return stepOrder;
     }
 
     @Override
-    public <T> HtmlUnitParseElementAttributeValue collectOne(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> HtmlUnitParseElementAttributeValue collectValue(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.ONE));
     }
 
     @Override
-    public <T> HtmlUnitParseElementAttributeValue collectMany(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> HtmlUnitParseElementAttributeValue collectValues(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.MANY));
     }
 
@@ -99,5 +100,11 @@ public class HtmlUnitParseElementAttributeValue extends HtmlUnitScrapingStep<Htm
     public HtmlUnitParseElementAttributeValue setValueMapper(Function<String, String> parsedTextMapper) {
         return setParsedValueMapper(parsedTextMapper);
     }
+
+    @Override
+    protected ClientReservationType getClientReservationType() {
+        return ClientReservationType.READING;
+    }
+
 
 }

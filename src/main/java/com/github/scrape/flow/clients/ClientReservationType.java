@@ -14,17 +14,37 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping;
+package com.github.scrape.flow.clients;
 
-import com.github.scrape.flow.execution.StepOrder;
-
-import java.util.List;
-
-public interface PageLoader<T> {
+public enum ClientReservationType {
 
     /**
-     * For internal lib uses only
+     * Only needs read access to a page that is already loaded in the client
      */
-    void loadPageAndExecuteNextSteps(String url, ScrapingContext ctx, List<ScrapingStep<?>> parsingSequence, StepOrder currStepOrder, ScrapingServices services, T client);
+    READING,
+
+    /**
+     * Reservation needed for loading a new page into the client
+     */
+    LOADING,
+
+    /**
+     * Reservation needed for modifying an already loaded page in the client
+     */
+    MODIFYING
+    ;
+
+
+    public boolean isReading() {
+        return this.equals(READING);
+    }
+
+    public boolean isLoading() {
+        return this.equals(LOADING);
+    }
+
+    public boolean isModifying() {
+        return this.equals(MODIFYING);
+    }
 
 }

@@ -16,10 +16,10 @@
 
 package com.github.scrape.flow.scraping;
 
+import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.data.collectors.Collectors;
 import com.github.scrape.flow.debugging.DebuggingOptions;
-import com.github.scrape.flow.drivers.SeleniumDriversManager;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.execution.TaskBasis;
 import com.github.scrape.flow.execution.TaskService;
@@ -170,7 +170,9 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> implements Throttl
         this.name = name;
     }
 
-    protected abstract ScrapingType getScrapingType();
+    protected abstract ClientType getClientType();
+
+    protected abstract ClientReservationType getClientReservationType();
 
     /**
      * Sets the name of this step to be used in logging. Useful for debugging purposes to identify problematic steps.
@@ -187,8 +189,8 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> implements Throttl
         return value != null ? parsedValueMapper.apply(value) : null;
     }
 
-    protected void submitForExecution(StepOrder stepOrder, Runnable runnable, TaskService taskService, SeleniumDriversManager seleniumDriversManager) {
-        TaskBasis stepTask = new TaskBasis(stepOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests, getScrapingType(), seleniumDriversManager);
+    protected void submitForExecution(StepOrder stepOrder, Runnable runnable, TaskService taskService) {
+        TaskBasis stepTask = new TaskBasis(stepOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests, getClientType(), getClientReservationType());
         taskService.submitForExecution(stepTask);
     }
 

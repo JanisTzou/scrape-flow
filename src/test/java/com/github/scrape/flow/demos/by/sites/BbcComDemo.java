@@ -21,7 +21,7 @@ import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitNavigateToParsedLink;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitStepBlock;
 import com.github.scrape.flow.utils.JsonUtils;
-import lombok.*;
+import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class BbcComDemo {
                                                         .addCollector(Section::new, Section.class, new SectionListener())
                                                         .next(Get.descendants().byTag("a")
                                                                 .next(Parse.textContent()
-                                                                        .collectOne(Section::setName, Section.class)
+                                                                        .collectValue(Section::setName, Section.class)
                                                                 )
                                                                 .next(Parse.hRef(href -> HTTPS_WWW_BBC_COM + href)
                                                                         .next(goToEachSection())
@@ -73,21 +73,21 @@ public class BbcComDemo {
                                 .next(Get.descendantsBySelector("div.gs-c-promo").stepName("listed-article")
                                         .addCollector(Promo::new, Promo.class)
                                         .addCollector(Article::new, Article.class, new ArticleListener())
-                                        .collectOne(Article::setRegion, Article.class, Section.class)
-                                        .collectOne(Article::setPromo, Article.class, Promo.class)
+                                        .collectValue(Article::setRegion, Article.class, Section.class)
+                                        .collectValue(Article::setPromo, Article.class, Promo.class)
                                         .next(Get.descendantsBySelector("p.gs-c-promo-summary")
                                                 .next(Parse.textContent()
-                                                        .collectOne(Promo::setSummary, Promo.class)
+                                                        .collectValue(Promo::setSummary, Promo.class)
                                                 )
                                         )
                                         .next(Get.descendantsBySelector("a.gs-c-promo-heading")
                                                 .next(Get.descendants().byTag("h3")
                                                         .next(Parse.textContent()
-                                                                .collectOne(Promo::setHeading, Promo.class)
+                                                                .collectValue(Promo::setHeading, Promo.class)
                                                         )
                                                 )
                                                 .next(Parse.hRef(href -> href.contains("https") ? href : HTTPS_WWW_BBC_COM + href)
-                                                        .collectOne(Article::setUrl, Article.class)
+                                                        .collectValue(Article::setUrl, Article.class)
                                                         .next(toArticles())
                                                 )
 
@@ -105,7 +105,7 @@ public class BbcComDemo {
                         .nextExclusively(Get.descendants().byTextContent("Sport Africa") // category must be parsed before following steps can proceed -> exclusive call
                                 .next(Parse.textContent()
                                         .setValueMapper(s -> "Sport")
-                                        .collectOne(Article::setCategory, Article.class)
+                                        .collectValue(Article::setCategory, Article.class)
                                 )
                         )
                         .nextIf(this::isSportArticle, Article.class,
@@ -122,12 +122,12 @@ public class BbcComDemo {
         return Flow.asBlock()
                 .next(Get.descendants().byAttr("id", "page")
                         .next(Parse.textContent()
-                                .collectOne(Article::setTitle, Article.class)
+                                .collectValue(Article::setTitle, Article.class)
                         )
                 )
                 .next(Get.descendants().byTag("p")
                         .next(Parse.textContent()
-                                .collectMany((Article a, String p) -> a.getParagraphs().add(p), Article.class)
+                                .collectValues((Article a, String p) -> a.getParagraphs().add(p), Article.class)
                         )
                 );
     }
@@ -136,18 +136,18 @@ public class BbcComDemo {
         return Flow.asBlock()
                 .next(Get.descendants().byAttr("id", "main-heading")
                         .next(Parse.textContent()
-                                .collectOne(Article::setTitle, Article.class)
+                                .collectValue(Article::setTitle, Article.class)
                         )
                 )
                 .next(Get.descendants().byAttr("data-component", "text-block")
                         .next(Parse.textContent()
-                                .collectMany((Article a, String p) -> a.getParagraphs().add(p), Article.class)
+                                .collectValues((Article a, String p) -> a.getParagraphs().add(p), Article.class)
                         )
                 )
                 .next(Get.descendants().byAttr("data-component", "unordered-list-block")
                         .next(Get.descendants().byTag("a")
                                 .next(Parse.hRef()
-                                        .collectMany((Article a, String p) -> a.getLinks().add(p), Article.class)
+                                        .collectValues((Article a, String p) -> a.getLinks().add(p), Article.class)
                                 )
                         )
                 );

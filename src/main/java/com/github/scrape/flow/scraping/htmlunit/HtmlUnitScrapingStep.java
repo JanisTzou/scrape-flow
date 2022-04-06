@@ -64,7 +64,7 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>>
     }
 
     @Override
-    protected ScrapingType getScrapingType() {
-        return ScrapingType.HTMLUNIT;
+    protected ClientType getClientType() {
+        return ClientType.HTMLUNIT;
     }
 }

@@ -30,7 +30,7 @@ public interface CollectingStep<C> {
      * @param modelType     type of model to insert
      * @return a copy of this step
      */
-    <R, T> C collectOne(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType);
+    <R, T> C collectValue(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType);
 
     /**
      * Defines a data collecting operation that expects a multiple object containing parsed data and adds it to another object
@@ -39,7 +39,7 @@ public interface CollectingStep<C> {
      * @param modelType     type of model to insert
      * @return a copy of this step
      */
-    <R, T> C collectMany(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType);
+    <R, T> C collectValues(BiConsumer<R, T> accumulator, Class<R> containerType, Class<T> modelType);
 
     /**
      * Sets up custom models that will be used to store the scraped data
@@ -54,7 +54,7 @@ public interface CollectingStep<C> {
      * Sets up custom models that will be used to store the scraped data
      *
      * @param modelSupplier      a factory for new model instances that parsed data can be set to in the steps following this one.
-     *                           Use method {@link CollectingStep#collectOne(BiConsumer, Class, Class)}
+     *                           Use method {@link CollectingStep#collectValue(BiConsumer, Class, Class)}
      *                           to achieve composition of various models of parsed data.
      * @param modelType          type of generated model
      * @param scrapedDataListener registration of listener that will be notified when all scraping has finished for an instance of

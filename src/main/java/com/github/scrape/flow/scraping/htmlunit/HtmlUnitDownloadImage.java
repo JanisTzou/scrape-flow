@@ -17,6 +17,7 @@
 package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.*;
@@ -64,20 +65,26 @@ public class HtmlUnitDownloadImage extends HtmlUnitScrapingStep<HtmlUnitDownload
             getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
         return stepOrder;
     }
 
 
     @Override
-    public <T> HtmlUnitDownloadImage collectOne(BiConsumer<T, BufferedImage> modelMutation, Class<T> containerType) {
+    public <T> HtmlUnitDownloadImage collectValue(BiConsumer<T, BufferedImage> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, BufferedImage.class, containerType, AccumulatorType.ONE));
     }
 
     @Override
-    public <T> HtmlUnitDownloadImage collectMany(BiConsumer<T, BufferedImage> modelMutation, Class<T> containerType) {
+    public <T> HtmlUnitDownloadImage collectValues(BiConsumer<T, BufferedImage> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, BufferedImage.class, containerType, AccumulatorType.MANY));
     }
+
+    @Override
+    protected ClientReservationType getClientReservationType() {
+        return ClientReservationType.READING;
+    }
+
 
 }

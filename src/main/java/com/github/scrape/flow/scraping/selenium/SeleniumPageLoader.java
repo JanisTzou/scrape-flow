@@ -16,7 +16,6 @@
 
 package com.github.scrape.flow.scraping.selenium;
 
-import com.github.scrape.flow.drivers.DriverOperator;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.*;
 import lombok.extern.log4j.Log4j2;
@@ -29,24 +28,20 @@ import java.util.List;
 import java.util.Optional;
 
 @Log4j2
-public class SeleniumPageLoader extends PageLoaderBase<WebDriver> {
+public class SeleniumPageLoader implements PageLoader<WebDriver> {
 
-    public SeleniumPageLoader(DriverOperator<WebDriver> driverOperator) {
-        super(driverOperator);
+    public SeleniumPageLoader() {
     }
 
-
     @Override
-    public void loadPageAndExecuteNextSteps(String url, ScrapingContext ctx, List<ScrapingStep<?>> parsingSequences, StepOrder currStepOrder, ScrapingServices services) {
-        loadPage(url, currStepOrder).ifPresent(rootWebElement -> {
+    public void loadPageAndExecuteNextSteps(String url, ScrapingContext ctx, List<ScrapingStep<?>> parsingSequences, StepOrder currStepOrder, ScrapingServices services, WebDriver webDriver) {
+        loadPage(url, currStepOrder, webDriver).ifPresent(rootWebElement -> {
             ScrapingContext nextCtx = ctx.toBuilder().setWebElement(rootWebElement).setPrevStepOrder(currStepOrder).build();
             executeNextSteps(nextCtx, parsingSequences, services);
         });
     }
 
-    private Optional<WebElement> loadPage(String url, @Nullable StepOrder currStepOrder) {
-        // TODO we cannot just get any driver ... it needs to be available ...
-        final WebDriver webDriver = driverOperator.getDriver();
+    private Optional<WebElement> loadPage(String url, @Nullable StepOrder currStepOrder, WebDriver webDriver) {
         return loadHtmlPage(url, webDriver, currStepOrder);
     }
 

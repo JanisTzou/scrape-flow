@@ -16,12 +16,17 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.github.scrape.flow.clients.ClientOperator;
+import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.LoadingNewPage;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.ScrapingStepInternalProxy;
 import lombok.extern.log4j.Log4j2;
+
+import java.util.Optional;
 
 @Log4j2
 public class HtmlUnitNavigateToUrl extends HtmlUnitScrapingStep<HtmlUnitNavigateToUrl>
@@ -44,11 +49,16 @@ public class HtmlUnitNavigateToUrl extends HtmlUnitScrapingStep<HtmlUnitNavigate
 
         // TODO problem ... this does not track steps for us and also the data ...
         Runnable runnable = () -> {
-            // TODO if this step type has collectors then we need similar logic as in the helper ...
-            services.getHtmlUnitSiteLoader().loadPageAndExecuteNextSteps(url, ctx, ScrapingStepInternalProxy.of(this).getNextSteps(), stepOrder, services);
+            Optional<ClientOperator<WebClient>> operator = services.getClientReservationHandler().getHtmlUnitClient(stepOrder);
+            if (operator.isPresent()) {
+                // TODO if this step type has collectors then we need similar logic as in the helper ...
+                services.getHtmlUnitSiteLoader().loadPageAndExecuteNextSteps(url, ctx, ScrapingStepInternalProxy.of(this).getNextSteps(), stepOrder, services, operator.get().getClient());
+            } else {
+                log.error("No client!");
+            }
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
         return stepOrder;
     }
@@ -58,4 +68,10 @@ public class HtmlUnitNavigateToUrl extends HtmlUnitScrapingStep<HtmlUnitNavigate
     public boolean throttlingAllowed() {
         return true;
     }
+
+    @Override
+    protected ClientReservationType getClientReservationType() {
+        return ClientReservationType.LOADING;
+    }
+
 }

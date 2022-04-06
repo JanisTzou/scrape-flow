@@ -16,6 +16,7 @@
 
 package com.github.scrape.flow.scraping.selenium;
 
+import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
@@ -72,13 +73,19 @@ public class SeleniumGetAncestor extends SeleniumScrapingStep<SeleniumGetAncesto
                 }
                 return Collections.emptyList();
             };
-            getHelper().execute(ctx, ctx.getDriverNo(), search, stepOrder, getExecuteIf(), services);
+            getHelper().execute(ctx, search, stepOrder, getExecuteIf(), services);
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
         return stepOrder;
     }
+
+    @Override
+    protected ClientReservationType getClientReservationType() {
+        return ClientReservationType.READING;
+    }
+
 
     public enum Type {
         PARENT,

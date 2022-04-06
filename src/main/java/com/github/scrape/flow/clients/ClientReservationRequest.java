@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping;
+package com.github.scrape.flow.clients;
 
 import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.scraping.ClientType;
+import lombok.Data;
 
-import java.util.List;
+@Data
+public class ClientReservationRequest {
 
-public interface PageLoader<T> {
-
-    /**
-     * For internal lib uses only
-     */
-    void loadPageAndExecuteNextSteps(String url, ScrapingContext ctx, List<ScrapingStep<?>> parsingSequence, StepOrder currStepOrder, ScrapingServices services, T client);
+    private final StepOrder step;
+    private final ClientReservationType reservationType;
+    private final ClientType clientType;
 
 }

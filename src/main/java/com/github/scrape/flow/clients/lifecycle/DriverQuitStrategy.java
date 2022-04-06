@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping;
+package com.github.scrape.flow.clients.lifecycle;
 
-import com.github.scrape.flow.drivers.DriverOperator;
-import lombok.RequiredArgsConstructor;
+public interface DriverQuitStrategy {
 
-/**
- * Parses data from a given site/URL based on provided parsingStrategies
- */
-@RequiredArgsConstructor
-public abstract class PageLoaderBase<T> implements PageLoader {
-
-    protected final DriverOperator<T> driverOperator;
+    boolean shouldQuit(long driverLastUsedTs);
 
 }

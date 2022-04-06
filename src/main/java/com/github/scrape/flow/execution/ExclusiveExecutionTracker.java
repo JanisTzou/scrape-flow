@@ -55,6 +55,7 @@ public class ExclusiveExecutionTracker {
 
     // TODO this solution does not take into account nested exclusive steps (especially those that have intermediary non-exclusive steps between them and their exclusive parents )
     //  also this this violates command-query separation !!!
+    // TODO also we need to add the guarantee that previous steps have all finished (at least if they operate with the same driver instance)
     public boolean canExecute(QueuedTask qst) {
         Task st = qst.getTask();
         StepOrder order = st.getStepOrder();

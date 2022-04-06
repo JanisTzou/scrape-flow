@@ -19,6 +19,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.LoadingNewPage;
 import com.github.scrape.flow.scraping.RequestException;
@@ -61,7 +62,7 @@ public class HtmlUnitFollowLink extends HtmlUnitScrapingStep<HtmlUnitFollowLink>
             }
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
         return stepOrder;
     }
 
@@ -100,4 +101,10 @@ public class HtmlUnitFollowLink extends HtmlUnitScrapingStep<HtmlUnitFollowLink>
     public boolean throttlingAllowed() {
         return true;
     }
+
+    @Override
+    protected ClientReservationType getClientReservationType() {
+        return ClientReservationType.READING;
+    }
+
 }

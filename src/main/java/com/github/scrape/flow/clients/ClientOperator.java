@@ -14,10 +14,36 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.drivers.lifecycle;
+package com.github.scrape.flow.clients;
 
-public interface DriverRestartStrategy {
+public interface ClientOperator<T> {
 
-    boolean shouldRestart(long driverLastUsedTs);
+    T getClient();
+
+    int getClientNo();
+
+    ClientId getClientId();
+
+    boolean isReserved();
+
+    void reserve();
+
+    void unReserve();
+
+    boolean terminateDriver();
+
+    boolean quitDriverIfIdle();
+
+    void restartDriverImmediately();
+
+    boolean restartDriverIfNeeded();
+
+    /**
+     * For Selenium this should be restarted. For HtmlUnit this should quit the WebClient ...
+     * @return
+     */
+    boolean restartOrQuitDriverIfNeeded();
+
+    void goToDefaultPage();
 
 }

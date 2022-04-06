@@ -20,7 +20,7 @@ import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendantsByCssSelector;
 import com.github.scrape.flow.utils.JsonUtils;
-import lombok.*;
+import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class CsfdCzDemo {
                                         .first() // the first article list out of two
                                         .addCollector(Category::new, Category.class, new CategoryListener())
                                         .next(Parse.textContent()
-                                                .collectOne(Category::setName, Category.class)
+                                                .collectValue(Category::setName, Category.class)
                                         )
                                         .next(Get.parent()
                                                 .next(getArticles()
@@ -58,15 +58,14 @@ public class CsfdCzDemo {
 
     private HtmlUnitGetDescendantsByCssSelector getArticles() {
         return Get.descendantsBySelector("div.box-content")
-                .next(Get.descendants()
-                        .byTag("article")
+                .next(Get.descendants().byTag("article")
                         .addCollector(Article::new, Article.class, new ArticleListener())
-                        .collectOne(Article::setCategory, Article.class, Category.class)
+                        .collectValue(Article::setCategory, Article.class, Category.class)
                         .next(Get.descendants().byTag("figure")
                                 .next(Get.children().first()
                                         .next(Parse.hRef(href -> "https:" + href)
                                                 .next(Do.downloadImage()
-                                                        .collectOne(Article::setImage, Article.class)
+                                                        .collectValue(Article::setImage, Article.class)
                                                 )
                                         )
                                 )
@@ -75,7 +74,7 @@ public class CsfdCzDemo {
                                 .next(Get.children().first()
                                         .next(Parse.textContent()
                                                 .setValueMapper(str -> str.replace("\t", "").replace("\n", " "))
-                                                .collectOne(Article::setTitle, Article.class)
+                                                .collectValue(Article::setTitle, Article.class)
                                         )
                                 )
 

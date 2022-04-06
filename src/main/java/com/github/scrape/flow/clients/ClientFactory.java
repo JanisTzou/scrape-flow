@@ -14,22 +14,12 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.drivers.lifecycle;
+package com.github.scrape.flow.clients;
 
-import lombok.RequiredArgsConstructor;
+public interface ClientFactory<T> {
 
-@RequiredArgsConstructor
-public class QuitAfterIdleInterval implements DriverQuitStrategy {
+    T startDriver();
 
-    private final long maxIdleIntervalInMillis;
+    int maxDrivers();
 
-    @Override
-    public boolean shouldQuit(long driverLastUsedTs) {
-        long now = System.currentTimeMillis();
-        return isIdleTimeLimitExceeded(driverLastUsedTs, now);
-    }
-
-    private boolean isIdleTimeLimitExceeded(long driverLastUsedTs, long now) {
-        return (now - (driverLastUsedTs + maxIdleIntervalInMillis)) > 0;
-    }
 }

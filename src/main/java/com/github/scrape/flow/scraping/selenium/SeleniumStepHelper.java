@@ -42,7 +42,7 @@ public class SeleniumStepHelper extends StepHelperBase {
     }
 
     public void execute(ScrapingContext ctx,
-                        int webDriverId,
+                        // TODO remove ...
                         Supplier<List<WebElement>> elementsSearch,
                         StepOrder currStepOrder,
                         StepExecutionCondition condition,
@@ -63,7 +63,7 @@ public class SeleniumStepHelper extends StepHelperBase {
                 StepModelsHandler modelsHandler = StepModelsHandler.createFor(step);
                 StepModels stepModels = modelsHandler.createAndAccumulateModels(currStepOrder, ctx.getContextModels());
 
-                SpawnedSteps spawnedSteps = executeNextSteps(currStepOrder, elem, ctx, webDriverId, stepModels.getNextContextModels(), services);
+                SpawnedSteps spawnedSteps = executeNextSteps(currStepOrder, elem, ctx, stepModels.getNextContextModels(), services);
 
                 handleModels(currStepOrder, services, stepModels, spawnedSteps);
             }
@@ -85,14 +85,12 @@ public class SeleniumStepHelper extends StepHelperBase {
     private SpawnedSteps executeNextSteps(StepOrder currStepOrder,
                                           WebElement webElement,
                                           ScrapingContext ctx,
-                                          int webDriverId,
                                           ContextModels nextContextModels,
                                           ScrapingServices services) {
         ScrapingContext nextCtx = new ScrapingContext(
                 currStepOrder,
                 null,
                 webElement,
-                webDriverId,
                 nextContextModels.copy(),
                 // TODO send parsed text as well? Probably not, the parsed text should be possible to access differently ... (through model)
                 ctx.getParsedURL(),

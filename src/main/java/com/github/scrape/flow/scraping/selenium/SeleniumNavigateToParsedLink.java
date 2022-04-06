@@ -16,7 +16,8 @@
 
 package com.github.scrape.flow.scraping.selenium;
 
-import com.github.scrape.flow.drivers.DriverOperator;
+import com.github.scrape.flow.clients.ClientOperator;
+import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.LoadingNewPage;
 import com.github.scrape.flow.scraping.ScrapingContext;
@@ -49,20 +50,16 @@ public class SeleniumNavigateToParsedLink extends SeleniumScrapingStep<SeleniumN
         Runnable runnable = () -> {
             if (ctx.getParsedURL() != null) {
 
-                Optional<DriverOperator<WebDriver>> driverOperator = services.getSeleniumDriversManager().getDriver(stepOrder);
+                Optional<ClientOperator<WebDriver>> driverOperator = services.getClientReservationHandler().getSeleniumClient(stepOrder);
 
                 if (driverOperator.isPresent()) {
                     Supplier<List<WebElement>> elementSearch = () -> {
-                        // TODO this webDriverId needs to be somehow propagated through the context ...
-                        //  maybe the element search needs to be encapsulated and contain also the driver no?
-                        //  Alternatively we can put this outside if here ... so we know the driver
-
-                        WebDriver driver = driverOperator.get().getDriver();
+                        WebDriver driver = driverOperator.get().getClient();
                         driver.get(ctx.getParsedURL());
                         WebElement html = driver.findElement(By.tagName("html")); // TODO do until successful ... think about where the retry should be taking palce  ...
                         return List.of(html);
                     };
-                    getHelper().execute(ctx, driverOperator.get().webDriverId(), elementSearch, stepOrder, getExecuteIf(), services);
+                    getHelper().execute(ctx, elementSearch, stepOrder, getExecuteIf(), services);
                 } else {
                     log.error("Step {} cannot execute as a webDriver that was supposed to be reserved for it was not available!", getName());
                 }
@@ -72,7 +69,7 @@ public class SeleniumNavigateToParsedLink extends SeleniumScrapingStep<SeleniumN
             }
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService(), services.getSeleniumDriversManager());
+        submitForExecution(stepOrder, runnable, services.getTaskService());
 
         return stepOrder;
     }
@@ -82,5 +79,11 @@ public class SeleniumNavigateToParsedLink extends SeleniumScrapingStep<SeleniumN
     public boolean throttlingAllowed() {
         return true;
     }
+
+    @Override
+    protected ClientReservationType getClientReservationType() {
+        return ClientReservationType.LOADING;
+    }
+
 
 }

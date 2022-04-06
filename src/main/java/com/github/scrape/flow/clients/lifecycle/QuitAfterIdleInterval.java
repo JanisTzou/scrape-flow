@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.drivers.lifecycle;
+package com.github.scrape.flow.clients.lifecycle;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class RestartDriverAfterInterval implements DriverRestartStrategy {
+public class QuitAfterIdleInterval implements DriverQuitStrategy {
 
-    private final long maxIntervalSinceLastRestartInMillis;
+    private final long maxIdleIntervalInMillis;
 
     @Override
-    public boolean shouldRestart(long lastRestartTs) {
+    public boolean shouldQuit(long driverLastUsedTs) {
         long now = System.currentTimeMillis();
-        return isTimeLimitWithoutRestartExceeded(lastRestartTs, now);
+        return isIdleTimeLimitExceeded(driverLastUsedTs, now);
     }
 
-    private boolean isTimeLimitWithoutRestartExceeded(long lastRestartTs, long now) {
-        return (now - (lastRestartTs + maxIntervalSinceLastRestartInMillis)) > 0;
+    private boolean isIdleTimeLimitExceeded(long driverLastUsedTs, long now) {
+        return (now - (driverLastUsedTs + maxIdleIntervalInMillis)) > 0;
     }
 }
