@@ -29,6 +29,7 @@
         <project-reactor-version>3.4.13</project-reactor-version>
         <spring.version>5.3.18</spring.version>
         <fasterxml.version>2.13.1</fasterxml.version>
+        <fasterxml-databind.version>2.13.2.1</fasterxml-databind.version>
         <mockito-version>4.2.0</mockito-version>
         <junit-version>4.13.2</junit-version>
         <log4j-version>2.17.1</log4j-version>
@@ -195,7 +196,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${fasterxml.version}</version>
+            <version>${fasterxml-databind.version}</version>
             <scope>test</scope>
         </dependency>
 
