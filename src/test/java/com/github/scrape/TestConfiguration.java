@@ -92,9 +92,9 @@ public class TestConfiguration {
     }
 
     @Bean
-    public ClientReservationHandler clientsReservationHandler(ClientReservationTracker reservationTracker,
-                                                              SeleniumClientManager seleniumClientManager,
-                                                              HtmlUnitClientManager htmlUnitClientManager) {
+    public ClientReservationHandler clientReservationHandler(ClientReservationTracker reservationTracker,
+                                                             SeleniumClientManager seleniumClientManager,
+                                                             HtmlUnitClientManager htmlUnitClientManager) {
         return new ClientReservationHandler(reservationTracker, seleniumClientManager, htmlUnitClientManager);
     }
 
@@ -154,6 +154,11 @@ public class TestConfiguration {
     @Bean
     public SeleniumClientManager seleniumDriversManager() {
         return new SeleniumClientManager(new SeleniumClientFactory("/Users/janis/Projects_Data/scrape-flow/chromedriver", false)); // TODO fix this mess
+    }
+
+    @Bean
+    public HtmlUnitClientManager htmlUnitClientManager() {
+        return new HtmlUnitClientManager(new HtmlUnitClientFactory());
     }
 
     @Bean

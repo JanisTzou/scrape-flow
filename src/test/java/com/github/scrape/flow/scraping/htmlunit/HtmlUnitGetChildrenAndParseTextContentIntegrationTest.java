@@ -19,6 +19,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.github.scrape.ClientReservationHandlerMockConfig;
 import com.github.scrape.TestConfiguration;
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.execution.StepOrder;
@@ -38,12 +39,13 @@ import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.List;
 
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {TestConfiguration.class})
+@ContextConfiguration(classes = {TestConfiguration.class, ClientReservationHandlerMockConfig.class})
 public class HtmlUnitGetChildrenAndParseTextContentIntegrationTest {
 
     @Autowired
@@ -66,7 +68,7 @@ public class HtmlUnitGetChildrenAndParseTextContentIntegrationTest {
 
         HtmlUnitGetChildren testSequence = new HtmlUnitGetChildren()
                 .addCollector(ScrapedValue::new, ScrapedValue.class, dataListenerMock)
-                .next(HtmlUnitFlow.Parse.textContent()
+                .next(Parse.textContent()
                         .collectValue(ScrapedValue::setVal, ScrapedValue.class)
                 );
 

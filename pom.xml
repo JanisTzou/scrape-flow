@@ -27,7 +27,7 @@
         <selenium-version>4.1.1</selenium-version>
         <htmlunit-version>2.56.0</htmlunit-version>
         <project-reactor-version>3.4.13</project-reactor-version>
-        <spring.version>5.3.14</spring.version>
+        <spring.version>5.3.18</spring.version>
         <fasterxml.version>2.13.1</fasterxml.version>
         <mockito-version>4.2.0</mockito-version>
         <junit-version>4.13.2</junit-version>
