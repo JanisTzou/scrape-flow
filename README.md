@@ -45,7 +45,7 @@ to client code (collecting data using defined custom "collectors" and publishing
 For a simple use-case, all that is needed to use the functionality is to create an instance of `Scraping`, and next you can use all the features exposed by the class
  [HtmlUnitFlow](src/main/java/com/github/scrape/flow/scraping/htmlunit/HtmlUnitFlow.java) to define the sequence steps.
 
-For a very simple example see the code below and for more complex scenarios there are some more [demos](src/test/java/com/github/scrape/flow/demos).
+For a very simple example see the code below and for more complex scenarios there are some more [demos](src/test/java/com/github/scrape/flow/demos/by/sites).
 
 #### Example static site code snippet to scrape:
 
