@@ -43,6 +43,10 @@ public class SeleniumClientManager implements ClientManager<WebDriver> {
         return clientOperators.get(clientNo);
     }
 
+    public void reserveClient(int clientNo) {
+        clientOperators.get(clientNo).reserve();
+    }
+
     public void unreserveClient(int clientNo) {
         clientOperators.get(clientNo).unReserve();
     }

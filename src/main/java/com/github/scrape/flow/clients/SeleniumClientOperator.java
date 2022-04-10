@@ -45,7 +45,6 @@ public class SeleniumClientOperator implements ClientOperator<WebDriver> {
                                   DriverQuitStrategy driverQuitStrategy,
                                   SeleniumClientFactory driversFactory) {
         this.clientNo = clientNo;
-
         this.restartStrategy = restartStrategy;
         this.quitStrategy = driverQuitStrategy;
         this.driversFactory = driversFactory;

@@ -69,6 +69,7 @@ public class ClientReservationHandler {
             case MODIFYING:
                 return reservationTracker.canActivateModifyingReservationOf(rq.getStep());
             case LOADING:
+                // TODO only if this is the right level !
                 switch (rq.getClientType()) {
                     case SELENIUM:
                         return seleniumClientManager.getUnreservedClient().isPresent();
@@ -91,18 +92,20 @@ public class ClientReservationHandler {
             case LOADING:
                 switch (rq.getClientType()) {
                     case SELENIUM:
-                        Optional<ClientOperator<WebDriver>> webDriver = seleniumClientManager.getUnreservedClient();
-                        if (webDriver.isPresent()) {
-                            ClientId clientId = webDriver.get().getClientId();
+                        Optional<ClientOperator<WebDriver>> selOperator = seleniumClientManager.getUnreservedClient();
+                        if (selOperator.isPresent()) {
+                            ClientId clientId = selOperator.get().getClientId();
+                            seleniumClientManager.reserveClient(clientId.getClientNo());
                             reservationTracker.activateReservation(rq.getStep(), clientId);
                         } else {
                             log.error("Failed to activate reservation for rq {}", rq);
                         }
                         break;
                     case HTMLUNIT:
-                        Optional<ClientOperator<WebClient>> webClient = htmlUnitClientManager.getUnreservedClient();
-                        if (webClient.isPresent()) {
-                            ClientId clientId = webClient.get().getClientId();
+                        Optional<ClientOperator<WebClient>> htmlOperator = htmlUnitClientManager.getUnreservedClient();
+                        if (htmlOperator.isPresent()) {
+                            ClientId clientId = htmlOperator.get().getClientId();
+                            htmlUnitClientManager.reserveClient(clientId.getClientNo());
                             reservationTracker.activateReservation(rq.getStep(), clientId);
                         } else {
                             log.error("Failed to activate reservation for rq {}", rq);

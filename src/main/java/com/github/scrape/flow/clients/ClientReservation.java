@@ -17,11 +17,13 @@
 package com.github.scrape.flow.clients;
 
 import com.github.scrape.flow.execution.StepOrder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.Objects;
 
 @Data
+@AllArgsConstructor
 public class ClientReservation {
 
     // can be null if the client is unknown at this point ...
@@ -29,19 +31,11 @@ public class ClientReservation {
     private final StepOrder reservingStep;
     private final ClientReservationType type;
 
-    // if the reservation is still active
+    // if the reservation is still needed
     private boolean finished;
 
 //     might be false if it is waiting to be granted the 'reserved' status
     private boolean placeholder;
-
-    public ClientReservation(ClientId clientId, StepOrder reservingStep, ClientReservationType type, boolean finished, boolean placeholder) {
-        this.clientId = clientId;
-        this.reservingStep = reservingStep;
-        this.type = type;
-        this.finished = finished;
-        this.placeholder = placeholder;
-    }
 
     public static ClientReservation newPlaceholder(ClientId clientId, StepOrder reservingStep, ClientReservationType type) {
         return new ClientReservation(clientId, reservingStep, type, false, true);

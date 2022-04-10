@@ -41,6 +41,10 @@ public class HtmlUnitClientManager implements ClientManager<WebClient> {
         return clientOperators.get(clientNo);
     }
 
+    public void reserveClient(int clientNo) {
+        clientOperators.get(clientNo).reserve();
+    }
+
     public void unreserveClient(int clientNo) {
         clientOperators.get(clientNo).unReserve();
     }
