@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping;
+package com.github.scrape.flow.execution;
 
-@FunctionalInterface
-public interface StepExecutionCondition {
+import com.github.scrape.flow.clients.ClientReservationType;
+import com.github.scrape.flow.scraping.ScrapingStep;
+import lombok.Data;
 
-    StepExecutionCondition NO_CONDITIONS = (String stepName, ContextModels models) -> true;
+@Data
+public class StepMetadata {
 
-    boolean canExecute(String stepName, ContextModels contextModels);
+    private final ScrapingStep<?> step;
+    private final StepOrder stepOrder;
+    private final ClientReservationType clientReservationType;
+
 
 }

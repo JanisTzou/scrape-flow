@@ -17,7 +17,7 @@
 package com.github.scrape.flow.scraping.htmlunit;
 
 import com.github.scrape.flow.scraping.ScrapingStep;
-import com.github.scrape.flow.scraping.ScrapingStepInternalProxy;
+import com.github.scrape.flow.scraping.ScrapingStepInternalReader;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.Optional;
@@ -30,7 +30,7 @@ public class StepsUtils {
         if (stepType.isAssignableFrom(sequence.getClass())) {
             return Optional.of((T) sequence);
         } else {
-            for (ScrapingStep<?> nextStep : ScrapingStepInternalProxy.of(sequence).getNextSteps()) {
+            for (ScrapingStep<?> nextStep : ScrapingStepInternalReader.of(sequence).getNextSteps()) {
                 return findStepOfTypeInSequence(nextStep, stepType);
             }
         }

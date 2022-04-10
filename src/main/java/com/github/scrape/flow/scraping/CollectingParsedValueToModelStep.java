@@ -16,18 +16,11 @@
 
 package com.github.scrape.flow.scraping;
 
-import com.github.scrape.flow.data.collectors.Collector;
-import com.github.scrape.flow.data.collectors.Collectors;
-import com.github.scrape.flow.data.collectors.ModelWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 
-import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
 public interface CollectingParsedValueToModelStep<C, V> {
 
@@ -46,41 +39,5 @@ public interface CollectingParsedValueToModelStep<C, V> {
      * @return a copy of this step
      */
     <T> C collectValues(BiConsumer<T, V> modelMutation, Class<T> containerType);
-
-
-    default <T> void setParsedValueToModel(Collectors collectors, ScrapingContext ctx, T parsedValue, String stepName) {
-        try {
-            if (parsedValue == null) {
-                log.warn("{}: Parsed value is null -> cannot set to model ...", stepName);
-            }
-            List<Collector> cols = getCollectorsWithAccumulatorsForParsedValueType(collectors, parsedValue);
-
-            for (Collector col : cols) {
-                Optional<ModelWrapper> mw = ctx.getContextModels().getModelFor(col.getContainerClass());
-                if (mw.isPresent()) {
-                    boolean valueIllegallySetMultipleTimes = col.getAccumulatorType().equals(AccumulatorType.ONE) && mw.get().isAlreadyApplied(collectors);
-                    if (valueIllegallySetMultipleTimes) {
-                        log.error("Wrong parsed data collector setup detected in the step sequence related to model of class type '{}'! " +
-                                " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided", mw.get().getModel().getClass().getSimpleName());
-                    } else {
-                        col.getAccumulator().accept(mw.get().getModel(), parsedValue);
-                        mw.get().addAppliedAccumulator(collectors);
-                    }
-                } else {
-                    log.error("No model is set up for parsed value in step {}! Cannot collect parsed data to it!", stepName);
-                }
-            }
-
-        } catch (Exception e) {
-            log.error("{}: failed to set parsed value to model", stepName, e);
-        }
-    }
-
-    @Nonnull
-    private <T> List<Collector> getCollectorsWithAccumulatorsForParsedValueType(Collectors collectors, T parsedValue) {
-        return collectors.getAccumulators().stream()
-                .filter(co -> co.getModelClass().equals(parsedValue.getClass()))
-                .collect(java.util.stream.Collectors.toList());
-    }
 
 }

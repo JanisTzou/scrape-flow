@@ -64,11 +64,11 @@ public class HtmlUnitGetSiblings extends HtmlUnitScrapingStep<HtmlUnitGetSibling
 
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> getEligibleSiblings(ctx);
-            getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
+            getHelper(services).execute(nodesSearch, ctx, stepOrder);
         };
 
         submitForExecution(stepOrder, runnable, services.getTaskService());

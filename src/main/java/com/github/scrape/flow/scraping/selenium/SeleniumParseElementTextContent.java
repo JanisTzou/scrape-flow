@@ -19,10 +19,7 @@ package com.github.scrape.flow.scraping.selenium;
 import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.CollectingParsedValueToModelStep;
-import com.github.scrape.flow.scraping.ParsingStep;
-import com.github.scrape.flow.scraping.ScrapingContext;
-import com.github.scrape.flow.scraping.ScrapingServices;
+import com.github.scrape.flow.scraping.*;
 import org.apache.commons.text.StringEscapeUtils;
 import org.openqa.selenium.WebElement;
 
@@ -45,7 +42,7 @@ public class SeleniumParseElementTextContent extends SeleniumScrapingStep<Seleni
 
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             WebElement webElement = ctx.getWebElement();
@@ -54,9 +51,9 @@ public class SeleniumParseElementTextContent extends SeleniumScrapingStep<Seleni
                 tc = StringEscapeUtils.unescapeHtml4(tc).trim();
             }
 
-            String transformed = mapParsedValue(tc);
+            String mappedVal = mapParsedValue(tc);
 
-            setParsedValueToModel(this.getCollectors(), ctx, transformed, getName());
+            ParsedValueToModelCollector.setParsedValueToModel(this.getCollectors(), ctx, mappedVal, getName());
         };
 
         submitForExecution(stepOrder, runnable, services.getTaskService());

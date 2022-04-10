@@ -37,12 +37,12 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>>
         super(nextSteps);
     }
 
-    protected HtmlUnitStepHelper getHelper() {
-        return new HtmlUnitStepHelper(this);
+    protected HtmlUnitNodeSearchBasedStepHelper getHelper(ScrapingServices services) {
+        return HtmlUnitNodeSearchBasedStepHelper.createFor(this, services.getGlobalDebugging(), services);
     }
 
-    protected HtmlUnitStepHelper getHelper(NextStepsHandler nextStepsHandler) {
-        return new HtmlUnitStepHelper(this, nextStepsHandler);
+    protected HtmlUnitNodeSearchBasedStepHelper getHelper(ScrapingServices services, NextStepsHandler nextStepsHandler) {
+        return HtmlUnitNodeSearchBasedStepHelper.createFor(this, services.getGlobalDebugging(), services, nextStepsHandler);
     }
 
     protected C doAddFilter(Filter<DomNode> filter) {

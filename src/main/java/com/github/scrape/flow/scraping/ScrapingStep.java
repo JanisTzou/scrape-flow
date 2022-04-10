@@ -190,8 +190,8 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> implements Throttl
     }
 
     protected void submitForExecution(StepOrder stepOrder, Runnable runnable, TaskService taskService) {
-        TaskBasis stepTask = new TaskBasis(stepOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests, getClientType(), getClientReservationType());
-        taskService.submitForExecution(stepTask);
+        TaskBasis taskBasis = new TaskBasis(stepOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests, getClientType(), getClientReservationType());
+        taskService.submitForExecution(taskBasis);
     }
 
     /**

@@ -47,7 +47,7 @@ public class HtmlUnitGetElementsByXPath extends HtmlUnitScrapingStep<HtmlUnitGet
 
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () ->
@@ -55,7 +55,7 @@ public class HtmlUnitGetElementsByXPath extends HtmlUnitScrapingStep<HtmlUnitGet
                             .flatMap(obj -> HtmlUnitUtils.toDomNode(obj).stream())
                             .filter(domNode -> domNode instanceof HtmlElement)  // important to include only html elements -> users for not expect to deal with other types when defining filtering operations (e.g. first() ... )
                             .collect(Collectors.toList());
-            getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
+            getHelper(services).execute(nodesSearch, ctx, stepOrder);
         };
 
         submitForExecution(stepOrder, runnable, services.getTaskService());

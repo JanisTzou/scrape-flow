@@ -16,19 +16,14 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.*;
 import lombok.extern.log4j.Log4j2;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.net.URL;
-import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
@@ -47,26 +42,9 @@ public class HtmlUnitDownloadImage extends HtmlUnitScrapingStep<HtmlUnitDownload
 
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
-
-        Runnable runnable = () -> {
-            Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode());
-
-            try {
-                URL imageURL = new URL(ctx.getParsedURL());
-                BufferedImage bufferedImage = ImageIO.read(imageURL);
-                setParsedValueToModel(this.getCollectors(), ctx, bufferedImage, getName());
-
-                log.debug("Success downloading image");
-            } catch (Exception e) {
-                log.error("Error downloading image from URL {}", ctx.getParsedURL());
-            }
-
-            getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
-        };
-
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
+        Runnable runnable = new HtmlUnitDownloadImageRunnable(ctx, stepOrder, getHelper(services), getName(), getCollectors());
         submitForExecution(stepOrder, runnable, services.getTaskService());
-
         return stepOrder;
     }
 

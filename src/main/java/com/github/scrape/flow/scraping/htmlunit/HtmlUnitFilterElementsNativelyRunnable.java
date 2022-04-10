@@ -35,26 +35,17 @@ import java.util.stream.Stream;
  */
 @Log4j2
 @RequiredArgsConstructor
-public class HtmlUnitFilterElementsNatively extends HtmlUnitScrapingStep<HtmlUnitFilterElementsNatively> {
+public class HtmlUnitFilterElementsNativelyRunnable implements Runnable {
 
     private final Predicate<DomNode> domNodePredicate;
+    private final ScrapingContext ctx;
+    private final StepOrder stepOrder;
+    private final HtmlUnitNodeSearchBasedStepHelper helper;
 
     @Override
-    protected HtmlUnitFilterElementsNatively copy() {
-        return copyFieldValuesTo(new HtmlUnitFilterElementsNatively(domNodePredicate));
-    }
-
-    @Override
-    protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
-        Runnable runnable = new HtmlUnitFilterElementsNativelyRunnable(domNodePredicate, ctx, stepOrder, getHelper(services));
-        submitForExecution(stepOrder, runnable, services.getTaskService());
-        return stepOrder;
-    }
-
-    @Override
-    protected ClientReservationType getClientReservationType() {
-        return ClientReservationType.READING;
+    public void run() {
+        Supplier<List<DomNode>> nodeSupplier = () -> Stream.of(ctx.getNode()).filter(domNodePredicate).collect(Collectors.toList());
+        helper.execute(nodeSupplier, ctx, stepOrder);
     }
 
 }

@@ -16,6 +16,7 @@
 
 package com.github.scrape.flow.scraping;
 
+import com.github.scrape.flow.execution.StepHierarchyRepository;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.throttling.ScrapingRateLimiterImpl;
 import lombok.Getter;
@@ -66,6 +67,8 @@ public class Scraping {
      */
     public <T extends ScrapingStep<T>> Scraping setSequence(T sequence) {
         this.scrapingSequence = sequence;
+        StepHierarchyRepository stepHierarchyRepository = StepHierarchyRepository.createFrom(sequence);
+        this.services.setStepHierarchyRepository(stepHierarchyRepository);
         return this;
     }
 

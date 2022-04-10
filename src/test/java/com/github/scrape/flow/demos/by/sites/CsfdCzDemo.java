@@ -47,8 +47,7 @@ public class CsfdCzDemo {
                                                 .collectValue(Category::setName, Category.class)
                                         )
                                         .next(Get.parent()
-                                                .next(getArticles()
-                                                )
+                                                .next(getArticles())
                                         )
                                 )
                 );

@@ -21,10 +21,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.CollectingParsedValueToModelStep;
-import com.github.scrape.flow.scraping.ParsingStep;
-import com.github.scrape.flow.scraping.ScrapingContext;
-import com.github.scrape.flow.scraping.ScrapingServices;
+import com.github.scrape.flow.scraping.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -57,7 +54,7 @@ public class HtmlUnitParseElementAttributeValue extends HtmlUnitScrapingStep<Htm
 
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             if (ctx.getNode() instanceof HtmlElement) {
@@ -65,13 +62,13 @@ public class HtmlUnitParseElementAttributeValue extends HtmlUnitScrapingStep<Htm
                 if (el.hasAttribute(attributeName)) {
                     String value = el.getAttribute(attributeName);
                     if (value != null) {
-                        String converted = mapParsedValue(value);
-                        log.debug("{} - {}: Parsed value: {}", stepOrder, getName(), converted);
+                        String mappedVal = mapParsedValue(value);
+                        log.debug("{} - {}: Parsed value: {}", stepOrder, getName(), mappedVal);
 
-                        setParsedValueToModel(this.getCollectors(), ctx, converted, getName());
+                        ParsedValueToModelCollector.setParsedValueToModel(this.getCollectors(), ctx, mappedVal, getName());
 
                         Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
-                        getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
+                        getHelper(services).execute(nodesSearch, ctx, stepOrder);
                     }
                 } else {
                     log.trace("{}: Node does not have attribute {}: node: {}", getName(), attributeName, ctx.getNode());

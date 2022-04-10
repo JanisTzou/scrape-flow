@@ -51,7 +51,8 @@ public class TestConfiguration {
                                              TaskService taskService,
                                              SeleniumClientManager seleniumClientManager,
                                              HtmlUnitClientManager htmlUnitClientManager,
-                                             HtmlUnitPageLoader htmlUnitSiteParser) {
+                                             HtmlUnitPageLoader htmlUnitSiteParser,
+                                             StepHierarchyRepository stepHierarchyRepository) {
         return new ScrapingServices(
                 stepOrderGenerator,
                 throttlingService,
@@ -67,7 +68,8 @@ public class TestConfiguration {
                 taskService,
                 seleniumClientManager,
                 htmlUnitClientManager,
-                htmlUnitSiteParser
+                htmlUnitSiteParser,
+                stepHierarchyRepository
         );
     }
 

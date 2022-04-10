@@ -14,26 +14,30 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping;
+package com.github.scrape.flow.scraping.htmlunit;
 
+import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.scraping.ScrapingContext;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-/**
- * Runs the steps the way they were defined by the user (in terms of order, exclusiveness etc.)
- */
-public class NextStepsAsDefinedByUser implements NextStepsHandler {
+@RequiredArgsConstructor
+class HtmlUnitGetAncestorRunnable implements Runnable {
+
+    private final int param;
+    private final ScrapingContext ctx;
+    private final StepOrder stepOrder;
+    private final HtmlUnitNodeSearchBasedStepHelper helper;
 
     @Override
-    public SpawnedSteps execute(List<ScrapingStep<?>> nextSteps, StepOrder currStepOrder,
-                                ScrapingContext nextCtx,
-                                ScrapingServices services) {
-        List<StepOrder> stepOrders = nextSteps.stream()
-                .map(step -> step.execute(nextCtx, services))
-                .collect(Collectors.toList());
-        return new SpawnedSteps(currStepOrder, stepOrders);
+    public void run() {
+        DomNode node = ctx.getNode();
+        Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.findNthAncestor(node, param).stream().collect(Collectors.toList());
+        helper.execute(nodesSearch, ctx, stepOrder);
     }
 
 }

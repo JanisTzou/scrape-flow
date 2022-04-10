@@ -53,14 +53,14 @@ public class HtmlUnitReturnNextPage extends HtmlUnitScrapingStep<HtmlUnitReturnN
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
 
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             Optional<HtmlPage> page = ctx.getNodeAsHtmlPage();
 
             if (page.isPresent()) {
                 Supplier<List<DomNode>> nodesSearch = () -> List.of(page.get());
-                getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
+                getHelper(services).execute(nodesSearch, ctx, stepOrder);
             } else {
                 log.error("The previous step did not produce an HtmlPage! Cannot process next page data in step {}", getName());
             }

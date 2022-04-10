@@ -56,14 +56,15 @@ public class HtmlUnitPageLoader implements PageLoader<WebClient> {
 
 
     private void executeNextSteps(ScrapingContext ctx, List<ScrapingStep<?>> parsingSequences, ScrapingServices services) {
-        parsingSequences.forEach(s -> ScrapingStepInternalProxy.of(s).execute(ctx, services));
+        parsingSequences.forEach(s -> ScrapingStepInternalReader.of(s).execute(ctx, services));
     }
 
     private Optional<HtmlPage> loadHtmlPage(String pageUrl, WebClient webClient, @Nullable StepOrder currStepOrder) {
         // TODO someway somehow we need to make this retrievable ...
         String logInfo = currStepOrder != null ? currStepOrder + " - " : "";
         try {
-            log.debug("{}Loading page URL: {}", logInfo, pageUrl);
+            String windowName = webClient.getCurrentWindow().getName();
+            log.info("{}Loading page in client {} at URL: {}", logInfo, webClient, pageUrl);
             URL url = new URL(pageUrl);
             Page page = webClient.getPage(url);  // we have one webClient instance per thread so this call is ok -> each client will have its own "current top WebWindow"
             WebResponse resp = page.getWebResponse();
@@ -74,7 +75,7 @@ public class HtmlUnitPageLoader implements PageLoader<WebClient> {
                 return Optional.empty();
             } else {
                 if (page.isHtmlPage()) {
-                    log.info("{}Loaded page in {}ms at URL: {}", logInfo, resp.getLoadTime(), pageUrl);
+                    log.info("{}Loaded page in {}ms in client {} at URL: {}", logInfo, resp.getLoadTime(), webClient, pageUrl);
                     HtmlPage htmlPage = (HtmlPage) page;
 //                    printPageToConsole(htmlPage);
                     return Optional.of(htmlPage);

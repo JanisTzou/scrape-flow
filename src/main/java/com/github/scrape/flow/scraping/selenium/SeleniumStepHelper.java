@@ -48,13 +48,13 @@ public class SeleniumStepHelper extends StepHelperBase {
                         StepExecutionCondition condition,
                         ScrapingServices services) {
         try {
-            if (!condition.canExecute(step, ctx.getContextModels())) {
+            if (!condition.canExecute(step.getName(), ctx.getContextModels())) {
                 return;
             }
 
             List<WebElement> foundElements = elementsSearch.get();
             List<WebElement> filteredElements = FilterUtils.filter(foundElements, step.getFilters(), services.getGlobalDebugging());
-            logFoundCount(currStepOrder, filteredElements.size(), services.getGlobalDebugging(), step);
+            logFoundCount(step.getName(), currStepOrder, filteredElements.size(), services.getGlobalDebugging(), ScrapingStepInternalReader.of(step).getStepDebugging());
 
             for (WebElement elem : filteredElements) {
 
@@ -100,7 +100,7 @@ public class SeleniumStepHelper extends StepHelperBase {
         // TODO associate web driver id with step order, here?
         //  if yes, then do so only for steps that do not load page? (... those will get their own driver doen the line ...)
 
-        return nextStepsHandler.execute(currStepOrder, ScrapingStepInternalProxy.of(step).getNextSteps(), nextCtx, services);
+        return nextStepsHandler.execute(ScrapingStepInternalReader.of(step).getNextSteps(), currStepOrder, nextCtx, services);
     }
 
 }

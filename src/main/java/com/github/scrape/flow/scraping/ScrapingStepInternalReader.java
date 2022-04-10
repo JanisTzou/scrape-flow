@@ -16,6 +16,7 @@
 
 package com.github.scrape.flow.scraping;
 
+import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.execution.StepOrder;
 import lombok.RequiredArgsConstructor;
@@ -27,13 +28,13 @@ import java.util.List;
  * ... to keep the public api of the step implementations clean of internal stuff ...
  */
 @RequiredArgsConstructor
-public class ScrapingStepInternalProxy<C extends ScrapingStep<C>> {
+public class ScrapingStepInternalReader<C extends ScrapingStep<C>> {
 
     private final C step;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static ScrapingStepInternalProxy<?> of(ScrapingStep<?> step) {
-        return new ScrapingStepInternalProxy(step);
+    public static ScrapingStepInternalReader<?> of(ScrapingStep<?> step) {
+        return new ScrapingStepInternalReader(step);
     }
 
     public StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
@@ -49,8 +50,16 @@ public class ScrapingStepInternalProxy<C extends ScrapingStep<C>> {
         return step.getNextSteps();
     }
 
+    public StepExecutionCondition getExecuteIf() {
+        return step.getExecuteIf();
+    }
+
     public DebuggingOptions getStepDebugging() {
         return step.getStepDebugging();
+    }
+
+    public ClientReservationType getClientReservationType() {
+        return step.getClientReservationType();
     }
 
 }

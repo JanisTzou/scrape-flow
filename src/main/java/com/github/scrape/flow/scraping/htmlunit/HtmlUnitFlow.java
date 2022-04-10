@@ -30,8 +30,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetAncestor.Type;
-
 /**
  * Class providing convenient entry point to all operations used to traverse, parse and perform actions on the scraped page.
  * These operations are "concatenated" in a fluent way.
@@ -60,7 +58,7 @@ public class HtmlUnitFlow {
          * {@link DomNode#getParentNode()}.
          */
         public static HtmlUnitGetAncestor parent() {
-            return new HtmlUnitGetAncestor(Type.PARENT);
+            return new HtmlUnitGetAncestor(1);
         }
 
         /**
@@ -68,7 +66,7 @@ public class HtmlUnitFlow {
          * {@link DomNode#getParentNode()}.
          */
         public static HtmlUnitGetAncestor ancestor(int nth) {
-            return new HtmlUnitGetAncestor(Type.NTH_ANCESTOR, nth);
+            return new HtmlUnitGetAncestor(nth);
         }
 
         /**

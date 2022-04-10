@@ -16,58 +16,30 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
 
-import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 public class HtmlUnitGetAncestor extends HtmlUnitScrapingStep<HtmlUnitGetAncestor> {
-    // TODO make possible to use general filters (by tag, class, attr ...) ... for this we need to split this into two
-    //  separate implementations - one for parent and one for ancestors (only ancestors should support filters)
+    // TODO make possible to use general filters (by tag, class, attr ...)
 
-    private final Type type;
-    private final Integer param;
+    private final int param;
 
-    HtmlUnitGetAncestor(Type type, @Nullable Integer param) {
-        this.type = type;
+    HtmlUnitGetAncestor(int param) {
         this.param = param;
-    }
-
-    HtmlUnitGetAncestor(Type type) {
-        this(type, null);
     }
 
     @Override
     protected HtmlUnitGetAncestor copy() {
-        return copyFieldValuesTo(new HtmlUnitGetAncestor(type, param));
+        return copyFieldValuesTo(new HtmlUnitGetAncestor(param));
     }
 
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
-        Runnable runnable = () -> {
-            DomNode node = ctx.getNode();
-            Supplier<List<DomNode>> nodesSearch = () -> {
-                if (type.equals(Type.PARENT)) {
-                    return Stream.of(node.getParentNode()).filter(n -> n instanceof HtmlElement).collect(Collectors.toList());
-                } else if (type.equals(Type.NTH_ANCESTOR)) {
-                    return HtmlUnitUtils.findNthAncestor(node, param).stream().collect(Collectors.toList());
-                }
-                return Collections.emptyList();
-            };
-            getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
-        };
-
+        Runnable runnable = () -> new HtmlUnitGetAncestorRunnable(param, ctx, stepOrder, getHelper(services));
         submitForExecution(stepOrder, runnable, services.getTaskService());
 
         return stepOrder;
@@ -76,12 +48,6 @@ public class HtmlUnitGetAncestor extends HtmlUnitScrapingStep<HtmlUnitGetAncesto
     @Override
     protected ClientReservationType getClientReservationType() {
         return ClientReservationType.READING;
-    }
-
-
-    public enum Type {
-        PARENT,
-        NTH_ANCESTOR,
     }
 
 }

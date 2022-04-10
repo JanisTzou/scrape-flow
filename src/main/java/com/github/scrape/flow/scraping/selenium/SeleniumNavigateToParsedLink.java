@@ -44,7 +44,7 @@ public class SeleniumNavigateToParsedLink extends SeleniumScrapingStep<SeleniumN
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
 
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         // TODO problem ... this does not track steps for us and also the data ...
         Runnable runnable = () -> {

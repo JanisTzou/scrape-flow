@@ -20,10 +20,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.CollectingParsedValueToModelStep;
-import com.github.scrape.flow.scraping.ParsingStep;
-import com.github.scrape.flow.scraping.ScrapingContext;
-import com.github.scrape.flow.scraping.ScrapingServices;
+import com.github.scrape.flow.scraping.*;
 import org.apache.commons.text.StringEscapeUtils;
 
 import java.util.function.BiConsumer;
@@ -45,7 +42,7 @@ public class HtmlUnitParseElementTextContent extends HtmlUnitScrapingStep<HtmlUn
 
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             String tc = null;
@@ -57,9 +54,9 @@ public class HtmlUnitParseElementTextContent extends HtmlUnitScrapingStep<HtmlUn
                 }
             }
 
-            String transformed = mapParsedValue(tc);
+            String mappedVal = mapParsedValue(tc);
 
-            setParsedValueToModel(this.getCollectors(), ctx, transformed, getName());
+            ParsedValueToModelCollector.setParsedValueToModel(this.getCollectors(), ctx, mappedVal, getName());
         };
 
         submitForExecution(stepOrder, runnable, services.getTaskService());

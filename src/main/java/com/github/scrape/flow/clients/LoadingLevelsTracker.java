@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping;
+package com.github.scrape.flow.clients;
 
-@FunctionalInterface
-public interface StepExecutionCondition {
+import com.github.scrape.flow.execution.StepOrder;
 
-    StepExecutionCondition NO_CONDITIONS = (String stepName, ContextModels models) -> true;
+public class LoadingLevelsTracker {
 
-    boolean canExecute(String stepName, ContextModels contextModels);
+//    private final Map<Integer, Integer>
+
+    public void track(StepOrder stepOrder) {
+
+    }
+
 
 }

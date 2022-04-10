@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping;
+package com.github.scrape.flow.execution;
 
-@FunctionalInterface
-public interface StepExecutionCondition {
+import static org.junit.Assert.*;
 
-    StepExecutionCondition NO_CONDITIONS = (String stepName, ContextModels models) -> true;
+public class StepHierarchyRepositoryTest {
 
-    boolean canExecute(String stepName, ContextModels contextModels);
+
+
 
 }

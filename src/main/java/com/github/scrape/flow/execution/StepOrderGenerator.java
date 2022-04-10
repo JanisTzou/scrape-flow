@@ -27,7 +27,7 @@ public class StepOrderGenerator {
      * @param stepAtPrevLevel step that was preceding on the "higher"/"previous" level
      *                        ... so has kind of a parent relationship to the next one to be generated
      */
-    public StepOrder genNextOrderAfter(StepOrder stepAtPrevLevel) {
+    public StepOrder genNextAfter(StepOrder stepAtPrevLevel) {
         return this.parentToLastGeneratedChild.compute(stepAtPrevLevel, (parent0, prevLastStep) -> {
             if (prevLastStep == null) {
                 return stepAtPrevLevel.nextAsChild();

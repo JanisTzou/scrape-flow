@@ -37,8 +37,7 @@ public class NextStepsWrappedInOneExclusiveBlock implements NextStepsHandler {
     }
 
     @Override
-    public SpawnedSteps execute(StepOrder currStepOrder,
-                                List<ScrapingStep<?>> nextSteps,
+    public SpawnedSteps execute(List<ScrapingStep<?>> nextSteps, StepOrder currStepOrder,
                                 ScrapingContext nextCtx,
                                 ScrapingServices services) {
         StepOrder stepOrder = exclusiveBlockFactory.wrapInExclusiveBlock(nextSteps).execute(nextCtx, services);

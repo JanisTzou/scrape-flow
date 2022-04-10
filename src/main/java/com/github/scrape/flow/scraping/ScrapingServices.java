@@ -23,14 +23,16 @@ import com.github.scrape.flow.execution.*;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitPageLoader;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
 import com.github.scrape.flow.throttling.ThrottlingService;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /**
  * Encapsulates service singleton classes that need to be accessible to all steps
  */
 @Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class ScrapingServices {
 
     private final StepOrderGenerator stepOrderGenerator;
@@ -48,6 +50,8 @@ public class ScrapingServices {
     private final SeleniumClientManager seleniumClientManager;
     private final HtmlUnitClientManager htmlUnitClientManager;
     private final HtmlUnitPageLoader htmlUnitSiteLoader;
+    @Setter
+    private volatile StepHierarchyRepository stepHierarchyRepository;
 
     public ScrapingServices(ScrapingRateLimiter scrapingRateLimiter) {
         this.stepOrderGenerator = new StepOrderGenerator();

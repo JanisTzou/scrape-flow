@@ -18,9 +18,6 @@ package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.execution.StepOrder;
 import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -29,7 +26,7 @@ public class NextStepsAsDefinedByUserTest extends NextStepsHandlerTestBase {
     @Test
     public void eachStepIsExecuted() {
         NextStepsAsDefinedByUser nextStepsHandler = new NextStepsAsDefinedByUser();
-        nextStepsHandler.execute(StepOrder.INITIAL, steps, context, services);
+        nextStepsHandler.execute(steps, StepOrder.INITIAL, context, services);
 
         steps.forEach(step -> verify(step, times(1)).execute(context, services));
 

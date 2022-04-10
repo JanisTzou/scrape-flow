@@ -19,9 +19,13 @@ package com.github.scrape.flow.scraping.htmlunit;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.github.scrape.TaskExecutorFakeConfig;
+import com.github.scrape.TestConfiguration;
 import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.scraping.ScrapingContext;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.List;
 
@@ -29,15 +33,21 @@ import static com.github.scrape.flow.scraping.htmlunit.TestUtils.getHtmlAnchorMo
 import static com.github.scrape.flow.scraping.htmlunit.TestUtils.getPageMock;
 import static org.junit.Assert.assertEquals;
 
-public class HtmlUnitFollowLinkTest {
+@ContextConfiguration(classes = {TestConfiguration.class, TaskExecutorFakeConfig.class})
+public class HtmlUnitFollowLinkRunnableTest {
 
-    private HtmlUnitFollowLink followLink;
+    private HtmlUnitFollowLinkRunnable followLink;
     private HtmlPage nextPageMock;
     private HtmlAnchor anchorMock;
 
     @Before
     public void setUp() throws Exception {
-        followLink = new HtmlUnitFollowLink();
+        followLink = new HtmlUnitFollowLinkRunnable(
+                new ScrapingContext(StepOrder.INITIAL, anchorMock),
+                StepOrder.INITIAL.nextAsChild(),
+                null,
+                "name"
+        );
 
         nextPageMock = getPageMock("http://next_url");
         anchorMock = getHtmlAnchorMock("http://curr_url", nextPageMock);

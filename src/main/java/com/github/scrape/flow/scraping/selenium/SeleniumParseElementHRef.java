@@ -19,10 +19,7 @@ package com.github.scrape.flow.scraping.selenium;
 import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.CollectingParsedValueToModelStep;
-import com.github.scrape.flow.scraping.ParsingStep;
-import com.github.scrape.flow.scraping.ScrapingContext;
-import com.github.scrape.flow.scraping.ScrapingServices;
+import com.github.scrape.flow.scraping.*;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
@@ -53,19 +50,19 @@ public class SeleniumParseElementHRef extends SeleniumScrapingStep<SeleniumParse
 
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             if (SeleniumUtils.hasAttribute(ctx.getWebElement(), "href")) {
                 String href = ctx.getWebElement().getAttribute("href");
                 if (href != null) {
-                    String converted = mapParsedValue(href);
-                    log.debug("{} - {}: Parsed href: {}", stepOrder, getName(), converted);
+                    String mappedVal = mapParsedValue(href);
+                    log.debug("{} - {}: Parsed href: {}", stepOrder, getName(), mappedVal);
 
-                    setParsedValueToModel(this.getCollectors(), ctx, converted, getName());
+                    ParsedValueToModelCollector.setParsedValueToModel(this.getCollectors(), ctx, mappedVal, getName());
 
                     Supplier<List<WebElement>> nodesSearch = () -> List.of(ctx.getWebElement()); // just resend the node ...
-                    ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(converted).build();
+                    ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(mappedVal).build();
                     getHelper().execute(ctxCopy, nodesSearch, stepOrder, getExecuteIf(), services);
                 }
             } else {

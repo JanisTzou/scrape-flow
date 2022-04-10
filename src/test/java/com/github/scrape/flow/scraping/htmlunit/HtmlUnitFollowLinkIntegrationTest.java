@@ -47,7 +47,7 @@ public class HtmlUnitFollowLinkIntegrationTest {
     private HtmlAnchor anchorMock;
 
     @Autowired
-    private ScrapingServices scrapingServices;
+    private ScrapingServices services;
 
     private HtmlUnitStepBlock nextStepMock1;
     private HtmlUnitStepBlock nextStepMock2;
@@ -68,7 +68,7 @@ public class HtmlUnitFollowLinkIntegrationTest {
     @Test
     @DirtiesContext
     public void allNextStepsAreCalledWithNextPage() {
-        followLink.execute(new ScrapingContext(StepOrder.INITIAL, anchorMock), scrapingServices);
+        followLink.execute(new ScrapingContext(StepOrder.INITIAL, anchorMock), services);
 
         ArgumentCaptor<ScrapingContext> captor1 = ArgumentCaptor.forClass(ScrapingContext.class);
         ArgumentCaptor<ScrapingContext> captor2 = ArgumentCaptor.forClass(ScrapingContext.class);

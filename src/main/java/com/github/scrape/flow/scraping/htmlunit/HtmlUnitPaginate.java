@@ -45,7 +45,7 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
     protected HtmlUnitPaginate copy() {
         HtmlUnitPaginate copy = new HtmlUnitPaginate(servicesPropagatedToTrigger);
         if (this.paginatingSequence != null) {
-            copy.paginatingSequence = ScrapingStepInternalProxy.of(this.paginatingSequence).copy();
+            copy.paginatingSequence = ScrapingStepInternalReader.of(this.paginatingSequence).copy();
         }
         return copyFieldValuesTo(copy);
     }
@@ -60,7 +60,7 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
                 ? ctx.getPrevStepOrder()
                 : ctx.getRootLoopedStepOrder();
 
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(prevStepOrder);
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(prevStepOrder);
 
         checkPaginationTriggerAndLinkItToThisStep();
 
@@ -79,7 +79,7 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
                         .setRecursiveRootStepOrder(null)
                         .build();
                 NextStepsHandler nextStepsHandler = new NextStepsWrappedInOneExclusiveBlock(); // we need to make absolutely sure that the next steps have finished before we go to next page
-                getHelper(nextStepsHandler).execute(plainCtx, nodesSearch, stepOrder, getExecuteIf(), services);
+                getHelper(services, nextStepsHandler).execute(nodesSearch, plainCtx, stepOrder);
 
                 // PAGINATION
                 ScrapingContext paginatingCtx = ctx.toBuilder()
@@ -91,7 +91,7 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
                 //  but it is questionably if we would like to design the data propagation as models if it's just for internal purposes ...
 //                services.getStepAndDataRelationshipTracker().track(stepOrder, generatedSteps, model, (ParsedDataListener<Object>) collecting.getDataListener());
 
-                ScrapingStepInternalProxy.of(paginatingSequence).execute(paginatingCtx, services);
+                ScrapingStepInternalReader.of(paginatingSequence).execute(paginatingCtx, services);
 
             }
         };
@@ -106,7 +106,7 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
      * In practice this is most often the action finding the "NEXT" button element and clicking it.
      */
     public HtmlUnitPaginate setStepsLoadingNextPage(HtmlUnitScrapingStep<?> paginatingSequence) {
-        this.paginatingSequence = ScrapingStepInternalProxy.of(paginatingSequence).copy();
+        this.paginatingSequence = ScrapingStepInternalReader.of(paginatingSequence).copy();
         return this;
     }
 

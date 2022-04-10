@@ -42,7 +42,7 @@ public class BbcComDemo {
     @Test
     public void demo() throws InterruptedException {
 
-        final Scraping scraping = new Scraping(5, TimeUnit.SECONDS)
+        final Scraping scraping = new Scraping(10, TimeUnit.SECONDS)
                 .setSequence(
                         Do.navigateToUrl("https://www.bbc.com/news/world")
                                 .next(Get.descendants().byAttr("aria-label", "World")
@@ -60,7 +60,8 @@ public class BbcComDemo {
                                                                 )
                                                         )
                                                 )
-                                        ))
+                                        )
+                                )
 
                 );
         start(scraping);
@@ -94,8 +95,7 @@ public class BbcComDemo {
                                         )
                                 )
                         )
-                )
-                ;
+                );
     }
 
 

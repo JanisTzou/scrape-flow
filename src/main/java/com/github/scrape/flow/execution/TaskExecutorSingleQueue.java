@@ -28,6 +28,7 @@ import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Queue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -52,7 +53,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
     //  depends how we will handle windows ... vs threads ...
     //  in fact we should not have separate threads for loading stuff ...
     private static final Scheduler blockingTasksScheduler = Schedulers.newBoundedElastic(Runtime.getRuntime().availableProcessors(), Integer.MAX_VALUE, "io-worker", 60, true);
-    private volatile Supplier<LocalDateTime> nowSupplier;
+    private final Supplier<LocalDateTime> nowSupplier;
     private final ClientReservationHandler clientReservationHandler;
 
     public TaskExecutorSingleQueue(ThrottlingService throttlingService,
@@ -282,6 +283,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
     @Override
     public boolean awaitCompletion(Duration timeout) {
 
+        LocalDateTime start = LocalDateTime.now();
         long checkFrequencyMillis = timeout.toMillis() > COMPLETION_CHECK_FREQUENCY_MILLIS ? COMPLETION_CHECK_FREQUENCY_MILLIS : 1L;
         Duration period = Duration.ofMillis(checkFrequencyMillis);
 
@@ -292,7 +294,9 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
                     .doOnNext(checkNo -> {
                         // TODO cleanup reasources ... open browser windows and such ...
                         if (activeTaskCount.get() == 0 && taskQueue.size() == 0) {
-                            log.info(">>> Finished scraping <<<");
+                            LocalDateTime end = LocalDateTime.now();
+                            long millis = ChronoUnit.MILLIS.between(start, end);
+                            log.info(">>> Finished scraping in {}s <<<", millis / 1000.0);
                             withinTimeout.set(true);
                             throw new TerminateFluxException();
                         }
@@ -332,14 +336,6 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
 
     private void logDroppingRetrying(Task request, Throwable error) {
         log.trace("Dropping request retry {} after error: ", request.loggingInfo(), error);
-    }
-
-    /**
-     * FOR TESTING PURPOSES ONLY.
-     * Needed so we are able to test changes of behaviour based on the passage of time
-     */
-    void setNowSupplier(Supplier<LocalDateTime> nowSupplierNew) {
-        this.nowSupplier = nowSupplierNew;
     }
 
     // used only to terminate a blocking flux from within (no other way to "cancel" it)

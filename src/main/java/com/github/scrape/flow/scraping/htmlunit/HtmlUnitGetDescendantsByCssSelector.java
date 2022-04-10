@@ -46,11 +46,11 @@ public class HtmlUnitGetDescendantsByCssSelector extends HtmlUnitScrapingStep<Ht
 
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.getDescendantsBySccSelector(ctx.getNode(), sccSelector);
-            getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
+            getHelper(services).execute(nodesSearch, ctx, stepOrder);
         };
 
         submitForExecution(stepOrder, runnable, services.getTaskService());

@@ -21,10 +21,7 @@ import com.github.scrape.flow.scraping.htmlunit.HtmlUnitStepBlock;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
-
 import static com.github.scrape.flow.scraping.NextStepsWrappedInOneExclusiveBlock.*;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class NextStepsWrappedInOneExclusiveBlockTest extends NextStepsHandlerTestBase {
@@ -39,7 +36,7 @@ public class NextStepsWrappedInOneExclusiveBlockTest extends NextStepsHandlerTes
         when(sbMock.execute(context, services)).thenReturn(stepOrder);
 
         NextStepsWrappedInOneExclusiveBlock nextStepsHandler = new NextStepsWrappedInOneExclusiveBlock(bfMock);
-        nextStepsHandler.execute(StepOrder.INITIAL, steps, context, services);
+        nextStepsHandler.execute(steps, StepOrder.INITIAL, context, services);
 
         steps.forEach(Mockito::verifyNoInteractions);
         verify(sbMock, times(1)).execute(context, services);

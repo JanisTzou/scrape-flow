@@ -21,10 +21,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.CollectingParsedValueToModelStep;
-import com.github.scrape.flow.scraping.ParsingStep;
-import com.github.scrape.flow.scraping.ScrapingContext;
-import com.github.scrape.flow.scraping.ScrapingServices;
+import com.github.scrape.flow.scraping.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -54,21 +51,21 @@ public class HtmlUnitParseElementHRef extends HtmlUnitScrapingStep<HtmlUnitParse
 
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             if (ctx.getNode() instanceof HtmlAnchor) {
                 HtmlAnchor anch = (HtmlAnchor) ctx.getNode();
                 String href = anch.getHrefAttribute();
                 if (href != null) {
-                    String converted = mapParsedValue(href);
-                    log.debug("{} - {}: Parsed href: {}", stepOrder, getName(), converted);
+                    String mappedVal = mapParsedValue(href);
+                    log.debug("{} - {}: Parsed href: {}", stepOrder, getName(), mappedVal);
 
-                    setParsedValueToModel(this.getCollectors(), ctx, converted, getName());
+                    ParsedValueToModelCollector.setParsedValueToModel(this.getCollectors(), ctx, mappedVal, getName());
 
                     Supplier<List<DomNode>> nodesSearch = () -> List.of(ctx.getNode()); // just resend the node ...
-                    ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(converted).build();
-                    getHelper().execute(ctxCopy, nodesSearch, stepOrder, getExecuteIf(), services);
+                    ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(mappedVal).build();
+                    getHelper(services).execute(nodesSearch, ctxCopy, stepOrder);
                 }
             } else {
                 log.warn("No HtmlAnchor element provided -> cannot parse href value! Check the steps sequence above step {}", getName());

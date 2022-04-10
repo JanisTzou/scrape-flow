@@ -23,7 +23,7 @@ import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.LoadingNewPage;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.ScrapingStepInternalProxy;
+import com.github.scrape.flow.scraping.ScrapingStepInternalReader;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.Optional;
@@ -43,7 +43,7 @@ public class HtmlUnitNavigateToParsedLink extends HtmlUnitScrapingStep<HtmlUnitN
     // the URL must come from the parsing context!!
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         // TODO problem ... this does not track steps for us and also the data ...
         Runnable runnable = () -> {
@@ -51,7 +51,7 @@ public class HtmlUnitNavigateToParsedLink extends HtmlUnitScrapingStep<HtmlUnitN
                 Optional<ClientOperator<WebClient>> operator = services.getClientReservationHandler().getHtmlUnitClient(stepOrder);
                 if (operator.isPresent()) {
                     // TODO if this step type has collectors then we need similar logic as in Wrapper ...
-                    services.getHtmlUnitSiteLoader().loadPageAndExecuteNextSteps(ctx.getParsedURL(), ctx, ScrapingStepInternalProxy.of(this).getNextSteps(), stepOrder, services, operator.get().getClient());
+                    services.getHtmlUnitSiteLoader().loadPageAndExecuteNextSteps(ctx.getParsedURL(), ctx, ScrapingStepInternalReader.of(this).getNextSteps(), stepOrder, services, operator.get().getClient());
                 } else {
                     log.error("No client!");
                 }

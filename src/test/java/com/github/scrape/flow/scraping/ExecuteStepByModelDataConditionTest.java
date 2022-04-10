@@ -32,11 +32,11 @@ public class ExecuteStepByModelDataConditionTest {
         String modelData = "123";
         ExecuteStepByModelDataCondition condition = new ExecuteStepByModelDataCondition(val -> val.equals(modelData), String.class);
 
-        assertFalse(condition.canExecute(step, contextModels));
+        assertFalse(condition.canExecute(step.getName(), contextModels));
 
         contextModels.add(modelData, String.class);
 
-        assertTrue(condition.canExecute(step, contextModels));
+        assertTrue(condition.canExecute(step.getName(), contextModels));
 
     }
 

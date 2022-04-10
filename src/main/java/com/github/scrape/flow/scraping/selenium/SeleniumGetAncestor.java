@@ -60,7 +60,7 @@ public class SeleniumGetAncestor extends SeleniumScrapingStep<SeleniumGetAncesto
 
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
-        StepOrder stepOrder = services.getStepOrderGenerator().genNextOrderAfter(ctx.getPrevStepOrder());
+        StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
             WebElement we = ctx.getWebElement();

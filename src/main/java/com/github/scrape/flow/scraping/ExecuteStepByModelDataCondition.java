@@ -37,22 +37,22 @@ class ExecuteStepByModelDataCondition implements StepExecutionCondition {
     }
 
     @Override
-    public boolean canExecute(ScrapingStep<?> step, ContextModels contextModels) {
+    public boolean canExecute(String stepName, ContextModels contextModels) {
         try {
             Optional<ModelWrapper> model = contextModels.getModelFor(modelType);
             if (model.isPresent()) {
-                log.trace("{}: Found model and will execute condition", step.getName());
+                log.trace("{}: Found model and will execute condition", stepName);
                 boolean canExecute = predicate.test(model.get().getModel());
                 if (canExecute) {
                     return true;
                 }
             } else {
-                log.error("No model is set up for parsed value in step {}! Cannot execute step conditionally based on it!", step.getName());
+                log.error("No model is set up for parsed value in step {}! Cannot execute step conditionally based on it!", stepName);
                 return false;
             }
             return true;
         } catch (Exception e) {
-            log.error("Error evaluating execution condition for step: {} - step will not run", step.getName(), e);
+            log.error("Error evaluating execution condition for step: {} - step will not run", stepName, e);
             return false;
         }
     }
