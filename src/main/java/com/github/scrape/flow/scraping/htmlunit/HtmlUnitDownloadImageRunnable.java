@@ -17,11 +17,10 @@
 package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.scrape.flow.clients.ClientReservationType;
-import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.data.collectors.Collectors;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.*;
+import com.github.scrape.flow.scraping.ParsedValueToModelCollector;
+import com.github.scrape.flow.scraping.ScrapingContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -29,10 +28,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
-
-import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
 @Log4j2
 @RequiredArgsConstructor

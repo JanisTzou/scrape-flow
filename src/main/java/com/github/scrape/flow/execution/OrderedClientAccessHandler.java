@@ -19,7 +19,10 @@ package com.github.scrape.flow.execution;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.SortedMap;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor

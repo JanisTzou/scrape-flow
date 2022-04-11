@@ -19,7 +19,8 @@ package com.github.scrape.flow.scraping;
 import com.github.scrape.flow.execution.StepOrder;
 import org.junit.Test;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class NextStepsAsDefinedByUserTest extends NextStepsHandlerTestBase {
 

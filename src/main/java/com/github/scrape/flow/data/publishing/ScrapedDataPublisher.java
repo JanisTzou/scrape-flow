@@ -16,6 +16,7 @@
 
 package com.github.scrape.flow.data.publishing;
 
+import com.github.scrape.flow.execution.FinalizedModels;
 import com.github.scrape.flow.execution.StepAndDataRelationshipTracker;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.SpawnedSteps;
@@ -24,8 +25,6 @@ import lombok.extern.log4j.Log4j2;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
-import com.github.scrape.flow.execution.FinalizedModels;
 
 @Log4j2
 public class ScrapedDataPublisher {

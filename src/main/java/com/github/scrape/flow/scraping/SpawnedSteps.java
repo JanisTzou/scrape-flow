@@ -19,7 +19,6 @@ package com.github.scrape.flow.scraping;
 import com.github.scrape.flow.execution.StepOrder;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;

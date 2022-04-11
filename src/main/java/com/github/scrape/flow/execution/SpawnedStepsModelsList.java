@@ -16,8 +16,6 @@
 
 package com.github.scrape.flow.execution;
 
-import lombok.Getter;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;

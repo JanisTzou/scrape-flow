@@ -16,16 +16,13 @@
 
 package com.github.scrape;
 
-import com.github.scrape.flow.execution.*;
+import com.github.scrape.flow.execution.StepHierarchyRepository;
+import com.github.scrape.flow.execution.StepMetadata;
 import com.github.scrape.flow.scraping.ScrapingStep;
-import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Collections;
-
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.mock;
 
 @Configuration
 public class StepHierarchyRepositoryMockConfig {

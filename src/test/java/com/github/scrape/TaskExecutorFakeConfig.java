@@ -26,8 +26,6 @@ import org.springframework.context.annotation.Configuration;
 import java.time.Duration;
 import java.util.function.Consumer;
 
-import static org.mockito.Mockito.mock;
-
 @Configuration
 public class TaskExecutorFakeConfig {
 

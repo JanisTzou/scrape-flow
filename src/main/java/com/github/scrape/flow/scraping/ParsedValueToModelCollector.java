@@ -25,7 +25,6 @@ import org.apache.logging.log4j.Logger;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 
 import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 

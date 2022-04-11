@@ -22,7 +22,6 @@ import com.github.scrape.flow.scraping.htmlunit.HtmlUnitUtils;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor

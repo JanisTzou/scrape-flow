@@ -18,7 +18,6 @@ package com.github.scrape.flow.clients;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import lombok.RequiredArgsConstructor;
-import org.openqa.selenium.WebDriver;
 
 import java.util.Map;
 import java.util.Optional;

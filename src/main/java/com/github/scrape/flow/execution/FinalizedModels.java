@@ -17,12 +17,8 @@
 package com.github.scrape.flow.execution;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 import java.util.Comparator;
-import java.util.Objects;
 
 /**
  * Holds the data for which all parsing tasks have been finished and should contained final parsed information

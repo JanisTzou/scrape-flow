@@ -17,8 +17,6 @@
 package com.github.scrape;
 
 import com.github.scrape.flow.clients.ClientReservationHandler;
-import com.github.scrape.flow.execution.TaskExecutor;
-import com.github.scrape.flow.execution.TaskExecutorSingleQueue;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

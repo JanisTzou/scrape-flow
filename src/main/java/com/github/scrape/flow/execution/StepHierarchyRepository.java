@@ -21,7 +21,6 @@ import com.github.scrape.flow.scraping.ScrapingStepInternalReader;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
 

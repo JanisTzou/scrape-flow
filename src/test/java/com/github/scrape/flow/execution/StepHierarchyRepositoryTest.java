@@ -16,8 +16,6 @@
 
 package com.github.scrape.flow.execution;
 
-import static org.junit.Assert.*;
-
 public class StepHierarchyRepositoryTest {
 
 

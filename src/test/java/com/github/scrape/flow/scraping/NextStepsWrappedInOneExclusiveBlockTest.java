@@ -21,7 +21,7 @@ import com.github.scrape.flow.scraping.htmlunit.HtmlUnitStepBlock;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static com.github.scrape.flow.scraping.NextStepsWrappedInOneExclusiveBlock.*;
+import static com.github.scrape.flow.scraping.NextStepsWrappedInOneExclusiveBlock.ExclusiveBlockFactory;
 import static org.mockito.Mockito.*;
 
 public class NextStepsWrappedInOneExclusiveBlockTest extends NextStepsHandlerTestBase {

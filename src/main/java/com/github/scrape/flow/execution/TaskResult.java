@@ -17,8 +17,6 @@
 package com.github.scrape.flow.execution;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Data
 public class TaskResult {

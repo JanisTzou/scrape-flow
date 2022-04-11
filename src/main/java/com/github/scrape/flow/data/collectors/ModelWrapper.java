@@ -17,8 +17,6 @@
 package com.github.scrape.flow.data.collectors;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Collections;
 import java.util.Set;
