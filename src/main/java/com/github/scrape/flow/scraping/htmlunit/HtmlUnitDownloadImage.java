@@ -44,7 +44,7 @@ public class HtmlUnitDownloadImage extends HtmlUnitScrapingStep<HtmlUnitDownload
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
         StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
         Runnable runnable = new HtmlUnitDownloadImageRunnable(ctx, stepOrder, getHelper(services), getName(), getCollectors());
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
         return stepOrder;
     }
 

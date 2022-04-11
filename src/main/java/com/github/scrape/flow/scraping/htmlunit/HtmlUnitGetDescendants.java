@@ -48,7 +48,7 @@ public class HtmlUnitGetDescendants extends HtmlUnitScrapingStep<HtmlUnitGetDesc
             getHelper(services).execute(nodesSearch, ctx, stepOrder);
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

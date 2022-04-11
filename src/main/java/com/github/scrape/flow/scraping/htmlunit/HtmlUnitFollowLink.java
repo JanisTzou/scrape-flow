@@ -16,21 +16,12 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.LoadingNewPage;
-import com.github.scrape.flow.scraping.RequestException;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.extern.log4j.Log4j2;
-
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Supplier;
 
 @Log4j2
 public class HtmlUnitFollowLink extends HtmlUnitScrapingStep<HtmlUnitFollowLink>
@@ -48,7 +39,7 @@ public class HtmlUnitFollowLink extends HtmlUnitScrapingStep<HtmlUnitFollowLink>
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
         StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
         Runnable runnable = new HtmlUnitFollowLinkRunnable(ctx, stepOrder, getHelper(services), getName());
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
         return stepOrder;
     }
 

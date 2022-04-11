@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.github.scrape.StepHierarchyRepositoryMockConfig;
 import com.github.scrape.TaskExecutorFakeConfig;
 import com.github.scrape.TestConfiguration;
 import com.github.scrape.flow.execution.StepOrder;
@@ -39,7 +40,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {TestConfiguration.class, TaskExecutorFakeConfig.class})
+@ContextConfiguration(classes = {TestConfiguration.class, TaskExecutorFakeConfig.class, StepHierarchyRepositoryMockConfig.class})
 public class HtmlUnitFollowLinkIntegrationTest {
 
     private HtmlUnitFollowLink followLink;

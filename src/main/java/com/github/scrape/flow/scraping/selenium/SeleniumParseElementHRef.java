@@ -70,7 +70,7 @@ public class SeleniumParseElementHRef extends SeleniumScrapingStep<SeleniumParse
             }
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

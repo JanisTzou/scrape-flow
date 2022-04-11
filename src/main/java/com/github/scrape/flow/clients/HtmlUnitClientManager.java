@@ -18,10 +18,12 @@ package com.github.scrape.flow.clients;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import lombok.RequiredArgsConstructor;
+import org.openqa.selenium.WebDriver;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 public class HtmlUnitClientManager implements ClientManager<WebClient> {
@@ -31,10 +33,13 @@ public class HtmlUnitClientManager implements ClientManager<WebClient> {
 
     @Override
     public Optional<ClientOperator<WebClient>> getUnreservedClient() {
-        return clientOperators.values().stream()
-                .filter(c -> !c.isReserved())
+        return getExistingUnreservedClients()
                 .findFirst()
                 .or(this::createNewDriverIfNotAtMaxLimit);
+    }
+
+    private Stream<ClientOperator<WebClient>> getExistingUnreservedClients() {
+        return clientOperators.values().stream().filter(c -> !c.isReserved());
     }
 
     public ClientOperator<WebClient> getClient(int clientNo) {
@@ -50,7 +55,7 @@ public class HtmlUnitClientManager implements ClientManager<WebClient> {
     }
 
     private Optional<ClientOperator<WebClient>> createNewDriverIfNotAtMaxLimit() {
-        if (clientOperators.size() < clientFactory.maxDrivers()) {
+        if (clientOperators.size() < clientFactory.maxClients()) {
             int nextClientNo = clientOperators.size() + 1;
             HtmlUnitClientOperator operator = new HtmlUnitClientOperator(
                     nextClientNo,
@@ -60,6 +65,18 @@ public class HtmlUnitClientManager implements ClientManager<WebClient> {
             return Optional.of(operator);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public int existingClientsCount() {
+        return clientOperators.size();
+    }
+
+    @Override
+    public int maxUnreservedClients() {
+        int existingUnreservedCount = (int) getExistingUnreservedClients().count();
+        int notCreatedYetCount = clientFactory.maxClients() - existingClientsCount();
+        return existingUnreservedCount + notCreatedYetCount;
     }
 
 }

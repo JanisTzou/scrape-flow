@@ -45,7 +45,7 @@ public class SeleniumClientFactory implements ClientFactory<WebDriver> {
     }
 
     @Override
-    public int maxDrivers() {
+    public int maxClients() {
         return 2; // TODO make user defined! ...
     }
 }

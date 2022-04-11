@@ -60,7 +60,7 @@ public class HtmlUnitNavigateToParsedLink extends HtmlUnitScrapingStep<HtmlUnitN
             }
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

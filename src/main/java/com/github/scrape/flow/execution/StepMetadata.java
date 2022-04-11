@@ -20,12 +20,20 @@ import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.scraping.ScrapingStep;
 import lombok.Data;
 
+import java.util.Comparator;
+
 @Data
 public class StepMetadata {
 
+    public static Comparator<StepMetadata> COMPARATOR_BY_LOADING_STEP_COUNT = Comparator.comparingInt(sm -> sm.loadingStepCountUpToThisStep);
+
     private final ScrapingStep<?> step;
-    private final StepOrder stepOrder;
+    // order in the step hierarchy/tree
+    private final StepOrder stepHierarchyOrder;
     private final ClientReservationType clientReservationType;
+
+    // includes this step
+    private final int loadingStepCountUpToThisStep;
 
 
 }

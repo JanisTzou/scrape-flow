@@ -20,6 +20,6 @@ public interface ClientFactory<T> {
 
     T startDriver();
 
-    int maxDrivers();
+    int maxClients();
 
 }

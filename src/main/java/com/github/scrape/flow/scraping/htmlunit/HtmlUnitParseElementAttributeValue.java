@@ -78,7 +78,7 @@ public class HtmlUnitParseElementAttributeValue extends HtmlUnitScrapingStep<Htm
             }
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

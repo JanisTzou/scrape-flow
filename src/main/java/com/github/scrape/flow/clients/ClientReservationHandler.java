@@ -17,6 +17,7 @@
 package com.github.scrape.flow.clients;
 
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.github.scrape.flow.execution.OrderedClientAccessHandler;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.ClientType;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class ClientReservationHandler {
     private final ClientReservationTracker reservationTracker;
     private final SeleniumClientManager seleniumClientManager;
     private final HtmlUnitClientManager htmlUnitClientManager;
+    private final OrderedClientAccessHandler orderedClientAccessHandler;
 
     public synchronized Optional<ClientOperator<WebClient>> getHtmlUnitClient(StepOrder stepOrder) {
         return reservationTracker.getReservation(stepOrder)
@@ -69,12 +71,14 @@ public class ClientReservationHandler {
             case MODIFYING:
                 return reservationTracker.canActivateModifyingReservationOf(rq.getStep());
             case LOADING:
-                // TODO only if this is the right level !
+                boolean anyUnreservedClient;
                 switch (rq.getClientType()) {
                     case SELENIUM:
-                        return seleniumClientManager.getUnreservedClient().isPresent();
+                        anyUnreservedClient = seleniumClientManager.getUnreservedClient().isPresent();
+                        return anyUnreservedClient && orderedClientAccessHandler.enoughFreeClientsForPrecedingSteps(seleniumClientManager.maxUnreservedClients(), rq.getStep());
                     case HTMLUNIT:
-                        return htmlUnitClientManager.getUnreservedClient().isPresent();
+                        anyUnreservedClient = htmlUnitClientManager.getUnreservedClient().isPresent();
+                        return anyUnreservedClient && orderedClientAccessHandler.enoughFreeClientsForPrecedingSteps(htmlUnitClientManager.maxUnreservedClients(), rq.getStep());
                 }
                 return true;
             default:

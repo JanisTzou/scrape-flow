@@ -35,7 +35,7 @@ public class HtmlUnitClientFactory implements ClientFactory<WebClient> {
     }
 
     @Override
-    public int maxDrivers() {
+    public int maxClients() {
 //        return Integer.MAX_VALUE;  // TODO change ...
         return 3;  // TODO change ...
     }

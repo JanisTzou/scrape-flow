@@ -66,7 +66,7 @@ public class HtmlUnitGetElementsNatively extends HtmlUnitScrapingStep<HtmlUnitGe
             getHelper(services).execute(nodesSearch, ctx, stepOrder);
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

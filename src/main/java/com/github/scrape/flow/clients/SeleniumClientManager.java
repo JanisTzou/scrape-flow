@@ -24,6 +24,7 @@ import org.openqa.selenium.WebDriver;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 public class SeleniumClientManager implements ClientManager<WebDriver> {
@@ -33,12 +34,16 @@ public class SeleniumClientManager implements ClientManager<WebDriver> {
 
     @Override
     public Optional<ClientOperator<WebDriver>> getUnreservedClient() {
-        return clientOperators.values().stream()
-                .filter(c -> !c.isReserved())
+        return getExistingUnreservedClients()
                 .findFirst()
                 .or(this::createNewDriverIfNotAtMaxLimit);
     }
 
+    private Stream<ClientOperator<WebDriver>> getExistingUnreservedClients() {
+        return clientOperators.values().stream().filter(c -> !c.isReserved());
+    }
+
+    @Override
     public ClientOperator<WebDriver> getClient(int clientNo) {
         return clientOperators.get(clientNo);
     }
@@ -52,7 +57,7 @@ public class SeleniumClientManager implements ClientManager<WebDriver> {
     }
 
     private Optional<ClientOperator<WebDriver>> createNewDriverIfNotAtMaxLimit() {
-        if (clientOperators.size() < clientFactory.maxDrivers()) {
+        if (clientOperators.size() < clientFactory.maxClients()) {
             int nextClientNo = clientOperators.size() + 1;
             SeleniumClientOperator operator = new SeleniumClientOperator(
                     nextClientNo,
@@ -66,5 +71,16 @@ public class SeleniumClientManager implements ClientManager<WebDriver> {
         return Optional.empty();
     }
 
+    @Override
+    public int existingClientsCount() {
+        return clientOperators.size();
+    }
+
+    @Override
+    public int maxUnreservedClients() {
+        int existingUnreservedCount = (int) getExistingUnreservedClients().count();
+        int notCreatedYetCount = clientFactory.maxClients() - existingClientsCount();
+        return existingUnreservedCount + notCreatedYetCount;
+    }
 
 }

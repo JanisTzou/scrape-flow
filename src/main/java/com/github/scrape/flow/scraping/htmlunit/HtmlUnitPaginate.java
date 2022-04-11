@@ -96,7 +96,7 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
             }
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

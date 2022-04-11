@@ -49,7 +49,7 @@ public class HtmlUnitGetChildren extends HtmlUnitScrapingStep<HtmlUnitGetChildre
             getHelper(services).execute(nodesSearch, ctx, stepOrder);
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

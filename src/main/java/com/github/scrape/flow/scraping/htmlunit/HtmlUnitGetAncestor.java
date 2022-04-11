@@ -40,7 +40,7 @@ public class HtmlUnitGetAncestor extends HtmlUnitScrapingStep<HtmlUnitGetAncesto
         StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> new HtmlUnitGetAncestorRunnable(param, ctx, stepOrder, getHelper(services));
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

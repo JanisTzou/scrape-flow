@@ -24,4 +24,7 @@ public interface ClientManager<T> {
 
     Optional<ClientOperator<T>> getUnreservedClient();
 
+    int existingClientsCount();
+
+    int maxUnreservedClients();
 }

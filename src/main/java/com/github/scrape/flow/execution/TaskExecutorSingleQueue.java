@@ -67,7 +67,8 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
                 new ExecutingTasksTracker(),
                 exclusiveExecutionTracker,
                 activeStepsTracker,
-                scrapingRateLimiter, clientReservationHandler);
+                scrapingRateLimiter,
+                clientReservationHandler);
     }
 
     /**
@@ -190,7 +191,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
                     logRequestError(task, error);
                     return error;
                 })
-                .retryWhen(Retry.backoff(task.getMaxRetries(), task.getRetryBackoff()))
+                .retryWhen(Retry.backoff(task.getMaxRetries(), task.getRetryBackoff()).filter(t -> !(t instanceof FlowException)))
                 .onErrorResume(error -> {
                     logDroppingRetrying(task, error);
                     logEnqueuedRequestCount();

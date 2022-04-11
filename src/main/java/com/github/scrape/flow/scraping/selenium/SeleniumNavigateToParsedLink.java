@@ -69,7 +69,7 @@ public class SeleniumNavigateToParsedLink extends SeleniumScrapingStep<SeleniumN
             }
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

@@ -59,7 +59,7 @@ public class HtmlUnitParseElementTextContent extends HtmlUnitScrapingStep<HtmlUn
             ParsedValueToModelCollector.setParsedValueToModel(this.getCollectors(), ctx, mappedVal, getName());
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

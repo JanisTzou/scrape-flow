@@ -37,39 +37,25 @@ import java.util.concurrent.TimeUnit;
 public class TestConfiguration {
 
     @Bean
-    public ScrapingServices scrapingServices(StepOrderGenerator stepOrderGenerator,
-                                             ThrottlingService throttlingService,
-                                             ActiveStepsTracker activeStepsTracker,
-                                             ClientReservationTracker clientReservationTracker,
-                                             ClientReservationHandler clientReservationHandler,
-                                             StepAndDataRelationshipTracker stepAndDataRelationshipTracker,
-                                             ExclusiveExecutionTracker exclusiveExecutionTracker,
-                                             ScrapedDataPublisher scrapedDataPublisher,
-                                             TaskExecutor taskExecutor,
-                                             Options options,
-                                             DebuggingOptions globalDebugging,
-                                             TaskService taskService,
-                                             SeleniumClientManager seleniumClientManager,
-                                             HtmlUnitClientManager htmlUnitClientManager,
-                                             HtmlUnitPageLoader htmlUnitSiteParser,
-                                             StepHierarchyRepository stepHierarchyRepository) {
+    public ScrapingServices scrapingServices(StepHierarchyRepository stepHierarchyRepository) {
         return new ScrapingServices(
-                stepOrderGenerator,
-                throttlingService,
-                activeStepsTracker,
-                clientReservationTracker,
-                clientReservationHandler,
-                stepAndDataRelationshipTracker,
-                exclusiveExecutionTracker,
-                scrapedDataPublisher,
-                options,
-                globalDebugging,
-                taskExecutor,
-                taskService,
-                seleniumClientManager,
-                htmlUnitClientManager,
-                htmlUnitSiteParser,
-                stepHierarchyRepository
+                stepOrderGenerator(),
+                throttlingService(),
+                activeStepsTracker(),
+                clientReservationTracker(),
+                clientReservationHandler(),
+                stepAndDataRelationshipTracker(),
+                exclusiveExecutionTracker(),
+                scrapedDataPublisher(),
+                options(),
+                globalDebugging(),
+                taskExecutor(),
+                taskService(),
+                seleniumClientManager(),
+                htmlUnitClientManager(),
+                htmlUnitPageLoader(),
+                stepHierarchyRepository,
+                orderedClientAccessHandler()
         );
     }
 
@@ -94,25 +80,23 @@ public class TestConfiguration {
     }
 
     @Bean
-    public ClientReservationHandler clientReservationHandler(ClientReservationTracker reservationTracker,
-                                                             SeleniumClientManager seleniumClientManager,
-                                                             HtmlUnitClientManager htmlUnitClientManager) {
-        return new ClientReservationHandler(reservationTracker, seleniumClientManager, htmlUnitClientManager);
+    public ClientReservationHandler clientReservationHandler() {
+        return new ClientReservationHandler(clientReservationTracker(), seleniumClientManager(), htmlUnitClientManager(), orderedClientAccessHandler());
     }
 
     @Bean
-    public StepAndDataRelationshipTracker stepAndDataRelationshipTracker(ActiveStepsTracker activeStepsTracker) {
-        return new StepAndDataRelationshipTracker(activeStepsTracker);
+    public StepAndDataRelationshipTracker stepAndDataRelationshipTracker() {
+        return new StepAndDataRelationshipTracker(activeStepsTracker());
     }
 
     @Bean
-    public ExclusiveExecutionTracker exclusiveExecutionTracker(ActiveStepsTracker activeStepsTracker) {
-        return new ExclusiveExecutionTracker(activeStepsTracker);
+    public ExclusiveExecutionTracker exclusiveExecutionTracker() {
+        return new ExclusiveExecutionTracker(activeStepsTracker());
     }
 
     @Bean
-    public ScrapedDataPublisher dataPublisher(StepAndDataRelationshipTracker stepAndDataRelationshipTracker) {
-        return new ScrapedDataPublisher(stepAndDataRelationshipTracker);
+    public ScrapedDataPublisher scrapedDataPublisher() {
+        return new ScrapedDataPublisher(stepAndDataRelationshipTracker());
     }
 
     @Bean
@@ -121,7 +105,7 @@ public class TestConfiguration {
     }
 
     @Bean
-    public DebuggingOptions debuggingOptions() {
+    public DebuggingOptions globalDebugging() {
         return new DebuggingOptions();
     }
 
@@ -131,21 +115,19 @@ public class TestConfiguration {
     }
 
     @Bean
-    public TaskExecutor taskExecutor(ThrottlingService throttlingService,
-                                     ExclusiveExecutionTracker exclusiveExecutionTracker,
-                                     ScrapingRateLimiter scrapingRateLimiter,
-                                     ActiveStepsTracker activeStepsTracker,
-                                     ClientReservationHandler clientReservationHandler) {
-        return new TaskExecutorSingleQueue(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker, clientReservationHandler);
+    public TaskExecutor taskExecutor() {
+        return new TaskExecutorSingleQueue(
+                throttlingService(),
+                exclusiveExecutionTracker(),
+                scrapingRateLimiter(),
+                activeStepsTracker(),
+                clientReservationHandler()
+        );
     }
 
     @Bean
-    public TaskService taskService(TaskExecutor taskExecutor,
-                                   ActiveStepsTracker activeStepsTracker,
-                                   ScrapedDataPublisher scrapedDataPublisher,
-                                   ScrapingRateLimiter scrapingRateLimiter,
-                                   Options options) {
-        return new TaskService(taskExecutor, activeStepsTracker, scrapedDataPublisher, scrapingRateLimiter, options);
+    public TaskService taskService() {
+        return new TaskService(taskExecutor(), activeStepsTracker(), scrapedDataPublisher(), scrapingRateLimiter(), options());
     }
 
     @Bean(destroyMethod = "close")
@@ -154,7 +136,7 @@ public class TestConfiguration {
     }
 
     @Bean
-    public SeleniumClientManager seleniumDriversManager() {
+    public SeleniumClientManager seleniumClientManager() {
         return new SeleniumClientManager(new SeleniumClientFactory("/Users/janis/Projects_Data/scrape-flow/chromedriver", false)); // TODO fix this mess
     }
 
@@ -166,6 +148,11 @@ public class TestConfiguration {
     @Bean
     public HtmlUnitPageLoader htmlUnitPageLoader() {
         return new HtmlUnitPageLoader();
+    }
+
+    @Bean
+    public OrderedClientAccessHandler orderedClientAccessHandler() {
+        return new OrderedClientAccessHandler(activeStepsTracker());
     }
 
 }

@@ -76,7 +76,7 @@ public class SeleniumGetAncestor extends SeleniumScrapingStep<SeleniumGetAncesto
             getHelper().execute(ctx, search, stepOrder, getExecuteIf(), services);
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

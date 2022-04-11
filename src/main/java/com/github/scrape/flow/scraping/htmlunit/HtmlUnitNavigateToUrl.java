@@ -58,7 +58,7 @@ public class HtmlUnitNavigateToUrl extends HtmlUnitScrapingStep<HtmlUnitNavigate
             }
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

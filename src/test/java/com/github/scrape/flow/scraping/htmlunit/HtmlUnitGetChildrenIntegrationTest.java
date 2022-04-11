@@ -18,6 +18,7 @@ package com.github.scrape.flow.scraping.htmlunit;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.github.scrape.StepHierarchyRepositoryMockConfig;
 import com.github.scrape.TaskExecutorFakeConfig;
 import com.github.scrape.TestConfiguration;
 import com.github.scrape.flow.execution.StepOrder;
@@ -38,7 +39,7 @@ import java.net.URISyntaxException;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {TestConfiguration.class, TaskExecutorFakeConfig.class})
+@ContextConfiguration(classes = {TestConfiguration.class, TaskExecutorFakeConfig.class, StepHierarchyRepositoryMockConfig.class})
 public class HtmlUnitGetChildrenIntegrationTest {
 
     @Autowired

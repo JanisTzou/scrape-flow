@@ -25,7 +25,6 @@ import com.github.scrape.flow.throttling.ScrapingRateLimiter;
 import com.github.scrape.flow.throttling.ThrottlingService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -50,8 +49,8 @@ public class ScrapingServices {
     private final SeleniumClientManager seleniumClientManager;
     private final HtmlUnitClientManager htmlUnitClientManager;
     private final HtmlUnitPageLoader htmlUnitSiteLoader;
-    @Setter
     private volatile StepHierarchyRepository stepHierarchyRepository;
+    private final OrderedClientAccessHandler orderedClientAccessHandler;
 
     public ScrapingServices(ScrapingRateLimiter scrapingRateLimiter) {
         this.stepOrderGenerator = new StepOrderGenerator();
@@ -66,10 +65,17 @@ public class ScrapingServices {
         this.seleniumClientManager = new SeleniumClientManager(new SeleniumClientFactory("/Users/janis/Projects_Data/scrape-flow/chromedriver", false)); // TODO fix this mess
         HtmlUnitClientFactory clientFactory = new HtmlUnitClientFactory();
         this.htmlUnitClientManager = new HtmlUnitClientManager(clientFactory);
-        this.clientReservationHandler = new ClientReservationHandler(clientReservationTracker, seleniumClientManager, htmlUnitClientManager);
+        this.orderedClientAccessHandler = new OrderedClientAccessHandler(activeStepsTracker);
+        this.clientReservationHandler = new ClientReservationHandler(clientReservationTracker, seleniumClientManager, htmlUnitClientManager, orderedClientAccessHandler);
         taskExecutor = new TaskExecutorSingleQueue(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker, clientReservationHandler);
         taskService = new TaskService(taskExecutor, activeStepsTracker, scrapedDataPublisher, scrapingRateLimiter, options);
         this.htmlUnitSiteLoader = new HtmlUnitPageLoader();
+    }
+
+    // needed to pass the dependency
+    public void setStepHierarchyRepository(StepHierarchyRepository stepHierarchyRepository) {
+        this.stepHierarchyRepository = stepHierarchyRepository;
+        this.orderedClientAccessHandler.setStepHierarchyRepository(stepHierarchyRepository);
     }
 
 }

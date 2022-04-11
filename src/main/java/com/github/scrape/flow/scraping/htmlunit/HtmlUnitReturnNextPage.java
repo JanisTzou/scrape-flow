@@ -66,7 +66,7 @@ public class HtmlUnitReturnNextPage extends HtmlUnitScrapingStep<HtmlUnitReturnN
             }
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

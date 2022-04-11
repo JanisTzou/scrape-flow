@@ -56,7 +56,7 @@ public class SeleniumParseElementTextContent extends SeleniumScrapingStep<Seleni
             ParsedValueToModelCollector.setParsedValueToModel(this.getCollectors(), ctx, mappedVal, getName());
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

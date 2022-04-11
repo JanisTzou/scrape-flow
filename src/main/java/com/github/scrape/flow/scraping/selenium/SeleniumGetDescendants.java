@@ -50,7 +50,7 @@ public class SeleniumGetDescendants extends SeleniumScrapingStep<SeleniumGetDesc
             getHelper().execute(ctx, nodesSearch, stepOrder, getExecuteIf(), services);
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

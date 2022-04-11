@@ -24,11 +24,7 @@ import com.github.scrape.flow.scraping.ScrapingServices;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
-import java.util.List;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Filters nodes acquired in the previous steps by custom conditions
@@ -48,7 +44,7 @@ public class HtmlUnitFilterElementsNatively extends HtmlUnitScrapingStep<HtmlUni
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
         StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
         Runnable runnable = new HtmlUnitFilterElementsNativelyRunnable(domNodePredicate, ctx, stepOrder, getHelper(services));
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
         return stepOrder;
     }
 

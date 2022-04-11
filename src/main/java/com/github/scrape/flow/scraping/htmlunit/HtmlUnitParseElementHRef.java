@@ -72,7 +72,7 @@ public class HtmlUnitParseElementHRef extends HtmlUnitScrapingStep<HtmlUnitParse
             }
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

@@ -58,7 +58,7 @@ public class HtmlUnitGetElementsByXPath extends HtmlUnitScrapingStep<HtmlUnitGet
             getHelper(services).execute(nodesSearch, ctx, stepOrder);
         };
 
-        submitForExecution(stepOrder, runnable, services.getTaskService());
+        submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
     }

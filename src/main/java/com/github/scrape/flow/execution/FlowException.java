@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.clients;
+package com.github.scrape.flow.execution;
 
-import com.github.scrape.flow.execution.StepOrder;
+public class FlowException extends RuntimeException {
 
-public class LoadingLevelsTracker {
-
-//    private final Map<Integer, Integer>
-
-    public void track(StepOrder stepOrder) {
-
+    public FlowException(String message) {
+        super(message);
     }
 
+    public FlowException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
+    public FlowException(Throwable cause) {
+        super(cause);
+    }
+
+    public FlowException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }
