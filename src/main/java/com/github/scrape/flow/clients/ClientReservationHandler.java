@@ -17,7 +17,6 @@
 package com.github.scrape.flow.clients;
 
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.github.scrape.flow.execution.OrderedClientAccessHandler;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.ClientType;
 import lombok.RequiredArgsConstructor;

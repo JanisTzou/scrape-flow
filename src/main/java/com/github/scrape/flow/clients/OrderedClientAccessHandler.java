@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.execution;
+package com.github.scrape.flow.clients;
 
+import com.github.scrape.flow.execution.ActiveStepsTracker;
+import com.github.scrape.flow.execution.StepHierarchyRepository;
+import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.ClientType;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
