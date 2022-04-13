@@ -75,10 +75,10 @@ public class ClientReservationHandler {
                 switch (rq.getClientType()) {
                     case SELENIUM:
                         anyUnreservedClient = seleniumClientManager.getUnreservedClient().isPresent();
-                        return anyUnreservedClient && orderedClientAccessHandler.enoughFreeClientsForPrecedingSteps(seleniumClientManager.maxUnreservedClients(), rq.getStep());
+                        return anyUnreservedClient && orderedClientAccessHandler.enoughFreeClientsForPrecedingSteps(seleniumClientManager.maxUnreservedClients(), rq.getStep(), rq.getClientType());
                     case HTMLUNIT:
                         anyUnreservedClient = htmlUnitClientManager.getUnreservedClient().isPresent();
-                        return anyUnreservedClient && orderedClientAccessHandler.enoughFreeClientsForPrecedingSteps(htmlUnitClientManager.maxUnreservedClients(), rq.getStep());
+                        return anyUnreservedClient && orderedClientAccessHandler.enoughFreeClientsForPrecedingSteps(htmlUnitClientManager.maxUnreservedClients(), rq.getStep(), rq.getClientType());
                 }
                 return true;
             default:

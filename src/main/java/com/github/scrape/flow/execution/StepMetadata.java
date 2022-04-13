@@ -17,23 +17,52 @@
 package com.github.scrape.flow.execution;
 
 import com.github.scrape.flow.clients.ClientReservationType;
+import com.github.scrape.flow.scraping.ClientType;
 import com.github.scrape.flow.scraping.ScrapingStep;
-import lombok.Data;
+import lombok.Getter;
 
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
-@Data
 public class StepMetadata {
 
-    public static Comparator<StepMetadata> COMPARATOR_BY_LOADING_STEP_COUNT = Comparator.comparingInt(sm -> sm.loadingStepCountUpToThisStep);
-
+    @Getter
     private final ScrapingStep<?> step;
+
     // order in the step hierarchy/tree
+    @Getter
     private final StepOrder stepHierarchyOrder;
+
+    @Getter
+    private final ClientType clientType;
+
+    @Getter
     private final ClientReservationType clientReservationType;
 
-    // includes this step
-    private final int loadingStepCountUpToThisStep;
+    /**
+     * Includes this step.
+     */
+    private final Map<ClientType, Integer> loadingStepCountUpToThisStep;
 
+    public StepMetadata(ScrapingStep<?> step,
+                        StepOrder stepHierarchyOrder,
+                        ClientType clientType,
+                        ClientReservationType clientReservationType,
+                        Map<ClientType, Integer> loadingStepCountUpToThisStep) {
+        this.step = step;
+        this.stepHierarchyOrder = stepHierarchyOrder;
+        this.clientType = clientType;
+        this.clientReservationType = clientReservationType;
+        this.loadingStepCountUpToThisStep = new HashMap<>(loadingStepCountUpToThisStep);
+    }
+
+    public int getLoadingStepCountUpToThisStep(ClientType clientType) {
+        return this.loadingStepCountUpToThisStep.getOrDefault(clientType, 0);
+    }
+
+    public static Comparator<StepMetadata> getComparatorByLoadingStepCount(ClientType clientType) {
+        return Comparator.comparingInt(sm -> sm.getLoadingStepCountUpToThisStep(clientType));
+    }
 
 }

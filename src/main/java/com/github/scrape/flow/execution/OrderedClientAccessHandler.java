@@ -16,6 +16,7 @@
 
 package com.github.scrape.flow.execution;
 
+import com.github.scrape.flow.scraping.ClientType;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
@@ -32,13 +33,13 @@ public class OrderedClientAccessHandler {
     @Setter
     private volatile StepHierarchyRepository stepHierarchyRepository;
 
-    public boolean enoughFreeClientsForPrecedingSteps(int remainingClients, StepOrder stepExecToCheck) {
-        checInitialisation();
+    public boolean enoughFreeClientsForPrecedingSteps(int remainingClients, StepOrder stepExecToCheck, ClientType clientType) {
+        checkInitialisation();
         // ideally we should also filter away steps that are executing now, but it's ok ...
         // ... the wort that can happen is that a client will not seem to be available for a while
         SortedMap<StepOrder, ActiveStepsTracker.TrackedStepOrder> precedingSteps = activeStepsTracker.getPrecedingSteps(stepExecToCheck);
         List<StepOrder> precedingStepsWithoutActiveParents = getStepsWithoutActiveParents(precedingSteps.values());
-        int remainingDepth = stepHierarchyRepository.getRemainingLoadingStepsDepthMax(precedingStepsWithoutActiveParents);
+        int remainingDepth = stepHierarchyRepository.getRemainingLoadingStepsDepthMax(precedingStepsWithoutActiveParents, clientType);
         return remainingClients > remainingDepth;
     }
 
@@ -64,7 +65,7 @@ public class OrderedClientAccessHandler {
         }
     }
 
-    private void checInitialisation() {
+    private void checkInitialisation() {
         if (stepHierarchyRepository == null) {
             throw new IllegalStateException("stepHierarchyRepository has not been initialised!");
         }

@@ -58,6 +58,10 @@ public class ScrapingStepInternalReader<C extends ScrapingStep<C>> {
         return step.getStepDebugging();
     }
 
+    public ClientType getClientType() {
+        return step.getClientType();
+    }
+
     public ClientReservationType getClientReservationType() {
         return step.getClientReservationType();
     }
