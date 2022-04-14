@@ -24,6 +24,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +45,12 @@ public class SeleniumUtils {
     }
 
     public static boolean hasCssClass(WebElement element, String value) {
-        return hasAttribute(element, "class") && element.getAttribute("class").equals(value);
+        if (hasAttribute(element, "class")) {
+            return Arrays.stream(element.getAttribute("class").split(" "))
+                    .map(String::trim)
+                    .anyMatch(cls -> cls.equalsIgnoreCase(value));
+        }
+        return false;
     }
 
 
