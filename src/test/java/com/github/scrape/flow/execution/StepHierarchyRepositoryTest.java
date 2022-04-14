@@ -23,22 +23,24 @@ import com.github.scrape.flow.scraping.selenium.SeleniumFlow;
 import com.github.scrape.flow.scraping.selenium.SeleniumScrapingStep;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class StepHierarchyRepositoryTest {
 
-    private final HtmlUnitScrapingStep<?> step_a = HtmlUnitFlow.Do.navigateToParsedLink();
+    private final HtmlUnitScrapingStep<?> step_a_loading = HtmlUnitFlow.Do.navigateToParsedLink();
     private final HtmlUnitScrapingStep<?> step_b = HtmlUnitFlow.Get.descendants();
-    private final SeleniumScrapingStep<?> step_c = SeleniumFlow.Do.navigateToParsedLink();
+    private final SeleniumScrapingStep<?> step_c_loading = SeleniumFlow.Do.navigateToParsedLink();
 
     private final HtmlUnitScrapingStep<?> sequence =
-            step_a // 0
+            step_a_loading // 0
                     .next(step_b // 0-1
-                            .next(step_a) // 0-1-1
+                            .next(step_a_loading) // 0-1-1
                             .next(step_b) // 0-1-2
                     )
-                    .next(step_c); // 0-2
+                    .next(step_c_loading); // 0-2
 
     @Test
     public void testCreatingRepository() {
@@ -90,6 +92,31 @@ public class StepHierarchyRepositoryTest {
 
         depth = repo.getRemainingLoadingPathDepth(StepOrder.INITIAL, ClientType.SELENIUM);
         assertEquals(1, depth);
+    }
+
+    @Test
+    public void testGetRemainingLoadingPathDepthMax() {
+        StepHierarchyRepository repo = StepHierarchyRepository.createFrom(sequence);
+
+        int depth;
+        depth = repo.getRemainingLoadingStepsDepthMax(List.of(StepOrder.INITIAL, StepOrder.from(0, 1, 1)), ClientType.HTMLUNIT);
+        assertEquals(2, depth);
+
+        depth = repo.getRemainingLoadingStepsDepthMax(List.of(StepOrder.INITIAL), ClientType.HTMLUNIT);
+        assertEquals(2, depth);
+
+        depth = repo.getRemainingLoadingStepsDepthMax(List.of(StepOrder.from(0, 1, 1)), ClientType.HTMLUNIT);
+        assertEquals(1, depth);
+
+        depth = repo.getRemainingLoadingStepsDepthMax(List.of(StepOrder.INITIAL, StepOrder.from(0, 2)), ClientType.SELENIUM);
+        assertEquals(1, depth);
+
+        depth = repo.getRemainingLoadingStepsDepthMax(List.of(StepOrder.INITIAL), ClientType.SELENIUM);
+        assertEquals(1, depth);
+
+        depth = repo.getRemainingLoadingStepsDepthMax(List.of(StepOrder.from(0, 2)), ClientType.SELENIUM);
+        assertEquals(1, depth);
+
     }
 
 

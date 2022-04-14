@@ -91,14 +91,11 @@ public class StepHierarchyRepository {
      */
     int findLongestLoadingPathDepth(StepOrder startingHierarchyOrder, ClientType clientType) {
         SortedMap<String, StepMetadata> subHierarchy = this.trie.prefixMap(getTrieKey(startingHierarchyOrder));
-        Optional<StepMetadata> max = subHierarchy.values().stream()
+        return subHierarchy.values().stream()
                 .filter(sm -> sm.getClientType().equals(clientType))
-                .max(StepMetadata.getComparatorByLoadingStepCount(clientType));
-        if (max.isPresent()) {
-            return max.get().getLoadingStepCountUpToThisStep(clientType);
-        } else {
-            throw new FlowException("Failed to find max StepMetadata!");
-        }
+                .max(StepMetadata.getComparatorByLoadingStepCount(clientType))
+                .map(stepMetadata -> stepMetadata.getLoadingStepCountUpToThisStep(clientType))
+                .orElse(0);
     }
 
     private static Map<ClientType, Integer> getLoadingStepCountBase(ScrapingStep<?> rootStep) {

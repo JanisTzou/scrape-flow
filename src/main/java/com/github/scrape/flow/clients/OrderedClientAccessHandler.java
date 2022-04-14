@@ -47,7 +47,6 @@ public class OrderedClientAccessHandler {
     }
 
     // we want "top-most" steps only
-
     private List<StepOrder> getStepsWithoutActiveParents(Collection<ActiveStepsTracker.TrackedStepOrder> precedingSteps) {
         return precedingSteps.stream()
                 .filter(this::isTopMost)
