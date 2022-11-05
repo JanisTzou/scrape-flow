@@ -23,11 +23,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.openqa.selenium.WebDriver;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Optional;
 
 @Log4j2
 @RequiredArgsConstructor
-public class ClientReservationHandler {
+@ThreadSafe
+public class ClientAccessManager {
 
     private final ClientReservationTracker reservationTracker;
     private final SeleniumClientManager seleniumClientManager;
@@ -50,13 +52,13 @@ public class ClientReservationHandler {
         ClientReservationType type = rq.getReservationType();
         switch (type) {
             case READING:
-                reservationTracker.addReadingReservationPlaceholder(rq.getStep());
+                reservationTracker.addReadingReservation(rq.getStep());
                 break;
             case MODIFYING:
-                reservationTracker.addModifyingReservationPlaceholder(rq.getStep());
+                reservationTracker.addModifyingReservation(rq.getStep());
                 break;
             case LOADING:
-                reservationTracker.addLoadingReservationPlaceholder(rq.getStep());
+                reservationTracker.addLoadingReservation(rq.getStep());
                 break;
             default:
                 log.error("Unhandled reservationType {}", type);
@@ -100,6 +102,7 @@ public class ClientReservationHandler {
                             ClientId clientId = selOperator.get().getClientId();
                             seleniumClientManager.reserveClient(clientId.getClientNo());
                             reservationTracker.activateReservation(rq.getStep(), clientId);
+                            logActivatedReservation(clientId, selOperator.get().getClient(), rq.getStep());
                         } else {
                             log.error("Failed to activate reservation for rq {}", rq);
                         }
@@ -110,6 +113,7 @@ public class ClientReservationHandler {
                             ClientId clientId = htmlOperator.get().getClientId();
                             htmlUnitClientManager.reserveClient(clientId.getClientNo());
                             reservationTracker.activateReservation(rq.getStep(), clientId);
+                            logActivatedReservation(clientId, htmlOperator.get().getClient(), rq.getStep());
                         } else {
                             log.error("Failed to activate reservation for rq {}", rq);
                         }
@@ -133,13 +137,25 @@ public class ClientReservationHandler {
                     seleniumClientManager.unreserveClient(clientNo);
                 } else if (clientType.isHtmlUnit()) {
                     htmlUnitClientManager.unreserveClient(clientNo);
+                } else {
+                    throw new IllegalArgumentException("Unhandled clientType: " + clientType);
                 }
+                logFinishedReservation(res.getClientId(), step);
             } else {
                 // cannot free client yet
+                log.debug("{}: Cannot yet finish reservation for clientId {}", step, res.getClientId());
             }
         } else {
             log.error("Failed to find reservation for step {}", step);
         }
+    }
+
+    private void logActivatedReservation(ClientId clientId, Object client, StepOrder stepOrder) {
+        log.debug("{}: Activated reservation for clientId {} client instance {}", stepOrder, clientId, client);
+    }
+
+    private void logFinishedReservation(ClientId clientId, StepOrder stepOrder) {
+        log.debug("{}: Finished reservation for clientId {}", stepOrder, clientId);
     }
 
 }

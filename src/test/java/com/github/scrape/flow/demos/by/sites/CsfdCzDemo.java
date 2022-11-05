@@ -37,10 +37,10 @@ public class CsfdCzDemo {
     @Test
     public void start() throws InterruptedException {
 
-        final Scraping productsScraping = new Scraping(3, TimeUnit.SECONDS)
+        final Scraping scraping = new Scraping(3, TimeUnit.SECONDS)
                 .setSequence(
                         Do.navigateToUrl("https://www.csfd.cz/novinky/")
-                                .next(Get.descendantsBySelector("header.box-header")
+                                .next(Get.descendantsBySelector("div.news-page")
                                         .first() // the first article list out of two
                                         .addCollector(Category::new, Category.class, new CategoryListener())
                                         .next(Parse.textContent()
@@ -52,7 +52,7 @@ public class CsfdCzDemo {
                                 )
                 );
 
-        start(productsScraping);
+        start(scraping);
     }
 
     private HtmlUnitGetDescendantsByCssSelector getArticles() {

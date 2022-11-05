@@ -39,6 +39,16 @@ public class HtmlUnitUtils {
         return false;
     }
 
+    public static boolean hasCssClassMatchingRegex(DomNode domNode, String cssClassNameRegex) {
+        if (domNode instanceof HtmlElement) {
+            HtmlElement htmlEl = (HtmlElement) domNode;
+            if (htmlEl.hasAttribute("class")) {
+                return Arrays.stream(htmlEl.getAttribute("class").split(" ")).anyMatch(cls -> cls.matches(cssClassNameRegex));
+            }
+        }
+        return false;
+    }
+
     public static boolean hasTagName(DomNode domNode, String tagName) {
         if (domNode instanceof HtmlElement) {
             HtmlElement htmlEl = (HtmlElement) domNode;

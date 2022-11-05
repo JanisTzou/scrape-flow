@@ -22,7 +22,15 @@ public interface HtmlUnitFilterableByCssClass<C> extends HtmlUnitFilterable<C> {
      * Filters all found <code>HtmlElement</code>s having the specified SCC class
      */
     default C byClass(String className) {
-        return addFilter(new HtmlUnitFilterByCssClass(className));
+        return addFilter(new HtmlUnitFilterByCssClass(className, null));
+    }
+
+    /**
+     * Filters all found <code>HtmlElement</code>s having the specified SCC class name regex using
+     * {@link java.lang.String#matches(String regex)} -> regex must match whole name
+     */
+    default C byClassRegex(String classNameRegex) {
+        return addFilter(new HtmlUnitFilterByCssClass(null, classNameRegex));
     }
 
 }

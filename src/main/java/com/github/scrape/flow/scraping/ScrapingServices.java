@@ -37,7 +37,7 @@ public class ScrapingServices {
     private final ThrottlingService throttlingService;
     private final ActiveStepsTracker activeStepsTracker;
     private final ClientReservationTracker clientReservationTracker;
-    private final ClientReservationHandler clientReservationHandler;
+    private final ClientAccessManager clientAccessManager;
     private final StepAndDataRelationshipTracker stepAndDataRelationshipTracker;
     private final ExclusiveExecutionTracker exclusiveExecutionTracker;
     private final ScrapedDataPublisher scrapedDataPublisher;
@@ -65,8 +65,8 @@ public class ScrapingServices {
         HtmlUnitClientFactory clientFactory = new HtmlUnitClientFactory();
         this.htmlUnitClientManager = new HtmlUnitClientManager(clientFactory);
         this.orderedClientAccessHandler = new OrderedClientAccessHandler(activeStepsTracker);
-        this.clientReservationHandler = new ClientReservationHandler(clientReservationTracker, seleniumClientManager, htmlUnitClientManager, orderedClientAccessHandler);
-        taskExecutor = new TaskExecutorSingleQueue(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker, clientReservationHandler);
+        this.clientAccessManager = new ClientAccessManager(clientReservationTracker, seleniumClientManager, htmlUnitClientManager, orderedClientAccessHandler);
+        taskExecutor = new TaskExecutorSingleQueue(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker, clientAccessManager);
         taskService = new TaskService(taskExecutor, activeStepsTracker, scrapedDataPublisher, scrapingRateLimiter, options);
         this.htmlUnitSiteLoader = new HtmlUnitPageLoader();
     }

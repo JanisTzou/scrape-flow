@@ -54,7 +54,7 @@ public class Task implements Comparable<Task> {
 
     private final LocalDateTime created = LocalDateTime.now();
 
-    public static Task from(TaskBasis basis, int retries, Duration retryBackoff) {
+    public static Task from(TaskDefinition basis, int retries, Duration retryBackoff) {
         return new Task(
                 basis.getStepOrder(),
                 basis.isExclusiveExecution(),

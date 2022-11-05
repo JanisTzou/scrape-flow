@@ -16,7 +16,7 @@
 
 package com.github.scrape.flow.execution;
 
-import com.github.scrape.flow.clients.ClientReservationHandler;
+import com.github.scrape.flow.clients.ClientAccessManager;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
 import com.github.scrape.flow.throttling.ThrottlingService;
 import lombok.extern.log4j.Log4j2;
@@ -54,13 +54,13 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
     //  in fact we should not have separate threads for loading stuff ...
     private static final Scheduler blockingTasksScheduler = Schedulers.newBoundedElastic(Runtime.getRuntime().availableProcessors(), Integer.MAX_VALUE, "io-worker", 60, true);
     private final Supplier<LocalDateTime> nowSupplier;
-    private final ClientReservationHandler clientReservationHandler;
+    private final ClientAccessManager clientAccessManager;
 
     public TaskExecutorSingleQueue(ThrottlingService throttlingService,
                                    ExclusiveExecutionTracker exclusiveExecutionTracker,
                                    ScrapingRateLimiter scrapingRateLimiter,
                                    ActiveStepsTracker activeStepsTracker,
-                                   ClientReservationHandler clientReservationHandler) {
+                                   ClientAccessManager clientAccessManager) {
         this(throttlingService,
                 PERIODIC_EXEC_NEXT_TRIGGER_INTERVAL, // sensible default
                 LocalDateTime::now,
@@ -68,7 +68,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
                 exclusiveExecutionTracker,
                 activeStepsTracker,
                 scrapingRateLimiter,
-                clientReservationHandler);
+                clientAccessManager);
     }
 
     /**
@@ -82,13 +82,13 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
                             ExclusiveExecutionTracker exclusiveExecutionTracker,
                             ActiveStepsTracker activeStepsTracker,
                             ScrapingRateLimiter scrapingRateLimiter,
-                            ClientReservationHandler clientReservationHandler) {
+                            ClientAccessManager clientAccessManager) {
         this.throttlingService = requestsPerSecondCounter;
         this.executingTasksTracker = executingTasksTracker;
         this.exclusiveExecutionTracker = exclusiveExecutionTracker;
         this.activeStepsTracker = activeStepsTracker;
         this.scrapingRateLimiter = scrapingRateLimiter;
-        this.clientReservationHandler = clientReservationHandler;
+        this.clientAccessManager = clientAccessManager;
         this.taskQueue = new PriorityBlockingQueue<>(100, QueuedTask.NATURAL_COMPARATOR);
         this.periodicExecNextTriggerInterval = periodicExecNextTriggerInterval;
         this.nowSupplier = nowSupplier;
@@ -120,7 +120,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
     private synchronized void enqueueTask(Task task,
                                           Consumer<TaskResult> taskResultConsumer,
                                           Consumer<TaskError> taskErrorConsumer) {
-        clientReservationHandler.makeReservationPlaceholder(task.getClientReservationRequest());
+        clientAccessManager.makeReservationPlaceholder(task.getClientReservationRequest());
         taskQueue.add(new QueuedTask(task, taskResultConsumer, taskErrorConsumer, System.currentTimeMillis()));
         log.trace("New enqueued request info: {}", task.loggingInfo());
         logEnqueuedRequestCount();
@@ -136,7 +136,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
             QueuedTask next = taskQueue.peek();
 
             while (canExecute(next)) {
-                clientReservationHandler.activateReservation(next.getTask().getClientReservationRequest());
+                clientAccessManager.activateReservation(next.getTask().getClientReservationRequest());
                 executingTasksTracker.track(next.getTask());
                 taskQueue.poll(); // remove from queue head
                 executeTaskAsync(next.getTask(),
@@ -162,7 +162,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
         return isParentTaskFinished(task)
                 && exclusiveExecutionTracker.canExecute(next)
                 && isWithinScrapingLimits(task)
-                && clientReservationHandler.canActivateReservation(task.getClientReservationRequest());
+                && clientAccessManager.canActivateReservation(task.getClientReservationRequest());
     }
 
     private boolean isParentTaskFinished(Task task) {
@@ -243,7 +243,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
     private Runnable taskFinishedHook(Task task) {
         return () -> {
             log.debug("Finished step {}", task.loggingInfo());
-            clientReservationHandler.finishReservation(task.getStepOrder());
+            clientAccessManager.finishReservation(task.getStepOrder());
             this.activeTaskCount.decrementAndGet();
             this.dequeueNextAndExecute();
         };

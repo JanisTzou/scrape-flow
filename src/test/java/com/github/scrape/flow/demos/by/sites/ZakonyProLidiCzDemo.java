@@ -73,7 +73,7 @@ public class ZakonyProLidiCzDemo {
          */
 
         final Scraping scraping = new Scraping(2, TimeUnit.SECONDS)
-                .getDebugOptions().onlyScrapeFirstElements(false)
+                .getDebugOptions().setOnlyScrapeFirstElements(false)
                 .setSequence(
                         Do.navigateToUrl("https://www.zakonyprolidi.cz/obory")
                                 .next(Get.descendants().byAttr("id", "__Page")

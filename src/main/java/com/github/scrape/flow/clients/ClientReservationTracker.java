@@ -29,9 +29,6 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Tracks all the steps that are still 'active' - they might be executing or waiting to be executed
- */
 @Log4j2
 @NotThreadSafe
 public class ClientReservationTracker {
@@ -50,24 +47,24 @@ public class ClientReservationTracker {
         return Optional.ofNullable(reservationsTrie.get(getKey(step)));
     }
 
-    public void addReadingReservationPlaceholder(StepOrder step) {
-        addPlaceholder(step, ClientReservationType.READING);
+    public void addReadingReservation(StepOrder step) {
+        addReservation(step, ClientReservationType.READING);
     }
 
-    public void addModifyingReservationPlaceholder(StepOrder step) {
-        addPlaceholder(step, ClientReservationType.MODIFYING);
+    public void addModifyingReservation(StepOrder step) {
+        addReservation(step, ClientReservationType.MODIFYING);
     }
 
-    public void addLoadingReservationPlaceholder(StepOrder step) {
-        ClientReservation res = ClientReservation.newPlaceholder(step, ClientReservationType.LOADING);
+    public void addLoadingReservation(StepOrder step) {
+        ClientReservation res = ClientReservation.newPlaceholderReservation(step, ClientReservationType.LOADING);
         addReservation(res);
     }
 
-    private void addPlaceholder(StepOrder step, ClientReservationType reservationType) {
+    private void addReservation(StepOrder step, ClientReservationType reservationType) {
         Optional<StepOrder> parent = step.getParent();
         if (parent.isPresent()) {
             ClientId parentClientId = reservationsTrie.get(getKey(parent.get())).getClientId();
-            ClientReservation res = ClientReservation.newPlaceholder(parentClientId, step, reservationType);
+            ClientReservation res = ClientReservation.newPlaceholderReservation(parentClientId, step, reservationType);
             addReservation(res);
         } else {
             log.error("Failed to get parent for {}", step);

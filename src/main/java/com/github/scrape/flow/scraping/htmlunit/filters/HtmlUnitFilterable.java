@@ -20,6 +20,7 @@ package com.github.scrape.flow.scraping.htmlunit.filters;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.scraping.Filter;
 
+// TODO support basic logic operators in filtering ...
 public interface HtmlUnitFilterable<C> {
 
     /**

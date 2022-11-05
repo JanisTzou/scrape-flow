@@ -49,14 +49,13 @@ public class HtmlUnitPageLoader implements PageLoader<WebClient> {
         });
     }
 
-    private Optional<HtmlPage> loadPage(String url,
-                                        @Nullable StepOrder currStepOrder, WebClient webClient) {
+    private Optional<HtmlPage> loadPage(String url, @Nullable StepOrder currStepOrder, WebClient webClient) {
         return loadHtmlPage(url, webClient, currStepOrder);
     }
 
 
-    private void executeNextSteps(ScrapingContext ctx, List<ScrapingStep<?>> parsingSequences, ScrapingServices services) {
-        parsingSequences.forEach(s -> ScrapingStepInternalReader.of(s).execute(ctx, services));
+    private void executeNextSteps(ScrapingContext ctx, List<ScrapingStep<?>> nextSteps, ScrapingServices services) {
+        nextSteps.forEach(s -> ScrapingStepInternalAccessor.of(s).execute(ctx, services));
     }
 
     private Optional<HtmlPage> loadHtmlPage(String pageUrl, WebClient webClient, @Nullable StepOrder currStepOrder) {

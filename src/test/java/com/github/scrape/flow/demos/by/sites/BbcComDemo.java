@@ -38,7 +38,7 @@ public class BbcComDemo {
 
     public static final String HTTPS_WWW_BBC_COM = "https://www.bbc.com";
 
-    @Ignore
+//    @Ignore
     @Test
     public void demo() throws InterruptedException {
 

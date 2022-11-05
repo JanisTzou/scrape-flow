@@ -32,11 +32,11 @@ public class TaskService {
     private final ScrapingRateLimiter scrapingRateLimiter;
     private final Options options;
 
-    public void submitForExecution(TaskBasis taskBasis) {
-        Task task = createStepTask(taskBasis);
+    public void submitForExecution(TaskDefinition taskDefinition) {
+        Task task = createStepTask(taskDefinition);
 
         StepOrder stepOrder = task.getStepOrder();
-        activeStepsTracker.track(stepOrder, task.getStepName(), taskBasis.getStepHierarchyOrder());
+        activeStepsTracker.track(stepOrder, task.getStepName(), taskDefinition.getStepHierarchyOrder());
         taskExecutor.submit(
                 task,
                 r -> handleFinishedStep(stepOrder),
@@ -44,14 +44,14 @@ public class TaskService {
         );
     }
 
-    private Task createStepTask(TaskBasis taskBasis) {
+    private Task createStepTask(TaskDefinition taskDefinition) {
         scrapingRateLimiter.getRequestFreq();
         int retries = options.getMaxRequestRetries();
         Task task;
         if (retries == 0) {
-            task = Task.from(taskBasis, retries, Duration.ZERO);
+            task = Task.from(taskDefinition, retries, Duration.ZERO);
         } else {
-            task = Task.from(taskBasis, retries, scrapingRateLimiter.getRequestFreq().dividedBy(retries));
+            task = Task.from(taskDefinition, retries, scrapingRateLimiter.getRequestFreq().dividedBy(retries));
         }
         return task;
     }

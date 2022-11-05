@@ -24,7 +24,7 @@ public interface HtmlUnitFilterableByAttribute<C> extends HtmlUnitFilterable<C> 
      * Filters all found <code>HtmlElement</code>s having the specified attr name and value
      */
     default C byAttr(String name, @Nullable String value) {
-        HtmlUnitFilterByAttribute filter = new HtmlUnitFilterByAttribute(name, value);
+        HtmlUnitFilterByAttribute filter = new HtmlUnitFilterByAttribute(name, value, null);
         return addFilter(filter);
     }
 
@@ -32,7 +32,7 @@ public interface HtmlUnitFilterableByAttribute<C> extends HtmlUnitFilterable<C> 
      * Filters all found <code>HtmlElement</code>s by their attr name and value regex using {@link java.lang.String#matches(String regex)} -> regex must match whole value
      */
     default C byAttrRegex(String name, String valueRegex) {
-        HtmlUnitFilterByAttribute filter = new HtmlUnitFilterByAttribute(name, valueRegex);
+        HtmlUnitFilterByAttribute filter = new HtmlUnitFilterByAttribute(name, null, valueRegex);
         return addFilter(filter);
     }
 

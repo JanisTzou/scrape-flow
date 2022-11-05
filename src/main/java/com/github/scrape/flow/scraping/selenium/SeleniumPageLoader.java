@@ -46,7 +46,7 @@ public class SeleniumPageLoader implements PageLoader<WebDriver> {
     }
 
     private void executeNextSteps(ScrapingContext ctx, List<ScrapingStep<?>> parsingSequences, ScrapingServices services) {
-        parsingSequences.forEach(s -> ScrapingStepInternalReader.of(s).execute(ctx, services));
+        parsingSequences.forEach(s -> ScrapingStepInternalAccessor.of(s).execute(ctx, services));
     }
 
     private Optional<WebElement> loadHtmlPage(String pageUrl, WebDriver webDriver, @Nullable StepOrder currStepOrder) {

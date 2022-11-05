@@ -18,7 +18,7 @@ package com.github.scrape.flow.execution;
 
 import com.github.scrape.flow.scraping.ClientType;
 import com.github.scrape.flow.scraping.ScrapingStep;
-import com.github.scrape.flow.scraping.ScrapingStepInternalReader;
+import com.github.scrape.flow.scraping.ScrapingStepInternalAccessor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
@@ -100,7 +100,7 @@ public class StepHierarchyRepository {
 
     private static Map<ClientType, Integer> getLoadingStepCountBase(ScrapingStep<?> rootStep) {
         Map<ClientType, Integer> loadingStepCount = new HashMap<>();
-        ScrapingStepInternalReader<?> reader = getReader(rootStep);
+        ScrapingStepInternalAccessor<?> reader = getReader(rootStep);
         if (reader.getClientReservationType().isLoading()) {
             loadingStepCount.put(reader.getClientType(), 1);
         } else {
@@ -114,7 +114,7 @@ public class StepHierarchyRepository {
                                             Map<ScrapingStep<?>, StepMetadata> map,
                                             StepOrder order,
                                             Map<ClientType, Integer> loadingStepsCount) {
-        ScrapingStepInternalReader<?> reader = getReader(parent);
+        ScrapingStepInternalAccessor<?> reader = getReader(parent);
         List<ScrapingStep<?>> nextSteps = reader.getNextSteps();
         StepOrder nextOrder = order;
         for (int i = 0; i < nextSteps.size(); i++) {
@@ -136,7 +136,7 @@ public class StepHierarchyRepository {
     }
 
     private static Map<ClientType, Integer> calcLoadingCounts(Map<ClientType, Integer> loadingStepsCount, ScrapingStep<?> step) {
-        ScrapingStepInternalReader<?> nextReader = getReader(step);
+        ScrapingStepInternalAccessor<?> nextReader = getReader(step);
         if (nextReader.getClientReservationType().isLoading()) {
             ClientType clientType = nextReader.getClientType();
             HashMap<ClientType, Integer> copy = new HashMap<>(loadingStepsCount);
@@ -170,8 +170,8 @@ public class StepHierarchyRepository {
         return hierarchyOrder.asString();
     }
 
-    private static ScrapingStepInternalReader<?> getReader(ScrapingStep<?> parent) {
-        return ScrapingStepInternalReader.of(parent);
+    private static ScrapingStepInternalAccessor<?> getReader(ScrapingStep<?> parent) {
+        return ScrapingStepInternalAccessor.of(parent);
     }
 
 }

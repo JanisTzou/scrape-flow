@@ -37,12 +37,12 @@ public class ClientReservation {
 //     might be false if it is waiting to be granted the 'reserved' status
     private boolean placeholder;
 
-    public static ClientReservation newPlaceholder(ClientId clientId, StepOrder reservingStep, ClientReservationType type) {
+    public static ClientReservation newPlaceholderReservation(ClientId clientId, StepOrder reservingStep, ClientReservationType type) {
         return new ClientReservation(clientId, reservingStep, type, false, true);
     }
 
-    public static ClientReservation newPlaceholder(StepOrder reservingStep, ClientReservationType type) {
-        return newPlaceholder(null, reservingStep, type);
+    public static ClientReservation newPlaceholderReservation(StepOrder reservingStep, ClientReservationType type) {
+        return newPlaceholderReservation(null, reservingStep, type);
     }
 
     public boolean sharesClientWith(ClientReservation other) {

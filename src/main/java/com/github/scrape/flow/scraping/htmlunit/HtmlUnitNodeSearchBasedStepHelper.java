@@ -48,11 +48,11 @@ public class HtmlUnitNodeSearchBasedStepHelper extends StepHelperBase {
                 step.getName(),
                 nextStepsHandler,
                 globalDebugging,
-                ScrapingStepInternalReader.of(step).getStepDebugging(),
+                ScrapingStepInternalAccessor.of(step).getStepDebugging(),
                 step.getFilters(),
-                ScrapingStepInternalReader.of(step).getNextSteps(),
+                ScrapingStepInternalAccessor.of(step).getNextSteps(),
                 StepModelsHandler.createFor(step),
-                ScrapingStepInternalReader.of(step).getExecuteIf(),
+                ScrapingStepInternalAccessor.of(step).getExecuteIf(),
                 services
         );
     }

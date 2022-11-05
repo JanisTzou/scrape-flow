@@ -28,13 +28,13 @@ import java.util.List;
  * ... to keep the public api of the step implementations clean of internal stuff ...
  */
 @RequiredArgsConstructor
-public class ScrapingStepInternalReader<C extends ScrapingStep<C>> {
+public class ScrapingStepInternalAccessor<C extends ScrapingStep<C>> {
 
     private final C step;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static ScrapingStepInternalReader<?> of(ScrapingStep<?> step) {
-        return new ScrapingStepInternalReader(step);
+    public static ScrapingStepInternalAccessor<?> of(ScrapingStep<?> step) {
+        return new ScrapingStepInternalAccessor(step);
     }
 
     public StepOrder execute(ScrapingContext ctx, ScrapingServices services) {

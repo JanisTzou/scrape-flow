@@ -50,7 +50,7 @@ public class SeleniumNavigateToParsedLink extends SeleniumScrapingStep<SeleniumN
         Runnable runnable = () -> {
             if (ctx.getParsedURL() != null) {
 
-                Optional<ClientOperator<WebDriver>> driverOperator = services.getClientReservationHandler().getSeleniumClient(stepOrder);
+                Optional<ClientOperator<WebDriver>> driverOperator = services.getClientAccessManager().getSeleniumClient(stepOrder);
 
                 if (driverOperator.isPresent()) {
                     Supplier<List<WebElement>> elementSearch = () -> {

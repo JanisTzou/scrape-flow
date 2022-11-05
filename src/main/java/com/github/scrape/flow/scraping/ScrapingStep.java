@@ -21,7 +21,7 @@ import com.github.scrape.flow.data.collectors.Collector;
 import com.github.scrape.flow.data.collectors.Collectors;
 import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.execution.TaskBasis;
+import com.github.scrape.flow.execution.TaskDefinition;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -190,8 +190,8 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> implements Throttl
 
     protected void submitForExecution(StepOrder stepOrder, Runnable runnable, ScrapingServices services) {
         StepOrder stepHierarchyOrder = services.getStepHierarchyRepository().getMetadataFor(this).getStepHierarchyOrder();
-        TaskBasis taskBasis = new TaskBasis(stepHierarchyOrder, stepOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests, getClientType(), getClientReservationType());
-        services.getTaskService().submitForExecution(taskBasis);
+        TaskDefinition taskDefinition = new TaskDefinition(stepHierarchyOrder, stepOrder, isExclusiveExecution(), getName(), runnable, throttlingAllowed(), this instanceof MakingHttpRequests, getClientType(), getClientReservationType());
+        services.getTaskService().submitForExecution(taskDefinition);
     }
 
     /**

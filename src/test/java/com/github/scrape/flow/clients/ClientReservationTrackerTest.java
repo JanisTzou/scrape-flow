@@ -44,7 +44,7 @@ public class ClientReservationTrackerTest {
     public void placeholderReservationIsAdded() {
         ClientReservationTracker tracker = new ClientReservationTracker();
 
-        tracker.addLoadingReservationPlaceholder(step_1);
+        tracker.addLoadingReservation(step_1);
 
         Optional<ClientReservation> res = tracker.getReservation(step_1);
         assertTrue(res.isPresent());
@@ -54,7 +54,7 @@ public class ClientReservationTrackerTest {
     public void placeholderReservationIsActivated() {
         ClientReservationTracker tracker = new ClientReservationTracker();
 
-        tracker.addLoadingReservationPlaceholder(step_1);
+        tracker.addLoadingReservation(step_1);
         tracker.activateReservation(step_1, clientId1);
 
         Optional<ClientReservation> res = tracker.getReservation(step_1);
@@ -66,10 +66,10 @@ public class ClientReservationTrackerTest {
     public void allReservationSharingTheSameClientAreFound() {
         ClientReservationTracker tracker = new ClientReservationTracker();
 
-        tracker.addReservation(ClientReservation.newPlaceholder(clientId1, step_1, LOADING));
-        tracker.addReservation(ClientReservation.newPlaceholder(clientId2, step_1_1, LOADING));
-        tracker.addReservation(ClientReservation.newPlaceholder(clientId2, step_1_1_1, READING));
-        tracker.addReservation(ClientReservation.newPlaceholder(clientId3, step_1_2, LOADING));
+        tracker.addReservation(ClientReservation.newPlaceholderReservation(clientId1, step_1, LOADING));
+        tracker.addReservation(ClientReservation.newPlaceholderReservation(clientId2, step_1_1, LOADING));
+        tracker.addReservation(ClientReservation.newPlaceholderReservation(clientId2, step_1_1_1, READING));
+        tracker.addReservation(ClientReservation.newPlaceholderReservation(clientId3, step_1_2, LOADING));
 
         assertEquals(List.of(step_1), toSteps(tracker.getReservationsSharingSameClientAs(step_1)));
         assertEquals(List.of(step_1_2), toSteps(tracker.getReservationsSharingSameClientAs(step_1_2)));

@@ -68,7 +68,7 @@ public class HtmlUnitFilterByTextContent implements Filter<DomNode> {
         } else if (regex != null) {
             return domText.getTextContent().matches(regex);
         } else {
-            throw new IllegalStateException("Cannot match text content - no search criteria specified!");
+            throw new IllegalArgumentException("Cannot match text content - no search criteria specified!");
         }
     }
 

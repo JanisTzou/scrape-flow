@@ -23,7 +23,7 @@ import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.LoadingNewPage;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.ScrapingStepInternalReader;
+import com.github.scrape.flow.scraping.ScrapingStepInternalAccessor;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.Optional;
@@ -49,10 +49,10 @@ public class HtmlUnitNavigateToUrl extends HtmlUnitScrapingStep<HtmlUnitNavigate
 
         // TODO problem ... this does not track steps for us and also the data ...
         Runnable runnable = () -> {
-            Optional<ClientOperator<WebClient>> operator = services.getClientReservationHandler().getHtmlUnitClient(stepOrder);
+            Optional<ClientOperator<WebClient>> operator = services.getClientAccessManager().getHtmlUnitClient(stepOrder);
             if (operator.isPresent()) {
                 // TODO if this step type has collectors then we need similar logic as in the helper ...
-                services.getHtmlUnitSiteLoader().loadPageAndExecuteNextSteps(url, ctx, ScrapingStepInternalReader.of(this).getNextSteps(), stepOrder, services, operator.get().getClient());
+                services.getHtmlUnitSiteLoader().loadPageAndExecuteNextSteps(url, ctx, ScrapingStepInternalAccessor.of(this).getNextSteps(), stepOrder, services, operator.get().getClient());
             } else {
                 log.error("No client!");
             }

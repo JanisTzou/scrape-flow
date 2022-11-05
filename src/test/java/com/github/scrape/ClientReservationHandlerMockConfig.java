@@ -16,7 +16,7 @@
 
 package com.github.scrape;
 
-import com.github.scrape.flow.clients.ClientReservationHandler;
+import com.github.scrape.flow.clients.ClientAccessManager;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,8 +27,8 @@ import static org.mockito.Mockito.mock;
 public class ClientReservationHandlerMockConfig {
 
     @Bean
-    public ClientReservationHandler clientReservationHandler() {
-        ClientReservationHandler mock = mock(ClientReservationHandler.class);
+    public ClientAccessManager clientReservationHandler() {
+        ClientAccessManager mock = mock(ClientAccessManager.class);
         Mockito.when(mock.canActivateReservation(Mockito.any())).thenReturn(true);
         return mock;
     }

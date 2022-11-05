@@ -43,7 +43,7 @@ public class DebuggableScrapingTest {
     public void onlyScrapeFirstElements() {
         assertFalse(debuggingOptions.isOnlyScrapeFirstElements());
 
-        debuggableScraping.onlyScrapeFirstElements(true);
+        debuggableScraping.setOnlyScrapeFirstElements(true);
 
         assertTrue(debuggingOptions.isOnlyScrapeFirstElements());
     }
@@ -52,7 +52,7 @@ public class DebuggableScrapingTest {
     public void logFoundElementsSource() {
         assertFalse(debuggingOptions.isLogFoundElementsSource());
 
-        debuggableScraping.logFoundElementsSource(true);
+        debuggableScraping.setLogFoundElementsSource(true);
 
         assertTrue(debuggingOptions.isLogFoundElementsSource());
     }
@@ -61,7 +61,7 @@ public class DebuggableScrapingTest {
     public void logFoundElementsCount() {
         assertFalse(debuggingOptions.isLogFoundElementsCount());
 
-        debuggableScraping.logFoundElementsCount(true);
+        debuggableScraping.setLogFoundElementsCount(true);
 
         assertTrue(debuggingOptions.isLogFoundElementsCount());
     }

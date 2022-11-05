@@ -80,8 +80,8 @@ public class TestConfiguration {
     }
 
     @Bean
-    public ClientReservationHandler clientReservationHandler() {
-        return new ClientReservationHandler(clientReservationTracker(), seleniumClientManager(), htmlUnitClientManager(), orderedClientAccessHandler());
+    public ClientAccessManager clientReservationHandler() {
+        return new ClientAccessManager(clientReservationTracker(), seleniumClientManager(), htmlUnitClientManager(), orderedClientAccessHandler());
     }
 
     @Bean

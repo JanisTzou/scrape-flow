@@ -30,17 +30,12 @@ public class HtmlUnitFilterByAttribute implements Filter<DomNode> {
     private final String attributeValue;
     private final String valueRegex;
 
-    private HtmlUnitFilterByAttribute(String attributeName,
+    HtmlUnitFilterByAttribute(String attributeName,
                                       @Nullable String attributeValue,
                                       String valueRegex) {
         this.attributeName = attributeName;
         this.attributeValue = attributeValue;
         this.valueRegex = valueRegex;
-    }
-
-    HtmlUnitFilterByAttribute(String attributeName,
-                              @Nullable String attributeValue) {
-        this(attributeName, attributeValue, null);
     }
 
     HtmlUnitFilterByAttribute(String attributeName) {

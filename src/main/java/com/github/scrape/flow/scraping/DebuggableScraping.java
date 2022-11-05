@@ -34,7 +34,7 @@ public class DebuggableScraping {
      * Disabled by default.
      * @return reference to this instance
      */
-    public Scraping onlyScrapeFirstElements(boolean enabled) {
+    public Scraping setOnlyScrapeFirstElements(boolean enabled) {
         scraping.getServices().getGlobalDebugging().setOnlyScrapeFirstElements(enabled);
         return scraping;
     }
@@ -45,7 +45,7 @@ public class DebuggableScraping {
      * Disabled by default.
      * @return reference to this instance
      */
-    public Scraping logFoundElementsSource(boolean enabled) {
+    public Scraping setLogFoundElementsSource(boolean enabled) {
         scraping.getServices().getGlobalDebugging().setLogFoundElementsSource(enabled);
         return scraping;
     }
@@ -56,7 +56,7 @@ public class DebuggableScraping {
      * Disabled by default.
      * @return reference to this instance
      */
-    public Scraping logFoundElementsCount(boolean enabled) {
+    public Scraping setLogFoundElementsCount(boolean enabled) {
         scraping.getServices().getGlobalDebugging().setLogFoundElementsCount(enabled);
         return scraping;
     }

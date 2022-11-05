@@ -26,7 +26,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- * Tracks all the steps that are still 'active' - they might be executing or waiting to be executed
+ * Tracks all the steps that are still 'active' - they might be executing or waiting to be executed;
+ * A step might not be active but is considered part of active step sequence if any parent or child steps are still 'active'.
  */
 @Log4j2
 public class ActiveStepsTracker {

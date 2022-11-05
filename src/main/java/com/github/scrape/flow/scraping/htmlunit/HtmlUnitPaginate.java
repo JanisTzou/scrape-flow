@@ -45,7 +45,7 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
     protected HtmlUnitPaginate copy() {
         HtmlUnitPaginate copy = new HtmlUnitPaginate(servicesPropagatedToTrigger);
         if (this.paginatingSequence != null) {
-            copy.paginatingSequence = ScrapingStepInternalReader.of(this.paginatingSequence).copy();
+            copy.paginatingSequence = ScrapingStepInternalAccessor.of(this.paginatingSequence).copy();
         }
         return copyFieldValuesTo(copy);
     }
@@ -91,7 +91,7 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
                 //  but it is questionably if we would like to design the data propagation as models if it's just for internal purposes ...
 //                services.getStepAndDataRelationshipTracker().track(stepOrder, generatedSteps, model, (ParsedDataListener<Object>) collecting.getDataListener());
 
-                ScrapingStepInternalReader.of(paginatingSequence).execute(paginatingCtx, services);
+                ScrapingStepInternalAccessor.of(paginatingSequence).execute(paginatingCtx, services);
 
             }
         };
@@ -106,7 +106,7 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
      * In practice this is most often the action finding the "NEXT" button element and clicking it.
      */
     public HtmlUnitPaginate setStepsLoadingNextPage(HtmlUnitScrapingStep<?> paginatingSequence) {
-        this.paginatingSequence = ScrapingStepInternalReader.of(paginatingSequence).copy();
+        this.paginatingSequence = ScrapingStepInternalAccessor.of(paginatingSequence).copy();
         return this;
     }
 

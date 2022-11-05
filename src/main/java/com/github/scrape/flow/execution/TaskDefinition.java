@@ -22,7 +22,7 @@ import lombok.Data;
 
 
 @Data
-public class TaskBasis {
+public class TaskDefinition {
 
     private final StepOrder stepHierarchyOrder;
     private final StepOrder stepOrder;

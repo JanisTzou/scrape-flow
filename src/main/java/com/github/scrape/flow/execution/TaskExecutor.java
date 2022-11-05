@@ -21,10 +21,8 @@ import java.util.function.Consumer;
 
 public interface TaskExecutor {
 
-    void submit(Task task,
-                Consumer<TaskResult> taskResultConsumer,
-                Consumer<TaskError> taskErrorConsumer);
-
+    void submit(Task task, Consumer<TaskResult> taskResultConsumer, Consumer<TaskError> taskErrorConsumer);
 
     boolean awaitCompletion(Duration timeout);
+
 }

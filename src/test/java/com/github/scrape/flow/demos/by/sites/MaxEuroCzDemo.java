@@ -23,6 +23,7 @@ import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitNavigateToParsedLink;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitUtils;
 import com.github.scrape.flow.scraping.selenium.SeleniumFlow;
+import com.github.scrape.flow.scraping.selenium.SeleniumNavigateToParsedLink;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
@@ -61,9 +62,9 @@ public class MaxEuroCzDemo {
             </li>
          */
 
-        scraping.getDebugOptions().onlyScrapeFirstElements(false)
-                .getDebugOptions().logFoundElementsSource(false)
-                .getDebugOptions().logFoundElementsCount(false)
+        scraping.getDebugOptions().setOnlyScrapeFirstElements(false)
+                .getDebugOptions().setLogFoundElementsSource(false)
+                .getDebugOptions().setLogFoundElementsCount(false)
                 .getOptions().setMaxRequestRetries(2);
         // TODO maybe the static and dynamic parses should be specified as part of the options ?
 
@@ -79,17 +80,8 @@ public class MaxEuroCzDemo {
                                                         .collectValue(Category::setName, Category.class)
                                                 )
                                                 .next(Parse.hRef(href -> "https://www.maxeuro.cz" + href)
-                                                        .next(SeleniumFlow.Do.navigateToParsedLink() // toCategoryProductList() // TODO revert
-                                                                .next(SeleniumFlow.Get.descendants()
-                                                                        .byTag("div")
-                                                                        .byClass("product-name")
-                                                                        .next(SeleniumFlow.Get.descendants().byTag("a")
-                                                                                .next(SeleniumFlow.Parse.hRef()
-                                                                                        .next(SeleniumFlow.Do.navigateToParsedLink())
-                                                                                )
-                                                                        )
-                                                                )
-                                                        )
+                                                        .next(toCategoryProductList()) // TODO uncomment
+//                                                        .next(seleniumProductScraping())
                                                 )
                                         )
                                 )
@@ -98,6 +90,27 @@ public class MaxEuroCzDemo {
         );
 
         start(scraping);
+    }
+
+    private SeleniumNavigateToParsedLink seleniumProductScraping() {
+        return SeleniumFlow.Do.navigateToParsedLink()
+                .next(SeleniumFlow.Get.descendants()
+                        .byTag("div")
+                        .byClass("product-name")
+                        .next(SeleniumFlow.Get.descendants().byTag("a")
+                                .addCollector(Product::new, Product.class, new ProductListenerScraped())
+                                .next(SeleniumFlow.Parse.hRef()
+                                        .collectValue(Product::setDetailUrl, Product.class)
+                                        .next(SeleniumFlow.Do.navigateToParsedLink()
+                                                .next(SeleniumFlow.Get.descendants().byClass("kratky-popis")
+                                                        .next(SeleniumFlow.Parse.textContent()
+                                                                .collectValue(Product::setDescription, Product.class)
+                                                        )
+                                                )
+                                        )
+                                )
+                        )
+                );
     }
 
     private HtmlUnitNavigateToParsedLink toCategoryProductList() {

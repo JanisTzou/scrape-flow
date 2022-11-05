@@ -16,9 +16,13 @@
 
 package com.github.scrape.flow.demos.by.sites;
 
+import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
+import com.github.scrape.flow.utils.JsonUtils;
+import lombok.Data;
+import lombok.extern.log4j.Log4j2;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -34,27 +38,22 @@ public class AktualneCzDemo {
     @Test
     public void start() throws InterruptedException {
 
-        final HtmlUnitGetDescendants getArticleElements = Get.descendants().byAttr("data-ga4-type", "article");
-        final HtmlUnitGetDescendants getArticleHeadlineElem = Get.descendants().byAttr("data-vr-headline");
-        final HtmlUnitGetDescendants getArticleDescElem1 = Get.descendants().byClass("section-opener__desc");
-        final HtmlUnitGetDescendants getArticleDescElem2 = Get.descendants().byClass("small-box__desc");
+        final HtmlUnitGetDescendants getArticleElements = Get.descendants().byAttrRegex("data-ga4-type", "article|online");
+        final HtmlUnitGetDescendants getArticleHeadlineElem = Get.descendants().byClassRegex("small-box__title|section-opener__title");
+        final HtmlUnitGetDescendants getArticleDescElem = Get.descendants().byClassRegex("small-box__desc|section-opener__desc");
 
         final Scraping articlesScraping = new Scraping(5, TimeUnit.SECONDS)
                 .setSequence(
                         HtmlUnitFlow.Do.navigateToUrl("https://zpravy.aktualne.cz/zahranici/")
                                 .next(getArticleElements
+                                        .addCollector(Article::new, Article.class, new ArticleListener())
                                         .next(getArticleHeadlineElem.stepName("step-1")
-                                                .next(Parse.textContent())
+                                                .next(Parse.textContent().collectValue(Article::setHeadline, Article.class))
                                         )
-                                        .next(getArticleHeadlineElem.stepName("step-2")
-                                                .next(Parse.textContent())
+                                        .next(getArticleDescElem
+                                                .next(Parse.textContent().collectValue(Article::setDescription, Article.class))
                                         )
-                                        .next(getArticleDescElem1
-                                                .next(Parse.textContent())
-                                        )
-                                        .next(getArticleDescElem2
-                                                .next(Parse.textContent())
-                                        ))
+                                )
 
                 );
 
@@ -62,5 +61,20 @@ public class AktualneCzDemo {
         articlesScraping.start(Duration.ofMinutes(2));
         Thread.sleep(1000); // let logging finish
     }
+
+    @Data
+    private static class Article {
+        private String headline;
+        private String description;
+    }
+
+    @Log4j2
+    private static class ArticleListener implements ScrapedDataListener<Article> {
+        @Override
+        public void onScrapedData(Article data) {
+            log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));
+        }
+    }
+
 
 }

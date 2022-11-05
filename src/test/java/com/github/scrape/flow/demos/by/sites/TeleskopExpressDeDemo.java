@@ -52,8 +52,8 @@ public class TeleskopExpressDeDemo {
 //        String url = "https://www.teleskop-express.de/shop/index.php/cat/c6_Eyepieces-1-25-inch-up-to-55--field.html";
 
         final Scraping productsScraping = new Scraping(1, TimeUnit.SECONDS)
-                .getDebugOptions().onlyScrapeFirstElements(false)
-                .getDebugOptions().logFoundElementsSource(false)
+                .getDebugOptions().setOnlyScrapeFirstElements(false)
+                .getDebugOptions().setLogFoundElementsSource(false)
                 .setSequence(
                         Do.navigateToUrl(url)
                                 .next(Do.paginate()
