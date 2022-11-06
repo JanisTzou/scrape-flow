@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit.filters;
+package com.github.scrape.flow.scraping;
 
-public interface HtmlUnitFilterableByFirstAndLast<C> extends HtmlUnitFilterable<C> {
+public interface FilterableByFirstAndLast<C, E> extends Filterable<C, E> {
 
     /**
      * Filters the first found <code>HtmlElement</code>
      */
     default C first() {
-        return addFilter(new HtmlUnitFilterFirstN(1));
+        return addFilter(new FilterFirstN<>(1));
     }
 
     /**
      * Filters the last found <code>HtmlElement</code>
      */
     default C last() {
-        return addFilter(new HtmlUnitFilterLastN(1));
+        return addFilter(new FilterLastN<>(1));
     }
 
     /**
@@ -37,7 +37,7 @@ public interface HtmlUnitFilterableByFirstAndLast<C> extends HtmlUnitFilterable<
      * @param n non-negative integer
      */
     default C firstN(int n) {
-        return addFilter(new HtmlUnitFilterFirstN(n));
+        return addFilter(new FilterFirstN<>(n));
     }
 
     /**
@@ -45,7 +45,7 @@ public interface HtmlUnitFilterableByFirstAndLast<C> extends HtmlUnitFilterable<
      * @param n non-negative integer
      */
     default C lastN(int n) {
-        return addFilter(new HtmlUnitFilterLastN(n));
+        return addFilter(new FilterLastN<>(n));
     }
 
     /**
@@ -53,7 +53,7 @@ public interface HtmlUnitFilterableByFirstAndLast<C> extends HtmlUnitFilterable<
      * @param nth positive integer
      */
     default C firstNth(int nth) {
-        return addFilter(new HtmlUnitFilterFirstNth(nth));
+        return addFilter(new FilterFirstNth<>(nth));
     }
 
     /**
@@ -61,7 +61,7 @@ public interface HtmlUnitFilterableByFirstAndLast<C> extends HtmlUnitFilterable<
      * @param nth positive integer
      */
     default C lastNth(int nth) {
-        return addFilter(new HtmlUnitFilterLastNth(nth));
+        return addFilter(new FilterLastNth<>(nth));
     }
 
     /**
@@ -69,7 +69,7 @@ public interface HtmlUnitFilterableByFirstAndLast<C> extends HtmlUnitFilterable<
      * @param n non-negative integer
      */
     default C excludingFirstN(int n) {
-        return addFilter(new HtmlUnitFilterExcludeFirstN(n));
+        return addFilter(new FilterExcludeFirstN<>(n));
     }
 
     /**
@@ -77,7 +77,7 @@ public interface HtmlUnitFilterableByFirstAndLast<C> extends HtmlUnitFilterable<
      * @param n non-negative integer
      */
     default C excludingLastN(int n) {
-        return addFilter(new HtmlUnitFilterExcludeLastN(n));
+        return addFilter(new FilterExcludeLastN<>(n));
     }
 
 }

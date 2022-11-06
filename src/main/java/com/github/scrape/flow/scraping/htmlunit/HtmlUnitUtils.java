@@ -77,13 +77,13 @@ public class HtmlUnitUtils {
     public static boolean hasAttributeWithExactValue(DomNode domNode, String attribute, String value) {
         if (domNode instanceof HtmlElement) {
             HtmlElement element = (HtmlElement) domNode;
-            return element.hasAttribute(attribute) && element.getAttribute(attribute).equalsIgnoreCase(value);
+            return element.hasAttribute(attribute) && element.getAttribute(attribute).equals(value);
         } else {
             return false;
         }
     }
 
-    public static boolean hasAttributeWithValue(DomNode domNode, String attribute, String valueRegex) {
+    public static boolean hasAttributeWithValueMatchingRegex(DomNode domNode, String attribute, String valueRegex) {
         if (domNode instanceof HtmlElement) {
             HtmlElement element = (HtmlElement) domNode;
             if (element.hasAttribute(attribute)) {
@@ -104,7 +104,7 @@ public class HtmlUnitUtils {
 
     public static Optional<DomNode> findNthAncestor(DomNode domNode, Integer nth) {
         if (nth != null && nth < 0) {
-            throw new IllegalArgumentException("Cannot return nth child element for n = " + nth + " - nth must be a non-null and non-negative integer!");
+            throw new IllegalArgumentException("Cannot return nth ancestor element for n = " + nth + " - nth must be a non-null and non-negative integer!");
         } else {
             return findNthAncestorHelper(domNode, nth, 0);
         }
@@ -114,8 +114,9 @@ public class HtmlUnitUtils {
         if (count == nth) {
             return Optional.of(domNode);
         } else {
-            if (domNode.getParentNode() != null && domNode instanceof HtmlElement) {
-                return findNthAncestorHelper(domNode.getParentNode(), nth, ++count);
+            DomNode parent = domNode.getParentNode();
+            if (parent != null && domNode instanceof HtmlElement) {
+                return findNthAncestorHelper(parent, nth, ++count);
             } else {
                 return Optional.empty();
             }

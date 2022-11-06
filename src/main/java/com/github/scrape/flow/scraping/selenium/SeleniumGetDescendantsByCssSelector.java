@@ -21,24 +21,27 @@ import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.Filter;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.selenium.filters.SeleniumFilterable;
 import com.github.scrape.flow.scraping.selenium.filters.SeleniumFilterableByCommonCriteria;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-public class SeleniumGetDescendants extends SeleniumScrapingStep<SeleniumGetDescendants>
-        implements SeleniumFilterableByCommonCriteria<SeleniumGetDescendants>, SeleniumFilterable<SeleniumGetDescendants> {
+public class SeleniumGetDescendantsByCssSelector extends SeleniumScrapingStep<SeleniumGetDescendantsByCssSelector>
+        implements SeleniumFilterableByCommonCriteria<SeleniumGetDescendantsByCssSelector> {
 
+    // this cannot be a filter ... it's more of a "Get" operation ...
+    // it would not make sense to first get descendants/children and then this ...
 
-    SeleniumGetDescendants() {
+    private final String sccSelector;
+
+    SeleniumGetDescendantsByCssSelector(String sccSelector) {
+        this.sccSelector = sccSelector;
     }
 
     @Override
-    protected SeleniumGetDescendants copy() {
-        return copyFieldValuesTo(new SeleniumGetDescendants());
+    protected SeleniumGetDescendantsByCssSelector copy() {
+        return copyFieldValuesTo(new SeleniumGetDescendantsByCssSelector(sccSelector));
     }
 
     @Override
@@ -46,8 +49,8 @@ public class SeleniumGetDescendants extends SeleniumScrapingStep<SeleniumGetDesc
         StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<WebElement>> nodesSearch = () -> ctx.getWebElement().findElements(By.xpath(".//*"));
-            getHelper().execute(nodesSearch, ctx, stepOrder, services);
+            Supplier<List<WebElement>> elementSearch = () -> SeleniumUtils.getDescendantsBySccSelector(ctx.getWebElement(), sccSelector);
+            getHelper().execute(elementSearch, ctx, stepOrder, services);
         };
 
         submitForExecution(stepOrder, runnable, services);
@@ -56,7 +59,7 @@ public class SeleniumGetDescendants extends SeleniumScrapingStep<SeleniumGetDesc
     }
 
     @Override
-    public SeleniumGetDescendants addFilter(Filter<WebElement> filter) {
+    public SeleniumGetDescendantsByCssSelector addFilter(Filter<WebElement> filter) {
         return super.addFilter(filter);
     }
 

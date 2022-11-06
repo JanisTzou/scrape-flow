@@ -14,33 +14,31 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit.filters;
-
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.scrape.flow.scraping.Filter;
+package com.github.scrape.flow.scraping;
 
 import java.util.Collections;
 import java.util.List;
 
-public class HtmlUnitFilterExcludeFirstN implements Filter<DomNode> {
+public class FilterFirstNth<C> implements Filter<C> {
 
-    private final int n;
+    private final int nth;
 
-    public HtmlUnitFilterExcludeFirstN(int n) {
-        if (n < 0) {
-            throw new IllegalArgumentException("n must be >= 0");
+    /**
+     * @param nth positive integer
+     */
+    public FilterFirstNth(int nth) {
+        if (nth <= 0) {
+            throw new IllegalArgumentException("n must be > 0");
         }
-        this.n = n;
+        this.nth = nth;
     }
 
     @Override
-    public List<DomNode> filter(List<DomNode> list) {
-        int lastN = list.size() - n;
-        if (lastN > 0) {
-            return new HtmlUnitFilterLastN(lastN).filter(list);
-        } else {
-            return Collections.emptyList();
+    public List<C> filter(List<C> list) {
+        if (list.size() >= nth) {
+            return List.of(list.get(nth - 1));
         }
+        return Collections.emptyList();
     }
 
 }

@@ -16,11 +16,14 @@
 
 package com.github.scrape.flow.scraping.htmlunit.filters;
 
+import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.github.scrape.flow.scraping.FilterableByFirstAndLast;
+
 public interface HtmlUnitFilterableByCommonCriteria<C>
         extends HtmlUnitFilterableByAttribute<C>,
         HtmlUnitFilterableByTag<C>,
         HtmlUnitFilterableByTextContent<C>,
         HtmlUnitFilterableByCssClass<C>,
-        HtmlUnitFilterableByFirstAndLast<C>
+        FilterableByFirstAndLast<C, DomNode>
 {
 }

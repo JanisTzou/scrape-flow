@@ -14,13 +14,30 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.selenium.filters;
+package com.github.scrape.flow.scraping;
 
+import java.util.Collections;
+import java.util.List;
 
-public interface SeleniumFilterableByTag<C> extends SeleniumFilterable<C> {
+public class FilterExcludeLastN<C> implements Filter<C> {
 
-    default C byTag(String tag) {
-        return addFilter(new SeleniumHtmlUnitFilterByTag(tag));
+    private final int n;
+
+    public FilterExcludeLastN(int n) {
+        if (n < 0) {
+            throw new IllegalArgumentException("n must be >= 0");
+        }
+        this.n = n;
+    }
+
+    @Override
+    public List<C> filter(List<C> list) {
+        int firstN = list.size() - n;
+        if (firstN > 0) {
+            return new FilterFirstN<C>(firstN).filter(list);
+        } else {
+            return Collections.emptyList();
+        }
     }
 
 }

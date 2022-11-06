@@ -14,25 +14,28 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit.filters;
+package com.github.scrape.flow.scraping.selenium.filters;
 
-public interface HtmlUnitFilterableByTextContent<C> extends HtmlUnitFilterable<C> {
+import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterByTextContent;
+import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterable;
+
+public interface SeleniumFilterableByTextContent<C> extends SeleniumFilterable<C> {
 
     // TODO we should document that we only search the children ... or something like that ...
 
     /**
-     * Filters all found <code>HtmlElement</code>s whose whole text content exactly matches the specified searchString (ignoring case)
+     * Filters all found <code>WebElement</code>s whose whole text content exactly matches the specified searchString (ignoring case)
      */
     default C byTextContent(String searchString) {
-        return addFilter(HtmlUnitFilterByTextContent.createForSearchString(searchString));
+        return addFilter(SeleniumFilterByTextContent.createForSearchString(searchString));
     }
 
     /**
-     * Filters all found <code>HtmlElement</code>s whose text content exactly matches the specified regex.
-     * Internally {@link java.lang.String#matches(String regex)} is used -> regex must match whole value.
+     * Filters all found <code>WebElement</code>s whose text content exactly matches the specified regex.
+     * Internally {@link String#matches(String regex)} is used -> regex must match whole value.
      */
     default C byTextContentRegex(String regex) {
-        return addFilter(HtmlUnitFilterByTextContent.createForRegex(regex));
+        return addFilter(SeleniumFilterByTextContent.createForRegex(regex));
     }
 
 }

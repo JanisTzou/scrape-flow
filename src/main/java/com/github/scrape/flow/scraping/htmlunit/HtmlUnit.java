@@ -20,8 +20,8 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.github.scrape.flow.scraping.CommonOperationsStepBase;
+import com.github.scrape.flow.scraping.FilterableSiblings;
 import com.github.scrape.flow.scraping.ScrapingStep;
-import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterableSiblings;
 import org.apache.commons.text.StringEscapeUtils;
 
 import javax.imageio.ImageIO;
@@ -70,7 +70,7 @@ public class HtmlUnit {
         }
 
         /**
-         * Searches the DOM for siblings of the current <code>HtmlElement</code> based on specified filter methods specified by {@link HtmlUnitFilterableSiblings}
+         * Searches the DOM for siblings of the current <code>HtmlElement</code> based on specified filter methods specified by {@link FilterableSiblings}
          * Search for sibling candidates is performed as specified by {@link DomNode#getPreviousElementSibling()} and {@link DomNode#getNextElementSibling()}.
          */
         public static HtmlUnitGetSiblings siblings() {

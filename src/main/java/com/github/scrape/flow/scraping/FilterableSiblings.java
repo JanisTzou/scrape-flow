@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit.filters;
+package com.github.scrape.flow.scraping;
 
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitScrapingStep;
-
-public interface HtmlUnitFilterableSiblings<C extends HtmlUnitScrapingStep<C>> extends HtmlUnitFilterable<C> {
+public interface FilterableSiblings<C extends ScrapingStep<C>, E> extends Filterable<C, E> {
 
     /**
      * Filters the immediately preceding sibling
      */
     default C prev() {
-        return addFilter(new HtmlUnitFilterSiblingsPrevNth(1));
+        return addFilter(new FilterSiblingsPrevNth<>(1));
     }
 
     /**
      * Filters the immediately following sibling
      */
     default C next() {
-        return addFilter(new HtmlUnitFilterSiblingsNextNth(1));
+        return addFilter(new FilterSiblingsNextNth<>(1));
     }
 
     /**
@@ -39,7 +37,7 @@ public interface HtmlUnitFilterableSiblings<C extends HtmlUnitScrapingStep<C>> e
      * @param n positive integer
      */
     default C prevN(int n) {
-        return addFilter(new HtmlUnitFilterSiblingsPrevN(n));
+        return addFilter(new FilterSiblingsPrevN<>(n));
     }
 
     /**
@@ -47,7 +45,7 @@ public interface HtmlUnitFilterableSiblings<C extends HtmlUnitScrapingStep<C>> e
      * @param n positive integer
      */
     default C nextN(int n) {
-        return addFilter(new HtmlUnitFilterSiblingsNextN(n));
+        return addFilter(new FilterSiblingsNextN<>(n));
     }
 
     /**
@@ -55,7 +53,7 @@ public interface HtmlUnitFilterableSiblings<C extends HtmlUnitScrapingStep<C>> e
      * @param nth positive integer
      */
     default C prevNth(int nth) {
-        return addFilter(new HtmlUnitFilterSiblingsPrevNth(nth));
+        return addFilter(new FilterSiblingsPrevNth<>(nth));
     }
 
     /**
@@ -63,7 +61,7 @@ public interface HtmlUnitFilterableSiblings<C extends HtmlUnitScrapingStep<C>> e
      * @param nth positive integer
      */
     default C nextNth(int nth) {
-        return addFilter(new HtmlUnitFilterSiblingsNextNth(nth));
+        return addFilter(new FilterSiblingsNextNth<>(nth));
     }
 
     /**
@@ -71,7 +69,7 @@ public interface HtmlUnitFilterableSiblings<C extends HtmlUnitScrapingStep<C>> e
      * @param nth positive integer
      */
     default C prevEveryNth(int nth) {
-        return addFilter(new HtmlUnitFilterSiblingsPrevEveryNth(nth));
+        return addFilter(new FilterSiblingsPrevEveryNth<>(nth));
     }
 
     /**
@@ -79,21 +77,21 @@ public interface HtmlUnitFilterableSiblings<C extends HtmlUnitScrapingStep<C>> e
      * @param nth positive integer
      */
     default C nextEveryNth(int nth) {
-        return addFilter(new HtmlUnitFilterSiblingsNextEveryNth(nth));
+        return addFilter(new FilterSiblingsNextEveryNth<>(nth));
     }
 
     /**
      * Filters the first sibling out of multiple previous siblings
      */
     default C first() {
-        return addFilter(new HtmlUnitFilterSiblingsFirst());
+        return addFilter(new FilterSiblingsFirst<>());
     }
 
     /**
      * Filters the last sibling out of multiple next siblings
      */
     default C last() {
-        return addFilter(new HtmlUnitFilterSiblingsLast());
+        return addFilter(new FilterSiblingsLast<>());
     }
 
 
@@ -101,7 +99,7 @@ public interface HtmlUnitFilterableSiblings<C extends HtmlUnitScrapingStep<C>> e
      * Returns all siblings of the current element. This is the default behaviour if no other filter is specified
      */
     default C all() {
-        return addFilter(new HtmlUnitFilterSiblingsAll());
+        return addFilter(new FilterSiblingsAll<>());
     }
 
 }

@@ -21,33 +21,35 @@ import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.Filter;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.selenium.filters.SeleniumFilterable;
 import com.github.scrape.flow.scraping.selenium.filters.SeleniumFilterableByCommonCriteria;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-public class SeleniumGetDescendants extends SeleniumScrapingStep<SeleniumGetDescendants>
-        implements SeleniumFilterableByCommonCriteria<SeleniumGetDescendants>, SeleniumFilterable<SeleniumGetDescendants> {
+public class SeleniumGetElementsByXPath extends SeleniumScrapingStep<SeleniumGetElementsByXPath>
+        implements SeleniumFilterableByCommonCriteria<SeleniumGetElementsByXPath> {
+
+    private final String xPathExpr;
 
 
-    SeleniumGetDescendants() {
+    SeleniumGetElementsByXPath(String xPathExpr) {
+        this.xPathExpr = xPathExpr;
     }
 
     @Override
-    protected SeleniumGetDescendants copy() {
-        return copyFieldValuesTo(new SeleniumGetDescendants());
+    protected SeleniumGetElementsByXPath copy() {
+        return copyFieldValuesTo(new SeleniumGetElementsByXPath(xPathExpr));
     }
+
 
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
         StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<WebElement>> nodesSearch = () -> ctx.getWebElement().findElements(By.xpath(".//*"));
-            getHelper().execute(nodesSearch, ctx, stepOrder, services);
+            Supplier<List<WebElement>> elementSearch = () -> SeleniumUtils.findByXPath(ctx.getWebElement(), xPathExpr);
+            getHelper().execute(elementSearch, ctx, stepOrder, services);
         };
 
         submitForExecution(stepOrder, runnable, services);
@@ -56,7 +58,7 @@ public class SeleniumGetDescendants extends SeleniumScrapingStep<SeleniumGetDesc
     }
 
     @Override
-    public SeleniumGetDescendants addFilter(Filter<WebElement> filter) {
+    public SeleniumGetElementsByXPath addFilter(Filter<WebElement> filter) {
         return super.addFilter(filter);
     }
 
@@ -64,5 +66,4 @@ public class SeleniumGetDescendants extends SeleniumScrapingStep<SeleniumGetDesc
     protected ClientReservationType getClientReservationType() {
         return ClientReservationType.READING;
     }
-
 }

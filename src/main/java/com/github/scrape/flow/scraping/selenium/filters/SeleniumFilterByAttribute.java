@@ -14,44 +14,44 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit.filters;
+package com.github.scrape.flow.scraping.selenium.filters;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.scraping.Filter;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitUtils;
+import com.github.scrape.flow.scraping.selenium.SeleniumUtils;
+import org.openqa.selenium.WebElement;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class HtmlUnitFilterByAttribute implements Filter<DomNode> {
+public class SeleniumFilterByAttribute implements Filter<WebElement> {
 
     private final String attributeName;
     private final String attributeValue;
     private final String valueRegex;
 
-    HtmlUnitFilterByAttribute(String attributeName,
-                                      @Nullable String attributeValue,
-                                      String valueRegex) {
+    SeleniumFilterByAttribute(String attributeName,
+                              @Nullable String attributeValue,
+                              String valueRegex) {
         this.attributeName = attributeName;
         this.attributeValue = attributeValue;
         this.valueRegex = valueRegex;
     }
 
-    HtmlUnitFilterByAttribute(String attributeName) {
+    SeleniumFilterByAttribute(String attributeName) {
         this(attributeName, null, null);
     }
 
     @Override
-    public List<DomNode> filter(List<DomNode> list) {
+    public List<WebElement> filter(List<WebElement> list) {
         return list.stream()
-                .filter(node -> {
+                .filter(elem -> {
                     if (attributeValue != null) {
-                        return HtmlUnitUtils.hasAttributeWithExactValue(node, attributeName, attributeValue);
+                        return SeleniumUtils.hasAttributeWithExactValue(elem, attributeName, attributeValue);
                     } else if (valueRegex != null) {
-                        return HtmlUnitUtils.hasAttributeWithValueMatchingRegex(node, attributeName, valueRegex);
+                        return SeleniumUtils.hasAttributeWithValueMatchingRegex(elem, attributeName, valueRegex);
                     } else {
-                        return HtmlUnitUtils.hasAttribute(node, attributeName);
+                        return SeleniumUtils.hasAttribute(elem, attributeName);
                     }
                 })
                 .collect(Collectors.toList());

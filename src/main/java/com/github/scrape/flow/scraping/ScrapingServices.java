@@ -21,6 +21,7 @@ import com.github.scrape.flow.data.publishing.ScrapedDataPublisher;
 import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.execution.*;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitPageLoader;
+import com.github.scrape.flow.scraping.selenium.SeleniumPageLoader;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
 import com.github.scrape.flow.throttling.ThrottlingService;
 import lombok.AllArgsConstructor;
@@ -48,6 +49,7 @@ public class ScrapingServices {
     private final SeleniumClientManager seleniumClientManager;
     private final HtmlUnitClientManager htmlUnitClientManager;
     private final HtmlUnitPageLoader htmlUnitSiteLoader;
+    private final SeleniumPageLoader seleniumPageLoader;
     private volatile StepHierarchyRepository stepHierarchyRepository;
     private final OrderedClientAccessHandler orderedClientAccessHandler;
 
@@ -66,9 +68,10 @@ public class ScrapingServices {
         this.htmlUnitClientManager = new HtmlUnitClientManager(clientFactory);
         this.orderedClientAccessHandler = new OrderedClientAccessHandler(activeStepsTracker);
         this.clientAccessManager = new ClientAccessManager(clientReservationTracker, seleniumClientManager, htmlUnitClientManager, orderedClientAccessHandler);
-        taskExecutor = new TaskExecutorSingleQueue(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker, clientAccessManager);
-        taskService = new TaskService(taskExecutor, activeStepsTracker, scrapedDataPublisher, scrapingRateLimiter, options);
+        this.taskExecutor = new TaskExecutorSingleQueue(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker, clientAccessManager);
+        this.taskService = new TaskService(taskExecutor, activeStepsTracker, scrapedDataPublisher, scrapingRateLimiter, options);
         this.htmlUnitSiteLoader = new HtmlUnitPageLoader();
+        this.seleniumPageLoader = new SeleniumPageLoader();
     }
 
     // needed to pass the dependency

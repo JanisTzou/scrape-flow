@@ -36,6 +36,7 @@ public class OrderedClientAccessHandler {
     @Setter
     private volatile StepHierarchyRepository stepHierarchyRepository;
 
+    // TODO will this work for pagination as it is design currently?
     public boolean enoughFreeClientsForPrecedingSteps(int remainingClients, StepOrder stepExecToCheck, ClientType clientType) {
         checkInitialisation();
         // ideally we should also filter away steps that are executing now, but it's ok ...

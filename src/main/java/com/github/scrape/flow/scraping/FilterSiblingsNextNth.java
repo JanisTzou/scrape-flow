@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit.filters;
-
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.scrape.flow.scraping.Filter;
+package com.github.scrape.flow.scraping;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-public class HtmlUnitFilterSiblingsNextEveryNth implements Filter<DomNode> {
+public class FilterSiblingsNextNth<C> implements Filter<C> {
 
     private final int nth;
 
     /**
      * @param nth positive integer
      */
-    public HtmlUnitFilterSiblingsNextEveryNth(int nth) {
+    public FilterSiblingsNextNth(int nth) {
         if (nth <= 0) {
             throw new IllegalArgumentException("n must be > 0");
         }
@@ -38,11 +33,8 @@ public class HtmlUnitFilterSiblingsNextEveryNth implements Filter<DomNode> {
     }
 
     @Override
-    public List<DomNode> filter(List<DomNode> allNextSiblings) {
-        return IntStream.range(0, allNextSiblings.size())
-                .filter(n -> n % nth == 0)
-                .mapToObj(allNextSiblings::get)
-                .collect(Collectors.toList());
+    public List<C> filter(List<C> allNextSiblings) {
+        return new FilterFirstNth<C>(nth).filter(allNextSiblings);
     }
 
 }

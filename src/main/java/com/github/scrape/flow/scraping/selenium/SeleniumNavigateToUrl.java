@@ -22,50 +22,38 @@ import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.LoadingNewPage;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
+import com.github.scrape.flow.scraping.ScrapingStepInternalAccessor;
 import lombok.extern.log4j.Log4j2;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 @Log4j2
-public class SeleniumNavigateToParsedLink extends SeleniumScrapingStep<SeleniumNavigateToParsedLink>
+public class SeleniumNavigateToUrl extends SeleniumScrapingStep<SeleniumNavigateToUrl>
         implements LoadingNewPage {
 
-    @Override
-    protected SeleniumNavigateToParsedLink copy() {
-        return copyFieldValuesTo(new SeleniumNavigateToParsedLink());
+    private final String url;
+
+    SeleniumNavigateToUrl(String url) {
+        this.url = url;
     }
 
-    // the URL must come from the parsing context!!
+    @Override
+    protected SeleniumNavigateToUrl copy() {
+        return copyFieldValuesTo(new SeleniumNavigateToUrl(url));
+    }
+
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
-
         StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
-        // TODO problem ... this does not track steps for us and also the data ...
         Runnable runnable = () -> {
-            if (ctx.getParsedURL() != null) {
-
-                Optional<ClientOperator<WebDriver>> driverOperator = services.getClientAccessManager().getSeleniumClient(stepOrder);
-
-                if (driverOperator.isPresent()) {
-                    Supplier<List<WebElement>> elementSearch = () -> {
-                        WebDriver driver = driverOperator.get().getClient();
-                        driver.get(ctx.getParsedURL());
-                        WebElement html = driver.findElement(By.tagName("html")); // TODO do until successful ... think about where the retry should be taking palce  ...
-                        return List.of(html);
-                    };
-                    getHelper().execute(elementSearch, ctx, stepOrder, services);
-                } else {
-                    log.error("Step {} cannot execute as a webDriver that was supposed to be reserved for it was not available!", getName());
-                }
-
+            Optional<ClientOperator<WebDriver>> operator = services.getClientAccessManager().getSeleniumClient(stepOrder);
+            if (operator.isPresent()) {
+                services.getSeleniumPageLoader().loadPageAndExecuteNextSteps(url, ctx, ScrapingStepInternalAccessor.of(this).getNextSteps(), stepOrder, services, operator.get());
+                // TODO wait for page loading to finish ... someway?
             } else {
-                log.error("{}: Cannot navigate to next site - the previously parsed URL is null!", getName());
+                log.error("No client!");
             }
         };
 
@@ -84,6 +72,5 @@ public class SeleniumNavigateToParsedLink extends SeleniumScrapingStep<SeleniumN
     protected ClientReservationType getClientReservationType() {
         return ClientReservationType.LOADING;
     }
-
 
 }

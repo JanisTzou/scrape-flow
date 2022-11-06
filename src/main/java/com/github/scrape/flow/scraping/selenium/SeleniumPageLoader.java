@@ -16,6 +16,7 @@
 
 package com.github.scrape.flow.scraping.selenium;
 
+import com.github.scrape.flow.clients.ClientOperator;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.*;
 import lombok.extern.log4j.Log4j2;
@@ -28,35 +29,45 @@ import java.util.List;
 import java.util.Optional;
 
 @Log4j2
-public class SeleniumPageLoader implements PageLoader<WebDriver> {
+public class SeleniumPageLoader implements PageLoader<ClientOperator<WebDriver>> {
 
     public SeleniumPageLoader() {
     }
 
     @Override
-    public void loadPageAndExecuteNextSteps(String url, ScrapingContext ctx, List<ScrapingStep<?>> parsingSequences, StepOrder currStepOrder, ScrapingServices services, WebDriver webDriver) {
-        loadPage(url, currStepOrder, webDriver).ifPresent(rootWebElement -> {
+    public void loadPageAndExecuteNextSteps(String url,
+                                            ScrapingContext ctx,
+                                            List<ScrapingStep<?>> parsingSequences,
+                                            StepOrder currStepOrder,
+                                            ScrapingServices services,
+                                            ClientOperator<WebDriver> clientOperator) {
+        loadPage(url, currStepOrder, clientOperator).ifPresent(rootWebElement -> {
             ScrapingContext nextCtx = ctx.toBuilder().setWebElement(rootWebElement).setPrevStepOrder(currStepOrder).build();
             executeNextSteps(nextCtx, parsingSequences, services);
         });
     }
 
-    private Optional<WebElement> loadPage(String url, @Nullable StepOrder currStepOrder, WebDriver webDriver) {
-        return loadHtmlPage(url, webDriver, currStepOrder);
+    private Optional<WebElement> loadPage(String url, @Nullable StepOrder currStepOrder, ClientOperator<WebDriver> clientOperator) {
+        return loadHtmlPage(url, clientOperator, currStepOrder);
     }
 
     private void executeNextSteps(ScrapingContext ctx, List<ScrapingStep<?>> parsingSequences, ScrapingServices services) {
         parsingSequences.forEach(s -> ScrapingStepInternalAccessor.of(s).execute(ctx, services));
     }
 
-    private Optional<WebElement> loadHtmlPage(String pageUrl, WebDriver webDriver, @Nullable StepOrder currStepOrder) {
+    private Optional<WebElement> loadHtmlPage(String pageUrl, ClientOperator<WebDriver> clientOperator, @Nullable StepOrder currStepOrder) {
         // TODO someway somehow we need to make this retrievable ...
         String logInfo = currStepOrder != null ? currStepOrder + " - " : "";
         try {
             log.debug("{}Loading page URL: {}", logInfo, pageUrl);
-            webDriver.get(pageUrl);  // we have one webDriver instance per thread so this call is ok -> each client will have its own "current top WebWindow"
+            clientOperator.getClient().get(pageUrl);  // we have one clientOperator instance per thread so this call is ok -> each client will have its own "current top WebWindow"
             // TODO this should be retried ...
-            WebElement root = webDriver.findElement(By.tagName("html"));
+//            Thread.sleep(5000);
+//            WebElement element = clientOperator.getClient().findElement(By.id("onetrust-accept-btn-handler"));
+//            element.click();
+//            Thread.sleep(5000);
+
+            WebElement root = clientOperator.getClient().findElement(By.tagName("html"));
             // TODO hmm ... the steps can receive the body but they need to be aware of the
             return Optional.of(root);
 

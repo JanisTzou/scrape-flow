@@ -25,6 +25,7 @@ import com.github.scrape.flow.execution.*;
 import com.github.scrape.flow.scraping.Options;
 import com.github.scrape.flow.scraping.ScrapingServices;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitPageLoader;
+import com.github.scrape.flow.scraping.selenium.SeleniumPageLoader;
 import com.github.scrape.flow.throttling.ScrapingRateLimiter;
 import com.github.scrape.flow.throttling.ScrapingRateLimiterImpl;
 import com.github.scrape.flow.throttling.ThrottlingService;
@@ -54,6 +55,7 @@ public class TestConfiguration {
                 seleniumClientManager(),
                 htmlUnitClientManager(),
                 htmlUnitPageLoader(),
+                seleniumPageLoader(),
                 stepHierarchyRepository,
                 orderedClientAccessHandler()
         );
@@ -148,6 +150,11 @@ public class TestConfiguration {
     @Bean
     public HtmlUnitPageLoader htmlUnitPageLoader() {
         return new HtmlUnitPageLoader();
+    }
+
+    @Bean
+    public SeleniumPageLoader seleniumPageLoader() {
+        return new SeleniumPageLoader();
     }
 
     @Bean

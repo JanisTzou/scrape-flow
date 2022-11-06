@@ -18,46 +18,45 @@ package com.github.scrape.flow.scraping.selenium;
 
 import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.Filter;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.selenium.filters.SeleniumFilterable;
-import com.github.scrape.flow.scraping.selenium.filters.SeleniumFilterableByCommonCriteria;
-import org.openqa.selenium.By;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class SeleniumGetDescendants extends SeleniumScrapingStep<SeleniumGetDescendants>
-        implements SeleniumFilterableByCommonCriteria<SeleniumGetDescendants>, SeleniumFilterable<SeleniumGetDescendants> {
+/**
+ * Filters nodes acquired in the previous steps by custom conditions
+ */
+@Log4j2
+@RequiredArgsConstructor
+public class SeleniumFilterElementsNatively extends SeleniumScrapingStep<SeleniumFilterElementsNatively> {
 
-
-    SeleniumGetDescendants() {
-    }
+    private final Predicate<WebElement> webElementPredicate;
 
     @Override
-    protected SeleniumGetDescendants copy() {
-        return copyFieldValuesTo(new SeleniumGetDescendants());
+    protected SeleniumFilterElementsNatively copy() {
+        return copyFieldValuesTo(new SeleniumFilterElementsNatively(webElementPredicate));
     }
 
     @Override
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
+
         StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<WebElement>> nodesSearch = () -> ctx.getWebElement().findElements(By.xpath(".//*"));
-            getHelper().execute(nodesSearch, ctx, stepOrder, services);
+            Supplier<List<WebElement>> elementSearch = () -> Stream.of(ctx.getWebElement()).filter(webElementPredicate).collect(Collectors.toList());
+            getHelper().execute(elementSearch, ctx, stepOrder, services);
         };
 
         submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;
-    }
-
-    @Override
-    public SeleniumGetDescendants addFilter(Filter<WebElement> filter) {
-        return super.addFilter(filter);
     }
 
     @Override

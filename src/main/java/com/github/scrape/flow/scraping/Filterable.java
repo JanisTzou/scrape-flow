@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit.filters;
+package com.github.scrape.flow.scraping;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.scrape.flow.scraping.Filter;
 
-import java.util.Collections;
-import java.util.List;
+public interface Filterable<C, E> {
 
-public class HtmlUnitFilterSiblingsLast implements Filter<DomNode> {
-
-    @Override
-    public List<DomNode> filter(List<DomNode> allNextSiblings) {
-        if (allNextSiblings.isEmpty()) {
-            return Collections.emptyList();
-        } else {
-            return List.of(allNextSiblings.get(allNextSiblings.size() - 1));
-        }
-    }
+    /**
+     * @param filter a filter that will be applied on found elements by this step before
+     *               next steps are executed for each of the resulting elements.
+     *               The filters are applied in the order in which they were added.
+     * @return a copy of this instance with the filter added to it
+     */
+    C addFilter(Filter<E> filter);
 
 }

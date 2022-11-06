@@ -63,10 +63,10 @@ public class SeleniumParseElementHRef extends SeleniumScrapingStep<SeleniumParse
 
                     Supplier<List<WebElement>> nodesSearch = () -> List.of(ctx.getWebElement()); // just resend the node ...
                     ScrapingContext ctxCopy = ctx.toBuilder().setParsedURL(mappedVal).build();
-                    getHelper().execute(ctxCopy, nodesSearch, stepOrder, getExecuteIf(), services);
+                    getHelper().execute(nodesSearch, ctxCopy, stepOrder, services);
                 }
             } else {
-                log.warn("No HtmlAnchor element provided -> cannot parse href value! Check the steps sequence above step {}", getName());
+                log.warn("No HtmlAnchor element provided -> cannot parse href value! Check the steps sequence above step {} {}", getName(), stepOrder);
             }
         };
 

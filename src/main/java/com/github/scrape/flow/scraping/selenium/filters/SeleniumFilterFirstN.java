@@ -16,20 +16,28 @@
 
 package com.github.scrape.flow.scraping.selenium.filters;
 
-
 import com.github.scrape.flow.scraping.Filter;
-import com.github.scrape.flow.scraping.Filterable;
 import org.openqa.selenium.WebElement;
 
-// TODO support basic logic operators in filtering ...
-public interface SeleniumFilterable<C> extends Filterable<C, WebElement> {
+import java.util.List;
+import java.util.stream.Collectors;
 
-    /**
-     * @param filter a filter that will be applied on found elements by this step before
-     *               next steps are executed for each of the resulting elements.
-     *               The filters are applied in the order in which they were added.
-     * @return a copy of this instance with the filter added to it
-     */
-    C addFilter(Filter<WebElement> filter);
+public class SeleniumFilterFirstN implements Filter<WebElement> {
+
+    private final int n;
+
+    public SeleniumFilterFirstN(int n) {
+        if (n < 0) {
+            throw new IllegalArgumentException("n must be >= 0");
+        }
+        this.n = n;
+    }
+
+    @Override
+    public List<WebElement> filter(List<WebElement> list) {
+        return list.stream()
+                .limit(n)
+                .collect(Collectors.toList());
+    }
 
 }

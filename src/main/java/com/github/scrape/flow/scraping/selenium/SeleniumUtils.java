@@ -16,6 +16,8 @@
 
 package com.github.scrape.flow.scraping.selenium;
 
+import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -40,8 +42,15 @@ public class SeleniumUtils {
         return webElement.getAttribute(attrName) != null;
     }
 
-    public static boolean hasAttributeWithValue(WebElement element, String attribute, String value) {
+    public static boolean hasAttributeWithExactValue(WebElement element, String attribute, String value) {
         return hasAttribute(element, attribute) && element.getAttribute(attribute).equals(value);
+    }
+
+    public static boolean hasAttributeWithValueMatchingRegex(WebElement element, String attribute, String valueRegex) {
+        if (hasAttribute(element, attribute)) {
+            return element.getAttribute(attribute).matches(valueRegex);
+        }
+        return false;
     }
 
     public static boolean hasCssClass(WebElement element, String value) {
@@ -62,17 +71,6 @@ public class SeleniumUtils {
         }
     }
 
-
-    public static Optional<WebElement> getElement(WebElement rootElement, String valueContainingTag, String valueContainingAttribute, String valueContainingAttributesValue) {
-        List<WebElement> pElems = rootElement.findElements(By.tagName(valueContainingTag));
-        for (WebElement pElem : pElems) {
-            if (SeleniumUtils.hasAttributeWithValue(pElem, valueContainingAttribute, valueContainingAttributesValue)) {
-                return Optional.ofNullable(pElem);
-            }
-        }
-        return Optional.empty();
-    }
-
     public static Optional<WebElement> getElement(WebElement rootElement, String valueContainingTag, String valueContainingAttribute) {
         List<WebElement> pElems = rootElement.findElements(By.tagName(valueContainingTag));
         for (WebElement pElem : pElems) {
@@ -88,7 +86,7 @@ public class SeleniumUtils {
         if (bodyElems.size() == 1) {
             return Optional.of(bodyElems.get(0));
         } else {
-            log.error("Found {} body elements for {} at {}", inzIdentifier, inzeratUrl);
+            log.error("Found {} body elements for {} at {}", bodyElems.size(), inzIdentifier, inzeratUrl);
             return Optional.empty();
         }
     }
@@ -97,13 +95,49 @@ public class SeleniumUtils {
         List<WebElement> pElems = rootElement.findElements(By.tagName(valueContainingTag));
         List<WebElement> result = new ArrayList<>();
         for (WebElement pElem : pElems) {
-            if (SeleniumUtils.hasAttributeWithValue(pElem, valueContainingAttribute, valueContainingAttributesValue)) {
+            if (SeleniumUtils.hasAttributeWithExactValue(pElem, valueContainingAttribute, valueContainingAttributesValue)) {
                 result.add(pElem);
             }
         }
         return result;
     }
 
+    public static List<WebElement> getDescendantsBySccSelector(WebElement webElement, String sccSelector) {
+        return webElement.findElements(By.cssSelector(sccSelector));
+    }
+
+    public static Optional<WebElement> findParent(WebElement weElement) {
+        try {
+            return Optional.of(weElement.findElement(By.xpath("./..")));
+        } catch (NoSuchElementException nsee) {
+            return Optional.empty();
+        }
+    }
+
+    public static Optional<WebElement> findNthAncestor(WebElement webElement, Integer nth) {
+        if (nth != null && nth < 0) {
+            throw new IllegalArgumentException("Cannot return nth ancestor element for n = " + nth + " - nth must be a non-null and non-negative integer!");
+        } else {
+            return findNthAncestorHelper(webElement, nth, 0);
+        }
+    }
+
+    private static Optional<WebElement> findNthAncestorHelper(WebElement webElement, int nth, int count) {
+        if (count == nth) {
+            return Optional.of(webElement);
+        } else {
+            Optional<WebElement> parent = findParent(webElement);
+            if (parent.isPresent()) {
+                return findNthAncestorHelper(parent.get(), nth, ++count);
+            } else {
+                return Optional.empty();
+            }
+        }
+    }
+
+    public static List<WebElement> findByXPath(WebElement webElement, String xPathExpr) {
+        return webElement.findElements(By.xpath(xPathExpr));
+    }
 
     public static void sleep(int milis) {
         try {
@@ -112,6 +146,4 @@ public class SeleniumUtils {
             e.printStackTrace();
         }
     }
-
-
 }

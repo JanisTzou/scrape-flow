@@ -30,27 +30,31 @@ public class SeleniumStepHelper extends StepHelperBase {
 
     private final SeleniumScrapingStep<?> step;
     private final NextStepsHandler nextStepsHandler;
+    private final StepExecutionCondition executionCondition;
 
-    public SeleniumStepHelper(SeleniumScrapingStep<?> step) {
+    public SeleniumStepHelper(SeleniumScrapingStep<?> step,
+                              StepExecutionCondition executionCondition) {
         this.step = step;
+        this.executionCondition = executionCondition;
         this.nextStepsHandler = new NextStepsAsDefinedByUser();
     }
 
-    public SeleniumStepHelper(SeleniumScrapingStep<?> step, NextStepsHandler nextStepsHandler) {
+    public SeleniumStepHelper(SeleniumScrapingStep<?> step,
+                              NextStepsHandler nextStepsHandler,
+                              StepExecutionCondition executionCondition) {
         this.step = step;
         this.nextStepsHandler = nextStepsHandler;
+        this.executionCondition = executionCondition;
     }
 
-    public void execute(ScrapingContext ctx,
-                        // TODO remove ...
-                        Supplier<List<WebElement>> elementsSearch,
+    public void execute(Supplier<List<WebElement>> elementsSearch,
+                        ScrapingContext ctx,
                         StepOrder currStepOrder,
-                        StepExecutionCondition condition,
-                        ScrapingServices services) {
+                        ScrapingServices services) { // TODO remove services from here ...
         String stepName = null;
         try {
             stepName = ScrapingStepInternalAccessor.of(step).getName();
-            if (!condition.canExecute(stepName, ctx.getContextModels())) {
+            if (!executionCondition.canExecute(stepName, ctx.getContextModels())) {
                 return;
             }
 

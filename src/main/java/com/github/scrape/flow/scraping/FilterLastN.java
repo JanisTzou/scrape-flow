@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit.filters;
+package com.github.scrape.flow.scraping;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.github.scrape.flow.scraping.Filter;
-
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class HtmlUnitFilterExcludeLastN implements Filter<DomNode> {
+public class FilterLastN<C> implements Filter<C> {
 
     private final int n;
 
-    public HtmlUnitFilterExcludeLastN(int n) {
+    public FilterLastN(int n) {
         if (n < 0) {
             throw new IllegalArgumentException("n must be >= 0");
         }
@@ -34,13 +33,12 @@ public class HtmlUnitFilterExcludeLastN implements Filter<DomNode> {
     }
 
     @Override
-    public List<DomNode> filter(List<DomNode> list) {
-        int firstN = list.size() - n;
-        if (firstN > 0) {
-            return new HtmlUnitFilterFirstN(firstN).filter(list);
-        } else {
-            return Collections.emptyList();
-        }
+    public List<C> filter(List<C> list) {
+        ArrayList<C> copy = new ArrayList<>(list);
+        Collections.reverse(copy);
+        return  copy.stream()
+                .limit(n)
+                .collect(Collectors.toList());
     }
 
 }

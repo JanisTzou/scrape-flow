@@ -18,27 +18,32 @@ package com.github.scrape.flow.scraping.selenium;
 
 import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.Filter;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.selenium.filters.SeleniumFilterable;
-import com.github.scrape.flow.scraping.selenium.filters.SeleniumFilterableByCommonCriteria;
-import org.openqa.selenium.By;
+import lombok.extern.log4j.Log4j2;
 import org.openqa.selenium.WebElement;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class SeleniumGetDescendants extends SeleniumScrapingStep<SeleniumGetDescendants>
-        implements SeleniumFilterableByCommonCriteria<SeleniumGetDescendants>, SeleniumFilterable<SeleniumGetDescendants> {
+/**
+ * Maps nodes acquired in the previous steps to other nodes ... e.g. children/parents/siblings etc ...
+ */
+@Log4j2
+public class SeleniumGetElementsNatively extends SeleniumScrapingStep<SeleniumGetElementsNatively> {
 
+    private final Function<WebElement, Optional<WebElement>> mapper;
 
-    SeleniumGetDescendants() {
+    SeleniumGetElementsNatively(Function<WebElement, Optional<WebElement>> mapper) {
+        this.mapper = mapper;
     }
 
     @Override
-    protected SeleniumGetDescendants copy() {
-        return copyFieldValuesTo(new SeleniumGetDescendants());
+    protected SeleniumGetElementsNatively copy() {
+        return copyFieldValuesTo(new SeleniumGetElementsNatively(this.mapper));
     }
 
     @Override
@@ -46,8 +51,18 @@ public class SeleniumGetDescendants extends SeleniumScrapingStep<SeleniumGetDesc
         StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<WebElement>> nodesSearch = () -> ctx.getWebElement().findElements(By.xpath(".//*"));
-            getHelper().execute(nodesSearch, ctx, stepOrder, services);
+            Supplier<List<WebElement>> elementSearch = () -> {
+                Optional<WebElement> mapped = mapper.apply(ctx.getWebElement());
+                if (mapped.isPresent()) {
+                    log.debug("{} element mapped successfully from {} to {}", getName(), ctx.getWebElement(), mapped.get());
+                    return List.of(mapped.get());
+                } else {
+                    log.debug("{} element could not be mapped from {} to other element", getName(), ctx.getWebElement());
+                }
+                return Collections.emptyList();
+            };
+
+            getHelper().execute(elementSearch, ctx, stepOrder, services);
         };
 
         submitForExecution(stepOrder, runnable, services);
@@ -56,13 +71,9 @@ public class SeleniumGetDescendants extends SeleniumScrapingStep<SeleniumGetDesc
     }
 
     @Override
-    public SeleniumGetDescendants addFilter(Filter<WebElement> filter) {
-        return super.addFilter(filter);
-    }
-
-    @Override
     protected ClientReservationType getClientReservationType() {
         return ClientReservationType.READING;
     }
+
 
 }

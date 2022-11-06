@@ -39,11 +39,11 @@ public abstract class SeleniumScrapingStep<C extends SeleniumScrapingStep<C>>
     }
 
     protected SeleniumStepHelper getHelper() {
-        return new SeleniumStepHelper(this);
+        return new SeleniumStepHelper(this, getExecuteIf());
     }
 
     protected SeleniumStepHelper getHelper(NextStepsHandler nextStepsHandler) {
-        return new SeleniumStepHelper(this, nextStepsHandler);
+        return new SeleniumStepHelper(this, nextStepsHandler, getExecuteIf());
     }
 
     protected C addFilter(Filter<WebElement> filter) {

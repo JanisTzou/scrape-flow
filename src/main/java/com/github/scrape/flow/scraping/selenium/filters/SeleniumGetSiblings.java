@@ -14,28 +14,25 @@
  * limitations under the License.
  */
 
-package com.github.scrape.flow.scraping.htmlunit;
+package com.github.scrape.flow.scraping.selenium.filters;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.*;
-import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterableByAttribute;
-import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterableByCssClass;
-import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterableByTag;
-import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterableByTextContent;
+import com.github.scrape.flow.scraping.selenium.SeleniumScrapingStep;
 import lombok.extern.log4j.Log4j2;
+import org.openqa.selenium.WebElement;
 
 import java.util.List;
 import java.util.function.Supplier;
 
 @Log4j2
-public class HtmlUnitGetSiblings extends HtmlUnitScrapingStep<HtmlUnitGetSiblings>
-        implements HtmlUnitFilterableByAttribute<HtmlUnitGetSiblings>,
-        HtmlUnitFilterableByTag<HtmlUnitGetSiblings>,
-        HtmlUnitFilterableByTextContent<HtmlUnitGetSiblings>,
-        HtmlUnitFilterableByCssClass<HtmlUnitGetSiblings>,
-        FilterableSiblings<HtmlUnitGetSiblings, DomNode> {
+public class SeleniumGetSiblings extends SeleniumScrapingStep<SeleniumGetSiblings>
+        implements SeleniumFilterableByAttribute<SeleniumGetSiblings>,
+        SeleniumFilterableByTag<SeleniumGetSiblings>,
+        SeleniumFilterableByTextContent<SeleniumGetSiblings>,
+        SeleniumFilterableByCssClass<SeleniumGetSiblings>,
+        FilterableSiblings<SeleniumGetSiblings, WebElement> {
 
     private static final List<Class<?>> PREV_SIBLINGS_FILTER_CLASSES = List.of(
             FilterSiblingsPrevN.class,
@@ -55,12 +52,12 @@ public class HtmlUnitGetSiblings extends HtmlUnitScrapingStep<HtmlUnitGetSibling
             FilterSiblingsAll.class
     );
 
-    HtmlUnitGetSiblings() {
+    SeleniumGetSiblings() {
     }
 
     @Override
-    protected HtmlUnitGetSiblings copy() {
-        return copyFieldValuesTo(new HtmlUnitGetSiblings());
+    protected SeleniumGetSiblings copy() {
+        return copyFieldValuesTo(new SeleniumGetSiblings());
     }
 
     @Override
@@ -68,8 +65,8 @@ public class HtmlUnitGetSiblings extends HtmlUnitScrapingStep<HtmlUnitGetSibling
         StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<DomNode>> nodesSearch = () -> getEligibleSiblings(ctx);
-            getHelper(services).execute(nodesSearch, ctx, stepOrder);
+            Supplier<List<WebElement>> elementSearch = () -> getEligibleSiblings(ctx);
+            getHelper().execute(elementSearch, ctx, stepOrder, services);
         };
 
         submitForExecution(stepOrder, runnable, services);
@@ -77,22 +74,23 @@ public class HtmlUnitGetSiblings extends HtmlUnitScrapingStep<HtmlUnitGetSibling
         return stepOrder;
     }
 
-    private List<DomNode> getEligibleSiblings(ScrapingContext ctx) {
-        if (filters.stream().anyMatch(f -> PREV_SIBLINGS_FILTER_CLASSES.contains(f.getClass()))) {
-            return HtmlUnitUtils.findPrevSiblingElements(ctx.getNode());
-        } else if (filters.stream().anyMatch(f -> NEXT_SIBLINGS_FILTER_CLASSES.contains(f.getClass()))) {
-            return HtmlUnitUtils.findNextSiblingElements(ctx.getNode());
-        } else if (filters.stream().anyMatch(f -> ALL_SIBLINGS_FILTER_CLASSES.contains(f.getClass()))) {
-            return HtmlUnitUtils.findAllSiblingElements(ctx.getNode());
-        } else {
-            return HtmlUnitUtils.findAllSiblingElements(ctx.getNode());
-        }
+    private List<WebElement> getEligibleSiblings(ScrapingContext ctx) {
+        throw new UnsupportedOperationException("Not implemented");
+//        if (filters.stream().anyMatch(f -> PREV_SIBLINGS_FILTER_CLASSES.contains(f.getClass()))) {
+//            return HtmlUnitUtils.findPrevSiblingElements(ctx.getWebElement());
+//        } else if (filters.stream().anyMatch(f -> NEXT_SIBLINGS_FILTER_CLASSES.contains(f.getClass()))) {
+//            return HtmlUnitUtils.findNextSiblingElements(ctx.getWebElement());
+//        } else if (filters.stream().anyMatch(f -> ALL_SIBLINGS_FILTER_CLASSES.contains(f.getClass()))) {
+//            return HtmlUnitUtils.findAllSiblingElements(ctx.getWebElement());
+//        } else {
+//            return HtmlUnitUtils.findAllSiblingElements(ctx.getWebElement());
+//        }
     }
 
 
     @Override
-    public HtmlUnitGetSiblings addFilter(Filter<DomNode> filter) {
-        return super.doAddFilter(filter);
+    public SeleniumGetSiblings addFilter(Filter<WebElement> filter) {
+        return super.addFilter(filter);
     }
 
     @Override

@@ -17,12 +17,14 @@
 package com.github.scrape.flow.scraping.selenium.filters;
 
 
+import com.github.scrape.flow.scraping.FilterableByFirstAndLast;
+import org.openqa.selenium.WebElement;
+
 public interface SeleniumFilterableByCommonCriteria<C>
-        extends
-//        FilterableByAttribute<C>,
+        extends SeleniumFilterableByAttribute<C>,
         SeleniumFilterableByTag<C>,
-//        FilterableByTextContent<C>,
-        SeleniumFilterableByCssClass<C>
-//        FilterableByFirstAndLast<C>
+        SeleniumFilterableByTextContent<C>,
+        SeleniumFilterableByCssClass<C>,
+        FilterableByFirstAndLast<C, WebElement>
 {
 }
