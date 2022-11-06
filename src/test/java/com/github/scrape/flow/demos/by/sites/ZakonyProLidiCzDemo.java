@@ -138,7 +138,7 @@ public class ZakonyProLidiCzDemo {
                 );
     }
 
-//                        Actions.paginate()
+//                        Flow.withPagination()
 //                         NOT WORKING .... required JS ...
 //                        .setStepsLoadingNextPage(
 //                                GetElements.Descendants.ByAttribute.nameAndValue("title", "Jdi na Další")
@@ -151,7 +151,7 @@ public class ZakonyProLidiCzDemo {
 //                        )
 
     // not working  , needs JS ...
-//    Do.paginate()
+//    Flow.withPagination()
 //            .setStepsLoadingNextPage(
 //            Get.descendants().byAttr("title", "Jdi na Další")
 //                                        .next(Filter.natively(domNode -> !HtmlUnitUtils.hasAttributeWithValue(domNode, "class", "disabled", true))

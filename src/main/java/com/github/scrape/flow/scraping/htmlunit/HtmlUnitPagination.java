@@ -22,7 +22,6 @@ import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.*;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +30,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 @Log4j2
-public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
+public class HtmlUnitPagination extends HtmlUnitScrapingStep<HtmlUnitPagination> {
 
     private volatile ScrapingStep<?> paginatingSequence;
 
@@ -41,24 +40,24 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
     private volatile HtmlUnitStepBlock nextStepsWrapper;
     private volatile boolean nextStepsWrapperAddedToNext = false;
 
-    HtmlUnitPaginate(ScrapingStep<?> paginatingSequence,
-                     boolean servicesPropagatedToTrigger,
-                     HtmlUnitStepBlock nextStepsWrapper,
-                     boolean nextStepsWrapperAddedToNext) {
+    HtmlUnitPagination(ScrapingStep<?> paginatingSequence,
+                       boolean servicesPropagatedToTrigger,
+                       HtmlUnitStepBlock nextStepsWrapper,
+                       boolean nextStepsWrapperAddedToNext) {
         this.paginatingSequence = paginatingSequence;
         this.servicesPropagatedToTrigger = servicesPropagatedToTrigger;
         this.nextStepsWrapper = nextStepsWrapper;
         this.nextStepsWrapperAddedToNext = nextStepsWrapperAddedToNext;
     }
 
-    HtmlUnitPaginate() {
+    HtmlUnitPagination() {
         this.nextStepsWrapper = (HtmlUnitStepBlock) ScrapingStepInternalAccessor.of(new HtmlUnitStepBlock()).setExclusiveExecution(true);
     }
 
     @Override
-    protected HtmlUnitPaginate copy() {
+    protected HtmlUnitPagination copy() {
         ScrapingStep<?> paginatingSequenceCopy = this.paginatingSequence == null ? null : ScrapingStepInternalAccessor.of(this.paginatingSequence).copy();
-        HtmlUnitPaginate copy = new HtmlUnitPaginate(
+        HtmlUnitPagination copy = new HtmlUnitPagination(
                 paginatingSequenceCopy,
                 servicesPropagatedToTrigger,
                 nextStepsWrapper.copy(),
@@ -122,7 +121,7 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
      * Steps that trigger the pagination - that is loading the next content.
      * In practice this is most often the action finding the "NEXT" button element and clicking it.
      */
-    public HtmlUnitPaginate setStepsLoadingNextPage(HtmlUnitScrapingStep<?> paginatingSequence) {
+    public HtmlUnitPagination setStepsLoadingNextPage(HtmlUnitScrapingStep<?> paginatingSequence) {
         this.paginatingSequence = ScrapingStepInternalAccessor.of(paginatingSequence).copy();
         return this;
     }
@@ -146,33 +145,33 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
     }
 
     @Override
-    public HtmlUnitPaginate next(ScrapingStep<?> nextStep) {
+    public HtmlUnitPagination next(ScrapingStep<?> nextStep) {
         ScrapingStep<?> nextStepCopy = getNextStepCopy(nextStep);
         return addStep(nextStepCopy);
     }
 
     @Override
-    public <T> HtmlUnitPaginate nextIf(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
+    public <T> HtmlUnitPagination nextIf(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
         ScrapingStep<?> nextStepCopy = getNextIfStepCopy(modelDataCondition, modelType, nextStep);
         return addStep(nextStepCopy);
     }
 
     @Override
-    public HtmlUnitPaginate nextExclusively(ScrapingStep<?> nextStep) {
+    public HtmlUnitPagination nextExclusively(ScrapingStep<?> nextStep) {
         ScrapingStep<?> nextStepCopy = getNextExclusivelyStepCopy(nextStep);
         return addStep(nextStepCopy);
     }
 
     @Override
-    public <T> HtmlUnitPaginate nextIfExclusively(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
+    public <T> HtmlUnitPagination nextIfExclusively(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
         ScrapingStep<?> nextStepCopy = getNextIfExclusivelyStepCopy(modelDataCondition, modelType, nextStep);
         return addStep(nextStepCopy);
     }
 
-    private HtmlUnitPaginate addStep(ScrapingStep<?> nextStepCopy) {
+    private HtmlUnitPagination addStep(ScrapingStep<?> nextStepCopy) {
         HtmlUnitStepBlock wrapperCopy = this.nextStepsWrapper.next(nextStepCopy);
         if (!nextStepsWrapperAddedToNext) {
-            HtmlUnitPaginate thisCopy = super.next(wrapperCopy);
+            HtmlUnitPagination thisCopy = super.next(wrapperCopy);
             thisCopy.nextStepsWrapperAddedToNext = true;
             return thisCopy;
         } else {

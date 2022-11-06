@@ -28,7 +28,7 @@ public class StepsUtilsTest {
     @Test
     public void findStepOfTypeInSequence() {
 
-        ScrapingStep<?> sequence = new HtmlUnitPaginate().next(new HtmlUnitReturnNextPage());
+        ScrapingStep<?> sequence = new HtmlUnitPagination().next(new HtmlUnitReturnNextPage());
 
         Optional<HtmlUnitReturnNextPage> returnNextPageStep = StepsUtils.findStepOfTypeInSequence(sequence, HtmlUnitReturnNextPage.class);
 

@@ -115,7 +115,7 @@ public class MaxEuroCzDemo {
 
     private HtmlUnitNavigateToParsedLink toCategoryProductList() {
         return Do.navigateToParsedLink()
-                .next(Do.paginate()
+                .next(Flow.withPagination()
                         .setStepsLoadingNextPage(
                                 getPaginatingSequence()
                         )
@@ -193,7 +193,7 @@ public class MaxEuroCzDemo {
                 .next(Get.descendants().byTextContent("»")  // returns anchor
                         .next(Filter.natively(domNode -> !isDisabled(domNode))
                                 .next(Do.followLink()
-                                        .next(Do.returnNextPage())
+                                        .next(Flow.returnNextPage())
                                 )
                         )
                 );

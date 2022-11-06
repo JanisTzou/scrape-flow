@@ -210,21 +210,6 @@ public class HtmlUnit {
         }
 
         /**
-         * Used in pagination as the last step of the paginating sequence of steps
-         */
-        public static HtmlUnitReturnNextPage returnNextPage() {
-            return new HtmlUnitReturnNextPage();
-        }
-
-        /**
-         * Used to define a sequence of steps taking care of the pagination itself (specified in {@link HtmlUnitPaginate#setStepsLoadingNextPage(HtmlUnitScrapingStep)})
-         * and also the sequence taking care of the scraping itself (specified using {@link CommonOperationsStepBase#next(ScrapingStep)} or its other specialisations.
-         */
-        public static HtmlUnitPaginate paginate() {
-            return new HtmlUnitPaginate();
-        }
-
-        /**
          * Used to download image into a {@code BufferedImage} using {@link ImageIO#read(URL)}.
          * <br>
          * Note that the URL of the image needs to be scraped by one of the prevous steps in the scraping sequence.
@@ -249,7 +234,20 @@ public class HtmlUnit {
             return new HtmlUnitStepBlock();
         }
 
-        // TODO consider moving pagination here ...
+        /**
+         * Used in pagination as the last step of the paginating sequence of steps
+         */
+        public static HtmlUnitReturnNextPage returnNextPage() {
+            return new HtmlUnitReturnNextPage();
+        }
+
+        /**
+         * Used to define a sequence of steps taking care of the pagination itself (specified in {@link HtmlUnitPagination#setStepsLoadingNextPage(HtmlUnitScrapingStep)})
+         * and also the sequence taking care of the scraping itself (specified using {@link CommonOperationsStepBase#next(ScrapingStep)} or its other specialisations.
+         */
+        public static HtmlUnitPagination withPagination() {
+            return new HtmlUnitPagination();
+        }
 
     }
 

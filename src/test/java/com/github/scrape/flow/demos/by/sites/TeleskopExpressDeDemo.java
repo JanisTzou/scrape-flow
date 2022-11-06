@@ -56,11 +56,11 @@ public class TeleskopExpressDeDemo {
                 .getDebugOptions().setLogFoundElementsSource(false)
                 .setSequence(
                         Do.navigateToUrl(url)
-                                .next(Do.paginate()
+                                .next(Flow.withPagination()
                                         .setStepsLoadingNextPage(
                                                 getNextPageLinkElemStep
                                                         .next(clickNextPageLinkElem
-                                                                .next(Do.returnNextPage())
+                                                                .next(Flow.returnNextPage())
                                                         )
                                         )
                                         .next(getProductTdElemsStep
