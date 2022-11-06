@@ -56,6 +56,9 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
     private final Supplier<LocalDateTime> nowSupplier;
     private final ClientAccessManager clientAccessManager;
 
+    private long lastActivatedReservation = 0L;
+    private long lastLoggedNoProgress = 0L;
+
     public TaskExecutorSingleQueue(ThrottlingService throttlingService,
                                    ExclusiveExecutionTracker exclusiveExecutionTracker,
                                    ScrapingRateLimiter scrapingRateLimiter,
@@ -162,7 +165,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
         return isParentTaskFinished(task)
                 && exclusiveExecutionTracker.canExecute(next)
                 && isWithinScrapingLimits(task)
-                && clientAccessManager.canActivateReservation(task.getClientReservationRequest());
+                && canActivateReservation(task);
     }
 
     private boolean isParentTaskFinished(Task task) {
@@ -173,6 +176,32 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
     private boolean isWithinScrapingLimits(Task task) {
         return (!task.isMakingHttpRequests() || scrapingRateLimiter.incrementIfRequestWithinLimitAndGet(nowSupplier.get()))
                 && (!task.isThrottlingAllowed() || throttlingService.isWithinLimit(executingTasksTracker.countOfExecutingThrottlableTasks()));
+    }
+
+    private boolean canActivateReservation(Task task) {
+        boolean success = clientAccessManager.canActivateReservation(task.getClientReservationRequest());
+        checkAbilityToMakeProgress(success);
+        return success;
+    }
+
+    private void checkAbilityToMakeProgress(boolean clientReservationSuccess) {
+        long now = System.currentTimeMillis();
+        if (clientReservationSuccess) {
+            this.lastActivatedReservation = now;
+            this.lastLoggedNoProgress = now;
+        } else {
+            if (this.lastActivatedReservation == 0L) {
+                this.lastActivatedReservation = now;
+                this.lastLoggedNoProgress = now;
+            } else {
+                if ((now - this.lastActivatedReservation) > 10_000) {
+                    if ((now - this.lastLoggedNoProgress) > 10_000) {
+                        this.lastLoggedNoProgress = now;
+                        log.warn("It seems we cannot make progress due to lack of clients -> increase the max number of client instances");
+                    }
+                }
+            }
+        }
     }
 
     private void executeTaskAsync(Task task,
@@ -319,24 +348,24 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
     }
 
     private void logRetry(Task request) {
-        log.info("Going to retry request after previous failure {}", request.loggingInfo());
+        log.info("Going to retry task after previous failure {}", request.loggingInfo());
     }
 
     private void logDelayedRetry(Task request) {
-        log.trace("Cannot retry request yet - due to rqs per sec. limit {}", request.loggingInfo());
+        log.trace("Cannot retry task yet - due to rqs per sec. limit {}", request.loggingInfo());
     }
 
     private void logEnqueuedRequestCount() {
-        log.trace("Currently enqueued rqs count = {}", executingTasksTracker.countOfExecutingTasks());
+        log.trace("Currently enqueued tasks count = {}", executingTasksTracker.countOfExecutingTasks());
     }
 
     private void logRequestProcessed(Task request, long enqueuedTimestamp) {
         final double processingTime = (System.currentTimeMillis() - enqueuedTimestamp) / 1000.0;
-        log.trace("Request took {}s to process: {}", String.format("%.2f", processingTime), request);
+        log.trace("Task took {}s to process: {}", String.format("%.2f", processingTime), request);
     }
 
     private void logDroppingRetrying(Task request, Throwable error) {
-        log.trace("Dropping request retry {} after error: ", request.loggingInfo(), error);
+        log.trace("Dropping task retry {} after error: ", request.loggingInfo(), error);
     }
 
     // used only to terminate a blocking flux from within (no other way to "cancel" it)

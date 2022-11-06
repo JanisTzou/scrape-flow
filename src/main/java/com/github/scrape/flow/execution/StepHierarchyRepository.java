@@ -46,6 +46,28 @@ public class StepHierarchyRepository {
         return new StepHierarchyRepository(hierarchy);
     }
 
+    // TODO cyclic dependency check!
+    private static void traverseRecursively(ScrapingStep<?> parent,
+                                            Map<ScrapingStep<?>, StepMetadata> map,
+                                            StepOrder order,
+                                            Map<ClientType, Integer> loadingStepsCount) {
+        ScrapingStepInternalAccessor<?> accessor = ScrapingStepInternalAccessor.of(parent);
+        List<ScrapingStep<?>> nextSteps = new ArrayList<>();
+
+        nextSteps.addAll(accessor.getAdditionalStepsExecutedBeforeNextSteps());
+        nextSteps.addAll(accessor.getNextSteps());
+        nextSteps.addAll(accessor.getAdditionalStepsExecutedAfterNextSteps());
+
+        StepOrder nextOrder = order;
+        for (int i = 0; i < nextSteps.size(); i++) {
+            nextOrder = getStepOrder(nextOrder, i);
+            ScrapingStep<?> next = nextSteps.get(i);
+            Map<ClientType, Integer> newCounts = calcLoadingCounts(loadingStepsCount, next);
+            map.put(next, createMeta(next, nextOrder, newCounts));
+            traverseRecursively(next, map, nextOrder, newCounts);
+        }
+    }
+
     public int size() {
         return map.size();
     }
@@ -61,7 +83,7 @@ public class StepHierarchyRepository {
     public StepMetadata getMetadataFor(ScrapingStep<?> step) {
         StepMetadata stepMetadata = map.get(step);
         if (stepMetadata == null) {
-            throw new IllegalStateException("No metadata was found for step " + step);
+            throw new IllegalStateException("No metadata was found for step " + step.getName() + " " + step);
         }
         return stepMetadata;
     }
@@ -100,30 +122,13 @@ public class StepHierarchyRepository {
 
     private static Map<ClientType, Integer> getLoadingStepCountBase(ScrapingStep<?> rootStep) {
         Map<ClientType, Integer> loadingStepCount = new HashMap<>();
-        ScrapingStepInternalAccessor<?> reader = getReader(rootStep);
-        if (reader.getClientReservationType().isLoading()) {
-            loadingStepCount.put(reader.getClientType(), 1);
+        ScrapingStepInternalAccessor<?> accessor = ScrapingStepInternalAccessor.of(rootStep);
+        if (accessor.getClientReservationType().isLoading()) {
+            loadingStepCount.put(accessor.getClientType(), 1);
         } else {
-            loadingStepCount.put(reader.getClientType(), 0);
+            loadingStepCount.put(accessor.getClientType(), 0);
         }
         return loadingStepCount;
-    }
-
-    // TODO cyclic dependency check!
-    private static void traverseRecursively(ScrapingStep<?> parent,
-                                            Map<ScrapingStep<?>, StepMetadata> map,
-                                            StepOrder order,
-                                            Map<ClientType, Integer> loadingStepsCount) {
-        ScrapingStepInternalAccessor<?> reader = getReader(parent);
-        List<ScrapingStep<?>> nextSteps = reader.getNextSteps();
-        StepOrder nextOrder = order;
-        for (int i = 0; i < nextSteps.size(); i++) {
-            nextOrder = getStepOrder(nextOrder, i);
-            ScrapingStep<?> next = nextSteps.get(i);
-            Map<ClientType, Integer> newCounts = calcLoadingCounts(loadingStepsCount, next);
-            map.put(next, createMeta(next, nextOrder, newCounts));
-            traverseRecursively(next, map, nextOrder, newCounts);
-        }
     }
 
     private static StepOrder getStepOrder(StepOrder order, int i) {
@@ -136,9 +141,9 @@ public class StepHierarchyRepository {
     }
 
     private static Map<ClientType, Integer> calcLoadingCounts(Map<ClientType, Integer> loadingStepsCount, ScrapingStep<?> step) {
-        ScrapingStepInternalAccessor<?> nextReader = getReader(step);
-        if (nextReader.getClientReservationType().isLoading()) {
-            ClientType clientType = nextReader.getClientType();
+        ScrapingStepInternalAccessor<?> accessor = ScrapingStepInternalAccessor.of(step);
+        if (accessor.getClientReservationType().isLoading()) {
+            ClientType clientType = accessor.getClientType();
             HashMap<ClientType, Integer> copy = new HashMap<>(loadingStepsCount);
             copy.compute(clientType, (ct, count) -> {
                 if (count == null) {
@@ -156,8 +161,8 @@ public class StepHierarchyRepository {
         return new StepMetadata(
                 step,
                 order,
-                getReader(step).getClientType(),
-                getReader(step).getClientReservationType(),
+                ScrapingStepInternalAccessor.of(step).getClientType(),
+                ScrapingStepInternalAccessor.of(step).getClientReservationType(),
                 loadingStepCountUpToThisStep
         );
     }
@@ -168,10 +173,6 @@ public class StepHierarchyRepository {
 
     private String getTrieKey(StepOrder hierarchyOrder) {
         return hierarchyOrder.asString();
-    }
-
-    private static ScrapingStepInternalAccessor<?> getReader(ScrapingStep<?> parent) {
-        return ScrapingStepInternalAccessor.of(parent);
     }
 
 }

@@ -40,7 +40,7 @@ import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.List;
 
-import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.Parse;
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.Parse;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 

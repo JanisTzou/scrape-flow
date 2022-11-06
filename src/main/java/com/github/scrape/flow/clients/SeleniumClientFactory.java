@@ -18,6 +18,7 @@ package com.github.scrape.flow.clients;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -25,6 +26,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
+@Log4j2
 public class SeleniumClientFactory implements ClientFactory<WebDriver> {
 
     private static final String DRIVER_NAME_CHROME = "webdriver.chrome.driver";
@@ -39,8 +41,8 @@ public class SeleniumClientFactory implements ClientFactory<WebDriver> {
         options.setHeadless(isHeadless);
         options.addArguments("--disable-notifications");
         WebDriver driverObj = new ChromeDriver(options);
-
         driverObj.manage().timeouts().implicitlyWait(10000, TimeUnit.MICROSECONDS);
+        log.debug("Started new client: {}", driverObj);
         return driverObj;
     }
 

@@ -16,7 +16,7 @@
 
 package com.github.scrape.flow.scraping;
 
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnit;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class DebuggableStepTest {
 
     @Before
     public void setUp() {
-        HtmlUnitGetDescendants scrapingStep = HtmlUnitFlow.Get.descendants();// any scraping step impl. will do
+        HtmlUnitGetDescendants scrapingStep = HtmlUnit.Get.descendants();// any scraping step impl. will do
         this.debuggableStep = new DebuggableStep<>(scrapingStep);
     }
 

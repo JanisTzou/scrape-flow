@@ -20,8 +20,10 @@ package com.github.scrape.flow.clients;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import lombok.NoArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 @NoArgsConstructor
+@Log4j2
 public class HtmlUnitClientFactory implements ClientFactory<WebClient> {
 
     @Override
@@ -31,6 +33,7 @@ public class HtmlUnitClientFactory implements ClientFactory<WebClient> {
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
         webClient.addRequestHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36");
         webClient.getOptions().setJavaScriptEnabled(false);
+        log.debug("Started new client: {}", webClient);
         return webClient;
     }
 

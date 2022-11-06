@@ -17,9 +17,9 @@
 package com.github.scrape.flow.execution;
 
 import com.github.scrape.flow.scraping.ClientType;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnit;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitScrapingStep;
-import com.github.scrape.flow.scraping.selenium.SeleniumFlow;
+import com.github.scrape.flow.scraping.selenium.Selenium;
 import com.github.scrape.flow.scraping.selenium.SeleniumScrapingStep;
 import org.junit.Test;
 
@@ -30,9 +30,9 @@ import static org.junit.Assert.assertNotNull;
 
 public class StepHierarchyRepositoryTest {
 
-    private final HtmlUnitScrapingStep<?> step_a_loading = HtmlUnitFlow.Do.navigateToParsedLink();
-    private final HtmlUnitScrapingStep<?> step_b = HtmlUnitFlow.Get.descendants();
-    private final SeleniumScrapingStep<?> step_c_loading = SeleniumFlow.Do.navigateToParsedLink();
+    private final HtmlUnitScrapingStep<?> step_a_loading = HtmlUnit.Do.navigateToParsedLink();
+    private final HtmlUnitScrapingStep<?> step_b = HtmlUnit.Get.descendants();
+    private final SeleniumScrapingStep<?> step_c_loading = Selenium.Do.navigateToParsedLink();
 
     private final HtmlUnitScrapingStep<?> sequence =
             step_a_loading // 0

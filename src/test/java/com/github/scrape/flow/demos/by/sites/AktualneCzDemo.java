@@ -18,7 +18,7 @@ package com.github.scrape.flow.demos.by.sites;
 
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.Scraping;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnit;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Data;
@@ -29,8 +29,8 @@ import org.junit.Test;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.Get;
-import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.Parse;
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.Get;
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.Parse;
 
 public class AktualneCzDemo {
 
@@ -44,7 +44,7 @@ public class AktualneCzDemo {
 
         final Scraping articlesScraping = new Scraping(5, TimeUnit.SECONDS)
                 .setSequence(
-                        HtmlUnitFlow.Do.navigateToUrl("https://zpravy.aktualne.cz/zahranici/")
+                        HtmlUnit.Do.navigateToUrl("https://zpravy.aktualne.cz/zahranici/")
                                 .next(getArticleElements
                                         .addCollector(Article::new, Article.class, new ArticleListener())
                                         .next(getArticleHeadlineElem.stepName("step-1")

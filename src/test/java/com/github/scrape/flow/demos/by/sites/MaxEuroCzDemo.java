@@ -22,7 +22,7 @@ import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitNavigateToParsedLink;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitUtils;
-import com.github.scrape.flow.scraping.selenium.SeleniumFlow;
+import com.github.scrape.flow.scraping.selenium.Selenium;
 import com.github.scrape.flow.scraping.selenium.SeleniumNavigateToParsedLink;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Data;
@@ -34,7 +34,7 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.*;
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.*;
 
 public class MaxEuroCzDemo {
 
@@ -71,7 +71,7 @@ public class MaxEuroCzDemo {
         scraping.setSequence( // TODO here we are passing a static site sequence ... but the parser is defined elsewhere ... how to deal with that?
                 Do.navigateToUrl("https://www.maxeuro.cz/obklady-dlazby-mozaika-kat_1010.html")
                         .next(Get.descendants().byTextContent("Mozaika skleněná")
-                                .first()                                                // ... for some reason the menu is duplicated
+                                .first() // ... for some reason the menu is duplicated
                                 .debugOptions().logFoundElementsSource(false)
                                 .next(Get.natively(domNode -> Optional.ofNullable(domNode.getParentNode()))
                                         .next(Get.descendants().byTag("a")
@@ -93,17 +93,17 @@ public class MaxEuroCzDemo {
     }
 
     private SeleniumNavigateToParsedLink seleniumProductScraping() {
-        return SeleniumFlow.Do.navigateToParsedLink()
-                .next(SeleniumFlow.Get.descendants()
+        return Selenium.Do.navigateToParsedLink()
+                .next(Selenium.Get.descendants()
                         .byTag("div")
                         .byClass("product-name")
-                        .next(SeleniumFlow.Get.descendants().byTag("a")
+                        .next(Selenium.Get.descendants().byTag("a")
                                 .addCollector(Product::new, Product.class, new ProductListenerScraped())
-                                .next(SeleniumFlow.Parse.hRef()
+                                .next(Selenium.Parse.hRef()
                                         .collectValue(Product::setDetailUrl, Product.class)
-                                        .next(SeleniumFlow.Do.navigateToParsedLink()
-                                                .next(SeleniumFlow.Get.descendants().byClass("kratky-popis")
-                                                        .next(SeleniumFlow.Parse.textContent()
+                                        .next(Selenium.Do.navigateToParsedLink()
+                                                .next(Selenium.Get.descendants().byClass("kratky-popis")
+                                                        .next(Selenium.Parse.textContent()
                                                                 .collectValue(Product::setDescription, Product.class)
                                                         )
                                                 )
@@ -119,7 +119,7 @@ public class MaxEuroCzDemo {
                         .setStepsLoadingNextPage(
                                 getPaginatingSequence()
                         )
-                        .next(
+                        .next( // TODO this could be overloaded and ensured that all next steps are wrapped under exclusive block ...
                                 getProductListAndDetails()
                         )
                 );
@@ -189,7 +189,7 @@ public class MaxEuroCzDemo {
             </ul>
          */
 
-        return Get.descendants().byClass("pagination")
+        return Get.descendants().byClass("pagination").stepName("product-pagination")
                 .next(Get.descendants().byTextContent("»")  // returns anchor
                         .next(Filter.natively(domNode -> !isDisabled(domNode))
                                 .next(Do.followLink()

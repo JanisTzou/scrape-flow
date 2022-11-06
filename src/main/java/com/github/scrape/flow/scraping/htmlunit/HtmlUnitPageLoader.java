@@ -20,6 +20,7 @@ import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.github.scrape.flow.clients.ClientOperator;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.*;
 import lombok.extern.log4j.Log4j2;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Log4j2
-public class HtmlUnitPageLoader implements PageLoader<WebClient> {
+public class HtmlUnitPageLoader implements PageLoader<ClientOperator<WebClient>> {
 
     public HtmlUnitPageLoader() {
     }
@@ -42,15 +43,15 @@ public class HtmlUnitPageLoader implements PageLoader<WebClient> {
                                             List<ScrapingStep<?>> nextSteps,
                                             StepOrder currStepOrder,
                                             ScrapingServices services,
-                                            WebClient client) {
-        loadPage(url, currStepOrder, client).ifPresent(page1 -> {
+                                            ClientOperator<WebClient> clientOperator) {
+        loadPage(url, currStepOrder, clientOperator).ifPresent(page1 -> {
             ScrapingContext nextCtx = ctx.toBuilder().setNode(page1).setPrevStepOrder(currStepOrder).build();
             executeNextSteps(nextCtx, nextSteps, services);
         });
     }
 
-    private Optional<HtmlPage> loadPage(String url, @Nullable StepOrder currStepOrder, WebClient webClient) {
-        return loadHtmlPage(url, webClient, currStepOrder);
+    private Optional<HtmlPage> loadPage(String url, @Nullable StepOrder currStepOrder, ClientOperator<WebClient> clientOperator) {
+        return loadHtmlPage(url, clientOperator, currStepOrder);
     }
 
 
@@ -58,14 +59,14 @@ public class HtmlUnitPageLoader implements PageLoader<WebClient> {
         nextSteps.forEach(s -> ScrapingStepInternalAccessor.of(s).execute(ctx, services));
     }
 
-    private Optional<HtmlPage> loadHtmlPage(String pageUrl, WebClient webClient, @Nullable StepOrder currStepOrder) {
+    private Optional<HtmlPage> loadHtmlPage(String pageUrl, ClientOperator<WebClient> clientOperator, @Nullable StepOrder currStepOrder) {
         // TODO someway somehow we need to make this retrievable ...
         String logInfo = currStepOrder != null ? currStepOrder + " - " : "";
         try {
-            String windowName = webClient.getCurrentWindow().getName();
-            log.info("{}Loading page in client {} at URL: {}", logInfo, webClient, pageUrl);
+            String windowName = clientOperator.getClient().getCurrentWindow().getName();
+            log.info("{}Loading page in client {} at URL: {}", logInfo, clientOperator.getClientId(), pageUrl);
             URL url = new URL(pageUrl);
-            Page page = webClient.getPage(url);  // we have one webClient instance per thread so this call is ok -> each client will have its own "current top WebWindow"
+            Page page = clientOperator.getClient().getPage(url);  // we have one clientOperator instance per thread so this call is ok -> each client will have its own "current top WebWindow"
             WebResponse resp = page.getWebResponse();
             int statusCode = resp.getStatusCode();
             if (statusCode >= 400) {
@@ -74,7 +75,7 @@ public class HtmlUnitPageLoader implements PageLoader<WebClient> {
                 return Optional.empty();
             } else {
                 if (page.isHtmlPage()) {
-                    log.info("{}Loaded page in {}ms in client {} at URL: {}", logInfo, resp.getLoadTime(), webClient, pageUrl);
+                    log.info("{}Loaded page in {}ms in client {} at URL: {}", logInfo, resp.getLoadTime(), clientOperator.getClientId(), pageUrl);
                     HtmlPage htmlPage = (HtmlPage) page;
 //                    printPageToConsole(htmlPage);
                     return Optional.of(htmlPage);

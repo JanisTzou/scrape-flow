@@ -125,7 +125,15 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> implements Throttl
     }
 
     protected List<ScrapingStep<?>> getNextSteps() {
-        return nextSteps;
+        return Collections.unmodifiableList(nextSteps);
+    }
+
+    protected List<ScrapingStep<?>> getAdditionalStepsExecutedAfterNextSteps() {
+        return Collections.emptyList();
+    }
+
+    protected List<ScrapingStep<?>> getAdditionalStepsExecutedBeforeNextSteps() {
+        return Collections.emptyList();
     }
 
     /**
@@ -209,6 +217,7 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> implements Throttl
 
     @SuppressWarnings("unchecked")
     protected C copyFieldValuesTo(ScrapingStep<?> other) {
+        other.exclusiveExecution = this.exclusiveExecution;
         other.executeIf = this.executeIf;
         other.collectors = this.collectors.copy();
         other.parsedValueMapper = this.parsedValueMapper;

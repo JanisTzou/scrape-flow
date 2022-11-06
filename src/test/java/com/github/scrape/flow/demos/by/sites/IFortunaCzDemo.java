@@ -27,7 +27,7 @@ import org.junit.Test;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.*;
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.*;
 
 @Log4j2
 public class IFortunaCzDemo {

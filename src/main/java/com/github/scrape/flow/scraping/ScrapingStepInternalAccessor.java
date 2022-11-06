@@ -21,6 +21,7 @@ import com.github.scrape.flow.debugging.DebuggingOptions;
 import com.github.scrape.flow.execution.StepOrder;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -64,6 +65,19 @@ public class ScrapingStepInternalAccessor<C extends ScrapingStep<C>> {
 
     public ClientReservationType getClientReservationType() {
         return step.getClientReservationType();
+    }
+
+    // TODO make this just and move this to specialised class called Modifier ...?
+    public C setExclusiveExecution(boolean exclusiveExecution) {
+        return step.setExclusiveExecution(exclusiveExecution);
+    }
+
+    public List<ScrapingStep<?>> getAdditionalStepsExecutedBeforeNextSteps() {
+        return step.getAdditionalStepsExecutedBeforeNextSteps();
+    }
+
+    public List<ScrapingStep<?>> getAdditionalStepsExecutedAfterNextSteps() {
+        return step.getAdditionalStepsExecutedAfterNextSteps();
     }
 
 }

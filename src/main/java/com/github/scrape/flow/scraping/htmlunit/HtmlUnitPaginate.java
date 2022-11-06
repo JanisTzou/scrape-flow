@@ -22,31 +22,48 @@ import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.*;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.NotImplementedException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 @Log4j2
 public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
 
-    private ScrapingStep<?> paginatingSequence;
+    private volatile ScrapingStep<?> paginatingSequence;
 
-    private boolean servicesPropagatedToTrigger;
+    private volatile boolean servicesPropagatedToTrigger;
 
-    HtmlUnitPaginate(boolean servicesPropagatedToTrigger) {
+    // wrapper inserted as an in-between step to ensure that the next steps of this one happen exclusively and before any pagination takes place
+    private volatile HtmlUnitStepBlock nextStepsWrapper;
+    private volatile boolean nextStepsWrapperAddedToNext = false;
+
+    HtmlUnitPaginate(ScrapingStep<?> paginatingSequence,
+                     boolean servicesPropagatedToTrigger,
+                     HtmlUnitStepBlock nextStepsWrapper,
+                     boolean nextStepsWrapperAddedToNext) {
+        this.paginatingSequence = paginatingSequence;
         this.servicesPropagatedToTrigger = servicesPropagatedToTrigger;
+        this.nextStepsWrapper = nextStepsWrapper;
+        this.nextStepsWrapperAddedToNext = nextStepsWrapperAddedToNext;
     }
 
-    HtmlUnitPaginate() {;
+    HtmlUnitPaginate() {
+        this.nextStepsWrapper = (HtmlUnitStepBlock) ScrapingStepInternalAccessor.of(new HtmlUnitStepBlock()).setExclusiveExecution(true);
     }
 
     @Override
     protected HtmlUnitPaginate copy() {
-        HtmlUnitPaginate copy = new HtmlUnitPaginate(servicesPropagatedToTrigger);
-        if (this.paginatingSequence != null) {
-            copy.paginatingSequence = ScrapingStepInternalAccessor.of(this.paginatingSequence).copy();
-        }
+        ScrapingStep<?> paginatingSequenceCopy = this.paginatingSequence == null ? null : ScrapingStepInternalAccessor.of(this.paginatingSequence).copy();
+        HtmlUnitPaginate copy = new HtmlUnitPaginate(
+                paginatingSequenceCopy,
+                servicesPropagatedToTrigger,
+                nextStepsWrapper.copy(),
+                nextStepsWrapperAddedToNext
+        );
         return copyFieldValuesTo(copy);
     }
 
@@ -78,8 +95,8 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
                 ScrapingContext plainCtx = ctx.toBuilder()
                         .setRecursiveRootStepOrder(null)
                         .build();
-                NextStepsHandler nextStepsHandler = new NextStepsWrappedInOneExclusiveBlock(); // we need to make absolutely sure that the next steps have finished before we go to next page
-                getHelper(services, nextStepsHandler).execute(nodesSearch, plainCtx, stepOrder);
+
+                getHelper(services).execute(nodesSearch, plainCtx, stepOrder);
 
                 // PAGINATION
                 ScrapingContext paginatingCtx = ctx.toBuilder()
@@ -110,8 +127,8 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
         return this;
     }
 
-
     // TODO this should be removed ... we wanna pass this link via the context ...
+    //  OR with the step hierarchy we should know which step is last ... find it, without the need to have an explicit ReturnNextPage step ... maybe ...
     private void checkPaginationTriggerAndLinkItToThisStep() {
         if (paginatingSequence == null) {
             throw new IllegalStateException("paginationTrigger must be set for pagination to work!");
@@ -129,9 +146,55 @@ public class HtmlUnitPaginate extends HtmlUnitScrapingStep<HtmlUnitPaginate> {
     }
 
     @Override
+    public HtmlUnitPaginate next(ScrapingStep<?> nextStep) {
+        ScrapingStep<?> nextStepCopy = getNextStepCopy(nextStep);
+        return addStep(nextStepCopy);
+    }
+
+    @Override
+    public <T> HtmlUnitPaginate nextIf(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
+        ScrapingStep<?> nextStepCopy = getNextIfStepCopy(modelDataCondition, modelType, nextStep);
+        return addStep(nextStepCopy);
+    }
+
+    @Override
+    public HtmlUnitPaginate nextExclusively(ScrapingStep<?> nextStep) {
+        ScrapingStep<?> nextStepCopy = getNextExclusivelyStepCopy(nextStep);
+        return addStep(nextStepCopy);
+    }
+
+    @Override
+    public <T> HtmlUnitPaginate nextIfExclusively(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
+        ScrapingStep<?> nextStepCopy = getNextIfExclusivelyStepCopy(modelDataCondition, modelType, nextStep);
+        return addStep(nextStepCopy);
+    }
+
+    private HtmlUnitPaginate addStep(ScrapingStep<?> nextStepCopy) {
+        HtmlUnitStepBlock wrapperCopy = this.nextStepsWrapper.next(nextStepCopy);
+        if (!nextStepsWrapperAddedToNext) {
+            HtmlUnitPaginate thisCopy = super.next(wrapperCopy);
+            thisCopy.nextStepsWrapperAddedToNext = true;
+            return thisCopy;
+        } else {
+            return this.copyModifyAndGet(thisCopy -> {
+                thisCopy.nextStepsWrapper = wrapperCopy;
+                return thisCopy;
+            });
+        }
+    }
+
+    @Override
+    protected List<ScrapingStep<?>> getAdditionalStepsExecutedAfterNextSteps() {
+        if (paginatingSequence != null) {
+            return Collections.singletonList(paginatingSequence);
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
     protected ClientReservationType getClientReservationType() {
         return ClientReservationType.MODIFYING;
     }
-
 
 }

@@ -51,7 +51,7 @@ public class HtmlUnitNavigateToParsedLink extends HtmlUnitScrapingStep<HtmlUnitN
                 Optional<ClientOperator<WebClient>> operator = services.getClientAccessManager().getHtmlUnitClient(stepOrder);
                 if (operator.isPresent()) {
                     // TODO if this step type has collectors then we need similar logic as in Wrapper ...
-                    services.getHtmlUnitSiteLoader().loadPageAndExecuteNextSteps(ctx.getParsedURL(), ctx, ScrapingStepInternalAccessor.of(this).getNextSteps(), stepOrder, services, operator.get().getClient());
+                    services.getHtmlUnitSiteLoader().loadPageAndExecuteNextSteps(ctx.getParsedURL(), ctx, ScrapingStepInternalAccessor.of(this).getNextSteps(), stepOrder, services, operator.get());
                 } else {
                     log.error("No client!");
                 }

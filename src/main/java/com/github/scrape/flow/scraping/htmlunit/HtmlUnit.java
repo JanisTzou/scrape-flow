@@ -37,7 +37,7 @@ import java.util.function.Predicate;
  * They often work with the notion of "current element". This concept just expresses the fact that each individual element
  * found by one operation is passed to the next operation as its "current element" that it can perform further operations upon.
  */
-public class HtmlUnitFlow {
+public class HtmlUnit {
 
     /**
      * Contains methods for DOM traversal. The <code>DomNode</code> or <code>HtmlElement</code> from which the traversal takes place
@@ -248,6 +248,8 @@ public class HtmlUnitFlow {
         public static HtmlUnitStepBlock asBlock() {
             return new HtmlUnitStepBlock();
         }
+
+        // TODO consider moving pagination here ...
 
     }
 

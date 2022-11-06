@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.scrape.flow.scraping.htmlunit.HtmlUnitFlow.*;
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.*;
 
 public class TeleskopExpressDeDemo {
 

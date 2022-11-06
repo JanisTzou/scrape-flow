@@ -61,30 +61,45 @@ public abstract class CommonOperationsStepBase<C extends ScrapingStep<C>>
 
     @Override
     public C next(ScrapingStep<?> nextStep) {
-        return addNextStep(nextStep.copy());
+        return addNextStep(getNextStepCopy(nextStep));
     }
 
     @Override
     public C nextExclusively(ScrapingStep<?> nextStep) {
-        ScrapingStep<?> nextCopy = nextStep.copy()
-                .setExclusiveExecution(true);
+        ScrapingStep<?> nextCopy = getNextExclusivelyStepCopy(nextStep);
         return addNextStep(nextCopy);
     }
 
     @Override
     public <T> C nextIf(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
-        ScrapingStep<?> nextCopy = nextStep.copy()
-                .setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType));
+        ScrapingStep<?> nextCopy = getNextIfStepCopy(modelDataCondition, modelType, nextStep);
         return addNextStep(nextCopy);
     }
 
     @Override
     public <T> C nextIfExclusively(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
-        ScrapingStep<?> nextCopy = nextStep.copy()
+        ScrapingStep<?> nextCopy = getNextIfExclusivelyStepCopy(modelDataCondition, modelType, nextStep);
+        return addNextStep(nextCopy);
+    }
+
+    protected ScrapingStep<?> getNextStepCopy(ScrapingStep<?> nextStep) {
+        return nextStep.copy();
+    }
+
+    protected ScrapingStep<?> getNextExclusivelyStepCopy(ScrapingStep<?> nextStep) {
+        return nextStep.copy()
+                .setExclusiveExecution(true);
+    }
+
+    protected <T> ScrapingStep<?> getNextIfStepCopy(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
+        return nextStep.copy()
+                .setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType));
+    }
+
+    protected <T> ScrapingStep<?> getNextIfExclusivelyStepCopy(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
+        return nextStep.copy()
                 .setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType))
                 .setExclusiveExecution(true);
-        return addNextStep(nextCopy);
-
     }
 
     // TODO think about these ...

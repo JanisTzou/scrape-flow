@@ -52,7 +52,7 @@ public class HtmlUnitNavigateToUrl extends HtmlUnitScrapingStep<HtmlUnitNavigate
             Optional<ClientOperator<WebClient>> operator = services.getClientAccessManager().getHtmlUnitClient(stepOrder);
             if (operator.isPresent()) {
                 // TODO if this step type has collectors then we need similar logic as in the helper ...
-                services.getHtmlUnitSiteLoader().loadPageAndExecuteNextSteps(url, ctx, ScrapingStepInternalAccessor.of(this).getNextSteps(), stepOrder, services, operator.get().getClient());
+                services.getHtmlUnitSiteLoader().loadPageAndExecuteNextSteps(url, ctx, ScrapingStepInternalAccessor.of(this).getNextSteps(), stepOrder, services, operator.get());
             } else {
                 log.error("No client!");
             }
