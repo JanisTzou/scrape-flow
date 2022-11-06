@@ -44,15 +44,16 @@ public class HtmlUnitNodeSearchBasedStepHelper extends StepHelperBase {
     }
 
     public static HtmlUnitNodeSearchBasedStepHelper createFor(HtmlUnitScrapingStep<?> step, DebuggingOptions globalDebugging, ScrapingServices services, NextStepsHandler nextStepsHandler) {
+        ScrapingStepInternalAccessor<?> internalAccessor = ScrapingStepInternalAccessor.of(step);
         return new HtmlUnitNodeSearchBasedStepHelper(
-                step.getName(),
+                internalAccessor.getName(),
                 nextStepsHandler,
                 globalDebugging,
-                ScrapingStepInternalAccessor.of(step).getStepDebugging(),
+                internalAccessor.getStepDebugging(),
                 step.getFilters(),
-                ScrapingStepInternalAccessor.of(step).getNextSteps(),
+                internalAccessor.getNextSteps(),
                 StepModelsHandler.createFor(step),
-                ScrapingStepInternalAccessor.of(step).getExecuteIf(),
+                internalAccessor.getExecuteIf(),
                 services
         );
     }

@@ -49,7 +49,7 @@ public class HtmlUnitFollowLink extends HtmlUnitScrapingStep<HtmlUnitFollowLink>
     }
 
     @Override
-    public boolean throttlingAllowed() {
+    protected boolean throttlingAllowed() {
         return true;
     }
 

@@ -65,7 +65,7 @@ public class HtmlUnitNavigateToUrl extends HtmlUnitScrapingStep<HtmlUnitNavigate
 
 
     @Override
-    public boolean throttlingAllowed() {
+    protected boolean throttlingAllowed() {
         return true;
     }
 

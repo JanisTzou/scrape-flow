@@ -25,8 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Log4j2
 public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>>
-        extends CommonOperationsStepBase<C>
-        implements Throttling {
+        extends CommonOperationsStepBase<C> {
 
     protected final List<Filter<DomNode>> filters = new CopyOnWriteArrayList<>();
 

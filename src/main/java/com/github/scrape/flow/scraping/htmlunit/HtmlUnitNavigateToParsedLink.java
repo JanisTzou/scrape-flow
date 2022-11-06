@@ -67,7 +67,7 @@ public class HtmlUnitNavigateToParsedLink extends HtmlUnitScrapingStep<HtmlUnitN
 
 
     @Override
-    public boolean throttlingAllowed() {
+    protected boolean throttlingAllowed() {
         return true;
     }
 

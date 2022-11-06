@@ -30,7 +30,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-public abstract class ScrapingStep<C extends ScrapingStep<C>> implements Throttling {
+public abstract class ScrapingStep<C extends ScrapingStep<C>> {
 
     protected static final Function<String, String> NO_MAPPING = s -> s;
 
@@ -169,7 +169,7 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> implements Throttl
         return stepDebugging;
     }
 
-    public String getName() {
+    protected String getName() {
         return name;
     }
 
@@ -180,6 +180,10 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> implements Throttl
     protected abstract ClientType getClientType();
 
     protected abstract ClientReservationType getClientReservationType();
+
+    protected boolean throttlingAllowed() {
+        return false;
+    }
 
     /**
      * Sets the name of this step to be used in logging. Useful for debugging purposes to identify problematic steps.

@@ -47,6 +47,10 @@ public class ScrapingStepInternalAccessor<C extends ScrapingStep<C>> {
         return step.copy();
     }
 
+    public String getName() {
+        return step.getName();
+    }
+
     public List<ScrapingStep<?>> getNextSteps() {
         return step.getNextSteps();
     }

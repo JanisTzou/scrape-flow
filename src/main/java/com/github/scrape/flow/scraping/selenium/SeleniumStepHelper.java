@@ -47,14 +47,16 @@ public class SeleniumStepHelper extends StepHelperBase {
                         StepOrder currStepOrder,
                         StepExecutionCondition condition,
                         ScrapingServices services) {
+        String stepName = null;
         try {
-            if (!condition.canExecute(step.getName(), ctx.getContextModels())) {
+            stepName = ScrapingStepInternalAccessor.of(step).getName();
+            if (!condition.canExecute(stepName, ctx.getContextModels())) {
                 return;
             }
 
             List<WebElement> foundElements = elementsSearch.get();
             List<WebElement> filteredElements = FilterUtils.filter(foundElements, step.getFilters(), services.getGlobalDebugging());
-            logFoundCount(step.getName(), currStepOrder, filteredElements.size(), services.getGlobalDebugging(), ScrapingStepInternalAccessor.of(step).getStepDebugging());
+            logFoundCount(stepName, currStepOrder, filteredElements.size(), services.getGlobalDebugging(), ScrapingStepInternalAccessor.of(step).getStepDebugging());
 
             for (WebElement elem : filteredElements) {
 
@@ -69,7 +71,7 @@ public class SeleniumStepHelper extends StepHelperBase {
             }
 
         } catch (Exception e) {
-            log.error("{} - {}: Error executing step", currStepOrder, step.getName(), e);
+            log.error("{} - {}: Error executing step", currStepOrder, stepName, e);
         }
     }
 
@@ -77,7 +79,7 @@ public class SeleniumStepHelper extends StepHelperBase {
     private void logNodeSourceCode(WebElement element, DebuggingOptions globalDebugging) {
         if (globalDebugging.isLogFoundElementsSource()) {
             // TODO is this even possible ? Seems not to be ... if yes, then only log elements that are not the root .. html tag ...
-            log.info("Source for step {} \n{}", step.getName(), element);
+            log.info("Source for step {} \n{}", ScrapingStepInternalAccessor.of(step).getName(), element);
         }
     }
 

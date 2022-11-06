@@ -30,7 +30,7 @@ import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 @Log4j2
 public class HtmlUnitDownloadImage extends HtmlUnitScrapingStep<HtmlUnitDownloadImage>
         implements CollectingParsedValueToModelStep<HtmlUnitDownloadImage, BufferedImage>,
-        Throttling, MakingHttpRequests {
+        MakingHttpRequests {
 
     HtmlUnitDownloadImage() {
     }

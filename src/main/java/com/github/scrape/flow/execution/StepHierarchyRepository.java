@@ -83,7 +83,7 @@ public class StepHierarchyRepository {
     public StepMetadata getMetadataFor(ScrapingStep<?> step) {
         StepMetadata stepMetadata = map.get(step);
         if (stepMetadata == null) {
-            throw new IllegalStateException("No metadata was found for step " + step.getName() + " " + step);
+            throw new IllegalStateException("No metadata was found for step " + ScrapingStepInternalAccessor.of(step).getName() + " " + step);
         }
         return stepMetadata;
     }

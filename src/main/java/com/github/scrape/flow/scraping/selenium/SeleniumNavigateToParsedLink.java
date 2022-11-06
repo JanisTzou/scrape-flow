@@ -76,7 +76,7 @@ public class SeleniumNavigateToParsedLink extends SeleniumScrapingStep<SeleniumN
 
 
     @Override
-    public boolean throttlingAllowed() {
+    protected boolean throttlingAllowed() {
         return true;
     }
 

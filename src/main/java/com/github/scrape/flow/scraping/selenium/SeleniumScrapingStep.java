@@ -26,8 +26,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Log4j2
 public abstract class SeleniumScrapingStep<C extends SeleniumScrapingStep<C>>
-        extends CommonOperationsStepBase<C>
-        implements Throttling {
+        extends CommonOperationsStepBase<C> {
 
     @Getter
     protected final List<Filter<WebElement>> filters = new CopyOnWriteArrayList<>();
