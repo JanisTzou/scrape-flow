@@ -59,7 +59,7 @@ public class Scraping {
     }
 
     private void startSequenceExecution() {
-        this.scrapingSequence.execute(new ScrapingContext(StepOrder.INITIAL), services);
+        this.scrapingSequence.execute(new ScrapingContext(StepOrder.ROOT), services);
     }
 
     /**

@@ -46,7 +46,7 @@ public class ActiveStepsTracker {
         return patriciaTrie.get(getKey(stepOrder)) != null;
     }
 
-    public synchronized void track(StepOrder stepOrder, String stepName, StepOrder hierarchyOrder) {
+    public synchronized void track(StepOrder stepOrder, StepOrder hierarchyOrder, String stepName) {
         log.debug("tracking {} - {}", stepOrder, stepName);
         TrackedStepOrder tracked = new TrackedStepOrder(stepOrder, stepName, hierarchyOrder);
         patriciaTrie.put(getKey(stepOrder), tracked);

@@ -69,7 +69,7 @@ public class HtmlUnitFollowLinkIntegrationTest {
     @Test
     @DirtiesContext
     public void allNextStepsAreCalledWithNextPage() {
-        followLink.execute(new ScrapingContext(StepOrder.INITIAL, anchorMock), services);
+        followLink.execute(new ScrapingContext(StepOrder.ROOT, anchorMock), services);
 
         ArgumentCaptor<ScrapingContext> captor1 = ArgumentCaptor.forClass(ScrapingContext.class);
         ArgumentCaptor<ScrapingContext> captor2 = ArgumentCaptor.forClass(ScrapingContext.class);

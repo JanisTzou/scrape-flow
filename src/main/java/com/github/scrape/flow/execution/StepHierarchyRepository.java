@@ -37,12 +37,12 @@ public class StepHierarchyRepository {
         map.values().forEach(sm -> this.trie.put(getTrieKey(sm), sm));
     }
 
-    public static StepHierarchyRepository createFrom(ScrapingStep<?> rootStep) {
+    public static StepHierarchyRepository createFrom(ScrapingStep<?> firstStep) {
         Map<ScrapingStep<?>, StepMetadata> hierarchy = new LinkedHashMap<>();
-        StepOrder order = StepOrder.INITIAL;
-        Map<ClientType, Integer> loadingStepCount = getLoadingStepCountBase(rootStep);
-        hierarchy.put(rootStep, createMeta(rootStep, order, loadingStepCount));
-        traverseRecursively(rootStep, hierarchy, order, loadingStepCount);
+        StepOrder first = StepOrder.ROOT.getFirstChild();
+        Map<ClientType, Integer> loadingStepCount = getLoadingStepCountBase(firstStep);
+        hierarchy.put(firstStep, createMeta(firstStep, first, loadingStepCount));
+        traverseRecursively(firstStep, hierarchy, first, loadingStepCount);
         return new StepHierarchyRepository(hierarchy);
     }
 
@@ -133,9 +133,9 @@ public class StepHierarchyRepository {
 
     private static StepOrder getStepOrder(StepOrder order, int i) {
         if (i == 0) {
-            order = order.nextAsChild();
+            order = order.getFirstChild();
         } else {
-            order = order.nextAsSibling();
+            order = order.getFollowingSibling();
         }
         return order;
     }

@@ -23,6 +23,7 @@ import com.github.scrape.ClientReservationHandlerMockConfig;
 import com.github.scrape.StepHierarchyRepositoryMockConfig;
 import com.github.scrape.TestConfiguration;
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
+import com.github.scrape.flow.execution.StepHierarchyRepository;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.execution.TaskExecutor;
 import com.github.scrape.flow.scraping.ScrapingContext;
@@ -32,6 +33,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -61,17 +63,20 @@ public class HtmlUnitGetChildrenAndParseTextContentIntegrationTest {
 
 
     @Test
+    @DirtiesContext
     public void childNodesAreFoundAndTextContentIsParsedAndCollectedToModels() throws IOException, URISyntaxException {
 
         HtmlPage page = TestUtils.loadTestPage("test_page_1.html", webClient);
         DomNode parent = (DomNode) page.getByXPath("/html/body/div/div").stream().findFirst().get();
-        ScrapingContext ctx = new ScrapingContext(StepOrder.INITIAL, parent);
+        ScrapingContext ctx = new ScrapingContext(StepOrder.ROOT, parent);
 
         HtmlUnitGetChildren testSequence = new HtmlUnitGetChildren()
                 .addCollector(ScrapedValue::new, ScrapedValue.class, dataListenerMock)
                 .next(Parse.textContent()
                         .collectValue(ScrapedValue::setVal, ScrapedValue.class)
                 );
+
+        scrapingServices.setStepHierarchyRepository(StepHierarchyRepository.createFrom(testSequence));
 
         testSequence.execute(ctx, scrapingServices);
         taskExecutor.awaitCompletion(Duration.ofSeconds(1));

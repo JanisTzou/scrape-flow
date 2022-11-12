@@ -67,7 +67,7 @@ public class HtmlUnitGetDescendantsIntegrationTest {
         HtmlPage page = TestUtils.loadTestPage("test_page_1.html");
         DomNode parent = (DomNode) page.getByXPath("/html/body/div").stream().findFirst().get();
 
-        getDescendants.execute(new ScrapingContext(StepOrder.INITIAL, parent), scrapingServices);
+        getDescendants.execute(new ScrapingContext(StepOrder.ROOT, parent), scrapingServices);
 
         verify(nextStepMock1, times(6)).execute(Mockito.any(), Mockito.any());
         verify(nextStepMock2, times(6)).execute(Mockito.any(), Mockito.any());

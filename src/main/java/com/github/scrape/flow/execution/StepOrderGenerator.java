@@ -30,9 +30,9 @@ public class StepOrderGenerator {
     public StepOrder genNextAfter(StepOrder stepAtPrevLevel) {
         return this.parentToLastGeneratedChild.compute(stepAtPrevLevel, (parent0, prevLastStep) -> {
             if (prevLastStep == null) {
-                return stepAtPrevLevel.nextAsChild();
+                return stepAtPrevLevel.getFirstChild();
             } else {
-                return prevLastStep.nextAsSibling();
+                return prevLastStep.getFollowingSibling();
             }
         });
     }

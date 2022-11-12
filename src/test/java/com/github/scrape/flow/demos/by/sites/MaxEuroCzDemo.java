@@ -27,6 +27,7 @@ import com.github.scrape.flow.scraping.selenium.SeleniumNavigateToParsedLink;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.Duration;
@@ -41,7 +42,7 @@ public class MaxEuroCzDemo {
     @Test
     public void start() throws InterruptedException {
 
-        final Scraping scraping = new Scraping(10, TimeUnit.SECONDS);
+        final Scraping scraping = new Scraping(1, TimeUnit.SECONDS);
 
 
         /*

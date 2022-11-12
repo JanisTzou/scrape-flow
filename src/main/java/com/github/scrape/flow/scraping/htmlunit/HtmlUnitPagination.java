@@ -36,6 +36,8 @@ public class HtmlUnitPagination extends HtmlUnitScrapingStep<HtmlUnitPagination>
 
     private volatile boolean servicesPropagatedToTrigger;
 
+    // TODO we might/should be able to generalize the wrapper into something reusable in cases
+    //  we need to change the structure of the of flow "under the good"
     // wrapper inserted as an in-between step to ensure that the next steps of this one happen exclusively and before any pagination takes place
     private volatile HtmlUnitStepBlock nextStepsWrapper;
     private volatile boolean nextStepsWrapperAddedToNext = false;
@@ -51,7 +53,10 @@ public class HtmlUnitPagination extends HtmlUnitScrapingStep<HtmlUnitPagination>
     }
 
     HtmlUnitPagination() {
-        this.nextStepsWrapper = (HtmlUnitStepBlock) ScrapingStepInternalAccessor.of(new HtmlUnitStepBlock()).setExclusiveExecution(true);
+        this.nextStepsWrapper = (HtmlUnitStepBlock) ScrapingStepInternalAccessor.of(new HtmlUnitStepBlock())
+                // TODO is this really desired? Probably it should only be set if the user wanted the pagnation to e exlusive and
+                //  we need to propagate that information to the wrapper ...
+                .setExclusiveExecution(true);
     }
 
     @Override

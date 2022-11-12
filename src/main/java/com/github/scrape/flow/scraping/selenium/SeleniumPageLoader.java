@@ -60,14 +60,16 @@ public class SeleniumPageLoader implements PageLoader<ClientOperator<WebDriver>>
         String logInfo = currStepOrder != null ? currStepOrder + " - " : "";
         try {
             log.debug("{}Loading page URL: {}", logInfo, pageUrl);
-            clientOperator.getClient().get(pageUrl);  // we have one clientOperator instance per thread so this call is ok -> each client will have its own "current top WebWindow"
+            WebDriver client = clientOperator.getClient();
+            client.get(pageUrl);  // we have one clientOperator instance per thread so this call is ok -> each client will have its own "current top WebWindow"
+
             // TODO this should be retried ...
 //            Thread.sleep(5000);
 //            WebElement element = clientOperator.getClient().findElement(By.id("onetrust-accept-btn-handler"));
 //            element.click();
 //            Thread.sleep(5000);
 
-            WebElement root = clientOperator.getClient().findElement(By.tagName("html"));
+            WebElement root = client.findElement(By.tagName("html"));
             // TODO hmm ... the steps can receive the body but they need to be aware of the
             return Optional.of(root);
 

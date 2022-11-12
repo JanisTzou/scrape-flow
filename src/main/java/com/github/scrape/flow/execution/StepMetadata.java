@@ -19,6 +19,7 @@ package com.github.scrape.flow.execution;
 import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.scraping.ClientType;
 import com.github.scrape.flow.scraping.ScrapingStep;
+import com.github.scrape.flow.scraping.ScrapingStepInternalAccessor;
 import lombok.Getter;
 
 import java.util.Comparator;
@@ -59,6 +60,10 @@ public class StepMetadata {
 
     public int getLoadingStepCountUpToThisStep(ClientType clientType) {
         return this.loadingStepCountUpToThisStep.getOrDefault(clientType, 0);
+    }
+
+    public boolean isExclusiveExecution() {
+        return ScrapingStepInternalAccessor.of(step).isExclusiveExecution();
     }
 
     public static Comparator<StepMetadata> getComparatorByLoadingStepCount(ClientType clientType) {

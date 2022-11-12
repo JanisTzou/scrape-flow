@@ -43,8 +43,8 @@ public class HtmlUnitFollowLinkRunnableTest {
     @Before
     public void setUp() throws Exception {
         followLink = new HtmlUnitFollowLinkRunnable(
-                new ScrapingContext(StepOrder.INITIAL, anchorMock),
-                StepOrder.INITIAL.nextAsChild(),
+                new ScrapingContext(StepOrder.ROOT, anchorMock),
+                StepOrder.ROOT.getFirstChild(),
                 null,
                 "name"
         );
@@ -55,7 +55,7 @@ public class HtmlUnitFollowLinkRunnableTest {
 
     @Test
     public void anchorElementIsClickedAndNextPageIsReturned() {
-        List<DomNode> nextNodes = followLink.clickLinkAndGetNextPage(StepOrder.INITIAL, anchorMock).get();
+        List<DomNode> nextNodes = followLink.clickLinkAndGetNextPage(StepOrder.ROOT, anchorMock).get();
 
         assertEquals(1, nextNodes.size());
         assertEquals(nextPageMock, nextNodes.get(0));

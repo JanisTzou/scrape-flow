@@ -76,6 +76,10 @@ public class ScrapingStepInternalAccessor<C extends ScrapingStep<C>> {
         return step.setExclusiveExecution(exclusiveExecution);
     }
 
+    public boolean isExclusiveExecution() {
+        return step.isExclusiveExecution();
+    }
+
     public List<ScrapingStep<?>> getAdditionalStepsExecutedBeforeNextSteps() {
         return step.getAdditionalStepsExecutedBeforeNextSteps();
     }

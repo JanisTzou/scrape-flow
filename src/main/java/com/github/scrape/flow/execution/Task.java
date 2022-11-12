@@ -33,6 +33,7 @@ public class Task implements Comparable<Task> {
     };
 
     private final StepOrder stepOrder;
+    private final StepOrder stepHierarchyOrder;
 
     /**
      * Tasks with this setting will be executed with priority
@@ -57,6 +58,7 @@ public class Task implements Comparable<Task> {
     public static Task from(TaskDefinition basis, int retries, Duration retryBackoff) {
         return new Task(
                 basis.getStepOrder(),
+                basis.getStepHierarchyOrder(),
                 basis.isExclusiveExecution(),
                 basis.getStepName(),
                 basis.getStepRunnable(),
@@ -81,6 +83,7 @@ public class Task implements Comparable<Task> {
     public String loggingInfo() {
         return "StepTask{" +
                 "stepOrder=" + stepOrder +
+                ", stepHierarchyOrder=" + stepHierarchyOrder +
                 ", exclusiveExecution=" + exclusiveExecution +
                 ", stepName='" + stepName + '\'' +
                 ", created=" + created +

@@ -45,7 +45,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
     private final ThrottlingService throttlingService;
     private final Duration periodicExecNextTriggerInterval;
     private final ExecutingTasksTracker executingTasksTracker;
-    private final ExclusiveExecutionTracker exclusiveExecutionTracker;
+    private final ExclusiveExecutionHandler exclusiveExecutionHandler;
     private final ActiveStepsTracker activeStepsTracker;
     private final ScrapingRateLimiter scrapingRateLimiter;
     private final AtomicInteger activeTaskCount = new AtomicInteger(0);
@@ -60,7 +60,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
     private long lastLoggedNoProgress = 0L;
 
     public TaskExecutorSingleQueue(ThrottlingService throttlingService,
-                                   ExclusiveExecutionTracker exclusiveExecutionTracker,
+                                   ExclusiveExecutionHandler exclusiveExecutionHandler,
                                    ScrapingRateLimiter scrapingRateLimiter,
                                    ActiveStepsTracker activeStepsTracker,
                                    ClientAccessManager clientAccessManager) {
@@ -68,7 +68,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
                 PERIODIC_EXEC_NEXT_TRIGGER_INTERVAL, // sensible default
                 LocalDateTime::now,
                 new ExecutingTasksTracker(),
-                exclusiveExecutionTracker,
+                exclusiveExecutionHandler,
                 activeStepsTracker,
                 scrapingRateLimiter,
                 clientAccessManager);
@@ -82,13 +82,13 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
                             Duration periodicExecNextTriggerInterval,
                             Supplier<LocalDateTime> nowSupplier,
                             ExecutingTasksTracker executingTasksTracker,
-                            ExclusiveExecutionTracker exclusiveExecutionTracker,
+                            ExclusiveExecutionHandler exclusiveExecutionHandler,
                             ActiveStepsTracker activeStepsTracker,
                             ScrapingRateLimiter scrapingRateLimiter,
                             ClientAccessManager clientAccessManager) {
         this.throttlingService = requestsPerSecondCounter;
         this.executingTasksTracker = executingTasksTracker;
-        this.exclusiveExecutionTracker = exclusiveExecutionTracker;
+        this.exclusiveExecutionHandler = exclusiveExecutionHandler;
         this.activeStepsTracker = activeStepsTracker;
         this.scrapingRateLimiter = scrapingRateLimiter;
         this.clientAccessManager = clientAccessManager;
@@ -163,7 +163,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
         }
         Task task = next.getTask();
         return isParentTaskFinished(task)
-                && exclusiveExecutionTracker.canExecute(next)
+                && exclusiveExecutionHandler.canExecute(next)
                 && isWithinScrapingLimits(task)
                 && canActivateReservation(task);
     }
@@ -197,6 +197,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
                 if ((now - this.lastActivatedReservation) > 10_000) {
                     if ((now - this.lastLoggedNoProgress) > 10_000) {
                         this.lastLoggedNoProgress = now;
+                        // TODO this happens also when sites are unresponsive an block a client for a long time without progress ...
                         log.warn("It seems we cannot make progress due to lack of clients -> increase the max number of client instances");
                     }
                 }

@@ -27,7 +27,7 @@ public class NextStepsAsDefinedByUserTest extends NextStepsHandlerTestBase {
     @Test
     public void eachStepIsExecuted() {
         NextStepsAsDefinedByUser nextStepsHandler = new NextStepsAsDefinedByUser();
-        nextStepsHandler.execute(steps, StepOrder.INITIAL, context, services);
+        nextStepsHandler.execute(steps, StepOrder.ROOT, context, services);
 
         steps.forEach(step -> verify(step, times(1)).execute(context, services));
 

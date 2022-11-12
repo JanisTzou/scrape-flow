@@ -76,13 +76,13 @@ public class StepOrderTest {
     @Test
     public void nextAtNewLevel() {
         StepOrder so1 = StepOrder.from(1, 1, 1);
-        assertEquals(StepOrder.from(1, 1, 1, 1), so1.nextAsChild());
+        assertEquals(StepOrder.from(1, 1, 1, 1), so1.getFirstChild());
     }
 
     @Test
     public void nextAtSameLevel() {
         StepOrder so1 = StepOrder.from(1, 1, 1);
-        assertEquals(StepOrder.from(1, 1, 2), so1.nextAsSibling());
+        assertEquals(StepOrder.from(1, 1, 2), so1.getFollowingSibling());
     }
 
     private List<StepOrder> listOf(StepOrder... sos) {
@@ -138,6 +138,13 @@ public class StepOrderTest {
         assertTrue(StepOrder.from(1, 2, 2).isParentOf(StepOrder.from(1, 2, 2, 4)));
         assertFalse(StepOrder.from(1, 2, 2).isParentOf(StepOrder.from(1, 2, 2)));
         assertFalse(StepOrder.from(1, 2, 2, 4).isParentOf(StepOrder.from(1, 2, 2)));
+    }
+
+    @Test
+    public void getPrecedingSibling() {
+        assertFalse(StepOrder.from(1).getPrecedingSibling().isPresent());
+        assertFalse(StepOrder.from(1, 1).getPrecedingSibling().isPresent());
+        assertEquals(StepOrder.from(1, 2, 1), StepOrder.from(1, 2, 2).getPrecedingSibling().get());
     }
 
     @Test

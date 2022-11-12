@@ -36,7 +36,7 @@ public class TaskService {
         Task task = createStepTask(taskDefinition);
 
         StepOrder stepOrder = task.getStepOrder();
-        activeStepsTracker.track(stepOrder, task.getStepName(), taskDefinition.getStepHierarchyOrder());
+        activeStepsTracker.track(stepOrder, taskDefinition.getStepHierarchyOrder(), task.getStepName());
         taskExecutor.submit(
                 task,
                 r -> handleFinishedStep(stepOrder),

@@ -68,13 +68,13 @@ public class StepAndDataRelationshipTrackerTest {
     @Test
     public void shouldReturnDataWhenThereAreNoRelatedActiveSteps() {
 
-        asTracker.track(step_1, "", null);
-        asTracker.track(step_1_1, "", null);
-        asTracker.track(step_1_2, "", null);
+        asTracker.track(step_1, null, "");
+        asTracker.track(step_1_1, null, "");
+        asTracker.track(step_1_2, null, "");
         sdrTracker.track(step_1, List.of(step_1_1, step_1_2), List.of(new ModelToPublish(model1, model1.getClass(), listener)));
 
-        asTracker.track(step_1_2_1, "", null);
-        asTracker.track(step_1_2_2, "", null);
+        asTracker.track(step_1_2_1, null, "");
+        asTracker.track(step_1_2_2, null, "");
         sdrTracker.track(step_1_2, List.of(step_1_2_1, step_1_2_2), List.of(new ModelToPublish(model2, model2.getClass(), listener)));
 
         List<FinalizedModels> data;
@@ -97,13 +97,13 @@ public class StepAndDataRelationshipTrackerTest {
     @Test
     public void shouldReturnMultipleDataWhenThereAreNoRelatedActiveStepsForTwoTrackedDataObjects() {
 
-        asTracker.track(step_1, "", null);
-        asTracker.track(step_1_1, "", null);
-        asTracker.track(step_1_2, "", null);
+        asTracker.track(step_1, null, "");
+        asTracker.track(step_1_1, null, "");
+        asTracker.track(step_1_2, null, "");
         sdrTracker.track(step_1, List.of(step_1_1, step_1_2), List.of(new ModelToPublish(model1, model1.getClass(), listener)));
 
-        asTracker.track(step_1_2_1, "", null);
-        asTracker.track(step_1_2_2, "", null);
+        asTracker.track(step_1_2_1, null, "");
+        asTracker.track(step_1_2_2, null, "");
         sdrTracker.track(step_1_2, List.of(step_1_2_1, step_1_2_2), List.of(new ModelToPublish(model2, model2.getClass(), listener)));
 
         List<FinalizedModels> data;

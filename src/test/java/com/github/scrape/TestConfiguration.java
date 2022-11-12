@@ -92,8 +92,8 @@ public class TestConfiguration {
     }
 
     @Bean
-    public ExclusiveExecutionTracker exclusiveExecutionTracker() {
-        return new ExclusiveExecutionTracker(activeStepsTracker());
+    public ExclusiveExecutionHandler exclusiveExecutionTracker() {
+        return new ExclusiveExecutionHandler(activeStepsTracker());
     }
 
     @Bean

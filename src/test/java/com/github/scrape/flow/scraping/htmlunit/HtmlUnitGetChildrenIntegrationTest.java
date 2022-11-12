@@ -61,7 +61,7 @@ public class HtmlUnitGetChildrenIntegrationTest {
         HtmlPage page = TestUtils.loadTestPage("test_page_1.html");
         DomNode parent = (DomNode) page.getByXPath("/html/body/div").stream().findFirst().get();
 
-        getChildren.execute(new ScrapingContext(StepOrder.INITIAL, parent), scrapingServices);
+        getChildren.execute(new ScrapingContext(StepOrder.ROOT, parent), scrapingServices);
 
         verify(nextStepMock, times(4)).execute(Mockito.any(), Mockito.any());
     }

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class StepOrder {
 
-    public static final StepOrder INITIAL = new StepOrder(List.of(0));
+    public static final StepOrder ROOT = new StepOrder(List.of(0));
 
     public static final Comparator<StepOrder> NATURAL_COMPARATOR = (so1, so2) -> {
         for (int idx = 0; idx < Math.min(so1.size(), so2.size()); idx++) {
@@ -69,15 +69,29 @@ public class StepOrder {
         }
     }
 
-    public StepOrder nextAsSibling() {
+    public Optional<StepOrder> getPrecedingSibling() {
+        if (hasParent()) {
+            int lastIdx = values.size() - 1;
+            int lastValue = values.get(lastIdx);
+            if (lastValue > 1) {
+                int newLastValue = lastValue - 1;
+                StepOrder preceding = new StepOrder(values);
+                preceding.values.set(lastIdx, newLastValue);
+                return Optional.of(preceding);
+            }
+        }
+        return Optional.empty();
+    }
+
+    public StepOrder getFollowingSibling() {
         int lastIdx = values.size() - 1;
-        int newOrder = 1 + values.get(lastIdx);
+        int newOrder = values.get(lastIdx) + 1;
         StepOrder next = new StepOrder(values);
         next.values.set(lastIdx, newOrder);
         return next;
     }
 
-    public StepOrder nextAsChild() {
+    public StepOrder getFirstChild() {
         StepOrder next = new StepOrder(values);
         next.values.add(1);
         return next;

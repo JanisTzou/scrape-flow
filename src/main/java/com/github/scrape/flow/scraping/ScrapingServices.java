@@ -40,7 +40,7 @@ public class ScrapingServices {
     private final ClientReservationTracker clientReservationTracker;
     private final ClientAccessManager clientAccessManager;
     private final StepAndDataRelationshipTracker stepAndDataRelationshipTracker;
-    private final ExclusiveExecutionTracker exclusiveExecutionTracker;
+    private final ExclusiveExecutionHandler exclusiveExecutionHandler;
     private final ScrapedDataPublisher scrapedDataPublisher;
     private final Options options;
     private final DebuggingOptions globalDebugging;
@@ -59,7 +59,7 @@ public class ScrapingServices {
         this.activeStepsTracker = new ActiveStepsTracker();
         this.clientReservationTracker = new ClientReservationTracker();
         this.stepAndDataRelationshipTracker = new StepAndDataRelationshipTracker(activeStepsTracker);
-        this.exclusiveExecutionTracker = new ExclusiveExecutionTracker(activeStepsTracker);
+        this.exclusiveExecutionHandler = new ExclusiveExecutionHandler(activeStepsTracker);
         this.scrapedDataPublisher = new ScrapedDataPublisher(stepAndDataRelationshipTracker);
         this.options = new Options();
         this.globalDebugging = new DebuggingOptions();
@@ -68,7 +68,7 @@ public class ScrapingServices {
         this.htmlUnitClientManager = new HtmlUnitClientManager(clientFactory);
         this.orderedClientAccessHandler = new OrderedClientAccessHandler(activeStepsTracker);
         this.clientAccessManager = new ClientAccessManager(clientReservationTracker, seleniumClientManager, htmlUnitClientManager, orderedClientAccessHandler);
-        this.taskExecutor = new TaskExecutorSingleQueue(throttlingService, exclusiveExecutionTracker, scrapingRateLimiter, activeStepsTracker, clientAccessManager);
+        this.taskExecutor = new TaskExecutorSingleQueue(throttlingService, exclusiveExecutionHandler, scrapingRateLimiter, activeStepsTracker, clientAccessManager);
         this.taskService = new TaskService(taskExecutor, activeStepsTracker, scrapedDataPublisher, scrapingRateLimiter, options);
         this.htmlUnitSiteLoader = new HtmlUnitPageLoader();
         this.seleniumPageLoader = new SeleniumPageLoader();
@@ -78,6 +78,7 @@ public class ScrapingServices {
     public void setStepHierarchyRepository(StepHierarchyRepository stepHierarchyRepository) {
         this.stepHierarchyRepository = stepHierarchyRepository;
         this.orderedClientAccessHandler.setStepHierarchyRepository(stepHierarchyRepository);
+        this.exclusiveExecutionHandler.setStepHierarchyRepository(stepHierarchyRepository);
     }
 
 }
