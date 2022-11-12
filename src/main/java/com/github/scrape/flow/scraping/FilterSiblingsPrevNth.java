@@ -32,9 +32,15 @@ public class FilterSiblingsPrevNth<C> implements Filter<C> {
         this.nth = nth;
     }
 
+    /**
+     * @param allPrevSiblings sorted from the perspective of the element whose siblings these are
+     *                        - the closest being first
+     */
     @Override
     public List<C> filter(List<C> allPrevSiblings) {
-        return new FilterLastNth<C>(nth).filter(allPrevSiblings);
+        // TODO document that this is from the beginning of the
+        //  maybe it would be best to have two directions / prespectives ... from beginning and from the element we found this from ...
+        return new FilterFirstNth<C>(nth).filter(allPrevSiblings);
     }
 
 }

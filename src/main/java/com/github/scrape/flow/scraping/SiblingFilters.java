@@ -18,20 +18,21 @@ package com.github.scrape.flow.scraping;
 
 import java.util.List;
 
-public class FilterSiblingsPrevN<C> implements Filter<C> {
+public class SiblingFilters {
 
-    private final int n;
-
-    public FilterSiblingsPrevN(int n) {
-        if (n <= 0) {
-            throw new IllegalArgumentException("n must be > 0");
-        }
-        this.n = n;
-    }
-
-    @Override
-    public List<C> filter(List<C> allPrevSiblings) {
-        return new FilterFirstN<C>(n).filter(allPrevSiblings);
-    }
-
+    public static final List<Class<?>> PREV_SIBLINGS_FILTER_CLASSES = List.of(
+            FilterSiblingsPrevN.class,
+            FilterSiblingsPrevNth.class,
+            FilterSiblingsPrevEveryNth.class,
+            FilterSiblingsFirst.class
+    );
+    public static final List<Class<?>> NEXT_SIBLINGS_FILTER_CLASSES = List.of(
+            FilterSiblingsNextN.class,
+            FilterSiblingsNextNth.class,
+            FilterSiblingsNextEveryNth.class,
+            FilterSiblingsLast.class
+    );
+    public static final List<Class<?>> ALL_SIBLINGS_FILTER_CLASSES = List.of(
+            FilterSiblingsAll.class
+    );
 }

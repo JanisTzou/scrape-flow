@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.github.scrape.flow.scraping.selenium.Selenium.*;
 
-public class AirBankCzKurzovniListekDemo {
+public class KbCzKurzovniListekDemo {
 
     @Ignore
     @Test
@@ -45,41 +45,23 @@ public class AirBankCzKurzovniListekDemo {
                 .getOptions().setMaxRequestRetries(2);
 
         scraping.setSequence(
-                Do.navigateToUrl("https://www.airbank.cz/kurzovni-listek/")
-                        .next(Get.descendants().byTag("tbody")
-                                .last()
-                                .addCollector(KurzovniListek::new, KurzovniListek.class, new KurzovniListekScraped())
+                Do.navigateToUrl("https://www.kb.cz/cs/kurzovni-listek/cs/rl/index")
+                        .next(Get.descendants().byClass("pt-5")
                                 .next(Get.descendants()
-                                        .addCollector(Kurz::new, Kurz.class)
-                                        .collectValue(KurzovniListek::addKurz, KurzovniListek.class, Kurz.class)
-                                        .byTag("tr")
-                                        .next(Get.children()
-                                                .byTag("td")
-                                                .firstNth(3)
-                                                .next(Get.siblings()
-                                                        .prevNth(1)
-                                                        .next(Parse.textContent().collectValue(Kurz::setMena, Kurz.class))
-                                                )
-                                        )
-                                        .next(Get.children()
-                                                .byTag("td")
-                                                .firstNth(2)
-                                                .next(Get.siblings()
-                                                        .nextNth(1)
-                                                        .next(Parse.textContent().collectValue(Kurz::setMnozstvi, Kurz.class))
-                                                )
-                                        )
-                                        .next(Get.children()
-                                                .byTag("td")
-                                                .firstNth(4)
-                                                .next(Parse.textContent().collectValue(Kurz::setNakup, Kurz.class))
-                                        )
-                                        .next(Get.descendantsBySelector("td:last-child") // do this using a scc selector
-                                                .next(Get.children()
-                                                        .byTag("div")
-                                                        .first()
-                                                        .next(Parse.textContent().collectValue(Kurz::setProdej, Kurz.class))
-                                                )
+                                        .byClass("col-12")
+                                        .firstNth(3)
+                                        .next(Filter.natively(we -> {
+                                            System.out.println("3rd: >>>>");
+                                            System.out.println(we.getText());
+                                            return true;
+                                        }))
+                                        .next(Get.siblings()
+                                                .prevNth(1)
+                                                .next(Filter.natively(we -> {
+                                                    System.out.println("2rd: >>>>");
+                                                    System.out.println(we.getText());
+                                                    return true;
+                                                }))
                                         )
                                 )
                         )

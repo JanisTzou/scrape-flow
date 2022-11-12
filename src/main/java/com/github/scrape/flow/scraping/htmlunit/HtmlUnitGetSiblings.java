@@ -29,6 +29,8 @@ import lombok.extern.log4j.Log4j2;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static com.github.scrape.flow.scraping.SiblingFilters.*;
+
 @Log4j2
 public class HtmlUnitGetSiblings extends HtmlUnitScrapingStep<HtmlUnitGetSiblings>
         implements HtmlUnitFilterableByAttribute<HtmlUnitGetSiblings>,
@@ -36,24 +38,6 @@ public class HtmlUnitGetSiblings extends HtmlUnitScrapingStep<HtmlUnitGetSibling
         HtmlUnitFilterableByTextContent<HtmlUnitGetSiblings>,
         HtmlUnitFilterableByCssClass<HtmlUnitGetSiblings>,
         FilterableSiblings<HtmlUnitGetSiblings, DomNode> {
-
-    private static final List<Class<?>> PREV_SIBLINGS_FILTER_CLASSES = List.of(
-            FilterSiblingsPrevN.class,
-            FilterSiblingsPrevNth.class,
-            FilterSiblingsPrevEveryNth.class,
-            FilterSiblingsFirst.class
-    );
-
-    private static final List<Class<?>> NEXT_SIBLINGS_FILTER_CLASSES = List.of(
-            FilterSiblingsNextN.class,
-            FilterSiblingsNextNth.class,
-            FilterSiblingsNextEveryNth.class,
-            FilterSiblingsLast.class
-    );
-
-    private static final List<Class<?>> ALL_SIBLINGS_FILTER_CLASSES = List.of(
-            FilterSiblingsAll.class
-    );
 
     HtmlUnitGetSiblings() {
     }

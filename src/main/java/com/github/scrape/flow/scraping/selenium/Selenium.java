@@ -54,10 +54,11 @@ public class Selenium {
         }
 
         /**
-         * Searches the DOM for siblings of the current <code>WebElement</code> based on specified filter methods specified by {@link FilterableSiblings}
+         * Searches the DOM for siblings of the current <code>WebElement</code> while applying
+         * the specified filter methods specified by {@link FilterableSiblings}
          */
-        public static void siblings() {
-            throw new NotImplementedException("TODO"); // TODO implement
+        public static SeleniumGetSiblings siblings() {
+            return new SeleniumGetSiblings();
         }
 
         /**
@@ -78,8 +79,8 @@ public class Selenium {
         /**
          * Searches the DOM for children of the current <code>WebElement</code>.
          */
-        public static void children() {
-            throw new NotImplementedException("TODO"); // TODO implement
+        public static SeleniumGetChildren children() {
+            return new SeleniumGetChildren();
         }
 
         /**

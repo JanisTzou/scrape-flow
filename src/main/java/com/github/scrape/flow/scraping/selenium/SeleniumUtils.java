@@ -16,8 +16,6 @@
 
 package com.github.scrape.flow.scraping.selenium;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -25,10 +23,9 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SeleniumUtils {
 
@@ -106,6 +103,10 @@ public class SeleniumUtils {
         return webElement.findElements(By.cssSelector(sccSelector));
     }
 
+    public static List<WebElement> findChildren(WebElement webElement) {
+        return webElement.findElements(By.xpath("*"));
+    }
+
     public static Optional<WebElement> findParent(WebElement weElement) {
         try {
             return Optional.of(weElement.findElement(By.xpath("./..")));
@@ -146,4 +147,106 @@ public class SeleniumUtils {
             e.printStackTrace();
         }
     }
+
+    public static List<WebElement> findPrevSiblingElements(WebElement webElement) {
+        Optional<WebElement> parent = findNthAncestor(webElement, 1);
+        if (parent.isPresent()) {
+            List<WebElement> result = new ArrayList<>();
+            List<WebElement> children = findChildren(parent.get());
+            for (WebElement child : children) {
+                if (webElement.equals(child)) {
+                    break;
+                }
+                result.add(child);
+            }
+            Collections.reverse(result); // order from the perspective of specified webElement
+            return result;
+        }
+        return Collections.emptyList();
+//         The following does not work for some reason ...
+//        String xpathExp = "preceding-sibling::*";
+//        return findSiblingsByXPath(webElement, xpathExp);
+    }
+
+    public static List<WebElement> findNextSiblingElements(WebElement webElement) {
+        String xpathExp = "following-sibling::*";
+        return findSiblingsByXPath(webElement, xpathExp);
+//        Optional<WebElement> parent = findNthAncestor(webElement, 1);
+//        if (parent.isPresent()) {
+//            List<WebElement> result = new ArrayList<>();
+//            List<WebElement> children = findChildren(parent.get());
+//            boolean include = false;
+//            for (WebElement child : children) {
+//                if (include) {
+//                    result.add(child);
+//                }
+//                if (webElement.equals(child)) {
+//                    include = true;
+//                }
+//            }
+//            return result;
+//        }
+//        return Collections.emptyList();
+    }
+
+    private static String generateXPATH(WebElement childElement, String current) {
+        String childTag = childElement.getTagName();
+        if (childTag.equals("html")) {
+            return "/html[1]" + current;
+        }
+        WebElement parentElement = childElement.findElement(By.xpath(".."));
+        List<WebElement> childrenElements = parentElement.findElements(By.xpath("*"));
+        int count = 0;
+        for (int i = 0; i < childrenElements.size(); i++) {
+            WebElement childrenElement = childrenElements.get(i);
+            String childrenElementTag = childrenElement.getTagName();
+            if (childTag.equals(childrenElementTag)) {
+                count++;
+            }
+            if (childElement.equals(childrenElement)) {
+                return generateXPATH(parentElement, "/" + childTag + "[" + count + "]" + current);
+            }
+        }
+        return null;
+    }
+
+//    private static List<WebElement> findSiblingsByXPath2(WebElement original, WebElement webElement, String xpathExp) {
+//        List<WebElement> siblingsByXPath = findSiblingsByXPath(original, xpathExp);
+//        if (siblingsByXPath.size() == 1) {
+//            List<WebElement> nextSiblingElements = findNextSiblingElements(siblingsByXPath.get(0));
+//            List<WebElement> result = new ArrayList<>();
+//            for (WebElement sibling : nextSiblingElements) {
+//                if (sibling == original) {
+//                    break;
+//                }
+//                result.add(sibling);
+//            }
+//            return result;
+//        } else {
+//            return siblingsByXPath;
+//        }
+//    }
+
+    private static List<WebElement> findSiblingsByXPath(WebElement webElement, String xpathExp) {
+        List<WebElement> result = new ArrayList<>();
+        try {
+            while (webElement != null) {
+                WebElement found = webElement.findElement(By.xpath(xpathExp));
+                result.add(found);
+                webElement = found;
+            }
+        } catch (NoSuchElementException nsee) {
+        }
+//        System.out.println(result.stream().map(e -> e.getText()).collect(Collectors.joining(", ")));
+        return result;
+    }
+
+    public static List<WebElement> findAllSiblingElements(WebElement webElement) {
+        return Stream.concat(
+                        findPrevSiblingElements(webElement).stream(),
+                        findNextSiblingElements(webElement).stream()
+                )
+                .collect(Collectors.toList());
+    }
+
 }

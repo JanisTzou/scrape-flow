@@ -25,6 +25,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import javax.annotation.Nullable;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,21 +57,15 @@ public class SeleniumPageLoader implements PageLoader<ClientOperator<WebDriver>>
     }
 
     private Optional<WebElement> loadHtmlPage(String pageUrl, ClientOperator<WebDriver> clientOperator, @Nullable StepOrder currStepOrder) {
-        // TODO someway somehow we need to make this retrievable ...
         String logInfo = currStepOrder != null ? currStepOrder + " - " : "";
         try {
             log.debug("{}Loading page URL: {}", logInfo, pageUrl);
             WebDriver client = clientOperator.getClient();
             client.get(pageUrl);  // we have one clientOperator instance per thread so this call is ok -> each client will have its own "current top WebWindow"
-
-            // TODO this should be retried ...
-//            Thread.sleep(5000);
-//            WebElement element = clientOperator.getClient().findElement(By.id("onetrust-accept-btn-handler"));
-//            element.click();
-//            Thread.sleep(5000);
-
+            // https://www.browserstack.com/guide/selenium-wait-for-page-to-load
+            client.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(10));
+//            client.manage().window().maximize();
             WebElement root = client.findElement(By.tagName("html"));
-            // TODO hmm ... the steps can receive the body but they need to be aware of the
             return Optional.of(root);
 
         } catch (Exception e) {

@@ -96,7 +96,8 @@ public interface FilterableSiblings<C extends ScrapingStep<C>, E> extends Filter
 
 
     /**
-     * Returns all siblings of the current element. This is the default behaviour if no other filter is specified
+     * Returns all siblings of the current element. This is the default behaviour if no filter is specified
+     * TODO is this needed at all?
      */
     default C all() {
         return addFilter(new FilterSiblingsAll<>());

@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 public class FilterSiblingsFirst<C> implements Filter<C> {
 
+    // TODO is this actually correct? ... the order of the incoming siblings ...
     @Override
     public List<C> filter(List<C> allPrevSiblings) {
         return allPrevSiblings.stream().findFirst().stream().collect(Collectors.toList());
