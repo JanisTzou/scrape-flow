@@ -46,10 +46,11 @@ public class AirBankCzKurzovniListekDemo {
 
         scraping.setSequence(
                 Do.navigateToUrl("https://www.airbank.cz/kurzovni-listek/")
-                        .next(Get.descendants().byTag("tbody")
+                        .next(Get.descendants().stepName("tbody")
+                                .byTag("tbody")
                                 .last()
                                 .addCollector(KurzovniListek::new, KurzovniListek.class, new KurzovniListekScraped())
-                                .next(Get.descendants()
+                                .next(Get.descendants().stepName("kurzy")
                                         .addCollector(Kurz::new, Kurz.class)
                                         .collectValue(KurzovniListek::addKurz, KurzovniListek.class, Kurz.class)
                                         .byTag("tr")

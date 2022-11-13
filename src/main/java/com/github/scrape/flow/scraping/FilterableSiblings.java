@@ -16,6 +16,8 @@
 
 package com.github.scrape.flow.scraping;
 
+import org.apache.commons.lang3.NotImplementedException;
+
 public interface FilterableSiblings<C extends ScrapingStep<C>, E> extends Filterable<C, E> {
 
     /**
@@ -54,6 +56,13 @@ public interface FilterableSiblings<C extends ScrapingStep<C>, E> extends Filter
      */
     default C prevNth(int nth) {
         return addFilter(new FilterSiblingsPrevNth<>(nth));
+    }
+
+    /**
+     *
+     */
+    default C nth(int nth) {
+        throw new NotImplementedException("TODO");
     }
 
     /**

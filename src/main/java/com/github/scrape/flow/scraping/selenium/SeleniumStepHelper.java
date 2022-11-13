@@ -57,8 +57,9 @@ public class SeleniumStepHelper extends StepHelperBase {
             if (!executionCondition.canExecute(stepName, ctx.getContextModels())) {
                 return;
             }
-
+            long start = System.currentTimeMillis();
             List<WebElement> foundElements = elementsSearch.get();
+            long end = System.currentTimeMillis();
             List<WebElement> filteredElements = FilterUtils.filter(foundElements, step.getFilters(), services.getGlobalDebugging());
             logFoundCount(stepName, currStepOrder, filteredElements.size(), services.getGlobalDebugging(), ScrapingStepInternalAccessor.of(step).getStepDebugging());
 
@@ -73,6 +74,7 @@ public class SeleniumStepHelper extends StepHelperBase {
 
                 handleModels(currStepOrder, services, stepModels, spawnedSteps);
             }
+            log.info("Duration: {} for step {} {}", (end - start), currStepOrder, stepName);
 
         } catch (Exception e) {
             log.error("{} - {}: Error executing step", currStepOrder, stepName, e);

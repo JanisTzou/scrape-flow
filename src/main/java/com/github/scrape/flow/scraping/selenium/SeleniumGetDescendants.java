@@ -46,8 +46,8 @@ public class SeleniumGetDescendants extends SeleniumScrapingStep<SeleniumGetDesc
         StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<WebElement>> nodesSearch = () -> ctx.getWebElement().findElements(By.xpath(".//*"));
-            getHelper().execute(nodesSearch, ctx, stepOrder, services);
+            Supplier<List<WebElement>> elementsSearch = () -> ctx.getWebElement().findElements(By.xpath(".//*"));
+            getHelper().execute(elementsSearch, ctx, stepOrder, services);
         };
 
         submitForExecution(stepOrder, runnable, services);

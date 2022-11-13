@@ -16,10 +16,15 @@
 
 package com.github.scrape.flow.scraping.htmlunit;
 
+import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.ScrapingContext;
 import com.github.scrape.flow.scraping.ScrapingServices;
+
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class HtmlUnitGetAncestor extends HtmlUnitScrapingStep<HtmlUnitGetAncestor> {
     // TODO make possible to use general filters (by tag, class, attr ...)
@@ -39,7 +44,11 @@ public class HtmlUnitGetAncestor extends HtmlUnitScrapingStep<HtmlUnitGetAncesto
     protected StepOrder execute(ScrapingContext ctx, ScrapingServices services) {
         StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
-        Runnable runnable = () -> new HtmlUnitGetAncestorRunnable(param, ctx, stepOrder, getHelper(services));
+        Runnable runnable = () -> {
+            DomNode node = ctx.getNode();
+            Supplier<List<DomNode>> nodesSearch = () -> HtmlUnitUtils.findNthAncestor(node, param).stream().collect(Collectors.toList());
+            getHelper(services).execute(nodesSearch, ctx, stepOrder);
+        };
         submitForExecution(stepOrder, runnable, services);
 
         return stepOrder;

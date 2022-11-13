@@ -59,13 +59,14 @@ public class SeleniumPageLoader implements PageLoader<ClientOperator<WebDriver>>
     private Optional<WebElement> loadHtmlPage(String pageUrl, ClientOperator<WebDriver> clientOperator, @Nullable StepOrder currStepOrder) {
         String logInfo = currStepOrder != null ? currStepOrder + " - " : "";
         try {
-            log.debug("{}Loading page URL: {}", logInfo, pageUrl);
+            log.info("{}Loading page URL: {}", logInfo, pageUrl);
             WebDriver client = clientOperator.getClient();
             client.get(pageUrl);  // we have one clientOperator instance per thread so this call is ok -> each client will have its own "current top WebWindow"
             // https://www.browserstack.com/guide/selenium-wait-for-page-to-load
-            client.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(10));
+//            client.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(10)); // TODO ... uncomment?
 //            client.manage().window().maximize();
             WebElement root = client.findElement(By.tagName("html"));
+            log.info("{}Loaded page URL: {}", logInfo, pageUrl);
             return Optional.of(root);
 
         } catch (Exception e) {

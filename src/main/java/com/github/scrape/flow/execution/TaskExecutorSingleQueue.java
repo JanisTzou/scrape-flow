@@ -237,7 +237,7 @@ public class TaskExecutorSingleQueue implements TaskExecutor {
                 .map(TaskResult::new)
                 .doOnCancel(taskFinishedHook(task))
                 .doOnTerminate(taskFinishedHook(task))
-                .subscribeOn(Schedulers.parallel())
+                .subscribeOn(Schedulers.parallel()) // TODO parallel DOM access slows down execution in Selenium substantially ... ideally there should be only as many threads as there are max clients ....
                 .subscribe(taskResult -> {
                             try {
                                 taskResultConsumer.accept(taskResult);

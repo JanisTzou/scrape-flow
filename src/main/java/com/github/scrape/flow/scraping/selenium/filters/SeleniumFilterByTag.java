@@ -16,6 +16,7 @@
 
 package com.github.scrape.flow.scraping.selenium.filters;
 
+
 import com.github.scrape.flow.scraping.Filter;
 import com.github.scrape.flow.scraping.selenium.SeleniumUtils;
 import org.openqa.selenium.WebElement;
@@ -24,21 +25,22 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class SeleniumHtmlUnitFilterByCssClass implements Filter<WebElement> {
+public class SeleniumFilterByTag implements Filter<WebElement> {
 
-    private final String className;
+    private final String tagName;
 
     /**
-     * @throws NullPointerException if cssClass is null
+     * @throws NullPointerException if tagName is null
      */
-    SeleniumHtmlUnitFilterByCssClass(String className) {
-        Objects.requireNonNull(className);
-        this.className = className;
+    SeleniumFilterByTag(String tagName) {
+        Objects.requireNonNull(tagName);
+        this.tagName = tagName;
     }
 
     @Override
     public List<WebElement> filter(List<WebElement> list) {
-        return list.stream().filter(dn -> SeleniumUtils.hasCssClass(dn, className)).collect(Collectors.toList());
+        return list.stream().filter(n -> SeleniumUtils.hasTagName(n, tagName)).collect(Collectors.toList());
     }
+
 
 }

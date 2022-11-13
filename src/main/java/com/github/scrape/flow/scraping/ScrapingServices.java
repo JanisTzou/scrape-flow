@@ -51,7 +51,7 @@ public class ScrapingServices {
     private final HtmlUnitPageLoader htmlUnitSiteLoader;
     private final SeleniumPageLoader seleniumPageLoader;
     private volatile StepHierarchyRepository stepHierarchyRepository;
-    private final OrderedClientAccessHandler orderedClientAccessHandler;
+    private final ClientAccessOrderChecker clientAccessOrderChecker;
 
     public ScrapingServices(ScrapingRateLimiter scrapingRateLimiter) {
         this.stepOrderGenerator = new StepOrderGenerator();
@@ -66,8 +66,8 @@ public class ScrapingServices {
         this.seleniumClientManager = new SeleniumClientManager(new SeleniumClientFactory("/Users/janis/Projects_Data/scrape-flow/chromedriver", false)); // TODO fix this mess
         HtmlUnitClientFactory clientFactory = new HtmlUnitClientFactory();
         this.htmlUnitClientManager = new HtmlUnitClientManager(clientFactory);
-        this.orderedClientAccessHandler = new OrderedClientAccessHandler(activeStepsTracker);
-        this.clientAccessManager = new ClientAccessManager(clientReservationTracker, seleniumClientManager, htmlUnitClientManager, orderedClientAccessHandler);
+        this.clientAccessOrderChecker = new ClientAccessOrderChecker(activeStepsTracker);
+        this.clientAccessManager = new ClientAccessManager(clientReservationTracker, seleniumClientManager, htmlUnitClientManager, clientAccessOrderChecker);
         this.taskExecutor = new TaskExecutorSingleQueue(throttlingService, exclusiveExecutionHandler, scrapingRateLimiter, activeStepsTracker, clientAccessManager);
         this.taskService = new TaskService(taskExecutor, activeStepsTracker, scrapedDataPublisher, scrapingRateLimiter, options);
         this.htmlUnitSiteLoader = new HtmlUnitPageLoader();
@@ -77,7 +77,7 @@ public class ScrapingServices {
     // needed to pass the dependency
     public void setStepHierarchyRepository(StepHierarchyRepository stepHierarchyRepository) {
         this.stepHierarchyRepository = stepHierarchyRepository;
-        this.orderedClientAccessHandler.setStepHierarchyRepository(stepHierarchyRepository);
+        this.clientAccessOrderChecker.setStepHierarchyRepository(stepHierarchyRepository);
         this.exclusiveExecutionHandler.setStepHierarchyRepository(stepHierarchyRepository);
     }
 

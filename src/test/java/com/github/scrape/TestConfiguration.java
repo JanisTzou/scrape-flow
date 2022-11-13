@@ -158,8 +158,8 @@ public class TestConfiguration {
     }
 
     @Bean
-    public OrderedClientAccessHandler orderedClientAccessHandler() {
-        return new OrderedClientAccessHandler(activeStepsTracker());
+    public ClientAccessOrderChecker orderedClientAccessHandler() {
+        return new ClientAccessOrderChecker(activeStepsTracker());
     }
 
 }

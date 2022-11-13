@@ -30,7 +30,7 @@ import java.util.SortedMap;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class OrderedClientAccessHandler {
+public class ClientAccessOrderChecker {
 
     private final ActiveStepsTracker activeStepsTracker;
     @Setter

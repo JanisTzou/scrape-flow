@@ -18,10 +18,8 @@ package com.github.scrape.flow.scraping.selenium;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
+import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,7 +30,16 @@ public class SeleniumUtils {
     private static final Logger log = LogManager.getLogger();
 
     public static boolean hasTagName(WebElement webElement, String tagName) {
-        return webElement.getTagName().equalsIgnoreCase(tagName);
+        for (int i = 0; i < 3; i++) {
+            try {
+                boolean result = webElement.getTagName().equalsIgnoreCase(tagName);
+                return result;
+            } catch (StaleElementReferenceException sere) {
+                log.warn(sere);
+                sleep(100);
+            }
+        }
+        return false;
     }
 
     public static boolean hasAttribute(WebElement webElement, String attrName) {

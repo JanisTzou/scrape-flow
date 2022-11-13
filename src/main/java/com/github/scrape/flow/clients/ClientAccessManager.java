@@ -34,7 +34,7 @@ public class ClientAccessManager {
     private final ClientReservationTracker reservationTracker;
     private final SeleniumClientManager seleniumClientManager;
     private final HtmlUnitClientManager htmlUnitClientManager;
-    private final OrderedClientAccessHandler orderedClientAccessHandler;
+    private final ClientAccessOrderChecker clientAccessOrderChecker;
 
     public synchronized Optional<ClientOperator<WebClient>> getHtmlUnitClient(StepOrder stepOrder) {
         return reservationTracker.getReservation(stepOrder)
@@ -76,10 +76,10 @@ public class ClientAccessManager {
                 switch (rq.getClientType()) {
                     case SELENIUM:
                         anyUnreservedClient = seleniumClientManager.getUnreservedClient().isPresent();
-                        return anyUnreservedClient && orderedClientAccessHandler.enoughFreeClientsForPrecedingSteps(seleniumClientManager.maxUnreservedClients(), rq.getStep(), rq.getClientType());
+                        return anyUnreservedClient && clientAccessOrderChecker.enoughFreeClientsForPrecedingSteps(seleniumClientManager.maxUnreservedClients(), rq.getStep(), rq.getClientType());
                     case HTMLUNIT:
                         anyUnreservedClient = htmlUnitClientManager.getUnreservedClient().isPresent();
-                        return anyUnreservedClient && orderedClientAccessHandler.enoughFreeClientsForPrecedingSteps(htmlUnitClientManager.maxUnreservedClients(), rq.getStep(), rq.getClientType());
+                        return anyUnreservedClient && clientAccessOrderChecker.enoughFreeClientsForPrecedingSteps(htmlUnitClientManager.maxUnreservedClients(), rq.getStep(), rq.getClientType());
                 }
                 return true;
             default:

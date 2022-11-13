@@ -20,7 +20,7 @@ package com.github.scrape.flow.scraping.selenium.filters;
 public interface SeleniumFilterableByCssClass<C> extends SeleniumFilterable<C> {
 
     default C byClass(String className) {
-        return addFilter(new SeleniumHtmlUnitFilterByCssClass(className));
+        return addFilter(new SeleniumFilterByCssClass(className));
     }
 
 }

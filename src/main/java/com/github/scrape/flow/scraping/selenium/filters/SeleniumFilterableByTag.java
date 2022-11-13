@@ -20,7 +20,7 @@ package com.github.scrape.flow.scraping.selenium.filters;
 public interface SeleniumFilterableByTag<C> extends SeleniumFilterable<C> {
 
     default C byTag(String tag) {
-        return addFilter(new SeleniumHtmlUnitFilterByTag(tag));
+        return addFilter(new SeleniumFilterByTag(tag));
     }
 
 }
