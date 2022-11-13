@@ -18,10 +18,14 @@ package com.github.scrape.flow.scraping.selenium;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.scraping.FilterableSiblings;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitDownloadImage;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFilterElementsNatively;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitStepBlock;
 import org.apache.commons.lang3.NotImplementedException;
 import org.openqa.selenium.WebElement;
 
+import javax.imageio.ImageIO;
+import java.net.URL;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -128,18 +132,51 @@ public class Selenium {
 
     public static class Do {
 
-        /**
-         * Used as first step in the scraping sequence to navigate to the entry-point page from which all the rest of the scraping takes place
-         */
-        public static SeleniumNavigateToUrl navigateToUrl(String url) {
-            return new SeleniumNavigateToUrl(url);
-        }
+        // TODO followLink()
 
         public static SeleniumNavigateToParsedLink navigateToParsedLink() {
             return new SeleniumNavigateToParsedLink();
         }
 
+        /**
+         * Used as first step in the scraping sequence to navigate to the entry-point page from which all the rest of the scraping takes place
+         */
+        public static SeleniumNavigateToUrl navigateTo(String url) {
+            return new SeleniumNavigateToUrl(url);
+        }
+
+        /**
+         * Used to download image into a {@code BufferedImage} using {@link ImageIO#read(URL)}.
+         * <br>
+         * Note that the URL of the image needs to be scraped by one of the previous steps in the scraping sequence.
+         */
+        public static SeleniumDownloadImage downloadImage() {
+            return new SeleniumDownloadImage();
+        }
+
+        // TODO click()
+
+        // TODO expose more of Seleniums possibilities ... such as execute script
+
+    }
+
+    /**
+     * Contains methods that enable structuring the flow of the scraping
+     */
+    public static class Flow {
+
+        /**
+         * Used to group multiple same-level steps under a single "artificial" parent step. Can be useful in some cases e.g.
+         * when there is a shared condition based on which a number of steps are executed, and we want that condition to be evaluated just once for all the affected steps.
+         */
+        public static SeleniumStepBlock asBlock() {
+            return new SeleniumStepBlock();
+        }
+
+        // TODO returnNextPage()
+        // TODO withPagination()
+
     }
 
 
-}
+    }
