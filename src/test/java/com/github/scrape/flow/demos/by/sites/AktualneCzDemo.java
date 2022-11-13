@@ -44,7 +44,7 @@ public class AktualneCzDemo {
 
         final Scraping articlesScraping = new Scraping(5, TimeUnit.SECONDS)
                 .setSequence(
-                        HtmlUnit.Do.navigateToUrl("https://zpravy.aktualne.cz/zahranici/")
+                        HtmlUnit.Do.navigateTo("https://zpravy.aktualne.cz/zahranici/")
                                 .next(getArticleElements
                                         .addCollector(Article::new, Article.class, new ArticleListener())
                                         .next(getArticleHeadlineElem.stepName("step-1")

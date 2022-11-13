@@ -40,7 +40,7 @@ public class IFortunaCzDemo {
 
         final Scraping matchesScraping = new Scraping(5, TimeUnit.SECONDS)
                 .setSequence(
-                        Do.navigateToUrl("https://www.ifortuna.cz/")
+                        Do.navigateTo("https://www.ifortuna.cz/")
                                 .next(Get.descendants().byAttr("id", "top-bets-tab-0")
                                         .next(Get.descendants().byTag("div").byClass("events-table-box")
                                                 .addCollector(Match::new, Match.class, new MatchListener())

@@ -39,7 +39,7 @@ public class CsfdCzDemo {
 
         final Scraping scraping = new Scraping(3, TimeUnit.SECONDS)
                 .setSequence(
-                        Do.navigateToUrl("https://www.csfd.cz/novinky/")
+                        Do.navigateTo("https://www.csfd.cz/novinky/")
                                 .next(Get.descendantsBySelector("div.news-page")
                                         .first() // the first article list out of two
                                         .addCollector(Category::new, Category.class, new CategoryListener())

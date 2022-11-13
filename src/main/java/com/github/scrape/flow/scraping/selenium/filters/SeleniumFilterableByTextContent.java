@@ -16,9 +16,6 @@
 
 package com.github.scrape.flow.scraping.selenium.filters;
 
-import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterByTextContent;
-import com.github.scrape.flow.scraping.htmlunit.filters.HtmlUnitFilterable;
-
 public interface SeleniumFilterableByTextContent<C> extends SeleniumFilterable<C> {
 
     // TODO we should document that we only search the children ... or something like that ...

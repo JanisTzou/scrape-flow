@@ -44,7 +44,7 @@ public class BbcComDemo {
 
         final Scraping scraping = new Scraping(10, TimeUnit.SECONDS)
                 .setSequence(
-                        Do.navigateToUrl("https://www.bbc.com/news/world")
+                        Do.navigateTo("https://www.bbc.com/news/world")
                                 .next(Get.descendants().byAttr("aria-label", "World")
                                         .first()
                                         .next(Get.descendants().byTag("ul")

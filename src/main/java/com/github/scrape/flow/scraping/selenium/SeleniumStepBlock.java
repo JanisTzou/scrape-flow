@@ -16,11 +16,9 @@
 
 package com.github.scrape.flow.scraping.selenium;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
 import com.github.scrape.flow.scraping.*;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitScrapingStep;
 import org.openqa.selenium.WebElement;
 
 import javax.annotation.Nullable;

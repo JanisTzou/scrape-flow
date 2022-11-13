@@ -75,7 +75,7 @@ public class ZakonyProLidiCzDemo {
         final Scraping scraping = new Scraping(2, TimeUnit.SECONDS)
                 .getDebugOptions().setOnlyScrapeFirstElements(false)
                 .setSequence(
-                        Do.navigateToUrl("https://www.zakonyprolidi.cz/obory")
+                        Do.navigateTo("https://www.zakonyprolidi.cz/obory")
                                 .next(Get.descendants().byAttr("id", "__Page")
                                         .next(Get.descendants().byClass("Name")
                                                 .addCollector(Kategorie::new, Kategorie.class, new KategorieListener())

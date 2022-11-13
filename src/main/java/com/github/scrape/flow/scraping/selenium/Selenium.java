@@ -16,12 +16,7 @@
 
 package com.github.scrape.flow.scraping.selenium;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.github.scrape.flow.scraping.FilterableSiblings;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitDownloadImage;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitFilterElementsNatively;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitStepBlock;
-import org.apache.commons.lang3.NotImplementedException;
 import org.openqa.selenium.WebElement;
 
 import javax.imageio.ImageIO;

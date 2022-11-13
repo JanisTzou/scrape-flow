@@ -69,7 +69,7 @@ public class MaxEuroCzDemo {
         // TODO maybe the static and dynamic parses should be specified as part of the options ?
 
         scraping.setSequence( // TODO here we are passing a static site sequence ... but the parser is defined elsewhere ... how to deal with that?
-                Do.navigateToUrl("https://www.maxeuro.cz/obklady-dlazby-mozaika-kat_1010.html")
+                Do.navigateTo("https://www.maxeuro.cz/obklady-dlazby-mozaika-kat_1010.html")
                         .next(Get.descendants().byTextContent("Mozaika skleněná")
                                 .first() // ... for some reason the menu is duplicated
                                 .debugOptions().logFoundElementsSource(false)

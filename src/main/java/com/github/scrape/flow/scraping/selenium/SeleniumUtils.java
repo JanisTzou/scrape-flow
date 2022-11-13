@@ -18,8 +18,8 @@ package com.github.scrape.flow.scraping.selenium;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.*;
 
 import java.util.*;
 import java.util.stream.Collectors;

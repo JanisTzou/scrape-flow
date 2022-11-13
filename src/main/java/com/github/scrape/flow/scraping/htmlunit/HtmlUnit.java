@@ -205,14 +205,14 @@ public class HtmlUnit {
         /**
          * Used as first step in the scraping sequence to navigate to the entry-point page from which all the rest of the scraping takes place
          */
-        public static HtmlUnitNavigateToUrl navigateToUrl(String url) {
+        public static HtmlUnitNavigateToUrl navigateTo(String url) {
             return new HtmlUnitNavigateToUrl(url);
         }
 
         /**
          * Used to download image into a {@code BufferedImage} using {@link ImageIO#read(URL)}.
          * <br>
-         * Note that the URL of the image needs to be scraped by one of the prevous steps in the scraping sequence.
+         * Note that the URL of the image needs to be scraped by one of the previous steps in the scraping sequence.
          */
         public static HtmlUnitDownloadImage downloadImage() {
             return new HtmlUnitDownloadImage();

@@ -45,7 +45,7 @@ public class AirBankCzKurzovniListekDemo {
                 .getOptions().setMaxRequestRetries(2);
 
         scraping.setSequence(
-                Do.navigateToUrl("https://www.airbank.cz/kurzovni-listek/")
+                Do.navigateTo("https://www.airbank.cz/kurzovni-listek/")
                         .next(Get.descendants().stepName("tbody")
                                 .byTag("tbody")
                                 .last()

@@ -55,7 +55,7 @@ public class TeleskopExpressDeDemo {
                 .getDebugOptions().setOnlyScrapeFirstElements(false)
                 .getDebugOptions().setLogFoundElementsSource(false)
                 .setSequence(
-                        Do.navigateToUrl(url)
+                        Do.navigateTo(url)
                                 .next(Flow.withPagination()
                                         .setStepsLoadingNextPage(
                                                 getNextPageLinkElemStep

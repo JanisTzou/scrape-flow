@@ -87,28 +87,28 @@ import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.*;
 
 public class Demo {
 
- public static void main(String[] args) {
+    public static void main(String[] args) {
 
-  new Scraping()
-          .setSequence(
-                  Do.navigateToUrl("https://www.some-news-site.com")
-                          .next(Get.descendants().byAttr("aria-label", "World")
-                                  .next(Get.descendants().byTag("li")
-                                          .addCollector(Section::new, Section.class, new SectionListener())  // for each encountered list item a model is instantiated to hold the scraped data
-                                          .next(Get.children().byTag("a")
-                                                  .next(Parse.textContent()
-                                                          .collectValue(Section::setName, Section.class)  // defines where to put parsed content
-                                                  )
-                                                  .next(Parse.hRef(href -> "https://www.some-news-site.com" + href)
-                                                          .next(goToEachSection())   // impl. omitted
-                                                  )
-                                          )
-                                  )
-                          )
-          )
-          .start(Duration.ofMinutes(2));  // await completion for up to 2 minutes
+        new Scraping()
+                .setSequence(
+                        Do.navigateTo("https://www.some-news-site.com")
+                                .next(Get.descendants().byAttr("aria-label", "World")
+                                        .next(Get.descendants().byTag("li")
+                                                .addCollector(Section::new, Section.class, new SectionListener())  // for each encountered list item a model is instantiated to hold the scraped data
+                                                .next(Get.children().byTag("a")
+                                                        .next(Parse.textContent()
+                                                                .collectValue(Section::setName, Section.class)  // defines where to put parsed content
+                                                        )
+                                                        .next(Parse.hRef(href -> "https://www.some-news-site.com" + href)
+                                                                .next(goToEachSection())   // impl. omitted
+                                                        )
+                                                )
+                                        )
+                                )
+                )
+                .start(Duration.ofMinutes(2));  // await completion for up to 2 minutes
 
- }
+    }
 
 
 }

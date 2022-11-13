@@ -45,7 +45,7 @@ public class KbCzKurzovniListekDemo {
                 .getOptions().setMaxRequestRetries(2);
 
         scraping.setSequence(
-                Do.navigateToUrl("https://www.kb.cz/cs/kurzovni-listek/cs/rl/index")
+                Do.navigateTo("https://www.kb.cz/cs/kurzovni-listek/cs/rl/index")
                         .next(Get.descendants().byClass("pt-5")
                                 .next(Get.descendants()
                                         .byClass("col-12")
