@@ -19,7 +19,6 @@ package com.github.scrape.flow.demos.by.sites;
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnit;
-import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendants;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
@@ -29,31 +28,31 @@ import org.junit.Test;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.*;
 import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.Get;
 import static com.github.scrape.flow.scraping.htmlunit.HtmlUnit.Parse;
 
+@Log4j2
 public class AktualneCzDemo {
 
-    @Ignore
+//    @Ignore
     @Test
     public void start() throws InterruptedException {
 
-        final HtmlUnitGetDescendants getArticleElements = Get.descendants().byAttrRegex("data-ga4-type", "article|online");
-        final HtmlUnitGetDescendants getArticleHeadlineElem = Get.descendants().byClassRegex("small-box__title|section-opener__title");
-        final HtmlUnitGetDescendants getArticleDescElem = Get.descendants().byClassRegex("small-box__desc|section-opener__desc");
-
         final Scraping articlesScraping = new Scraping(5, TimeUnit.SECONDS)
                 .setSequence(
-                        HtmlUnit.Do.navigateTo("https://zpravy.aktualne.cz/zahranici/")
-                                .next(getArticleElements
+                        Do.navigateTo("https://zpravy.aktualne.cz/zahranici/")
+                                .next(Do.peek(e -> log.info("peek ... now")))
+                                .nextBranchExclusively(Get.descendants().byAttrRegex("data-ga4-type", "article|online")
                                         .addCollector(Article::new, Article.class, new ArticleListener())
-                                        .next(getArticleHeadlineElem.stepName("step-1")
+                                        .nextBranch(Get.descendants().byClassRegex("small-box__title|section-opener__title").stepName("step-1")
                                                 .next(Parse.textContent().collectValue(Article::setHeadline, Article.class))
                                         )
-                                        .next(getArticleDescElem
+                                        .nextBranch(Get.descendants().byClassRegex("small-box__desc|section-opener__desc")
                                                 .next(Parse.textContent().collectValue(Article::setDescription, Article.class))
                                         )
                                 )
+                                .next(Do.peek(e -> log.info("peek ... later")))
 
                 );
 

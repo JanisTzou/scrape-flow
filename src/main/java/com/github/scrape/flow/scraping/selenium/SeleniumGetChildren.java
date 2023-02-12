@@ -31,7 +31,6 @@ import java.util.function.Supplier;
 public class SeleniumGetChildren extends SeleniumScrapingStep<SeleniumGetChildren>
         implements SeleniumFilterableByCommonCriteria<SeleniumGetChildren>, SeleniumFilterable<SeleniumGetChildren> {
 
-
     SeleniumGetChildren() {
     }
 
@@ -45,7 +44,7 @@ public class SeleniumGetChildren extends SeleniumScrapingStep<SeleniumGetChildre
         StepOrder stepOrder = services.getStepOrderGenerator().genNextAfter(ctx.getPrevStepOrder());
 
         Runnable runnable = () -> {
-            Supplier<List<WebElement>> nodesSearch = () -> SeleniumUtils.findChildren(ctx.getWebElement());
+            Supplier<List<WebElement>> nodesSearch = () -> SeleniumFindChildren.find(ctx.getWebElement(), filters);
             getHelper().execute(nodesSearch, ctx, stepOrder, services);
         };
 

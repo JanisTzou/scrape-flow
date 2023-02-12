@@ -41,4 +41,7 @@ public class FilterLastNth<C> implements Filter<C> {
         return Collections.emptyList();
     }
 
+    public Type getType() {
+        return Type.POSITION;
+    }
 }

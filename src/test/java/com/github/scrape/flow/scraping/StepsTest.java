@@ -16,13 +16,24 @@
 
 package com.github.scrape.flow.scraping;
 
-import java.util.List;
+import org.junit.Test;
 
-public class FilterSiblingsAll<C> implements Filter<C> {
+import static org.junit.Assert.*;
 
-    @Override
-    public List<C> filter(List<C> allSiblings) {
-        return allSiblings;
+public class StepsTest {
+
+    @Test
+    public void test() {
+
+        Steps.add(2, 1);
+        Steps.add(3, 2);
+
+        Steps.add(5, 4);
+        Steps.add(6, 5);
+
+        Steps.add(4, 3);
+
+        System.out.println("end");
+
     }
-
 }

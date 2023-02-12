@@ -69,8 +69,6 @@ public class HtmlUnitGetSiblings extends HtmlUnitScrapingStep<HtmlUnitGetSibling
             return HtmlUnitUtils.findPrevSiblingElements(ctx.getNode());
         } else if (filters.stream().anyMatch(f -> NEXT_SIBLINGS_FILTER_CLASSES.contains(f.getClass()))) {
             return HtmlUnitUtils.findNextSiblingElements(ctx.getNode());
-        } else if (filters.stream().anyMatch(f -> ALL_SIBLINGS_FILTER_CLASSES.contains(f.getClass()))) {
-            return HtmlUnitUtils.findAllSiblingElements(ctx.getNode());
         } else {
             return HtmlUnitUtils.findAllSiblingElements(ctx.getNode());
         }

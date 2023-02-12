@@ -20,6 +20,7 @@ package com.github.scrape.flow.scraping.selenium.filters;
 public interface SeleniumFilterableByCssClass<C> extends SeleniumFilterable<C> {
 
     default C byClass(String className) {
+        // TODO use atttribute filter ?
         return addFilter(new SeleniumFilterByCssClass(className));
     }
 

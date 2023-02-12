@@ -27,4 +27,7 @@ public class FilterSiblingsFirst<C> implements Filter<C> {
         return allPrevSiblings.stream().findFirst().stream().collect(Collectors.toList());
     }
 
+    public Type getType() {
+        return Type.POSITION;
+    }
 }

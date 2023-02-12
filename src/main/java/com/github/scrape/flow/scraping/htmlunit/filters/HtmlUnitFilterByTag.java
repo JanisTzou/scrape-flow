@@ -35,4 +35,7 @@ public class HtmlUnitFilterByTag implements Filter<DomNode> {
     }
 
 
+    public Type getType() {
+        return Type.TAG;
+    }
 }

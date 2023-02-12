@@ -47,10 +47,8 @@ public abstract class SeleniumScrapingStep<C extends SeleniumScrapingStep<C>>
     }
 
     protected C addFilter(Filter<WebElement> filter) {
-        return copyModifyAndGet(copy -> {
-            copy.filters.add(filter);
-            return copy;
-        });
+        this.filters.add(filter);
+        return (C) this;
     }
 
     protected List<Filter<WebElement>> getFilters() {

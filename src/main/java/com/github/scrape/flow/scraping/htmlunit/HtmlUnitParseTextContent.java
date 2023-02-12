@@ -28,16 +28,16 @@ import java.util.function.Function;
 
 import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
-public class HtmlUnitParseElementTextContent extends HtmlUnitScrapingStep<HtmlUnitParseElementTextContent>
-        implements CollectingParsedValueToModelStep<HtmlUnitParseElementTextContent, String>,
-        ParsingStep<HtmlUnitParseElementTextContent> {
+public class HtmlUnitParseTextContent extends HtmlUnitScrapingStep<HtmlUnitParseTextContent>
+        implements CollectingParsedValueToModelStep<HtmlUnitParseTextContent, String>,
+        ParsingStep<HtmlUnitParseTextContent> {
 
-    HtmlUnitParseElementTextContent() {
+    HtmlUnitParseTextContent() {
     }
 
     @Override
-    protected HtmlUnitParseElementTextContent copy() {
-        return copyFieldValuesTo(new HtmlUnitParseElementTextContent());
+    protected HtmlUnitParseTextContent copy() {
+        return copyFieldValuesTo(new HtmlUnitParseTextContent());
     }
 
     @Override
@@ -65,22 +65,20 @@ public class HtmlUnitParseElementTextContent extends HtmlUnitScrapingStep<HtmlUn
     }
 
     @Override
-    public <T> HtmlUnitParseElementTextContent collectValue(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> HtmlUnitParseTextContent collectValue(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.ONE));
     }
 
     @Override
-    public <T> HtmlUnitParseElementTextContent collectValues(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> HtmlUnitParseTextContent collectValues(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.MANY));
     }
 
 
     @Override
-    public HtmlUnitParseElementTextContent setValueMapper(Function<String, String> parsedValueMapper) {
-        return copyModifyAndGet(copy -> {
-            copy.parsedValueMapper = parsedValueMapper;
-            return copy;
-        });
+    public HtmlUnitParseTextContent setValueMapper(Function<String, String> parsedValueMapper) {
+        this.parsedValueMapper = parsedValueMapper;
+        return this;
     }
 
     @Override

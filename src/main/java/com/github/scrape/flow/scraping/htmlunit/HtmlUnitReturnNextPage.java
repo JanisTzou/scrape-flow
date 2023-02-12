@@ -35,7 +35,6 @@ public class HtmlUnitReturnNextPage extends HtmlUnitScrapingStep<HtmlUnitReturnN
 
     private boolean callbackStepSet = false;
 
-
     HtmlUnitReturnNextPage() {
     }
 
@@ -77,7 +76,7 @@ public class HtmlUnitReturnNextPage extends HtmlUnitScrapingStep<HtmlUnitReturnN
      */
     void setCallbackToPageDataProcessingStep(ScrapingStep<?> processingStep) {
         if (!this.callbackStepSet) {
-            this.addNextStepMutably(processingStep);
+            this.addNextStepAndReturnThis(processingStep);
             this.callbackStepSet = true;
         }
     }

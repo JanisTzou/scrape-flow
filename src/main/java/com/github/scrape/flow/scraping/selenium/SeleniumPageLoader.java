@@ -42,20 +42,23 @@ public class SeleniumPageLoader implements PageLoader<ClientOperator<WebDriver>>
                                             ScrapingServices services,
                                             ClientOperator<WebDriver> clientOperator) {
         loadPage(url, currStepOrder, clientOperator).ifPresent(rootWebElement -> {
-            ScrapingContext nextCtx = ctx.toBuilder().setWebElement(rootWebElement).setPrevStepOrder(currStepOrder).build();
+            ScrapingContext nextCtx = ctx.toBuilder()
+                    .setWebElement(rootWebElement)
+                    .setPrevStepOrder(currStepOrder)
+                    .build();
             executeNextSteps(nextCtx, parsingSequences, services);
         });
     }
 
     private Optional<WebElement> loadPage(String url, @Nullable StepOrder currStepOrder, ClientOperator<WebDriver> clientOperator) {
-        return loadHtmlPage(url, clientOperator, currStepOrder);
+        return loadPage(url, clientOperator, currStepOrder);
     }
 
     private void executeNextSteps(ScrapingContext ctx, List<ScrapingStep<?>> parsingSequences, ScrapingServices services) {
         parsingSequences.forEach(s -> ScrapingStepInternalAccessor.of(s).execute(ctx, services));
     }
 
-    private Optional<WebElement> loadHtmlPage(String pageUrl, ClientOperator<WebDriver> clientOperator, @Nullable StepOrder currStepOrder) {
+    private Optional<WebElement> loadPage(String pageUrl, ClientOperator<WebDriver> clientOperator, @Nullable StepOrder currStepOrder) {
         String logInfo = currStepOrder != null ? currStepOrder + " - " : "";
         try {
             log.info("{}Loading page URL: {}", logInfo, pageUrl);
@@ -65,6 +68,7 @@ public class SeleniumPageLoader implements PageLoader<ClientOperator<WebDriver>>
 //            client.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(10)); // TODO ... uncomment?
 //            client.manage().window().maximize();
             WebElement root = client.findElement(By.tagName("html"));
+
             log.info("{}Loaded page URL: {}", logInfo, pageUrl);
             return Optional.of(root);
 

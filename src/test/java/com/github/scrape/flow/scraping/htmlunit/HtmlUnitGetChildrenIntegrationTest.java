@@ -52,7 +52,7 @@ public class HtmlUnitGetChildrenIntegrationTest {
     public void setUp() {
         this.nextStepMock = mock(HtmlUnitStepBlock.class); // any type of step is ok
         when(this.nextStepMock.copy()).thenReturn(this.nextStepMock);
-        this.getChildren = new HtmlUnitGetChildren().next(nextStepMock);
+        this.getChildren = new HtmlUnitGetChildren().nextBranch(nextStepMock);
     }
 
     @Test

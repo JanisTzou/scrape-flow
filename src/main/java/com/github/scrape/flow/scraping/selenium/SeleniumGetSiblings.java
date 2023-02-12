@@ -64,8 +64,6 @@ public class SeleniumGetSiblings extends SeleniumScrapingStep<SeleniumGetSibling
             return SeleniumUtils.findPrevSiblingElements(ctx.getWebElement());
         } else if (filters.stream().anyMatch(f -> SiblingFilters.NEXT_SIBLINGS_FILTER_CLASSES.contains(f.getClass()))) {
             return SeleniumUtils.findNextSiblingElements(ctx.getWebElement());
-        } else if (filters.stream().anyMatch(f -> SiblingFilters.ALL_SIBLINGS_FILTER_CLASSES.contains(f.getClass()))) {
-            return SeleniumUtils.findAllSiblingElements(ctx.getWebElement());
         } else {
             return SeleniumUtils.findAllSiblingElements(ctx.getWebElement());
         }

@@ -62,8 +62,8 @@ public class HtmlUnitFollowLinkIntegrationTest {
         this.nextStepMock1 = getMockStep();
 
         followLink = new HtmlUnitFollowLink()
-                .next(nextStepMock1)
-                .next(nextStepMock2);
+                .nextBranch(nextStepMock1)
+                .nextBranch(nextStepMock2);
     }
 
     @Test

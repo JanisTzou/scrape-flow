@@ -22,6 +22,7 @@ import org.openqa.selenium.WebElement;
 import javax.imageio.ImageIO;
 import java.net.URL;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -68,9 +69,18 @@ public class Selenium {
         }
 
         /**
+         * Searches the DOM of the whole the page for elements.
+         */
+        public static SeleniumGetElements elements() {
+            return new SeleniumGetElements();
+        }
+
+        /**
          * Searches the DOM for descendants of the current <code>WebElement</code> by specified <code>sccSelector</code>.
          * Search for descendants is performed as specified by {@link org.openqa.selenium.By#cssSelector(String) By.cssSelector(String)}.
          */
+        @Deprecated
+        // TODO actually create a filter and use that ...
         public static SeleniumGetDescendantsByCssSelector descendantsBySelector(String sccSelector) {
             return new SeleniumGetDescendantsByCssSelector(sccSelector);
         }
@@ -118,8 +128,8 @@ public class Selenium {
             return new SeleniumParseElementHRef(parsedValueMapper);
         }
 
-        public static SeleniumParseElementTextContent textContent() {
-            return new SeleniumParseElementTextContent();
+        public static SeleniumParseTextContent textContent() {
+            return new SeleniumParseTextContent();
         }
 
     }
@@ -149,7 +159,29 @@ public class Selenium {
             return new SeleniumDownloadImage();
         }
 
-        // TODO click()
+        public static SeleniumSendKeys sendKeys(String text) {
+            return new SeleniumSendKeys(text);
+        }
+
+        public static SeleniumSubmit submit() {
+            return new SeleniumSubmit();
+        }
+
+        public static SeleniumClick click() {
+            return new SeleniumClick();
+        }
+
+        public static SeleniumPause pause(long millis) {
+            return new SeleniumPause(millis);
+        }
+
+        public static SeleniumReloadPage reloadPage() {
+            return new SeleniumReloadPage();
+        }
+
+        public static SeleniumPeek peek(Consumer<WebElement> consumer) {
+            return new SeleniumPeek(consumer);
+        }
 
         // TODO expose more of Seleniums possibilities ... such as execute script
 

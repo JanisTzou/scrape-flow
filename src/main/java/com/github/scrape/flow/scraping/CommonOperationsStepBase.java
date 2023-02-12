@@ -59,47 +59,46 @@ public abstract class CommonOperationsStepBase<C extends ScrapingStep<C>>
         return addCollector(new Collector(modelSupplier, modelType, scrapedDataListener));
     }
 
-    @Override
-    public C next(ScrapingStep<?> nextStep) {
-        return addNextStep(getNextStepCopy(nextStep));
+    public <S extends ScrapingStep<S>> S next(S nextStep) {
+        addNextStepAndReturnThis(nextStep);
+        if (this.getBranchRoot() == null) { // is root
+            nextStep.setBranchRoot(this);
+        } else {
+            nextStep.setBranchRoot(this.getBranchRoot()); // hand over the branch root
+        }
+        return nextStep;
     }
 
     @Override
-    public C nextExclusively(ScrapingStep<?> nextStep) {
-        ScrapingStep<?> nextCopy = getNextExclusivelyStepCopy(nextStep);
-        return addNextStep(nextCopy);
+    public C nextBranch(ScrapingStep<?> nextStep) {
+        ScrapingStep<?> branchRoot = getBranchRoot(nextStep);
+        return addNextStepAndReturnThis(branchRoot);
     }
 
     @Override
-    public <T> C nextIf(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
-        ScrapingStep<?> nextCopy = getNextIfStepCopy(modelDataCondition, modelType, nextStep);
-        return addNextStep(nextCopy);
+    public C nextBranchExclusively(ScrapingStep<?> nextStep) {
+        Steps.add(nextStep.stepNumber, this.stepNumber);
+        ScrapingStep<?> branchRoot = getBranchRoot(nextStep);
+        return addNextStepAndReturnThis(branchRoot.setExclusiveExecution(true));
     }
 
     @Override
-    public <T> C nextIfExclusively(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
-        ScrapingStep<?> nextCopy = getNextIfExclusivelyStepCopy(modelDataCondition, modelType, nextStep);
-        return addNextStep(nextCopy);
+    public <T> C nextBranchIf(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
+        nextStep.setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType));
+        ScrapingStep<?> branchRoot = getBranchRoot(nextStep);
+        return addNextStepAndReturnThis(branchRoot);
     }
 
-    protected ScrapingStep<?> getNextStepCopy(ScrapingStep<?> nextStep) {
-        return nextStep.copy();
-    }
-
-    protected ScrapingStep<?> getNextExclusivelyStepCopy(ScrapingStep<?> nextStep) {
-        return nextStep.copy()
+    @Override
+    public <T> C nextBranchIfExclusively(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
+        nextStep.setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType))
                 .setExclusiveExecution(true);
+        ScrapingStep<?> branchRoot = getBranchRoot(nextStep);
+        return addNextStepAndReturnThis(branchRoot.setExclusiveExecution(true));
     }
 
-    protected <T> ScrapingStep<?> getNextIfStepCopy(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
-        return nextStep.copy()
-                .setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType));
-    }
-
-    protected <T> ScrapingStep<?> getNextIfExclusivelyStepCopy(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
-        return nextStep.copy()
-                .setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType))
-                .setExclusiveExecution(true);
+    private ScrapingStep<?> getBranchRoot(ScrapingStep<?> nextStep) {
+        return nextStep.getBranchRoot() == null ? nextStep : nextStep.getBranchRoot();
     }
 
     // TODO think about these ...

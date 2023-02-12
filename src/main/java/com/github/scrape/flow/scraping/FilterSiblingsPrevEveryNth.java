@@ -46,4 +46,7 @@ public class FilterSiblingsPrevEveryNth<C> implements Filter<C> {
                 .collect(Collectors.toList());
     }
 
+    public Type getType() {
+        return Type.POSITION;
+    }
 }

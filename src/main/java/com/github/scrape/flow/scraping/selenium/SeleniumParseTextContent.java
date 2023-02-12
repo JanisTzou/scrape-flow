@@ -28,16 +28,16 @@ import java.util.function.Function;
 
 import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
-public class SeleniumParseElementTextContent extends SeleniumScrapingStep<SeleniumParseElementTextContent>
-        implements CollectingParsedValueToModelStep<SeleniumParseElementTextContent, String>,
-        ParsingStep<SeleniumParseElementTextContent> {
+public class SeleniumParseTextContent extends SeleniumScrapingStep<SeleniumParseTextContent>
+        implements CollectingParsedValueToModelStep<SeleniumParseTextContent, String>,
+        ParsingStep<SeleniumParseTextContent> {
 
-    SeleniumParseElementTextContent() {
+    SeleniumParseTextContent() {
     }
 
     @Override
-    protected SeleniumParseElementTextContent copy() {
-        return copyFieldValuesTo(new SeleniumParseElementTextContent());
+    protected SeleniumParseTextContent copy() {
+        return copyFieldValuesTo(new SeleniumParseTextContent());
     }
 
     @Override
@@ -62,22 +62,20 @@ public class SeleniumParseElementTextContent extends SeleniumScrapingStep<Seleni
     }
 
     @Override
-    public <T> SeleniumParseElementTextContent collectValue(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> SeleniumParseTextContent collectValue(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.ONE));
     }
 
     @Override
-    public <T> SeleniumParseElementTextContent collectValues(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> SeleniumParseTextContent collectValues(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.MANY));
     }
 
 
     @Override
-    public SeleniumParseElementTextContent setValueMapper(Function<String, String> parsedTextMapper) {
-        return copyModifyAndGet(copy -> {
-            copy.parsedValueMapper = parsedTextMapper;
-            return copy;
-        });
+    public SeleniumParseTextContent setValueMapper(Function<String, String> parsedTextMapper) {
+        this.parsedValueMapper = parsedTextMapper;
+        return this;
     }
 
     @Override

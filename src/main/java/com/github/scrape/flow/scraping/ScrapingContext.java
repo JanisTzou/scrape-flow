@@ -19,10 +19,12 @@ package com.github.scrape.flow.scraping;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.scrape.flow.execution.StepOrder;
+import com.github.scrape.flow.scraping.selenium.SeleniumUtils;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import javax.annotation.Nonnull;
@@ -50,6 +52,7 @@ public class ScrapingContext {
 
     // for Selenium
     private WebElement webElement;
+    private String webElementXPath;
 
     @Nonnull
     private ContextModels contextModels;
@@ -81,6 +84,12 @@ public class ScrapingContext {
         this.prevStepOrder = Objects.requireNonNull(prevStepOrder);
         this.node = node;
         this.webElement = webElement;
+//        if (webElement != null) {
+//            long start = System.currentTimeMillis();
+//            this.webElementXPath = SeleniumUtils. generateXPath(webElement, "");
+//            long end = System.currentTimeMillis();
+//            System.out.println("duration: " + (end - start));
+//        }
         this.contextModels = Objects.requireNonNull(contextModels);
         this.parsedURL = parsedURL;
         this.rootLoopedStepOrder = rootLoopedStepOrder;
@@ -90,6 +99,15 @@ public class ScrapingContext {
         HtmlPage page = node instanceof HtmlPage ? (HtmlPage) node : node.getHtmlPageOrNull();
         return Optional.ofNullable(page);
     }
+
+//    public WebElement getWebElement() {
+//        try {
+//            System.out.println("call");
+//            return webElement.findElement(By.xpath(webElementXPath));
+//        } catch (Exception e) {
+//            return webElement;
+//        }
+//    }
 
     public Builder toBuilder() {
         return new Builder(this);

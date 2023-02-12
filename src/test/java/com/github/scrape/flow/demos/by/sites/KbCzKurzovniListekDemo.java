@@ -21,7 +21,6 @@ import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.Duration;
@@ -33,7 +32,7 @@ import static com.github.scrape.flow.scraping.selenium.Selenium.*;
 
 public class KbCzKurzovniListekDemo {
 
-    @Ignore
+    //    @Ignore
     @Test
     public void start() throws InterruptedException {
 
@@ -44,28 +43,21 @@ public class KbCzKurzovniListekDemo {
                 .getDebugOptions().setLogFoundElementsCount(false)
                 .getOptions().setMaxRequestRetries(2);
 
-        scraping.setSequence(
-                Do.navigateTo("https://www.kb.cz/cs/kurzovni-listek/cs/rl/index")
-                        .next(Get.descendants().byClass("pt-5")
-                                .next(Get.descendants()
-                                        .byClass("col-12")
-                                        .firstNth(3)
-                                        .next(Filter.natively(we -> {
-                                            System.out.println("3rd: >>>>");
-                                            System.out.println(we.getText());
-                                            return true;
-                                        }))
-                                        .next(Get.siblings()
-                                                .prevNth(1)
-                                                .next(Filter.natively(we -> {
-                                                    System.out.println("2rd: >>>>");
-                                                    System.out.println(we.getText());
-                                                    return true;
-                                                }))
-                                        )
-                                )
-                        )
-
+        scraping.setSequence(Do.navigateTo("https://www.kb.cz/cs/kurzovni-listek/cs/rl/index")
+                .next(Get.descendants().byClass("pt-5"))
+                .next(Get.descendants().byClass("col-12").firstNth(3))
+                .nextBranch(Filter.natively(we -> {
+                    System.out.println("3rd: >>>>");
+                    System.out.println(we.getText());
+                    return true;
+                }))
+                .nextBranch(Get.siblings().prevNth(1)
+                        .next(Filter.natively(we -> {
+                            System.out.println("2rd: >>>>");
+                            System.out.println(we.getText());
+                            return true;
+                        }))
+                )
         );
 
         start(scraping);

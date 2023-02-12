@@ -28,6 +28,7 @@ public class DebuggingOptions {
     private volatile boolean onlyScrapeFirstElements = false;
     private volatile boolean onlyScrapeNFirstElements = false;
     private volatile boolean logFoundElementsSource = false;
+//    private volatile boolean logFoundElementsXPath = false; // TODO
     private volatile boolean logSourceCodeOfLoadedPage = false;
     private volatile boolean logFoundElementsCount = false;
 

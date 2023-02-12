@@ -57,4 +57,7 @@ public class HtmlUnitFilterByAttribute implements Filter<DomNode> {
                 .collect(Collectors.toList());
     }
 
+    public Type getType() {
+        return Type.ATTRIBUTE;
+    }
 }

@@ -32,7 +32,4 @@ public class SiblingFilters {
             FilterSiblingsNextEveryNth.class,
             FilterSiblingsLast.class
     );
-    public static final List<Class<?>> ALL_SIBLINGS_FILTER_CLASSES = List.of(
-            FilterSiblingsAll.class
-    );
 }

@@ -35,11 +35,8 @@ public class DebuggableStep<C extends ScrapingStep<C>> {
      */
     @SuppressWarnings("UnusedReturnValue")
     public C logFoundElementsSource(boolean enabled) {
-        this.step = step.copyModifyAndGet(copy -> {
-            copy.stepDebugging.setLogFoundElementsSource(enabled);
-            return copy;
-        });
-        return this.step;
+        step.getStepDebugging().setLogFoundElementsSource(enabled);
+        return step;
     }
 
     /**
@@ -49,11 +46,8 @@ public class DebuggableStep<C extends ScrapingStep<C>> {
      */
     @SuppressWarnings("UnusedReturnValue")
     public C logFoundElementsCount(boolean enabled) {
-        this.step = step.copyModifyAndGet(copy -> {
-            copy.stepDebugging.setLogFoundElementsCount(enabled);
-            return copy;
-        });
-        return this.step;
+        step.stepDebugging.setLogFoundElementsCount(enabled);
+        return step;
     }
 
 }

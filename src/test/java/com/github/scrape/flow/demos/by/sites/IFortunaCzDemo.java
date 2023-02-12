@@ -34,45 +34,38 @@ public class IFortunaCzDemo {
 
     public static final String HTTPS_WWW_IFORTUNA_CZ = "https://www.ifortuna.cz";
 
-    @Ignore
+    //    @Ignore
     @Test
     public void start() throws InterruptedException {
 
-        final Scraping matchesScraping = new Scraping(5, TimeUnit.SECONDS)
-                .setSequence(
-                        Do.navigateTo("https://www.ifortuna.cz/")
-                                .next(Get.descendants().byAttr("id", "top-bets-tab-0")
-                                        .next(Get.descendants().byTag("div").byClass("events-table-box")
-                                                .addCollector(Match::new, Match.class, new MatchListener())
-                                                .next(Get.descendants().byTag("tbody")
-                                                        .next(Get.children().byTag("tr").first() // gets first row containing a single match data
-                                                                .next(Get.children().byTag("td").first()
-                                                                        .next(Get.children().byTag("a") // match detail link
-                                                                                .next(Parse.hRef(href -> HTTPS_WWW_IFORTUNA_CZ + href)
-                                                                                        .collectValue(Match::setDetailUrl, Match.class)
-                                                                                )
-                                                                        )
-                                                                        .next(Get.descendants().byTag("span").byClass("market-name") // match name (teams)
-                                                                                .next(Parse.textContent()
-                                                                                        .collectValue(Match::setName, Match.class)
-                                                                                )
-                                                                        )
-                                                                )
-                                                                .next(Get.children().byTag("td").byClass("col-date")  // match date
-                                                                        .next(Get.descendants().byTag("span").byClass("event-datetime")
-                                                                                .next(Parse.textContent()
-                                                                                        .collectValue(Match::setDate, Match.class)
-                                                                                )
-                                                                        )
-                                                                )
-                                                        )
-                                                )
-                                        )
+        Scraping scraping = new Scraping(5, TimeUnit.SECONDS);
+        scraping.setSequence(Do.navigateTo("https://www.ifortuna.cz/")
+                        .next(Get.descendants().byAttr("id", "top-bets-tab-0"))
+                        .next(Get.descendants().byTag("div").byClass("events-table-box"))
+                        .addCollector(Match::new, Match.class, new MatchListener())
+                        .next(Get.descendants().byTag("tbody"))
+                        .next(Get.children().byTag("tr").first()) // gets first row containing a single match data
+                        .nextBranch(Get.children().byTag("td").first()
+                                .nextBranch(Get.children().byTag("a") // match detail link
+                                        .next(Parse.hRef(href -> HTTPS_WWW_IFORTUNA_CZ + href))
+                                        .collectValue(Match::setDetailUrl, Match.class)
                                 )
-                );
+                                .nextBranch(Get.descendants().byTag("span").byClass("market-name") // match name (teams)
+                                        .next(Parse.textContent())
+                                        .collectValue(Match::setName, Match.class)
+                                )
+                        )
+                        .nextBranch(Get.children().byTag("td").byClass("col-date") // match date
+                                .next(Get.descendants().byTag("span").byClass("event-datetime"))
+                                .next(Parse.textContent())
+                                .collectValue(Match::setDate, Match.class)
+                        )
+
+//                                )
+        );
 
 
-        matchesScraping.start(Duration.ofMinutes(5));
+        scraping.start(Duration.ofMinutes(5));
         Thread.sleep(1000); // let logging finish
     }
 

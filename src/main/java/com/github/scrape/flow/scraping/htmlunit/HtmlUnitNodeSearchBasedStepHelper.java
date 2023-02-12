@@ -89,7 +89,8 @@ public class HtmlUnitNodeSearchBasedStepHelper extends StepHelperBase {
             logFoundCount(stepName, currStepOrder, filteredNodes.size(), globalDebugging, stepDebugging);
 
             for (DomNode node : filteredNodes) {
-
+                // TODO include in debug optiosn ...
+//                System.out.println(node.getCanonicalXPath());
                 logNodeSourceCode(node, globalDebugging);
 
                 StepModels stepModels = modelsHandler.createAndAccumulateModels(currStepOrder, ctx.getContextModels());

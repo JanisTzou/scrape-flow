@@ -43,6 +43,7 @@ public class StepHierarchyRepository {
         Map<ClientType, Integer> loadingStepCount = getLoadingStepCountBase(firstStep);
         hierarchy.put(firstStep, createMeta(firstStep, first, loadingStepCount));
         traverseRecursively(firstStep, hierarchy, first, loadingStepCount);
+        print(firstStep, first, 0);
         return new StepHierarchyRepository(hierarchy);
     }
 
@@ -70,6 +71,48 @@ public class StepHierarchyRepository {
 
     public int size() {
         return map.size();
+    }
+
+    private static void print(ScrapingStep<?> parent,
+                              StepOrder order,
+                              int depth) {
+        ScrapingStepInternalAccessor<?> accessor = ScrapingStepInternalAccessor.of(parent);
+        List<ScrapingStep<?>> nextSteps = new ArrayList<>();
+
+        nextSteps.addAll(accessor.getAdditionalStepsExecutedBeforeNextSteps());
+        nextSteps.addAll(accessor.getNextSteps());
+        nextSteps.addAll(accessor.getAdditionalStepsExecutedAfterNextSteps());
+
+        StepOrder nextOrder = order;
+
+        pprintLine(parent, order, depth);
+
+        for (int i = 0; i < nextSteps.size(); i++) {
+            nextOrder = getStepOrder(nextOrder, i);
+            ScrapingStep<?> next = nextSteps.get(i);
+            print(next, nextOrder, depth + 1);
+        }
+    }
+
+    private static void pprintLine(ScrapingStep<?> step, StepOrder order, int depth) {
+        StringBuilder b = new StringBuilder();
+        b.append(getPadding(depth));
+        b.append(step.getClass().getSimpleName());
+        String userDefinedName = ScrapingStepInternalAccessor.of(step).getUserDefinedName();
+        b.append(" ").append(order.asString());
+        if (userDefinedName != null) {
+            b.append(" [name=").append(userDefinedName).append("]");
+        }
+        System.out.println(b);
+    }
+
+    // TODO only do conditionally ...?
+    private static String getPadding(int spacesBase) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < spacesBase; i++) {
+            builder.append("   ");
+        }
+        return builder.toString();
     }
 
     public StepMetadata getMetadataFor(StepOrder hierarchyOrder) {

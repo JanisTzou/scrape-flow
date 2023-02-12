@@ -30,10 +30,10 @@ public interface ChainedStep<C>  {
      * is guaranteed when the client code publishes the output to registered listeners.
      * <br>
      * <br>
-     * <p>To enforce the execution order to be the same as the order of step declaration use {@link ChainedStep#nextExclusively(ScrapingStep)} - this can be used for  any steps needed.
+     * <p>To enforce the execution order to be the same as the order of step declaration use {@link ChainedStep#nextBranchExclusively(ScrapingStep)} - this can be used for  any steps needed.
      *
      */
-    C next(ScrapingStep<?> nextStep);
+    C nextBranch(ScrapingStep<?> nextStep);
 
     /**
      * This method guarantees that the step sequence specified as a parameter will fully finish before any other steps declared after this step (at the same level) start being executed.
@@ -47,22 +47,22 @@ public interface ChainedStep<C>  {
      *
      * @return a copy of this step - this allows chaining multiple following steps to execute when that step finishes.
      */
-    C nextExclusively(ScrapingStep<?> nextStep);
+    C nextBranchExclusively(ScrapingStep<?> nextStep);
 
     /**
      * @param condition accept an object that is expected to contain previously parsed data
      * @param nextStep step to execute if condition passes
      * @return a copy of this step - this allows chaining multiple following steps to execute when that step finishes.
      */
-    <T> C nextIf(Predicate<T> condition, Class<T> modelType, ScrapingStep<?> nextStep);
+    <T> C nextBranchIf(Predicate<T> condition, Class<T> modelType, ScrapingStep<?> nextStep);
 
     /**
-     * Combines the behaviours of {@link ChainedStep#nextIf(Predicate, Class, ScrapingStep)}
-     * and {@link ChainedStep#nextExclusively(ScrapingStep)} - see there for more details
+     * Combines the behaviours of {@link ChainedStep#nextBranchIf(Predicate, Class, ScrapingStep)}
+     * and {@link ChainedStep#nextBranchExclusively(ScrapingStep)} - see there for more details
      * @param condition condition accept an object that is expected to contain previously parsed data
      * @param nextStep step to execute if condition passes
      * @return a copy of this step - this allows chaining multiple following steps to execute when that step finishes.
      */
-    <T> C nextIfExclusively(Predicate<T> condition, Class<T> modelType, ScrapingStep<?> nextStep);
+    <T> C nextBranchIfExclusively(Predicate<T> condition, Class<T> modelType, ScrapingStep<?> nextStep);
 
 }

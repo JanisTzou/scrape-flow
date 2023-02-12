@@ -20,10 +20,7 @@ import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.scrape.flow.clients.ClientReservationType;
 import com.github.scrape.flow.execution.StepOrder;
-import com.github.scrape.flow.scraping.ScrapingContext;
-import com.github.scrape.flow.scraping.ScrapingServices;
-import com.github.scrape.flow.scraping.ScrapingStep;
-import com.github.scrape.flow.scraping.ScrapingStepInternalAccessor;
+import com.github.scrape.flow.scraping.*;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.Collections;
@@ -41,7 +38,8 @@ public class HtmlUnitPagination extends HtmlUnitScrapingStep<HtmlUnitPagination>
 
     // TODO we might/should be able to generalize the wrapper into something reusable in cases
     //  we need to change the structure of the of flow "under the good"
-    // wrapper inserted as an in-between step to ensure that the next steps of this one happen exclusively and before any pagination takes place
+    // wrapper inserted as an in-between step to ensure that the next steps
+    // of this one happen exclusively and before any pagination takes place
     private volatile HtmlUnitStepBlock nextStepsWrapper;
     private volatile boolean nextStepsWrapperAddedToNext = false;
 
@@ -115,7 +113,8 @@ public class HtmlUnitPagination extends HtmlUnitScrapingStep<HtmlUnitPagination>
                 //  but it is questionably if we would like to design the data propagation as models if it's just for internal purposes ...
 //                services.getStepAndDataRelationshipTracker().track(stepOrder, generatedSteps, model, (ParsedDataListener<Object>) collecting.getDataListener());
 
-                ScrapingStepInternalAccessor.of(paginatingSequence).execute(paginatingCtx, services);
+                // TODO we need the root of the sequence ...
+                ScrapingStepInternalAccessor.of(getBranchRootOfPaginatingSequence()).execute(paginatingCtx, services);
 
             }
         };
@@ -129,8 +128,9 @@ public class HtmlUnitPagination extends HtmlUnitScrapingStep<HtmlUnitPagination>
      * Steps that trigger the pagination - that is loading the next content.
      * In practice this is most often the action finding the "NEXT" button element and clicking it.
      */
-    public HtmlUnitPagination setStepsLoadingNextPage(HtmlUnitScrapingStep<?> paginatingSequence) {
-        this.paginatingSequence = ScrapingStepInternalAccessor.of(paginatingSequence).copy();
+//    public <S extends ScrapingStep<S>> S setStepsLoadingNextPage(S paginatingSequence) {
+    public HtmlUnitPagination setStepsLoadingNextPage(ScrapingStep<?> paginatingSequence) {
+        this.paginatingSequence = paginatingSequence;
         return this;
     }
 
@@ -152,48 +152,50 @@ public class HtmlUnitPagination extends HtmlUnitScrapingStep<HtmlUnitPagination>
         }
     }
 
+    // TODO following methods need to be re-worked so they work the same as the methods they overwrite ...
     @Override
-    public HtmlUnitPagination next(ScrapingStep<?> nextStep) {
-        ScrapingStep<?> nextStepCopy = getNextStepCopy(nextStep);
-        return addStep(nextStepCopy);
+    public HtmlUnitPagination nextBranch(ScrapingStep<?> nextStep) {
+        return addStep(nextStep);
     }
 
     @Override
-    public <T> HtmlUnitPagination nextIf(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
-        ScrapingStep<?> nextStepCopy = getNextIfStepCopy(modelDataCondition, modelType, nextStep);
-        return addStep(nextStepCopy);
+    public <T> HtmlUnitPagination nextBranchIf(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
+        ScrapingStepInternalAccessor.of(nextStep).setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType));
+        return addStep(nextStep);
     }
 
     @Override
-    public HtmlUnitPagination nextExclusively(ScrapingStep<?> nextStep) {
-        ScrapingStep<?> nextStepCopy = getNextExclusivelyStepCopy(nextStep);
-        return addStep(nextStepCopy);
+    public HtmlUnitPagination nextBranchExclusively(ScrapingStep<?> nextStep) {
+        ScrapingStep<?> branchRoot = ScrapingStepInternalAccessor.of(nextStep).getBranchRoot();
+        return addStep(ScrapingStepInternalAccessor.of(branchRoot).setExclusiveExecution(true));
     }
 
     @Override
-    public <T> HtmlUnitPagination nextIfExclusively(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
-        ScrapingStep<?> nextStepCopy = getNextIfExclusivelyStepCopy(modelDataCondition, modelType, nextStep);
-        return addStep(nextStepCopy);
+    public <T> HtmlUnitPagination nextBranchIfExclusively(Predicate<T> modelDataCondition, Class<T> modelType, ScrapingStep<?> nextStep) {
+        ScrapingStepInternalAccessor<?> accessor = ScrapingStepInternalAccessor.of(nextStep);
+        accessor.setExecuteIf(new ExecuteStepByModelDataCondition(modelDataCondition, modelType));
+        accessor.setExclusiveExecution(true);
+        ScrapingStep<?> branchRoot = ScrapingStepInternalAccessor.of(nextStep).getBranchRoot();
+        return addStep(ScrapingStepInternalAccessor.of(branchRoot).setExclusiveExecution(true));
     }
 
+    // TODO is this correct?
     private HtmlUnitPagination addStep(ScrapingStep<?> nextStepCopy) {
-        HtmlUnitStepBlock wrapperCopy = this.nextStepsWrapper.next(nextStepCopy);
+        HtmlUnitStepBlock wrapper = this.nextStepsWrapper.nextBranch(nextStepCopy);
         if (!nextStepsWrapperAddedToNext) {
-            HtmlUnitPagination thisCopy = super.next(wrapperCopy);
+            HtmlUnitPagination thisCopy = super.nextBranch(wrapper);
             thisCopy.nextStepsWrapperAddedToNext = true;
             return thisCopy;
         } else {
-            return this.copyModifyAndGet(thisCopy -> {
-                thisCopy.nextStepsWrapper = wrapperCopy;
-                return thisCopy;
-            });
+            this.nextStepsWrapper = wrapper;
+            return this;
         }
     }
 
     @Override
     protected List<ScrapingStep<?>> getAdditionalStepsExecutedAfterNextSteps() {
         if (paginatingSequence != null) {
-            return Collections.singletonList(paginatingSequence);
+            return Collections.singletonList(getBranchRootOfPaginatingSequence());
         } else {
             return Collections.emptyList();
         }
@@ -204,4 +206,8 @@ public class HtmlUnitPagination extends HtmlUnitScrapingStep<HtmlUnitPagination>
         return ClientReservationType.MODIFYING;
     }
 
+    private ScrapingStep<?> getBranchRootOfPaginatingSequence() {
+        ScrapingStep<?> branchRoot = ScrapingStepInternalAccessor.of(paginatingSequence).getBranchRoot();
+        return branchRoot == null ? paginatingSequence : branchRoot;
+    }
 }

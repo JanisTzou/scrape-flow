@@ -42,5 +42,11 @@ public class SeleniumFilterByTag implements Filter<WebElement> {
         return list.stream().filter(n -> SeleniumUtils.hasTagName(n, tagName)).collect(Collectors.toList());
     }
 
+    public String getTagName() {
+        return tagName;
+    }
 
+    public Type getType() {
+        return Type.TAG;
+    }
 }

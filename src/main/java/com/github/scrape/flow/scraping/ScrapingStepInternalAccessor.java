@@ -87,4 +87,16 @@ public class ScrapingStepInternalAccessor<C extends ScrapingStep<C>> {
         return step.getAdditionalStepsExecutedAfterNextSteps();
     }
 
+    public ScrapingStep<?> getBranchRoot() {
+        return step.getBranchRoot();
+    }
+
+    public void setExecuteIf(ExecuteStepByModelDataCondition executeStepByModelDataCondition) {
+        step.setExecuteIf(executeStepByModelDataCondition);
+    }
+
+    public String getUserDefinedName() {
+        return step.getUserDefinedName();
+    }
+
 }

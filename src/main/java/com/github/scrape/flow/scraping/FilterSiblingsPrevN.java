@@ -34,4 +34,7 @@ public class FilterSiblingsPrevN<C> implements Filter<C> {
         return new FilterFirstN<C>(n).filter(allPrevSiblings);
     }
 
+    public Type getType() {
+        return Type.POSITION;
+    }
 }

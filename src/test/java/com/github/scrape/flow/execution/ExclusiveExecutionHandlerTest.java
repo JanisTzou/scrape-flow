@@ -31,14 +31,14 @@ public class ExclusiveExecutionHandlerTest {
         ExclusiveExecutionHandler exclusiveExecutionHandler = new ExclusiveExecutionHandler(activeStepsTracker);
 
         ScrapingStep<?> sequence = Flow.asBlock() // 0-1
-                .next(Flow.asBlock() // 0-1-1
-                        .nextExclusively(Flow.asBlock()) // 0-1-1-1,  0-1-1-3   EXCLUSIVE + 2 iterations
-                        .next(Flow.asBlock()) //  0-1-1-2,  0-1-1-4
+                .nextBranch(Flow.asBlock() // 0-1-1
+                        .nextBranchExclusively(Flow.asBlock()) // 0-1-1-1,  0-1-1-3   EXCLUSIVE + 2 iterations
+                        .nextBranch(Flow.asBlock()) //  0-1-1-2,  0-1-1-4
                 )
-                .nextExclusively(Flow.asBlock()  // 0-1-2   EXCLUSIVE + 2 iterations
-                        .next(Flow.asBlock()) // 0-1-2-1
+                .nextBranchExclusively(Flow.asBlock()  // 0-1-2   EXCLUSIVE + 2 iterations
+                        .nextBranch(Flow.asBlock()) // 0-1-2-1
                 )
-                .next(Flow.asBlock()); // 0-1-3
+                .nextBranch(Flow.asBlock()); // 0-1-3
 
         StepHierarchyRepository stepHierarchyRepository = StepHierarchyRepository.createFrom(sequence);
         exclusiveExecutionHandler.setStepHierarchyRepository(stepHierarchyRepository);

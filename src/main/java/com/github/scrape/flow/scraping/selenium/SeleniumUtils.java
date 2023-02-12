@@ -16,11 +16,14 @@
 
 package com.github.scrape.flow.scraping.selenium;
 
+import com.github.scrape.flow.scraping.Filter;
+import com.github.scrape.flow.scraping.selenium.filters.SeleniumFilterByAttribute;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.*;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,17 +32,18 @@ public class SeleniumUtils {
 
     private static final Logger log = LogManager.getLogger();
 
+
     public static boolean hasTagName(WebElement webElement, String tagName) {
-        for (int i = 0; i < 3; i++) {
-            try {
+//        for (int i = 0; i < 3; i++) {
+//            try {
                 boolean result = webElement.getTagName().equalsIgnoreCase(tagName);
                 return result;
-            } catch (StaleElementReferenceException sere) {
-                log.warn(sere);
-                sleep(100);
-            }
-        }
-        return false;
+//            } catch (StaleElementReferenceException sere) {
+//                log.warn(sere);
+//                sleep(100);
+//            }
+//        }
+//        return false;
     }
 
     public static boolean hasAttribute(WebElement webElement, String attrName) {
@@ -111,7 +115,12 @@ public class SeleniumUtils {
     }
 
     public static List<WebElement> findChildren(WebElement webElement) {
-        return webElement.findElements(By.xpath("*"));
+        long start  = System.currentTimeMillis();
+//        List<WebElement> elements = webElement.findElements(By.xpath("*"));
+        List<WebElement> elements = webElement.findElements(By.xpath("./child::*"));
+        long end = System.currentTimeMillis();
+        log.info("findChildren() call took {}ms", (end - start));
+        return elements;
     }
 
     public static Optional<WebElement> findParent(WebElement weElement) {
@@ -147,9 +156,9 @@ public class SeleniumUtils {
         return webElement.findElements(By.xpath(xPathExpr));
     }
 
-    public static void sleep(int milis) {
+    public static void sleep(long millis) {
         try {
-            Thread.sleep(milis);
+            Thread.sleep(millis);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -176,27 +185,27 @@ public class SeleniumUtils {
     }
 
     public static List<WebElement> findNextSiblingElements(WebElement webElement) {
-        String xpathExp = "following-sibling::*";
-        return findSiblingsByXPath(webElement, xpathExp);
-//        Optional<WebElement> parent = findNthAncestor(webElement, 1);
-//        if (parent.isPresent()) {
-//            List<WebElement> result = new ArrayList<>();
-//            List<WebElement> children = findChildren(parent.get());
-//            boolean include = false;
-//            for (WebElement child : children) {
-//                if (include) {
-//                    result.add(child);
-//                }
-//                if (webElement.equals(child)) {
-//                    include = true;
-//                }
-//            }
-//            return result;
-//        }
-//        return Collections.emptyList();
+//        String xpathExp = "following-sibling::*"; // TODO this way is a lot slower then the finding and filtering the child nodes as below ...
+//        return findSiblingsByXPath(webElement, xpathExp);
+        Optional<WebElement> parent = findNthAncestor(webElement, 1);
+        if (parent.isPresent()) {
+            List<WebElement> result = new ArrayList<>();
+            List<WebElement> children = findChildren(parent.get());
+            boolean include = false;
+            for (WebElement child : children) {
+                if (include) {
+                    result.add(child);
+                }
+                if (webElement.equals(child)) {
+                    include = true;
+                }
+            }
+            return result;
+        }
+        return Collections.emptyList();
     }
 
-    private static String generateXPATH(WebElement childElement, String current) {
+    public static String generateXPath(WebElement childElement, String current) {
         String childTag = childElement.getTagName();
         if (childTag.equals("html")) {
             return "/html[1]" + current;
@@ -211,7 +220,7 @@ public class SeleniumUtils {
                 count++;
             }
             if (childElement.equals(childrenElement)) {
-                return generateXPATH(parentElement, "/" + childTag + "[" + count + "]" + current);
+                return generateXPath(parentElement, "/" + childTag + "[" + count + "]" + current);
             }
         }
         return null;

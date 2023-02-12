@@ -25,6 +25,7 @@ import java.util.function.Predicate;
 
 @Getter
 @Log4j2
+public
 class ExecuteStepByModelDataCondition implements StepExecutionCondition {
 
     private final Predicate<Object> predicate;

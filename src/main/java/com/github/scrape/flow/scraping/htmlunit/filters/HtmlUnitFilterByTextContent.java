@@ -73,4 +73,7 @@ public class HtmlUnitFilterByTextContent implements Filter<DomNode> {
     }
 
 
+    public Type getType() {
+        return Type.TEXT_MATCHING;
+    }
 }

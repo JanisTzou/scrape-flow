@@ -41,4 +41,11 @@ public class FilterLastN<C> implements Filter<C> {
                 .collect(Collectors.toList());
     }
 
+    public int getN() {
+        return n;
+    }
+
+    public Type getType() {
+        return Type.POSITION;
+    }
 }

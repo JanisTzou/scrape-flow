@@ -24,6 +24,12 @@ public interface HtmlUnitFilterableByAttribute<C> extends HtmlUnitFilterable<C> 
      * Filters all found <code>HtmlElement</code>s having the specified attr name and value
      */
     default C byAttr(String name, @Nullable String value) {
+        if (name.equalsIgnoreCase("id")) {
+            // TODO
+        }
+        if (name.equalsIgnoreCase("class")) {
+            // TODO
+        }
         HtmlUnitFilterByAttribute filter = new HtmlUnitFilterByAttribute(name, value, null);
         return addFilter(filter);
     }

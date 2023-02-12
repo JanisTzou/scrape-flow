@@ -57,4 +57,15 @@ public class SeleniumFilterByAttribute implements Filter<WebElement> {
                 .collect(Collectors.toList());
     }
 
+    public String getAttributeName() {
+        return attributeName;
+    }
+
+    public String getAttributeValue() {
+        return attributeValue;
+    }
+
+    public Type getType() {
+        return Type.ATTRIBUTE;
+    }
 }

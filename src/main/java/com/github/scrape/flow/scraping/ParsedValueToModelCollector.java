@@ -45,7 +45,7 @@ public class ParsedValueToModelCollector {
                     boolean valueIllegallySetMultipleTimes = col.getAccumulatorType().equals(AccumulatorType.ONE) && mw.get().isAlreadyApplied(collectors);
                     if (valueIllegallySetMultipleTimes) {
                         log.error("Wrong parsed data collector setup detected in the step sequence related to model of class type '{}'! " +
-                                " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided", mw.get().getModel().getClass().getSimpleName());
+                                " The model collector should be declared lower in the set step sequence - at the step where the elements containing data for this model are searched for and provided; Scraped value was: {}", mw.get().getModel().getClass().getSimpleName(), parsedValue);
                     } else {
                         col.getAccumulator().accept(mw.get().getModel(), parsedValue);
                         mw.get().addAppliedAccumulator(collectors);

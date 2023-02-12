@@ -43,4 +43,7 @@ public class HtmlUnitFilterByCssClass implements Filter<DomNode> {
         }
     }
 
+    public Type getType() {
+        return Type.CSS_CLASS;
+    }
 }

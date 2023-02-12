@@ -66,8 +66,9 @@ public class Scraping {
      * Enables specifying the scraping sequence to be executed
      */
     public <T extends ScrapingStep<T>> Scraping setSequence(T sequence) {
-        this.scrapingSequence = sequence;
-        StepHierarchyRepository stepHierarchyRepository = StepHierarchyRepository.createFrom(sequence);
+        this.scrapingSequence = sequence.getBranchRoot() != null ? sequence.getBranchRoot() : sequence; // TODO create copy here?
+//        this.scrapingSequence.setBranchRoot(sequence.getBranchRoot() != null ? sequence.getBranchRoot() : sequence);
+        StepHierarchyRepository stepHierarchyRepository = StepHierarchyRepository.createFrom(this.scrapingSequence);
         this.services.setStepHierarchyRepository(stepHierarchyRepository);
         return this;
     }

@@ -57,13 +57,14 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> {
      */
     private String name = getClass().getSimpleName() + "-unnamed-step";
 
+    private String userDefinedName;
+
+    private ScrapingStep<?> branchRoot;
+
+    protected int stepNumber = StepCounter.next();
 
     protected ScrapingStep(List<ScrapingStep<?>> nextSteps) {
         this.nextSteps = new ArrayList<>(Objects.requireNonNullElse(nextSteps, Collections.emptyList()));
-    }
-
-    protected ScrapingStep() {
-        this(null);
     }
 
     protected abstract StepOrder execute(ScrapingContext ctx, ScrapingServices services);
@@ -75,30 +76,24 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> {
      */
     @SuppressWarnings("SameParameterValue")
     protected C setExclusiveExecution(boolean exclusiveExecution) {
-        return copyModifyAndGet(copy -> {
-            copy.exclusiveExecution = exclusiveExecution;
-            return copy;
-        });
+        this.exclusiveExecution = exclusiveExecution;
+        return (C) this;
     }
 
     /**
      * @return copy of this step
      */
     protected C setExecuteIf(StepExecutionCondition executeIf) {
-        return copyModifyAndGet(copy -> {
-            copy.executeIf = executeIf;
-            return copy;
-        });
+        this.executeIf = executeIf;
+        return (C) this;
     }
 
     /**
      * @return copy of this step
      */
     protected C setParsedValueMapper(Function<String, String> conversion) {
-        return copyModifyAndGet(copy -> {
-            copy.parsedValueMapper = conversion;
-            return copy;
-        });
+        this.parsedValueMapper = conversion;
+        return (C) this;
     }
 
     protected Collectors getCollectors() {
@@ -106,22 +101,11 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> {
     }
 
     /**
-     * mutating - internal usage only
-     */
-    protected void setCollectorsMutably(Collectors collectors) {
-        this.collectors = collectors;
-    }
-
-    /**
      * @return copy of this step
      */
-    protected C addCollector(Collector cs) {
-        return copyModifyAndGet(copy -> {
-            Collectors csCopy = getCollectors().copy();
-            csCopy.add(cs);
-            copy.setCollectorsMutably(csCopy);
-            return copy;
-        });
+    protected C addCollector(Collector collector) {
+        this.collectors.add(collector);
+        return (C) this;
     }
 
     protected List<ScrapingStep<?>> getNextSteps() {
@@ -136,25 +120,9 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> {
         return Collections.emptyList();
     }
 
-    /**
-     * @return copy of this step
-     */
-    protected C addNextStep(ScrapingStep<?> nextStep) {
-        ScrapingStep<?> nsCopy = nextStep.copy();
-        return copyModifyAndGet(copy -> {
-            copy.addNextStepMutably(nsCopy);
-            return copy;
-        });
-    }
-
-    /**
-     * Internal usage only
-     * Mutates this instance by adding the specific <code>nextStep</code>.
-     * Does not create a copy of either <code>this</code> step or <code>nextStep</code>.
-     * Should only be used at runtime (not at Assembly time)
-     */
-    protected void addNextStepMutably(ScrapingStep<?> nextStep) {
+    protected C addNextStepAndReturnThis(ScrapingStep<?> nextStep) {
         this.nextSteps.add(nextStep);
+        return (C) this;
     }
 
     protected boolean isExclusiveExecution() {
@@ -190,10 +158,9 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> {
      * @return a copy of this step with the given <code>name</code> set
      */
     public C stepName(String name) {
-        return copyModifyAndGet(copy -> {
-            copy.setName(name != null && !name.toLowerCase().contains("step") ? name + "-step" : name);
-            return copy;
-        });
+        this.userDefinedName = name;
+        this.setName(name != null && !name.toLowerCase().contains("step") ? name + "-step" : name);
+        return (C) this;
     }
 
     protected String mapParsedValue(String value) {
@@ -214,11 +181,6 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> {
         return new DebuggableStep<>((C) this);
     }
 
-
-    protected C copyModifyAndGet(UnaryOperator<C> copyMutation) {
-        return copyMutation.apply(this.copy());
-    }
-
     @SuppressWarnings("unchecked")
     protected C copyFieldValuesTo(ScrapingStep<?> other) {
         other.exclusiveExecution = this.exclusiveExecution;
@@ -228,7 +190,20 @@ public abstract class ScrapingStep<C extends ScrapingStep<C>> {
         other.name = this.name;
         other.nextSteps.addAll(this.nextSteps);
         other.stepDebugging = stepDebugging.copy();
+        other.setBranchRoot(this.branchRoot); // only if this is not the branch root ...
+        other.stepNumber = this.stepNumber;
         return (C) other;
     }
 
+    protected ScrapingStep<?> getBranchRoot() {
+        return branchRoot;
+    }
+
+    protected void setBranchRoot(ScrapingStep<?> branchRoot) {
+        this.branchRoot = branchRoot;
+    }
+
+    protected String getUserDefinedName() {
+        return userDefinedName;
+    }
 }

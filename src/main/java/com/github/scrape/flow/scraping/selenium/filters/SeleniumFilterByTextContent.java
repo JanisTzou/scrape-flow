@@ -57,4 +57,7 @@ public class SeleniumFilterByTextContent implements Filter<WebElement> {
     }
 
 
+    public Type getType() {
+        return Type.TEXT_MATCHING;
+    }
 }

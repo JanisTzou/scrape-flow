@@ -25,4 +25,21 @@ public interface Filter<T> {
     // need to know the number of items (e.g. whe filtering the first N nodes)
     List<T> filter(List<T> list);
 
+    Type getType();
+
+    enum Type {
+        TAG,
+        ATTRIBUTE,
+        CSS_CLASS,
+        ID,
+        TEXT_MATCHING,
+        POSITION;
+
+        public boolean isPosition() {
+            return this.equals(POSITION);
+        }
+    }
+
+
+
 }

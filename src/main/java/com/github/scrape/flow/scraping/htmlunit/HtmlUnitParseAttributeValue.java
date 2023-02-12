@@ -31,24 +31,24 @@ import java.util.function.Supplier;
 
 import static com.github.scrape.flow.data.collectors.Collector.AccumulatorType;
 
-public class HtmlUnitParseElementAttributeValue extends HtmlUnitScrapingStep<HtmlUnitParseElementAttributeValue>
-        implements CollectingParsedValueToModelStep<HtmlUnitParseElementAttributeValue, String>,
-        ParsingStep<HtmlUnitParseElementAttributeValue> {
+public class HtmlUnitParseAttributeValue extends HtmlUnitScrapingStep<HtmlUnitParseAttributeValue>
+        implements CollectingParsedValueToModelStep<HtmlUnitParseAttributeValue, String>,
+        ParsingStep<HtmlUnitParseAttributeValue> {
 
     private final String attributeName;
 
-    HtmlUnitParseElementAttributeValue(String attributeName, Function<String, String> parsedValueConversion) {
+    HtmlUnitParseAttributeValue(String attributeName, Function<String, String> parsedValueConversion) {
         this.attributeName = attributeName;
         this.parsedValueMapper = Objects.requireNonNullElse(parsedValueConversion, NO_MAPPING);
     }
 
-    HtmlUnitParseElementAttributeValue(String attributeName) {
+    HtmlUnitParseAttributeValue(String attributeName) {
         this(attributeName, null);
     }
 
     @Override
-    protected HtmlUnitParseElementAttributeValue copy() {
-        return copyFieldValuesTo(new HtmlUnitParseElementAttributeValue(attributeName, parsedValueMapper));
+    protected HtmlUnitParseAttributeValue copy() {
+        return copyFieldValuesTo(new HtmlUnitParseAttributeValue(attributeName, parsedValueMapper));
     }
 
 
@@ -84,17 +84,17 @@ public class HtmlUnitParseElementAttributeValue extends HtmlUnitScrapingStep<Htm
     }
 
     @Override
-    public <T> HtmlUnitParseElementAttributeValue collectValue(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> HtmlUnitParseAttributeValue collectValue(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.ONE));
     }
 
     @Override
-    public <T> HtmlUnitParseElementAttributeValue collectValues(BiConsumer<T, String> modelMutation, Class<T> containerType) {
+    public <T> HtmlUnitParseAttributeValue collectValues(BiConsumer<T, String> modelMutation, Class<T> containerType) {
         return addCollector(new Collector(modelMutation, String.class, containerType, AccumulatorType.MANY));
     }
 
     @Override
-    public HtmlUnitParseElementAttributeValue setValueMapper(Function<String, String> parsedTextMapper) {
+    public HtmlUnitParseAttributeValue setValueMapper(Function<String, String> parsedTextMapper) {
         return setParsedValueMapper(parsedTextMapper);
     }
 

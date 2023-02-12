@@ -68,6 +68,7 @@ public interface FilterableSiblings<C extends ScrapingStep<C>, E> extends Filter
     /**
      * Filters the nth sibling out of multiple next siblings
      * @param nth positive integer
+     *            TODO rename to following? or some other way so it does not have the word next in it but follows the conventions ...
      */
     default C nextNth(int nth) {
         return addFilter(new FilterSiblingsNextNth<>(nth));
@@ -101,15 +102,6 @@ public interface FilterableSiblings<C extends ScrapingStep<C>, E> extends Filter
      */
     default C last() {
         return addFilter(new FilterSiblingsLast<>());
-    }
-
-
-    /**
-     * Returns all siblings of the current element. This is the default behaviour if no filter is specified
-     * TODO is this needed at all?
-     */
-    default C all() {
-        return addFilter(new FilterSiblingsAll<>());
     }
 
 }

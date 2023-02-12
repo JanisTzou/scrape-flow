@@ -41,4 +41,11 @@ public class FilterFirstNth<C> implements Filter<C> {
         return Collections.emptyList();
     }
 
+    public int getNth() {
+        return nth;
+    }
+
+    public Type getType() {
+        return Type.POSITION;
+    }
 }

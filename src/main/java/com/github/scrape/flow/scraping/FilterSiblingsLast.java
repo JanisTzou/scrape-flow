@@ -30,4 +30,7 @@ public class FilterSiblingsLast<C> implements Filter<C> {
         }
     }
 
+    public Type getType() {
+        return Type.POSITION;
+    }
 }

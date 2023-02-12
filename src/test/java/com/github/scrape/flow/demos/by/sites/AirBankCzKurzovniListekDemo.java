@@ -21,7 +21,6 @@ import com.github.scrape.flow.scraping.Scraping;
 import com.github.scrape.flow.utils.JsonUtils;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.Duration;
@@ -33,7 +32,7 @@ import static com.github.scrape.flow.scraping.selenium.Selenium.*;
 
 public class AirBankCzKurzovniListekDemo {
 
-    @Ignore
+    //    @Ignore
     @Test
     public void start() throws InterruptedException {
 
@@ -46,45 +45,28 @@ public class AirBankCzKurzovniListekDemo {
 
         scraping.setSequence(
                 Do.navigateTo("https://www.airbank.cz/kurzovni-listek/")
-                        .next(Get.descendants().stepName("tbody")
-                                .byTag("tbody")
-                                .last()
+                        .next(Get.descendants().byTag("tbody").firstNth(2)
                                 .addCollector(KurzovniListek::new, KurzovniListek.class, new KurzovniListekScraped())
-                                .next(Get.descendants().stepName("kurzy")
-                                        .addCollector(Kurz::new, Kurz.class)
-                                        .collectValue(KurzovniListek::addKurz, KurzovniListek.class, Kurz.class)
-                                        .byTag("tr")
-                                        .next(Get.children()
-                                                .byTag("td")
-                                                .firstNth(3)
-                                                .next(Get.siblings()
-                                                        .prevNth(1)
-                                                        .next(Parse.textContent().collectValue(Kurz::setMena, Kurz.class))
-                                                )
-                                        )
-                                        .next(Get.children()
-                                                .byTag("td")
-                                                .firstNth(2)
-                                                .next(Get.siblings()
-                                                        .nextNth(1)
-                                                        .next(Parse.textContent().collectValue(Kurz::setMnozstvi, Kurz.class))
-                                                )
-                                        )
-                                        .next(Get.children()
-                                                .byTag("td")
-                                                .firstNth(4)
-                                                .next(Parse.textContent().collectValue(Kurz::setNakup, Kurz.class))
-                                        )
-                                        .next(Get.descendantsBySelector("td:last-child") // do this using a scc selector
-                                                .next(Get.children()
-                                                        .byTag("div")
-                                                        .first()
-                                                        .next(Parse.textContent().collectValue(Kurz::setProdej, Kurz.class))
-                                                )
-                                        )
-                                )
                         )
-
+                        .next(Get.descendants().byTag("tr")
+                                .addCollector(Kurz::new, Kurz.class)
+                                .collectValue(KurzovniListek::addKurz, KurzovniListek.class, Kurz.class)
+                        )
+                        .nextBranch(Get.children().byTag("td").byClass("css-k7qnh3").firstNth(2)
+                                .next(Get.siblings().prevNth(1))
+                                .next(Parse.textContent().collectValue(Kurz::setMena, Kurz.class))
+                        )
+                        .nextBranch(Get.children().byTag("td").firstNth(2)
+                                .next(Get.siblings().nextNth(1))
+                                .next(Parse.textContent().collectValue(Kurz::setMnozstvi, Kurz.class))
+                        )
+                        .nextBranch(Get.children().byTag("td").firstNth(4)
+                                .next(Parse.textContent().collectValue(Kurz::setNakup, Kurz.class))
+                        )
+                        .nextBranch(Get.descendantsBySelector("td:last-child") // do this using a scc selector
+                                .next(Get.children().byTag("div").first())
+                                .next(Parse.textContent().collectValue(Kurz::setProdej, Kurz.class))
+                        )
         );
 
         start(scraping);
@@ -117,7 +99,6 @@ public class AirBankCzKurzovniListekDemo {
 
     @Log4j2
     public static class KurzovniListekScraped implements ScrapedDataListener<KurzovniListek> {
-
         @Override
         public void onScrapedData(KurzovniListek data) {
             log.info("\n" + JsonUtils.write(data).orElse("FAILED TO GENERATE JSON"));

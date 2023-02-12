@@ -18,14 +18,19 @@ package com.github.scrape.flow.scraping;
 
 import com.github.scrape.flow.debugging.DebuggingOptions;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class FilterUtils {
 
-    public static <T> List<T> filter(List<T> itemsToFilter, List<Filter<T>> filters, DebuggingOptions globalDebugging) {
+    public static <T> List<T> filter(List<T> itemsToFilter, List<Filter<T>> filters) {
+        return filter(itemsToFilter, filters, null);
+    }
+
+    public static <T> List<T> filter(List<T> itemsToFilter, List<Filter<T>> filters, @Nullable DebuggingOptions globalDebugging) {
         List<T> nodes = applyFilters(filters, itemsToFilter);
-        if (globalDebugging.isOnlyScrapeFirstElements()) {
+        if (globalDebugging != null && globalDebugging.isOnlyScrapeFirstElements()) {
             return nodes.stream().findFirst().stream().collect(Collectors.toList());
         } else {
             return nodes;

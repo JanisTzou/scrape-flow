@@ -27,6 +27,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import javax.imageio.ImageIO;
 import java.net.URL;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -135,15 +136,15 @@ public class HtmlUnit {
          * Parses the text content of the current <code>HtmlElement</code> as specified by {@link HtmlElement#getTextContent()} and unescapes
          * the retrieved value using {@link StringEscapeUtils#unescapeHtml4(java.lang.String)}
          */
-        public static HtmlUnitParseElementTextContent textContent() {
-            return new HtmlUnitParseElementTextContent();
+        public static HtmlUnitParseTextContent textContent() {
+            return new HtmlUnitParseTextContent();
         }
 
         /**
          * Same as {@link Parse#textContent()} but with the possibility to define a custom mapper of the parsed value
          */
-        public static HtmlUnitParseElementTextContent textContent(Function<String, String> parsedValueMapper) {
-            return new HtmlUnitParseElementTextContent().setValueMapper(parsedValueMapper);
+        public static HtmlUnitParseTextContent textContent(Function<String, String> parsedValueMapper) {
+            return new HtmlUnitParseTextContent().setValueMapper(parsedValueMapper);
         }
 
         /**
@@ -164,15 +165,15 @@ public class HtmlUnit {
         /**
          * Parses the attribute value of the current <code>HtmlElement</code> as specified by {@link HtmlElement#getAttribute(String)}.
          */
-        public static HtmlUnitParseElementAttributeValue attrValue(String attrName) {
-            return new HtmlUnitParseElementAttributeValue(attrName);
+        public static HtmlUnitParseAttributeValue attrValue(String attrName) {
+            return new HtmlUnitParseAttributeValue(attrName);
         }
 
         /**
          * Same as {@link Parse#attrValue(String)} but with the possibility to define a custom mapper of the parsed value
          */
-        public static HtmlUnitParseElementAttributeValue attrValue(String attrName, Function<String, String> parsedValueMapper) {
-            return new HtmlUnitParseElementAttributeValue(attrName, parsedValueMapper);
+        public static HtmlUnitParseAttributeValue attrValue(String attrName, Function<String, String> parsedValueMapper) {
+            return new HtmlUnitParseAttributeValue(attrName, parsedValueMapper);
         }
 
     }
@@ -218,6 +219,10 @@ public class HtmlUnit {
             return new HtmlUnitDownloadImage();
         }
 
+        public static HtmlUnitPeek peek(Consumer<DomNode> consumer) {
+            return new HtmlUnitPeek(consumer);
+        }
+
     }
 
 
@@ -242,8 +247,8 @@ public class HtmlUnit {
         }
 
         /**
-         * Used to define a sequence of steps taking care of the pagination itself (specified in {@link HtmlUnitPagination#setStepsLoadingNextPage(HtmlUnitScrapingStep)})
-         * and also the sequence taking care of the scraping itself (specified using {@link CommonOperationsStepBase#next(ScrapingStep)} or its other specialisations.
+         * Used to define a sequence of steps taking care of the pagination itself (specified in {@link HtmlUnitPagination#setStepsLoadingNextPage(ScrapingStep)})
+         * and also the sequence taking care of the scraping itself (specified using {@link CommonOperationsStepBase#nextBranch(ScrapingStep)} or its other specialisations.
          */
         public static HtmlUnitPagination withPagination() {
             return new HtmlUnitPagination();

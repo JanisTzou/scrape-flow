@@ -63,7 +63,9 @@ public class ScrapingServices {
         this.scrapedDataPublisher = new ScrapedDataPublisher(stepAndDataRelationshipTracker);
         this.options = new Options();
         this.globalDebugging = new DebuggingOptions();
+        // TODO create when first needed ...
         this.seleniumClientManager = new SeleniumClientManager(new SeleniumClientFactory("/Users/janis/Projects_Data/scrape-flow/chromedriver", false)); // TODO fix this mess
+//        this.seleniumClientManager = null;
         HtmlUnitClientFactory clientFactory = new HtmlUnitClientFactory();
         this.htmlUnitClientManager = new HtmlUnitClientManager(clientFactory);
         this.clientAccessOrderChecker = new ClientAccessOrderChecker(activeStepsTracker);

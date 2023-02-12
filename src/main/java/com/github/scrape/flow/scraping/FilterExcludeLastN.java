@@ -40,4 +40,7 @@ public class FilterExcludeLastN<C> implements Filter<C> {
         }
     }
 
+    public Type getType() {
+        return Type.POSITION;
+    }
 }

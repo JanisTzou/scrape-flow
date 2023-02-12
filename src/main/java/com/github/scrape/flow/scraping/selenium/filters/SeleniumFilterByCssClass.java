@@ -33,6 +33,9 @@ public class SeleniumFilterByCssClass implements Filter<WebElement> {
      */
     SeleniumFilterByCssClass(String className) {
         Objects.requireNonNull(className);
+        if (className.contains(" ")) {
+            throw new IllegalArgumentException("className contains a space character. If filtering by multiple class names is required provide them separately");
+        }
         this.className = className;
     }
 
@@ -40,5 +43,15 @@ public class SeleniumFilterByCssClass implements Filter<WebElement> {
     public List<WebElement> filter(List<WebElement> list) {
         return list.stream().filter(dn -> SeleniumUtils.hasCssClass(dn, className)).collect(Collectors.toList());
     }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public Type getType() {
+        return Type.CSS_CLASS;
+    }
+
+    // TODO add regex?
 
 }

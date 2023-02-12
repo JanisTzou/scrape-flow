@@ -60,12 +60,18 @@ public class SeleniumStepHelper extends StepHelperBase {
             long start = System.currentTimeMillis();
             List<WebElement> foundElements = elementsSearch.get();
             long end = System.currentTimeMillis();
-            List<WebElement> filteredElements = FilterUtils.filter(foundElements, step.getFilters(), services.getGlobalDebugging());
+            // TODO do not filter any more here?
+            List<WebElement> filteredElements;
+            if (step instanceof SeleniumGetChildren) {
+                filteredElements = foundElements;
+            } else {
+                filteredElements = FilterUtils.filter(foundElements, step.getFilters(), services.getGlobalDebugging());
+            }
             logFoundCount(stepName, currStepOrder, filteredElements.size(), services.getGlobalDebugging(), ScrapingStepInternalAccessor.of(step).getStepDebugging());
 
             for (WebElement elem : filteredElements) {
 
-                logNodeSourceCode(elem, services.getGlobalDebugging());
+                logElementSourceCode(elem, services.getGlobalDebugging());
 
                 StepModelsHandler modelsHandler = StepModelsHandler.createFor(step);
                 StepModels stepModels = modelsHandler.createAndAccumulateModels(currStepOrder, ctx.getContextModels());
@@ -74,7 +80,7 @@ public class SeleniumStepHelper extends StepHelperBase {
 
                 handleModels(currStepOrder, services, stepModels, spawnedSteps);
             }
-            log.info("Duration: {} for step {} {}", (end - start), currStepOrder, stepName);
+            log.debug("Duration: {} for step {} {}", (end - start), currStepOrder, stepName);
 
         } catch (Exception e) {
             log.error("{} - {}: Error executing step", currStepOrder, stepName, e);
@@ -82,10 +88,17 @@ public class SeleniumStepHelper extends StepHelperBase {
     }
 
 
-    private void logNodeSourceCode(WebElement element, DebuggingOptions globalDebugging) {
+    // TODO rework ...
+    private void logElementSourceCode(WebElement element, DebuggingOptions globalDebugging) {
         if (globalDebugging.isLogFoundElementsSource()) {
             // TODO is this even possible ? Seems not to be ... if yes, then only log elements that are not the root .. html tag ...
-            log.info("Source for step {} \n{}", ScrapingStepInternalAccessor.of(step).getName(), element);
+            String step = ScrapingStepInternalAccessor.of(this.step).getName();
+//            log.info("Source for step {} \n{}", step, element);
+            try {
+                log.info("Xpath for element found in step {}: {}", step, SeleniumUtils.generateXPath(element, ""));
+            } catch (Exception e) {
+                log.warn("Failed to genrate xPath for found element");
+            }
         }
     }
 

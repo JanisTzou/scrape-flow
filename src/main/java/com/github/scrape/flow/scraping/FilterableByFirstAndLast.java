@@ -22,14 +22,14 @@ public interface FilterableByFirstAndLast<C, E> extends Filterable<C, E> {
      * Filters the first found <code>HtmlElement</code>
      */
     default C first() {
-        return addFilter(new FilterFirstN<>(1));
+        return addFilter(new FilterFirstNth<>(1));
     }
 
     /**
      * Filters the last found <code>HtmlElement</code>
      */
     default C last() {
-        return addFilter(new FilterLastN<>(1));
+        return addFilter(new FilterLast<>());
     }
 
     /**

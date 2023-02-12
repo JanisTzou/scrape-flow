@@ -57,8 +57,8 @@ public class HtmlUnitGetDescendantsIntegrationTest {
         this.nextStepMock2 = getMockStep();
         this.nextStepMock1 = getMockStep();
         this.getDescendants = new HtmlUnitGetDescendants()
-                .next(nextStepMock1)
-                .next(nextStepMock2);
+                .nextBranch(nextStepMock1)
+                .nextBranch(nextStepMock2);
     }
 
     @Test

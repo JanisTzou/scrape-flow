@@ -36,11 +36,11 @@ public class StepHierarchyRepositoryTest {
 
     private final HtmlUnitScrapingStep<?> sequence =
             step_a_loading // 0-1
-                    .next(step_b // 0-1-1
-                            .next(step_a_loading) // 0-1-1-1
-                            .next(step_b) // 0-1-1-2
+                    .nextBranch(step_b // 0-1-1
+                            .nextBranch(step_a_loading) // 0-1-1-1
+                            .nextBranch(step_b) // 0-1-1-2
                     )
-                    .next(step_c_loading); // 0-1-2
+                    .nextBranch(step_c_loading); // 0-1-2
 
     private final StepOrder step_0_1 = StepOrder.from(0, 1);
     private final StepOrder step_0_1_1_1 = StepOrder.from(0, 1, 1, 1);

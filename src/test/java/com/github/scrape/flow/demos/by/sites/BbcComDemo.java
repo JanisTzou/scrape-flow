@@ -18,6 +18,7 @@ package com.github.scrape.flow.demos.by.sites;
 
 import com.github.scrape.flow.data.publishing.ScrapedDataListener;
 import com.github.scrape.flow.scraping.Scraping;
+import com.github.scrape.flow.scraping.htmlunit.HtmlUnitGetDescendantsByCssSelector;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitNavigateToParsedLink;
 import com.github.scrape.flow.scraping.htmlunit.HtmlUnitStepBlock;
 import com.github.scrape.flow.utils.JsonUtils;
@@ -38,62 +39,52 @@ public class BbcComDemo {
 
     public static final String HTTPS_WWW_BBC_COM = "https://www.bbc.com";
 
-    @Ignore
+    //    @Ignore
     @Test
     public void demo() throws InterruptedException {
 
-        final Scraping scraping = new Scraping(10, TimeUnit.SECONDS)
-                .setSequence(
-                        Do.navigateTo("https://www.bbc.com/news/world")
-                                .next(Get.descendants().byAttr("aria-label", "World")
-                                        .first()
-                                        .next(Get.descendants().byTag("ul")
-                                                .first()
-                                                .next(Get.descendants().byTag("li")
-                                                        .addCollector(Section::new, Section.class, new SectionListener())
-                                                        .next(Get.descendants().byTag("a")
-                                                                .next(Parse.textContent()
-                                                                        .collectValue(Section::setName, Section.class)
-                                                                )
-                                                                .next(Parse.hRef(href -> HTTPS_WWW_BBC_COM + href)
-                                                                        .next(goToEachSection())
-                                                                )
-                                                        )
-                                                )
-                                        )
-                                )
+        final Scraping scraping = new Scraping(10, TimeUnit.SECONDS);
+        scraping.getDebugOptions().setLogFoundElementsCount(true);
 
-                );
+        scraping.setSequence(Do.navigateTo("https://www.bbc.com/news/world")
+                .next(Get.descendants().byAttr("aria-label", "World").first())
+                .next(Get.descendants().byTag("ul").first())
+                .next(Get.descendants().byTag("li"))
+                .addCollector(Section::new, Section.class, new SectionListener())
+                .next(Get.descendants().byTag("a")
+                        .nextBranch(Parse.textContent()
+                                .collectValue(Section::setName, Section.class)
+                        )
+                        .nextBranch(Parse.hRef(href -> HTTPS_WWW_BBC_COM + href)
+                                .next(Do.navigateToParsedLink())
+                                .next(Get.descendants().byAttr("id", "featured-contents"))
+                                .next(Get.siblings().next())
+                                .next(toListedArticles()
+                                )
+                        )
+                )
+        );
         start(scraping);
     }
 
-    private HtmlUnitNavigateToParsedLink goToEachSection() {
-        return Do.navigateToParsedLink()
-                .next(Get.descendants().byAttr("id", "featured-contents")
-                        .next(Get.siblings().next()
-                                .next(Get.descendantsBySelector("div.gs-c-promo").stepName("listed-article")
-                                        .addCollector(Promo::new, Promo.class)
-                                        .addCollector(Article::new, Article.class, new ArticleListener())
-                                        .collectValue(Article::setRegion, Article.class, Section.class)
-                                        .collectValue(Article::setPromo, Article.class, Promo.class)
-                                        .next(Get.descendantsBySelector("p.gs-c-promo-summary")
-                                                .next(Parse.textContent()
-                                                        .collectValue(Promo::setSummary, Promo.class)
-                                                )
-                                        )
-                                        .next(Get.descendantsBySelector("a.gs-c-promo-heading")
-                                                .next(Get.descendants().byTag("h3")
-                                                        .next(Parse.textContent()
-                                                                .collectValue(Promo::setHeading, Promo.class)
-                                                        )
-                                                )
-                                                .next(Parse.hRef(href -> href.contains("https") ? href : HTTPS_WWW_BBC_COM + href)
-                                                        .collectValue(Article::setUrl, Article.class)
-                                                        .next(toArticles())
-                                                )
-
-                                        )
-                                )
+    private HtmlUnitGetDescendantsByCssSelector toListedArticles() {
+        return Get.descendantsBySelector("div.gs-c-promo").stepName("listed-article")
+                .addCollector(Promo::new, Promo.class)
+                .addCollector(Article::new, Article.class, new ArticleListener())
+                .collectValue(Article::setRegion, Article.class, Section.class)
+                .collectValue(Article::setPromo, Article.class, Promo.class)
+                .nextBranch(Get.descendantsBySelector("p.gs-c-promo-summary")
+                        .next(Parse.textContent())
+                        .collectValue(Promo::setSummary, Promo.class)
+                )
+                .nextBranch(Get.descendantsBySelector("a.gs-c-promo-heading")
+                        .nextBranch(Get.descendants().byTag("h3")
+                                .next(Parse.textContent())
+                                .collectValue(Promo::setHeading, Promo.class)
+                        )
+                        .nextBranch(Parse.hRef(href1 -> href1.contains("https") ? href1 : HTTPS_WWW_BBC_COM + href1)
+                                .collectValue(Article::setUrl, Article.class)
+                                .nextBranch(toArticles())
                         )
                 );
     }
@@ -101,55 +92,47 @@ public class BbcComDemo {
 
     private HtmlUnitNavigateToParsedLink toArticles() {
         return Do.navigateToParsedLink()
-                .next(Get.descendants().byTag("article")
-                        .nextExclusively(Get.descendants().byTextContent("Sport Africa") // category must be parsed before following steps can proceed -> exclusive call
-                                .next(Parse.textContent()
-                                        .setValueMapper(s -> "Sport")
-                                        .collectValue(Article::setCategory, Article.class)
-                                )
+                .nextBranch(Get.descendants().byTag("article")
+                        .nextBranchExclusively(Get.descendants().byTextContent("Sport Africa") // category must be parsed before following steps can proceed -> exclusive call
+                                .next(Parse.textContent())
+                                .setValueMapper(s -> "Sport")
+                                .collectValue(Article::setCategory, Article.class)
                         )
-                        .nextIf(this::isSportArticle, Article.class,
+                        .nextBranchIf(this::isSportArticle, Article.class,
                                 parseSportArticle()
                         )
-                        .nextIf(this::isNotSportArticle, Article.class,
+                        .nextBranchIf(this::isNotSportArticle, Article.class,
                                 parseNonSportArticle()
                         )
-
                 );
     }
 
     private HtmlUnitStepBlock parseSportArticle() {
         return Flow.asBlock()
-                .next(Get.descendants().byAttr("id", "page")
-                        .next(Parse.textContent()
-                                .collectValue(Article::setTitle, Article.class)
-                        )
+                .nextBranch(Get.descendants().byAttr("id", "page")
+                        .next(Parse.textContent())
+                        .collectValue(Article::setTitle, Article.class)
                 )
-                .next(Get.descendants().byTag("p")
-                        .next(Parse.textContent()
-                                .collectValues((Article a, String p) -> a.getParagraphs().add(p), Article.class)
-                        )
+                .nextBranch(Get.descendants().byTag("p")
+                        .next(Parse.textContent())
+                        .collectValues((Article a, String p) -> a.getParagraphs().add(p), Article.class)
                 );
     }
 
     private HtmlUnitStepBlock parseNonSportArticle() {
         return Flow.asBlock()
-                .next(Get.descendants().byAttr("id", "main-heading")
-                        .next(Parse.textContent()
-                                .collectValue(Article::setTitle, Article.class)
-                        )
+                .nextBranch(Get.descendants().byAttr("id", "main-heading")
+                        .next(Parse.textContent())
+                        .collectValue(Article::setTitle, Article.class)
                 )
-                .next(Get.descendants().byAttr("data-component", "text-block")
-                        .next(Parse.textContent()
-                                .collectValues((Article a, String p) -> a.getParagraphs().add(p), Article.class)
-                        )
+                .nextBranch(Get.descendants().byAttr("data-component", "text-block")
+                        .next(Parse.textContent())
+                        .collectValues((Article a, String p) -> a.getParagraphs().add(p), Article.class)
                 )
-                .next(Get.descendants().byAttr("data-component", "unordered-list-block")
-                        .next(Get.descendants().byTag("a")
-                                .next(Parse.hRef()
-                                        .collectValues((Article a, String p) -> a.getLinks().add(p), Article.class)
-                                )
-                        )
+                .nextBranch(Get.descendants().byAttr("data-component", "unordered-list-block")
+                        .next(Get.descendants().byTag("a"))
+                        .next(Parse.hRef())
+                        .collectValues((Article a, String p) -> a.getLinks().add(p), Article.class)
                 );
     }
 

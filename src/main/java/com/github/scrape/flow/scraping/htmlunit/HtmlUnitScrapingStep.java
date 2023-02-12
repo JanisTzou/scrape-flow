@@ -45,10 +45,8 @@ public abstract class HtmlUnitScrapingStep<C extends HtmlUnitScrapingStep<C>>
     }
 
     protected C doAddFilter(Filter<DomNode> filter) {
-        return copyModifyAndGet(copy -> {
-            copy.filters.add(filter);
-            return copy;
-        });
+        this.filters.add(filter);
+        return (C) this;
     }
 
     protected List<Filter<DomNode>> getFilters() {
